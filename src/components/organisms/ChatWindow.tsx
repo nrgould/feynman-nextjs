@@ -12,9 +12,9 @@ interface ApiResponse {
 }
 
 export default function ChatWindow() {
-	const [messages, setMessages] = useState<{ type: string; text: string }[]>(
-		[]
-	);
+	const [messages, setMessages] = useState<
+		{ type: 'user' | 'bot'; text: string }[]
+	>([]);
 	const [userInput, setUserInput] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -55,43 +55,44 @@ export default function ChatWindow() {
 	};
 
 	return (
-		<div className='flex-1 overflow-y-auto p-4 space-y-4'>
-			{messages.map((message, index) => (
-				<MessageBubble
-					key={index}
-					message={message.text}
-					type={message.type}
-				/>
-			))}
-
-			{loading && (
-				<div className='self-start'>
-					<Skeleton className='h-8 w-24 bg-gray-300 dark:bg-gray-700' />
-				</div>
-			)}
-
-			<div ref={messagesEndRef} />
-
-			{/* Input area */}
-			<form
-				onSubmit={handleSubmit}
-				className='p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800'
-			>
-				<div className='flex items-center space-x-2'>
-					<Input
-						value={userInput}
-						onChange={(e) => setUserInput(e.target.value)}
-						placeholder='Type a message...'
-						className='flex-1 bg-gray-100 dark:bg-gray-700 text-black dark:text-white'
+		<div className='flex flex-col h-full'>
+			<div className='flex-1 overflow-y-auto p-4 space-y-4'>
+				{messages.map((message, index) => (
+					<MessageBubble
+						key={index}
+						message={message.text}
+						type={message.type}
 					/>
-					<Button
-						type='submit'
-						disabled={loading || !userInput.trim()}
-					>
-						{loading ? 'Sending...' : 'Send'}
-					</Button>
+				))}
+
+				{loading && (
+					<div className='self-start'>
+						<Skeleton className='h-8 w-24 bg-gray-300 dark:bg-gray-700' />
+					</div>
+				)}
+
+				<div ref={messagesEndRef} />
+
+				{/* Input area */}
+				<div className='fixed bottom-0 left-0 right-0 mx-auto max-w-lg'>
+					<form onSubmit={handleSubmit} className='p-4'>
+						<div className='flex items-center space-x-2'>
+							<Input
+								value={userInput}
+								onChange={(e) => setUserInput(e.target.value)}
+								placeholder='Type a message...'
+								className='max-w-xs'
+							/>
+							<Button
+								type='submit'
+								disabled={loading || !userInput.trim()}
+							>
+								{loading ? 'Sending...' : 'Send'}
+							</Button>
+						</div>
+					</form>
 				</div>
-			</form>
+			</div>
 		</div>
 	);
 }

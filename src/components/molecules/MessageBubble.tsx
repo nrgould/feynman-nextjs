@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import ChatAvatar from '@/components/atoms/Avatar';
 
 interface MessageBubbleProps {
@@ -18,13 +18,13 @@ export default function MessageBubble({
 		>
 			{type === 'bot' && <ChatAvatar type='bot' />}
 			<Card
-				className={`max-w-xs md:max-w-md lg:max-w-lg ${
+				className={` p-2 max-w-xs md:max-w-md lg:max-w-lg ${
 					type === 'user'
 						? 'bg-blue-500 text-white'
 						: 'bg-gray-300 dark:bg-gray-700 text-black dark:text-white'
 				}`}
 			>
-				<CardContent>{message}</CardContent>
+				{message}
 			</Card>
 			{type === 'user' && <ChatAvatar type='user' />}
 		</div>
