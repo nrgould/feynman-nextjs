@@ -3,13 +3,17 @@ import { Brain, Calendar, Home, Search, Settings } from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,
+	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarGroupLabel,
+	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarMenuBadge,
 } from '@/components/ui/sidebar';
+import UserAuth from '../molecules/UserAuth';
 
 // Menu items.
 const items = [
@@ -43,9 +47,12 @@ const items = [
 export function AppSidebar() {
 	return (
 		<Sidebar>
+			<SidebarHeader>
+				<h1>Feynman</h1>
+			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>Feynman Learning</SidebarGroupLabel>
+					<SidebarGroupLabel>Menu</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{items.map((item) => (
@@ -56,12 +63,16 @@ export function AppSidebar() {
 											<span>{item.title}</span>
 										</a>
 									</SidebarMenuButton>
+									<SidebarMenuBadge>24</SidebarMenuBadge>
 								</SidebarMenuItem>
 							))}
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
+			<SidebarFooter>
+				<UserAuth />
+			</SidebarFooter>
 		</Sidebar>
 	);
 }
