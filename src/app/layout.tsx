@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/theme-provider';
 import localFont from 'next/font/local';
 import './globals.css';
-import { ThemeToggle } from '@/components/molecules/ThemeToggle';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/organisms/AppSidebar';
 
 const geistSans = localFont({
 	src: './fonts/GeistVF.woff',
@@ -36,15 +37,13 @@ export default function RootLayout({
 						enableSystem
 						disableTransitionOnChange
 					>
-						<nav className=''>
-							<div className='flex w-full flex-row justify-center mt-4'>
-								<h1 className='text-3xl font-semibold mb-4 text-center mr-4'>
-									Feynman Learning
-								</h1>
-								<ThemeToggle />
-							</div>
-						</nav>
-						{children}
+						<SidebarProvider>
+							<AppSidebar />
+							<main>
+								<SidebarTrigger />
+								{children}
+							</main>
+						</SidebarProvider>
 					</ThemeProvider>
 				</body>
 			</UserProvider>
