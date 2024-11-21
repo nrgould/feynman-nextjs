@@ -20,16 +20,15 @@ export default function UserAuth() {
 	if (error) return <div>{error.message}</div>;
 
 	return (
-		<div className='p-4'>
+		<div className='p-2'>
 			{user ? (
-				<div className='flex flex-row'>
+				<div className='flex flex-row items-center justify-start'>
 					<Avatar>
 						<AvatarImage src='https://github.com/shadcn.png' />
 						<AvatarFallback>CN</AvatarFallback>
 					</Avatar>
 					<div className='ml-4'>
 						<p>{user.email}</p>
-						<a href='/api/auth/logout'>Log Out</a>
 					</div>
 				</div>
 			) : (
