@@ -15,13 +15,18 @@ type MessageStore = {
 };
 
 export const useMessageStore = create<MessageStore>((set) => ({
-	messages: [],
-	addMessage: (message) => {
-		console.log('ADDING MESSAGE: ', message);
+	messages: [
+		{ id: '1732248372604', type: 'user', text: 'test' },
+		{
+			id: '1732248373494',
+			text: "It seems like there may have been a typo in your message. Could you please provide more context or clarify your question or statement? I'm here to help with any math-related topics you might have.",
+			type: 'system',
+		},
+	],
+	addMessage: (message) =>
 		set((state) => ({
 			messages: [...state.messages, message],
-		}));
-	},
+		})),
 	removeMessage: (id) =>
 		set((state) => ({
 			messages: state.messages.filter((message) => message.id !== id),

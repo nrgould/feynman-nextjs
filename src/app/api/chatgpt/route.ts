@@ -12,6 +12,9 @@ interface RequestBody {
 
 const delimiter = '####';
 
+const systemMessage =
+	'Act as if you are a high school math teacher checking student’s accuracy on the concept they are speaking about. Be sure to note any gaps in their understanding as if you were following the Feynman technique for learning, and report back to the student in a gentle manner. Check for correctness, logical flow, and whether the explanation covers all necessary aspects. Also make sure to ask relevant follow-up questions to ensure understanding.';
+
 export async function POST(request: Request) {
 	const { userInput, context }: RequestBody = await request.json();
 
@@ -26,15 +29,13 @@ export async function POST(request: Request) {
 		.map((context) => `${context.type}: ${context.text}`)
 		.join('\n');
 
-	console.log(contextString);
-
 	try {
 		const response = await axios.post(
 			'https://api.openai.com/v1/chat/completions',
 			{
 				model: 'gpt-3.5-turbo',
 				messages: [
-					{ role: 'system', content: 'You are a helpful assistant.' },
+					{ role: 'system', content: systemMessage },
 					{
 						role: 'system',
 						content: `Here is the previous message context, denoted by delimiter ${delimiter}

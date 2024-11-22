@@ -26,7 +26,7 @@ export default function ChatWindow() {
 
 	useEffect(() => {
 		console.log(messages);
-	}, [loading]);
+	}, [loading, messages]);
 
 	// const scrollToBottom = () => {
 	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -76,8 +76,8 @@ export default function ChatWindow() {
 	};
 
 	return (
-		<div className='flex flex-col h-full'>
-			<div className='flex-1 overflow-y-auto p-4 space-y-4'>
+		<div className='flex h-full w-1/3 items-center justify-center'>
+			<div className='flex flex-col w-full max-w-screen-lg overflow-y-auto p-4 space-y-4'>
 				{messages.map((message, index) => (
 					<MessageBubble
 						key={index}
@@ -93,26 +93,25 @@ export default function ChatWindow() {
 				)}
 
 				<div ref={messagesEndRef} />
-
-				{/* Input area */}
-				<div className='fixed bottom-0 left-0 right-0 mx-auto max-w-lg'>
-					<form onSubmit={handleSubmit} className='p-4'>
-						<div className='flex items-center space-x-2'>
-							<Input
-								value={userInput}
-								onChange={(e) => setUserInput(e.target.value)}
-								placeholder='Type a message...'
-								className='max-w-xs'
-							/>
-							<Button
-								type='submit'
-								disabled={loading || !userInput.trim()}
-							>
-								{loading ? 'Sending...' : 'Send'}
-							</Button>
-						</div>
-					</form>
-				</div>
+			</div>
+			{/* Input area */}
+			<div className='fixed bottom-0 left-0 right-0 mx-auto max-w-lg'>
+				<form onSubmit={handleSubmit} className='p-4'>
+					<div className='flex items-center space-x-2'>
+						<Input
+							value={userInput}
+							onChange={(e) => setUserInput(e.target.value)}
+							placeholder='Type a message...'
+							className='max-w-xs'
+						/>
+						<Button
+							type='submit'
+							disabled={loading || !userInput.trim()}
+						>
+							{loading ? 'Sending...' : 'Send'}
+						</Button>
+					</div>
+				</form>
 			</div>
 		</div>
 	);

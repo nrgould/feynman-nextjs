@@ -3,8 +3,8 @@ import React from 'react';
 
 const Chat = () => {
 	return (
-		<div className='flex items-center flex-row justify-center'>
-			<ChatWindow   />
+		<div className='flex w-full items-center justify-center'>
+			<ChatWindow />
 		</div>
 	);
 };

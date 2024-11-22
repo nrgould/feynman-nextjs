@@ -14,7 +14,7 @@ export default function MessageBubble({
 			} items-start space-x-2`}
 		>
 			<div
-				className={`p-2 max-w-xs md:max-w-md lg:max-w-lg rounded-sm ${
+				className={`p-2 max-w-xs md:max-w-md lg:max-w-lg rounded-lg ${
 					type === 'user'
 						? 'bg-blue-500 text-white'
 						: 'bg-gray-300 dark:bg-gray-700 text-black dark:text-white'
