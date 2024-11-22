@@ -3,8 +3,19 @@ import { ThemeProvider } from '@/components/theme-provider';
 import localFont from 'next/font/local';
 import './globals.css';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import {
+	SidebarInset,
+	SidebarProvider,
+	SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/organisms/AppSidebar';
+import { Separator } from '@/components/ui/separator';
+import {
+	Breadcrumb,
+	BreadcrumbList,
+	BreadcrumbItem,
+	BreadcrumbPage,
+} from '@/components/ui/breadcrumb';
 
 const geistSans = localFont({
 	src: './fonts/GeistVF.woff',
@@ -47,10 +58,32 @@ export default function RootLayout({
 					>
 						<SidebarProvider>
 							<AppSidebar />
-							<main className='w-screen'>
-								<SidebarTrigger />
-								{children}
-							</main>
+							<SidebarInset>
+								<header className='flex h-14 shrink-0 items-center gap-2'>
+									<div className='flex flex-1 items-center gap-2 px-3'>
+										<SidebarTrigger />
+										<Separator
+											orientation='vertical'
+											className='mr-2 h-4'
+										/>
+										<Breadcrumb>
+											<BreadcrumbList>
+												<BreadcrumbItem>
+													<BreadcrumbPage className='line-clamp-1'>
+														Chat
+													</BreadcrumbPage>
+												</BreadcrumbItem>
+											</BreadcrumbList>
+										</Breadcrumb>
+									</div>
+									{/* <div className='ml-auto px-3'>
+										<NavActions />
+									</div> */}
+								</header>
+								<main className='flex flex-1 flex-col items-center justify-center gap-2 px-3'>
+									{children}
+								</main>
+							</SidebarInset>
 						</SidebarProvider>
 					</ThemeProvider>
 				</body>

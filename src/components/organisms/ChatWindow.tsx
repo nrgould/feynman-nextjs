@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import MessageBubble from '@/components/molecules/MessageBubble';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import { Input } from '../ui/input';
 import { useMessageStore } from '@/store/store';
+import ScrollToBottom from 'react-scroll-to-bottom';
 
 interface ApiResponse {
 	result: string;
@@ -15,23 +16,15 @@ interface ApiResponse {
 export default function ChatWindow() {
 	const [userInput, setUserInput] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
-	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const messages = useMessageStore((state) => state.messages);
 	const addMessage = useMessageStore((state) => state.addMessage);
-
-	// useEffect(() => {
-	// 	scrollToBottom();
-	// }, [messages]);
 
 	useEffect(() => {
 		console.log(messages);
 	}, [loading, messages]);
 
-	// const scrollToBottom = () => {
-	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	// };
-
+	//this functionality should be at the page level
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!userInput.trim()) return;
@@ -42,11 +35,6 @@ export default function ChatWindow() {
 			type: 'user',
 			text: userInput,
 		});
-		// console.log('Message added:', {
-		// 	id: Date.now().toString(),
-		// 	type: 'user',
-		// 	text: userInput,
-		// });
 		setLoading(true);
 		setUserInput('');
 
@@ -76,33 +64,39 @@ export default function ChatWindow() {
 	};
 
 	return (
-		<div className='flex h-full w-1/3 items-center justify-center'>
-			<div className='flex flex-col w-full max-w-screen-lg overflow-y-auto p-4 space-y-4'>
-				{messages.map((message, index) => (
-					<MessageBubble
-						key={index}
-						message={message.text}
-						type={message.type}
-					/>
-				))}
+		<div className='h-full flex flex-col scrollbar-hidden'>
+			{/* Chat Top */}
+			<div></div>
 
-				{loading && (
-					<div className='self-start'>
-						<Skeleton className='h-8 w-24 bg-gray-300 dark:bg-gray-700' />
-					</div>
-				)}
+			{/* Messages Area / Chat Middle */}
+			<div className=''>
+				<div className=''>
+					<ScrollToBottom className='flex-1'>
+						{messages.map((message, index) => (
+							<MessageBubble
+								key={index}
+								message={message.text}
+								type={message.type}
+							/>
+						))}
 
-				<div ref={messagesEndRef} />
+						{loading && (
+							<div className='self-start'>
+								<Skeleton className='h-8 w-1/4 bg-gray-300 dark:bg-gray-700' />
+							</div>
+						)}
+					</ScrollToBottom>
+				</div>
 			</div>
-			{/* Input area */}
-			<div className='fixed bottom-0 left-0 right-0 mx-auto max-w-lg'>
-				<form onSubmit={handleSubmit} className='p-4'>
-					<div className='flex items-center space-x-2'>
+			{/* Input area / Chat Bottom */}
+			<div className='w-full'>
+				<div className='grow md:mr-5 xs:mr-4 self-end'>
+					<form onSubmit={handleSubmit} className='relative flex'>
 						<Input
 							value={userInput}
 							onChange={(e) => setUserInput(e.target.value)}
 							placeholder='Type a message...'
-							className='max-w-xs'
+							className='max-h-[5rem] pr-[3.125rem] resize-none scrollbar-hidden'
 						/>
 						<Button
 							type='submit'
@@ -110,8 +104,8 @@ export default function ChatWindow() {
 						>
 							{loading ? 'Sending...' : 'Send'}
 						</Button>
-					</div>
-				</form>
+					</form>
+				</div>
 			</div>
 		</div>
 	);

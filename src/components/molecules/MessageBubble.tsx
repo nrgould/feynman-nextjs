@@ -14,10 +14,10 @@ export default function MessageBubble({
 			} items-start space-x-2`}
 		>
 			<div
-				className={`p-2 max-w-xs md:max-w-md lg:max-w-lg rounded-lg ${
+				className={`px-4 py-1 max-w-xs md:max-w-md lg:max-w-lg rounded-2xl ${
 					type === 'user'
-						? 'bg-blue-500 text-white'
-						: 'bg-gray-300 dark:bg-gray-700 text-black dark:text-white'
+						? 'bg-gray-300 dark:bg-gray-700 text-black dark:text-white'
+						: 'text-black dark:text-white'
 				}`}
 			>
 				{message}
