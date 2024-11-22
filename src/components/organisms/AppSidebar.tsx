@@ -62,7 +62,7 @@ export function AppSidebar() {
 		<Sidebar>
 			<SidebarHeader>
 				<div className='p-4 flex flex-row items-center justify-between'>
-					<h1 className='font-bold text-2xl'>Feynman</h1>
+					<h1 className='font-extrabold text-xl'>FEYNMAN LEARNING</h1>
 					<ThemeToggle />
 				</div>
 			</SidebarHeader>
@@ -76,7 +76,9 @@ export function AppSidebar() {
 									<SidebarMenuButton asChild>
 										<a href={item.url}>
 											<item.icon className='h-12 w-12' />
-											<span>{item.title}</span>
+											<span className='font font-semibold'>
+												{item.title}
+											</span>
 										</a>
 									</SidebarMenuButton>
 								</SidebarMenuItem>

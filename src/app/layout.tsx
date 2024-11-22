@@ -17,6 +17,12 @@ const geistMono = localFont({
 	weight: '100 900',
 });
 
+const PlusJakartaSans = localFont({
+	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
+	variable: '--font-jakarta-sans',
+	weight: '100 200 900',
+});
+
 export const metadata: Metadata = {
 	title: 'Feynman Learning',
 	description: 'Test your knowledge for your next test',
@@ -30,7 +36,9 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<UserProvider>
-				<body className={`${geistSans.variable} ${geistMono.variable}`}>
+				<body
+					className={`${PlusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable}`}
+				>
 					<ThemeProvider
 						attribute='class'
 						defaultTheme='system'
