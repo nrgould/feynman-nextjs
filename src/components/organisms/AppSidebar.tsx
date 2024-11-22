@@ -62,7 +62,7 @@ export function AppSidebar() {
 		<Sidebar>
 			<SidebarHeader>
 				<div className='p-4 flex flex-row items-center justify-between'>
-					<h1 className='font-extrabold text-xl'>FEYNMAN LEARNING</h1>
+					<h1 className='font-extrabold text-xl'>Feynman Learning</h1>
 					<ThemeToggle />
 				</div>
 			</SidebarHeader>
