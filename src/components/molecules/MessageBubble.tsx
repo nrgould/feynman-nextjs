@@ -1,9 +1,6 @@
-import { Card } from '@/components/ui/card';
-import ChatAvatar from '@/components/atoms/Avatar';
-
 interface MessageBubbleProps {
 	message: string;
-	type: 'user' | 'bot';
+	type: 'user' | 'system';
 }
 
 export default function MessageBubble({
@@ -16,17 +13,15 @@ export default function MessageBubble({
 				type === 'user' ? 'justify-end' : 'justify-start'
 			} items-start space-x-2`}
 		>
-			{type === 'bot' && <ChatAvatar type='bot' />}
-			<Card
-				className={` p-2 max-w-xs md:max-w-md lg:max-w-lg ${
+			<div
+				className={`p-2 max-w-xs md:max-w-md lg:max-w-lg rounded-sm ${
 					type === 'user'
 						? 'bg-blue-500 text-white'
 						: 'bg-gray-300 dark:bg-gray-700 text-black dark:text-white'
 				}`}
 			>
 				{message}
-			</Card>
-			{type === 'user' && <ChatAvatar type='user' />}
+			</div>
 		</div>
 	);
 }

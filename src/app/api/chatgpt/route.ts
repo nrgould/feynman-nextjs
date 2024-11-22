@@ -2,14 +2,18 @@
 
 import { NextResponse } from 'next/server';
 import axios from 'axios';
+import { Message } from '@/store/store';
 
 // Define the structure of the incoming request
 interface RequestBody {
 	userInput: string;
+	context: Message[];
 }
 
+const delimiter = '####';
+
 export async function POST(request: Request) {
-	const { userInput }: RequestBody = await request.json();
+	const { userInput, context }: RequestBody = await request.json();
 
 	if (!userInput) {
 		return NextResponse.json(
@@ -18,6 +22,12 @@ export async function POST(request: Request) {
 		);
 	}
 
+	const contextString = context
+		.map((context) => `${context.type}: ${context.text}`)
+		.join('\n');
+
+	console.log(contextString);
+
 	try {
 		const response = await axios.post(
 			'https://api.openai.com/v1/chat/completions',
@@ -25,6 +35,12 @@ export async function POST(request: Request) {
 				model: 'gpt-3.5-turbo',
 				messages: [
 					{ role: 'system', content: 'You are a helpful assistant.' },
+					{
+						role: 'system',
+						content: `Here is the previous message context, denoted by delimiter ${delimiter}
+						${delimiter}${contextString}${delimiter}
+						`,
+					},
 					{ role: 'user', content: userInput },
 				],
 			},

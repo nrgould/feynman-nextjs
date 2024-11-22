@@ -1,56 +1,77 @@
 'use client';
 
-import { useState, useEffect, useRef, FormEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent } from 'react';
 import MessageBubble from '@/components/molecules/MessageBubble';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import { Input } from '../ui/input';
+import { useMessageStore } from '@/store/store';
 
 interface ApiResponse {
 	result: string;
 }
 
 export default function ChatWindow() {
-	const [messages, setMessages] = useState<
-		{ type: 'user' | 'bot'; text: string }[]
-	>([]);
 	const [userInput, setUserInput] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		scrollToBottom();
-	}, [messages]);
+	const messages = useMessageStore((state) => state.messages);
+	const addMessage = useMessageStore((state) => state.addMessage);
 
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	};
+	// useEffect(() => {
+	// 	scrollToBottom();
+	// }, [messages]);
+
+	useEffect(() => {
+		console.log(messages);
+	}, [loading]);
+
+	// const scrollToBottom = () => {
+	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	// };
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!userInput.trim()) return;
 
-		setMessages((prev) => [...prev, { type: 'user', text: userInput }]);
+		// Add user message to Zustand store
+		addMessage({
+			id: Date.now().toString(),
+			type: 'user',
+			text: userInput,
+		});
+		// console.log('Message added:', {
+		// 	id: Date.now().toString(),
+		// 	type: 'user',
+		// 	text: userInput,
+		// });
 		setLoading(true);
 		setUserInput('');
 
 		try {
 			const res = await axios.post<ApiResponse>('/api/chatgpt', {
 				userInput,
+				context: messages.slice(0, -1),
 			});
-			setMessages((prev) => [
-				...prev,
-				{ type: 'bot', text: res.data.result },
-			]);
+
+			// Add system message to Zustand store
+			addMessage({
+				id: Date.now().toString(),
+				type: 'system',
+				text: res.data.result,
+			});
 		} catch (error) {
 			console.error('Error fetching ChatGPT response:', error);
-			setMessages((prev) => [
-				...prev,
-				{ type: 'bot', text: 'There was an error. Please try again.' },
-			]);
-		}
 
+			// Add error message to Zustand store
+			addMessage({
+				id: Date.now().toString(),
+				type: 'system',
+				text: 'There was an error. Please try again.',
+			});
+		}
 		setLoading(false);
 	};
 
