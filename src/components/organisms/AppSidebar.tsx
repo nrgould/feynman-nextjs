@@ -21,7 +21,6 @@ import {
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import UserAuth from '../molecules/UserAuth';
-import { ThemeToggle } from '../molecules/ThemeToggle';
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
@@ -63,7 +62,6 @@ export function AppSidebar() {
 			<SidebarHeader>
 				<div className='p-4 flex flex-row items-center justify-between'>
 					<h1 className='font-extrabold text-xl'>Feynman Learning</h1>
-					<ThemeToggle />
 				</div>
 			</SidebarHeader>
 			<SidebarContent>
