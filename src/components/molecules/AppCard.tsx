@@ -4,7 +4,6 @@ import {
 	CardTitle,
 	CardDescription,
 	CardContent,
-	CardFooter,
 } from '@/components/ui/card';
 
 export default function AppCard() {
@@ -17,9 +16,9 @@ export default function AppCard() {
 			<CardContent>
 				<p>Card Content</p>
 			</CardContent>
-			<CardFooter>
+			{/* <CardFooter>
 				<p>Card Footer</p>
-			</CardFooter>
+			</CardFooter> */}
 		</Card>
 	);
 }

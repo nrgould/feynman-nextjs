@@ -96,7 +96,7 @@ export default function ChatWindow() {
 							value={userInput}
 							onChange={(e) => setUserInput(e.target.value)}
 							placeholder='Type a message...'
-							className='max-h-[5rem] pr-[3.125rem] resize-none scrollbar-hidden'
+							className='max-h-[5rem] pr-[3.125rem] resize-none mr-2'
 						/>
 						<Button
 							type='submit'

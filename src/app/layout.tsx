@@ -16,6 +16,7 @@ import {
 	BreadcrumbItem,
 	BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
+import { Toaster } from '@/components/ui/toaster';
 
 const geistSans = localFont({
 	src: './fonts/GeistVF.woff',
@@ -83,6 +84,7 @@ export default function RootLayout({
 								<main className='flex flex-1 flex-col items-center justify-center gap-2 px-3'>
 									{children}
 								</main>
+								<Toaster />
 							</SidebarInset>
 						</SidebarProvider>
 					</ThemeProvider>
