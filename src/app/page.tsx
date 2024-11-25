@@ -1,7 +1,9 @@
+'use client';
 import Title from '@/components/atoms/Title';
 import AppCard from '@/components/molecules/AppCard';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 
 export default function Home() {
 	const { toast } = useToast();
@@ -17,11 +19,18 @@ export default function Home() {
 				</div>
 				<div>
 					<Button
+						className='w-full h-10'
 						onClick={() => {
 							toast({
-								title: 'Scheduled: Catch up',
+								variant: 'destructive',
+								title: 'Uh oh! Something went wrong.',
 								description:
-									'Friday, February 10, 2023 at 5:57 PM',
+									'There was a problem with your request.',
+								action: (
+									<ToastAction altText='Try again'>
+										Try again
+									</ToastAction>
+								),
 							});
 						}}
 					>
