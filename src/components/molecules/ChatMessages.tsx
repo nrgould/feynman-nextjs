@@ -11,23 +11,21 @@ interface Props {
 
 const ChatMessages = ({ messages, loading }: Props) => {
 	return (
-		<div className=''>
-			<ScrollToBottom className='flex-1'>
-				{messages.map((message, index) => (
-					<MessageBubble
-						key={index}
-						message={message.text}
-						type={message.type}
-					/>
-				))}
+		<ScrollToBottom className='flex-1 min-w-fit'>
+			{messages.map((message, index) => (
+				<MessageBubble
+					key={index}
+					message={message.text}
+					type={message.type}
+				/>
+			))}
 
-				{loading && (
-					<div className='self-start'>
-						<Skeleton className='h-8 w-1/4 bg-gray-300 dark:bg-gray-700' />
-					</div>
-				)}
-			</ScrollToBottom>
-		</div>
+			{loading && (
+				<div className='self-start'>
+					<Skeleton className='h-8 w-1/4 bg-gray-300 dark:bg-gray-700' />
+				</div>
+			)}
+		</ScrollToBottom>
 	);
 };
 

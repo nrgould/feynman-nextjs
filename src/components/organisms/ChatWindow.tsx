@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect, FormEvent, useRef } from 'react';
 import axios from 'axios';
 import { useMessageStore } from '@/store/store';
 import ChatBar from '../molecules/ChatBar';
 import ChatMessages from '../molecules/ChatMessages';
+import { ToastAction } from '@radix-ui/react-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface ApiResponse {
 	result: string;
@@ -13,6 +15,7 @@ interface ApiResponse {
 export default function ChatWindow() {
 	const [userInput, setUserInput] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
+	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const messages = useMessageStore((state) => state.messages);
 	const addMessage = useMessageStore((state) => state.addMessage);
@@ -20,6 +23,10 @@ export default function ChatWindow() {
 	useEffect(() => {
 		console.log(messages);
 	}, [loading, messages]);
+
+	const scrollToBottom = () => {
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	};
 
 	//this functionality should be at the page level
 	const handleSubmit = async (e: FormEvent) => {
@@ -47,8 +54,18 @@ export default function ChatWindow() {
 				type: 'system',
 				text: res.data.result,
 			});
+			scrollToBottom();
 		} catch (error) {
-			console.error('Error fetching ChatGPT response:', error);
+			console.error('Error fetching response:', error);
+
+			toast({
+				variant: 'destructive',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a problem with your request.',
+				action: (
+					<ToastAction altText='Try again'>Try again</ToastAction>
+				),
+			});
 
 			// Add error message to Zustand store
 			addMessage({
@@ -61,16 +78,17 @@ export default function ChatWindow() {
 	};
 
 	return (
-		<div className='h-full flex flex-col scrollbar-hidden'>
+		<div className='relative h-full flex flex-col scrollbar-hidden'>
 			{/* Chat Top */}
 			<div></div>
 
 			{/* Messages Area / Chat Middle */}
-			<div className=''>
-				<ChatMessages messages={messages} />
+			<div className='w-full'>
+				<ChatMessages messages={messages} loading={loading} />
+				<div style={{ marginBottom: 100 }} ref={messagesEndRef} />
 			</div>
 			{/* Input area / Chat Bottom */}
-			<div className='w-full'>
+			<div className='fixed bottom-0 left-0 right-0'>
 				<ChatBar
 					handleSubmit={handleSubmit}
 					loading={loading}

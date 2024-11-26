@@ -7,8 +7,8 @@ export async function POST(req: Request) {
 	const { messages } = await req.json();
 
 	const result = await streamText({
-		model: ollama('llama3.2'),
-		messages: [{ role: 'user', content: messages }],
+		model: ollama('Feynman'),
+		messages: messages,
 	});
 	return result.toDataStreamResponse();
 }

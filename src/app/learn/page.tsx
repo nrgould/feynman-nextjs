@@ -45,7 +45,7 @@ const Learn = () => {
 			</div>
 			<form onSubmit={handleSubmit} className='w-full px-3 py-2'>
 				<Input
-					className='w-full px-3 py-2 border border-gray-700 bg-transparent rounded-lg text-neutral-200'
+					className='w-full px-3 py-2 border border-gray-700 bg-transparent rounded-lg'
 					value={input}
 					placeholder='Ask me anything...'
 					onChange={handleInputChange}
