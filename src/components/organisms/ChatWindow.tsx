@@ -1,13 +1,10 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
-import MessageBubble from '@/components/molecules/MessageBubble';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
-import { Input } from '../ui/input';
 import { useMessageStore } from '@/store/store';
-import ScrollToBottom from 'react-scroll-to-bottom';
+import ChatBar from '../molecules/ChatBar';
+import ChatMessages from '../molecules/ChatMessages';
 
 interface ApiResponse {
 	result: string;
@@ -70,42 +67,16 @@ export default function ChatWindow() {
 
 			{/* Messages Area / Chat Middle */}
 			<div className=''>
-				<div className=''>
-					<ScrollToBottom className='flex-1'>
-						{messages.map((message, index) => (
-							<MessageBubble
-								key={index}
-								message={message.text}
-								type={message.type}
-							/>
-						))}
-
-						{loading && (
-							<div className='self-start'>
-								<Skeleton className='h-8 w-1/4 bg-gray-300 dark:bg-gray-700' />
-							</div>
-						)}
-					</ScrollToBottom>
-				</div>
+				<ChatMessages messages={messages} />
 			</div>
 			{/* Input area / Chat Bottom */}
 			<div className='w-full'>
-				<div className='grow md:mr-5 xs:mr-4 self-end'>
-					<form onSubmit={handleSubmit} className='relative flex'>
-						<Input
-							value={userInput}
-							onChange={(e) => setUserInput(e.target.value)}
-							placeholder='Type a message...'
-							className='max-h-[5rem] pr-[3.125rem] resize-none mr-2'
-						/>
-						<Button
-							type='submit'
-							disabled={loading || !userInput.trim()}
-						>
-							{loading ? 'Sending...' : 'Send'}
-						</Button>
-					</form>
-				</div>
+				<ChatBar
+					handleSubmit={handleSubmit}
+					loading={loading}
+					userInput={userInput}
+					setUserInput={setUserInput}
+				/>
 			</div>
 		</div>
 	);
