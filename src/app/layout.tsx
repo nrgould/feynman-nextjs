@@ -81,7 +81,7 @@ export default function RootLayout({
 										<NavActions />
 									</div> */}
 								</header>
-								<main className='flex flex-1 flex-col items-center justify-center gap-2 px-3'>
+								<main className='flex flex-1 flex-col  gap-2 px-3'>
 									{children}
 								</main>
 								<Toaster />

@@ -78,17 +78,15 @@ export default function ChatWindow() {
 	};
 
 	return (
-		<div className='relative h-full flex flex-col scrollbar-hidden'>
-			{/* Chat Top */}
-			<div></div>
-
+		<div className='relative h-full flex flex-col items-center justify-center scrollbar-hidden'>
 			{/* Messages Area / Chat Middle */}
-			<div className='w-full'>
+			<div className='lg:w-3/4 pb-12 md:w-full sm:w-full xs:w-full'>
 				<ChatMessages messages={messages} loading={loading} />
 				<div style={{ marginBottom: 100 }} ref={messagesEndRef} />
 			</div>
+
 			{/* Input area / Chat Bottom */}
-			<div className='fixed bottom-0 left-0 right-0'>
+			<div className='fixed bottom-0 w-full'>
 				<ChatBar
 					handleSubmit={handleSubmit}
 					loading={loading}
