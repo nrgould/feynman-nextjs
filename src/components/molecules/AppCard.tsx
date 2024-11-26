@@ -4,21 +4,43 @@ import {
 	CardTitle,
 	CardDescription,
 	CardContent,
+	CardFooter,
 } from '@/components/ui/card';
+import { Button } from '../ui/button';
 
-export default function AppCard() {
+interface Props {
+	title: string;
+	subtitle: string;
+	description: string;
+	link?: string;
+	linkTitle?: string;
+}
+
+export default function AppCard({
+	title,
+	description,
+	subtitle,
+	link,
+	linkTitle,
+}: Props) {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Card Title</CardTitle>
-				<CardDescription>Card Description</CardDescription>
+				{title && <CardTitle>{title}</CardTitle>}
+				{subtitle && <CardDescription>{subtitle}</CardDescription>}
 			</CardHeader>
-			<CardContent>
-				<p>Card Content</p>
-			</CardContent>
-			{/* <CardFooter>
-				<p>Card Footer</p>
-			</CardFooter> */}
+			{description && (
+				<CardContent>
+					<p>{description}</p>
+				</CardContent>
+			)}
+			{link && (
+				<CardFooter>
+					<Button className='w-fit' onClick={() => console.log(link)}>
+						{linkTitle}
+					</Button>
+				</CardFooter>
+			)}
 		</Card>
 	);
 }
