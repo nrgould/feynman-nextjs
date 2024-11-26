@@ -1,5 +1,4 @@
 import React from 'react';
-import ScrollToBottom from 'react-scroll-to-bottom';
 import MessageBubble from './MessageBubble';
 import { Message } from '@/store/store';
 import { Skeleton } from '../ui/skeleton';
@@ -11,7 +10,7 @@ interface Props {
 
 const ChatMessages = ({ messages, loading }: Props) => {
 	return (
-		<ScrollToBottom className='flex-1 min-w-fit'>
+		<div className='flex-1 min-w-fit'>
 			{messages.map((message, index) => (
 				<MessageBubble
 					key={index}
@@ -25,7 +24,7 @@ const ChatMessages = ({ messages, loading }: Props) => {
 					<Skeleton className='h-8 w-1/4 bg-gray-300 dark:bg-gray-700' />
 				</div>
 			)}
-		</ScrollToBottom>
+		</div>
 	);
 };
 
