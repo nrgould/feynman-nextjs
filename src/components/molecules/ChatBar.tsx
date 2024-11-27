@@ -22,7 +22,6 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 					className='max-h-[5rem] pr-[3.125rem] resize-none mr-2'
 				/>
 				<Button type='submit' disabled={loading || !userInput.trim()}>
-					{/* {loading ? 'Sending...' : 'Send'} */}
 					<Send />
 				</Button>
 			</form>
