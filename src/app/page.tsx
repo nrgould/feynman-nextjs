@@ -61,7 +61,7 @@ Triangles!'
 				</div>
 				<div>
 					<Button
-						className='w-full h-10'
+						className='h-10'
 						onClick={() => {
 							toast({
 								variant: 'destructive',

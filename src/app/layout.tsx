@@ -51,7 +51,7 @@ export default function RootLayout({
 						<SidebarProvider>
 							<AppSidebar />
 							<SidebarInset className='h-screen'>
-								<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4'>
+								<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4 bg-white'>
 									<SidebarTrigger className='-ml-1' />
 									<div className='flex flex-row items-center justify-between'>
 										<h1 className='font-bold text-xl'>

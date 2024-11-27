@@ -1,7 +1,17 @@
-import React from 'react';
+'use client';
 
-const concepts = () => {
-	return <div>Concepts</div>;
-};
+import BarChartMixed from '@/components/molecules/BarChartMixed';
+import RadialChart from '@/components/molecules/RadialChart';
+import RadialChartShape from '@/components/molecules/RadialChartShape';
 
-export default concepts;
+export function Concepts() {
+	return (
+		<div className='flex justify-around items-center'>
+			<BarChartMixed />
+			<RadialChart />
+			<RadialChartShape />
+		</div>
+	);
+}
+
+export default Concepts;
