@@ -12,7 +12,7 @@ interface Props {
 
 const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 	return (
-		<div className='p-4 xs:px-4 sm:px-4 md:px-32 lg:px-72 md:mr-5 xs:mr-4 self-end bg-white'>
+		<div className='p-4 xs:px-4 sm:px-4 md:px-48 lg:px-72 md:mr-5 xs:mr-4 self-end bg-white'>
 			<form onSubmit={handleSubmit} className='relative flex'>
 				{/* <Input id='file' className='max-w-16' type='file' aria-label='file' /> */}
 				<Textarea

@@ -1,5 +1,5 @@
-import SystemMessage from '../atoms/SystemMessage';
-import UserMessage from '../atoms/UserMessage';
+import SystemMessage from '../atoms/SystemMessageBubble';
+import UserMessage from '../atoms/UserMessageBubble';
 
 interface MessageBubbleProps {
 	message: string;

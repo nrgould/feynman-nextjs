@@ -1,12 +1,4 @@
-import {
-	Brain,
-	Home,
-	Settings,
-	MessageCircle,
-	ChevronUp,
-	User2,
-	Blocks,
-} from 'lucide-react';
+import { Brain, Home, Settings2, MessageCircle, Blocks } from 'lucide-react';
 
 import {
 	Sidebar,
@@ -19,14 +11,9 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarRail,
 } from '@/components/ui/sidebar';
-import UserAuth from '../molecules/UserAuth';
-import {
-	DropdownMenu,
-	DropdownMenuTrigger,
-	DropdownMenuContent,
-	DropdownMenuItem,
-} from '../ui/dropdown-menu';
+import { NavUser } from '../molecules/NavUser';
 
 const items = [
 	{
@@ -52,28 +39,24 @@ const items = [
 	{
 		title: 'Settings',
 		url: 'settings',
-		icon: Settings,
+		icon: Settings2,
 	},
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
-		<Sidebar>
-			<SidebarHeader>
-				<div className='p-4 flex flex-row items-center justify-between'>
-					<h1 className='font-extrabold text-xl'>Feynman Learning</h1>
-				</div>
-			</SidebarHeader>
+		<Sidebar collapsible='icon' {...props}>
+			<SidebarHeader></SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>Menu</SidebarGroupLabel>
+					<SidebarGroupLabel>Platform</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{items.map((item) => (
 								<SidebarMenuItem key={item.title}>
 									<SidebarMenuButton asChild>
 										<a href={item.url}>
-											<item.icon className='h-12 w-12' />
+											<item.icon size={18} />
 											<span className='font font-semibold'>
 												{item.title}
 											</span>
@@ -86,36 +69,9 @@ export function AppSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<SidebarMenuButton>
-									<User2 /> Username
-									<ChevronUp className='ml-auto' />
-								</SidebarMenuButton>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								side='top'
-								className='w-[--radix-popper-anchor-width]'
-							>
-								<UserAuth />
-								<DropdownMenuItem>
-									<span>Account</span>
-								</DropdownMenuItem>
-								<DropdownMenuItem>
-									<span>Settings</span>
-								</DropdownMenuItem>
-								<a href='/api/auth/logout'>
-									<DropdownMenuItem>
-										<span>Sign out</span>
-									</DropdownMenuItem>
-								</a>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</SidebarMenuItem>
-				</SidebarMenu>
+				<NavUser />
 			</SidebarFooter>
+			<SidebarRail />
 		</Sidebar>
 	);
 }

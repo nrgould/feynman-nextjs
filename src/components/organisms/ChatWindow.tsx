@@ -78,7 +78,7 @@ export default function ChatWindow() {
 	};
 
 	return (
-		<div className='relative h-full flex flex-col items-center justify-center scrollbar-hidden'>
+		<div className='flex flex-col items-center justify-center'>
 			{/* Messages Area / Chat Middle */}
 			<div className='lg:w-3/4 pb-12 md:w-full sm:w-full xs:w-full'>
 				<ChatMessages messages={messages} loading={loading} />

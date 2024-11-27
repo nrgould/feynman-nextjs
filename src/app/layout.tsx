@@ -9,13 +9,6 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/organisms/AppSidebar';
-import { Separator } from '@/components/ui/separator';
-import {
-	Breadcrumb,
-	BreadcrumbList,
-	BreadcrumbItem,
-	BreadcrumbPage,
-} from '@/components/ui/breadcrumb';
 import { Toaster } from '@/components/ui/toaster';
 
 const geistSans = localFont({
@@ -48,9 +41,7 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<UserProvider>
-				<body
-					className={`${PlusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable}`}
-				>
+				<body className={`${PlusJakartaSans.variable}`}>
 					<ThemeProvider
 						attribute='class'
 						defaultTheme='light'
@@ -59,29 +50,16 @@ export default function RootLayout({
 					>
 						<SidebarProvider>
 							<AppSidebar />
-							<SidebarInset>
-								<header className='flex h-14 shrink-0 items-center gap-2'>
-									<div className='flex flex-1 items-center gap-2 px-3'>
-										<SidebarTrigger />
-										<Separator
-											orientation='vertical'
-											className='mr-2 h-4'
-										/>
-										<Breadcrumb>
-											<BreadcrumbList>
-												<BreadcrumbItem>
-													<BreadcrumbPage className='line-clamp-1'>
-														Chat
-													</BreadcrumbPage>
-												</BreadcrumbItem>
-											</BreadcrumbList>
-										</Breadcrumb>
+							<SidebarInset className='h-screen'>
+								<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4'>
+									<SidebarTrigger className='-ml-1' />
+									<div className='flex flex-row items-center justify-between'>
+										<h1 className='font-bold text-xl'>
+											Feynman Learning
+										</h1>
 									</div>
-									{/* <div className='ml-auto px-3'>
-										<NavActions />
-									</div> */}
 								</header>
-								<main className='flex flex-1 flex-col  gap-2 px-3'>
+								<main className='flex flex-1 flex-col gap-4 p-4'>
 									{children}
 								</main>
 								<Toaster />
