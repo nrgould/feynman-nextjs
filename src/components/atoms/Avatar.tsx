@@ -1,7 +1,7 @@
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface ChatAvatarProps {
-	type: 'user' | 'bot';
+	type: 'user' | 'system';
 }
 
 export default function ChatAvatar({ type }: Readonly<ChatAvatarProps>) {

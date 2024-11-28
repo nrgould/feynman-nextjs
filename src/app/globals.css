@@ -44,7 +44,7 @@ a {
 	}
 }
 
-/* @layer base {
+@layer base {
 	:root {
 		--background: 0 0% 100%;
 		--foreground: 240 10% 3.9%;
@@ -114,7 +114,7 @@ a {
 		--sidebar-border: 240 3.7% 15.9%;
 		--sidebar-ring: 217.2 91.2% 59.8%;
 	}
-} */
+}
 
 /* Yellow theme */
 /* @layer base {
@@ -175,7 +175,7 @@ a {
 } */
 
 /* green theme */
-@layer base {
+/* @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -230,7 +230,7 @@ a {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
+} */
 
 @layer base {
 	:root {
