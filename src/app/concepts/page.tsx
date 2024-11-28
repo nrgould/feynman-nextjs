@@ -2,7 +2,7 @@ import BarChartMixed from '@/components/molecules/BarChartMixed';
 import RadialChart from '@/components/molecules/RadialChart';
 import RadialChartShape from '@/components/molecules/RadialChartShape';
 
-export function Page() {
+const Concepts = () => {
 	return (
 		<div className='flex justify-around items-center'>
 			<BarChartMixed />
@@ -10,6 +10,6 @@ export function Page() {
 			<RadialChartShape />
 		</div>
 	);
-}
+};
 
-export default Page;
+export default Concepts;
