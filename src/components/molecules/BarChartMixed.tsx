@@ -18,16 +18,16 @@ import {
 	ChartTooltipContent,
 } from '@/components/ui/chart';
 const chartData = [
-	{ browser: 'chrome', visitors: 275, fill: 'var(--color-chrome)' },
-	{ browser: 'safari', visitors: 200, fill: 'var(--color-safari)' },
-	{ browser: 'firefox', visitors: 187, fill: 'var(--color-firefox)' },
-	{ browser: 'edge', visitors: 173, fill: 'var(--color-edge)' },
-	{ browser: 'other', visitors: 90, fill: 'var(--color-other)' },
+	{ concept: 'chrome', progress: 275, fill: 'var(--color-chrome)' },
+	{ concept: 'safari', progress: 200, fill: 'var(--color-safari)' },
+	{ concept: 'firefox', progress: 187, fill: 'var(--color-firefox)' },
+	{ concept: 'edge', progress: 173, fill: 'var(--color-edge)' },
+	{ concept: 'other', progress: 90, fill: 'var(--color-other)' },
 ];
 
 const chartConfig = {
-	visitors: {
-		label: 'Visitors',
+	progress: {
+		label: 'Progress',
 	},
 	chrome: {
 		label: 'Chrome',
@@ -55,7 +55,7 @@ export default function BarChartMixed() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Bar Chart - Mixed</CardTitle>
+				<CardTitle>Your Top Concepts</CardTitle>
 				<CardDescription>January - June 2024</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -69,7 +69,7 @@ export default function BarChartMixed() {
 						}}
 					>
 						<YAxis
-							dataKey='browser'
+							dataKey='concept'
 							type='category'
 							tickLine={false}
 							tickMargin={10}
@@ -79,12 +79,12 @@ export default function BarChartMixed() {
 									?.label
 							}
 						/>
-						<XAxis dataKey='visitors' type='number' hide />
+						<XAxis dataKey='progress' type='number' hide />
 						<ChartTooltip
 							cursor={false}
 							content={<ChartTooltipContent hideLabel />}
 						/>
-						<Bar dataKey='visitors' layout='vertical' radius={5} />
+						<Bar dataKey='progress' layout='vertical' radius={5} />
 					</BarChart>
 				</ChartContainer>
 			</CardContent>
