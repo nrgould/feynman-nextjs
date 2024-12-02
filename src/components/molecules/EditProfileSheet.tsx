@@ -25,11 +25,7 @@ export default function EditProfileSheet() {
 	if (isLoading)
 		return (
 			<div className='flex items-center space-x-4'>
-				<Skeleton className='h-8 w-8' />
-				<div className='space-y-2'>
-					<Skeleton className='h-4 w-[180px]' />
-					<Skeleton className='h-4 w-[180px]' />
-				</div>
+				<Skeleton className='h-8 w-[100px]' />
 			</div>
 		);
 

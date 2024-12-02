@@ -22,14 +22,14 @@ const items = [
 		icon: Home,
 	},
 	{
-		title: 'Concepts',
-		url: 'concepts',
-		icon: Brain,
-	},
-	{
 		title: 'Chat',
 		url: 'chat',
 		icon: MessageCircle,
+	},
+	{
+		title: 'Concepts',
+		url: 'concepts',
+		icon: Brain,
 	},
 	{
 		title: 'Learn',
