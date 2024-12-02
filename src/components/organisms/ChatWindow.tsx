@@ -78,9 +78,9 @@ export default function ChatWindow() {
 	};
 
 	return (
-		<div className='relative flex min-h-full flex-col items-center justify-between px-24'>
+		<div className='relative flex flex-col lg:items-center sm:items-baseline justify-center lg:px-24 md:px-8 sm:px-2 xs:px-0 w-full'>
 			{/* Messages Area / Chat Middle */}
-			<div className='flex-1 lg:w-3/4 pb-12 md:w-full sm:w-screen xs:w-screen'>
+			<div className='pb-12 lg:w-3/4 sm:w-max'>
 				<ChatMessages messages={messages} loading={loading} />
 				<div style={{ marginBottom: 100 }} ref={messagesEndRef} />
 			</div>

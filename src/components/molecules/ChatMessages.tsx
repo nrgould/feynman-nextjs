@@ -10,7 +10,7 @@ interface Props {
 
 const ChatMessages = ({ messages, loading }: Props) => {
 	return (
-		<div className='flex-1 min-w-screen space-y-4'>
+		<div className='min-w-max flex flex-col'>
 			{messages.map((message, index) => (
 				<MessageBubble
 					key={index}
@@ -21,7 +21,7 @@ const ChatMessages = ({ messages, loading }: Props) => {
 
 			{loading && (
 				<div className='self-start'>
-					<Skeleton className='h-8 w-1/4 bg-gray-300 dark:bg-gray-700' />
+					<Skeleton className='h-8 w-max bg-gray-300 dark:bg-gray-700' />
 				</div>
 			)}
 		</div>
