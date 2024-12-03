@@ -7,8 +7,17 @@ import React, { useState } from 'react';
 import EmailPreferences from '@/components/molecules/EmailPreferences';
 import EditProfileSheet from '@/components/molecules/EditProfileSheet';
 import DeleteAccountDialog from '@/components/molecules/DeleteAccountDialog';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 const Settings = () => {
+	const { user, isLoading } = useUser();
+	const router = useRouter();
+
+	if (!isLoading && !user) {
+		router.push('/api/auth/login');
+		return null; // Return nothing while redirecting
+	}
 	// Handle save action
 	const handleSave = () => {
 		alert('Settings saved!');
