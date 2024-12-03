@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 	}
 
 	const contextString = context
-		.map((context) => `${context.type}: ${context.text}`)
+		.map((context) => `${context.sender}: ${context.message}`)
 		.join('\n');
 
 	try {
