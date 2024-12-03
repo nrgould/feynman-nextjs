@@ -7,6 +7,7 @@ import { useMessageStore } from '@/store/store';
 import { Label } from '../ui/label';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
+import ChatBarFile from './ChatBarFile';
 interface Props {
 	handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 	userInput: string;
@@ -45,10 +46,15 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 						MAX_FILE_SIZE / (1024 * 1024)
 					}MB.`,
 					action: (
-						<ToastAction onClick={handleFilePicker} altText='Try again'>Try again</ToastAction>
+						<ToastAction
+							onClick={handleFilePicker}
+							altText='Try again'
+						>
+							Try again
+						</ToastAction>
 					),
 				});
-				
+
 				return;
 			}
 
@@ -60,26 +66,7 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 	return (
 		<div className='relative p-4 xs:px-4 sm:px-4 md:px-48 lg:px-72 md:mr-5 xs:mr-4 pt-1 bg-white w-full pb-4'>
 			{/* File Display */}
-			<AnimatePresence>
-				{file && (
-					<motion.div
-						className='flex w-full justify-between items-center pb-2 px-2'
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: 20 }}
-						transition={{ duration: 0.1, ease: 'easeIn' }}
-					>
-						<div className='flex items-center justify-center'>
-							<Paperclip
-								color='gray'
-								size={20}
-								className='mr-2'
-							/>
-							<Label>{file.name}</Label>
-						</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
+			<ChatBarFile file={file} />
 
 			<form
 				onSubmit={handleSubmit}
@@ -92,8 +79,8 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 					className='hidden'
 					onChange={handleFileChange} // Update Zustand store on file selection
 				/>
-				<AnimatePresence>
-					{file ? (
+				<AnimatePresence mode='sync'>
+					{file && (
 						<motion.div
 							whileTap={{ scale: 0.9 }}
 							initial={{ opacity: 0, rotate: 45 }}
@@ -104,7 +91,8 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 						>
 							<X color='gray' />
 						</motion.div>
-					) : (
+					)}
+					{!file && (
 						<motion.div
 							whileTap={{ scale: 0.9 }}
 							initial={{ opacity: 0, rotate: 45 }}
