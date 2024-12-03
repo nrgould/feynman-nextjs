@@ -35,7 +35,7 @@ const Settings = () => {
 			</section>
 
 			{/* Save Button */}
-			<Button variant='secondary' onClick={handleSave}>
+			<Button variant='default' onClick={handleSave}>
 				Save Settings
 			</Button>
 		</div>

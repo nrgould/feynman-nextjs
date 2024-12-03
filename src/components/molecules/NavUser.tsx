@@ -133,23 +133,27 @@ export function NavUser() {
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuGroup>
-								<DropdownMenuItem>
-									<Sparkles
-										size={MENU_ICON_HEIGHT}
-										className='mr-1'
-									/>
-									Upgrade to Pro
-								</DropdownMenuItem>
+								<Link href='/upgrade'>
+									<DropdownMenuItem>
+										<Sparkles
+											size={MENU_ICON_HEIGHT}
+											className='mr-1'
+										/>
+										Upgrade to Pro
+									</DropdownMenuItem>
+								</Link>
 							</DropdownMenuGroup>
 							<DropdownMenuSeparator />
 							<DropdownMenuGroup>
-								<DropdownMenuItem>
-									<BadgeCheck
-										size={MENU_ICON_HEIGHT}
-										className='mr-1'
-									/>
-									Account
-								</DropdownMenuItem>
+								<Link href='/settings'>
+									<DropdownMenuItem>
+										<BadgeCheck
+											size={MENU_ICON_HEIGHT}
+											className='mr-1'
+										/>
+										Account
+									</DropdownMenuItem>
+								</Link>
 								<DropdownMenuItem>
 									<CreditCard
 										size={MENU_ICON_HEIGHT}
