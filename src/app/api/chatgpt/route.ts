@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 import axios from 'axios';
 import { Message } from '@/store/store';
 
-// Define the structure of the incoming request
 interface RequestBody {
 	userInput: string;
 	context: Message[];
