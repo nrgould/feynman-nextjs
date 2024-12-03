@@ -86,7 +86,7 @@ export default function ChatWindow() {
 			</div>
 
 			{/* Input area / Chat Bottom */}
-			<div className='fixed bottom-0 w-full'>
+			<div className='fixed bottom-0 left-0 w-full'>
 				<ChatBar
 					handleSubmit={handleSubmit}
 					loading={loading}
