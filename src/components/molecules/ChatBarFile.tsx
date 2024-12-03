@@ -1,14 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Paperclip } from 'lucide-react';
-import React from 'react'
+import React from 'react';
 import { Label } from '../ui/label';
 
 interface Props {
-    file: File | null
+	file: File | null;
 }
 
 const ChatBarFile = ({ file }: Props) => {
-  return (
+	return (
 		<AnimatePresence>
 			{file && (
 				<motion.div
@@ -20,12 +20,12 @@ const ChatBarFile = ({ file }: Props) => {
 				>
 					<div className='flex items-center justify-center'>
 						<Paperclip color='gray' size={20} className='mr-2' />
-						<Label>{file.name}</Label>
+						<Label className='text-slate-700'>{file.name}</Label>
 					</div>
 				</motion.div>
 			)}
 		</AnimatePresence>
-  );
-}
+	);
+};
 
-export default ChatBarFile
+export default ChatBarFile;
