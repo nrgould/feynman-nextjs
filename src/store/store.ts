@@ -33,10 +33,13 @@ type MessageStore = {
 		context: string;
 		messages: Message[];
 	}) => Promise<void>;
-	fetchConversations: (userId: string) => Promise<void>; 
+	fetchConversations: (userId: string) => Promise<void>;
+	fetchConversationById: (id: string) => Promise<void>;
+	conversation: Conversation | null;
 };
 
 export const useMessageStore = create<MessageStore & FileStore>((set) => ({
+	conversation: null,
 	messages: [
 		{
 			id: '1732248373494',
@@ -78,6 +81,21 @@ export const useMessageStore = create<MessageStore & FileStore>((set) => ({
 			console.log('Conversation saved:', data.conversation);
 		} catch (error) {
 			console.error('Failed to save conversation:', error);
+		}
+	},
+	fetchConversationById: async (id: string) => {
+		try {
+			const response = await fetch(`/api/chat/${id}`);
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch conversation');
+			}
+
+			const data = await response.json();
+			set({ conversation: data }); // Update store with the fetched conversation
+			set({ messages: data.messages });
+		} catch (error) {
+			console.error('Error fetching conversation:', error);
 		}
 	},
 

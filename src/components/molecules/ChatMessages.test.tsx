@@ -22,8 +22,8 @@ jest.mock('../ui/skeleton', () => {
 
 describe('ChatMessages Component', () => {
 	const mockMessages: Message[] = [
-		{ text: 'Hello!', type: 'user', id: '1' },
-		{ text: 'Hi there!', type: 'system', id: '2' },
+		{ message: 'Hello!', sender: 'user', id: '1', timestamp: new Date() },
+		{ message: 'Hi there!', sender: 'system', id: '2', timestamp: new Date() },
 	];
 
 	it('renders the correct number of MessageBubble components', () => {
@@ -35,8 +35,8 @@ describe('ChatMessages Component', () => {
 
 		// Check that the content of each message is correct
 		mockMessages.forEach((msg, index) => {
-			expect(screen.getByText(msg.text)).toBeInTheDocument();
-			expect(screen.getByText(msg.type)).toBeInTheDocument();
+			expect(screen.getByText(msg.message)).toBeInTheDocument();
+			expect(screen.getByText(msg.sender)).toBeInTheDocument();
 		});
 	});
 

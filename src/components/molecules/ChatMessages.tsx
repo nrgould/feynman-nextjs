@@ -14,8 +14,8 @@ const ChatMessages = ({ messages, loading }: Props) => {
 			{messages.map((message, index) => (
 				<MessageBubble
 					key={index}
-					message={message.text}
-					type={message.type}
+					message={message.message}
+					type={message.sender}
 				/>
 			))}
 

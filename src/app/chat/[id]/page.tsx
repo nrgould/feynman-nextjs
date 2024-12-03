@@ -3,22 +3,48 @@
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import axios from 'axios';
 import { useMessageStore } from '@/store/store';
-import ChatBar from '../molecules/ChatBar';
-import ChatMessages from '../molecules/ChatMessages';
 import { ToastAction } from '@radix-ui/react-toast';
 import { toast } from '@/hooks/use-toast';
+import ChatMessages from '@/components/molecules/ChatMessages';
+import ChatBar from '@/components/molecules/ChatBar';
 
 interface ApiResponse {
 	result: string;
 }
 
-export default function ChatWindow() {
+export default function ChatWindow({ params }: { params: { id: string } }) {
 	const [userInput, setUserInput] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const messages = useMessageStore((state) => state.messages);
 	const addMessage = useMessageStore((state) => state.addMessage);
+	const fetchConversationById = useMessageStore(
+		(state) => state.fetchConversationById
+	);
+
+	useEffect(() => {
+		const fetchConversation = async () => {
+			const conversationId = params.id;
+
+			try {
+				await fetchConversationById(conversationId);
+				console.log('Conversation fetched successfully');
+			} catch (error) {
+				console.error('Error fetching conversation:', error);
+				toast({
+					variant: 'destructive',
+					title: 'Error fetching conversation',
+					description: 'Failed to load the conversation.',
+					action: (
+						<ToastAction altText='Try again'>Try again</ToastAction>
+					),
+				});
+			}
+		};
+
+		fetchConversation();
+	}, [fetchConversationById, params.id]);
 
 	useEffect(() => {
 		console.log(messages);
@@ -36,8 +62,9 @@ export default function ChatWindow() {
 		// Add user message to Zustand store
 		addMessage({
 			id: Date.now().toString(),
-			type: 'user',
-			text: userInput,
+			sender: 'user',
+			message: userInput,
+			timestamp: new Date(),
 		});
 		setLoading(true);
 		setUserInput('');
@@ -51,8 +78,9 @@ export default function ChatWindow() {
 			// Add system message to Zustand store
 			addMessage({
 				id: Date.now().toString(),
-				type: 'system',
-				text: res.data.result,
+				sender: 'system',
+				message: res.data.result,
+				timestamp: new Date(),
 			});
 			scrollToBottom();
 		} catch (error) {
@@ -65,13 +93,6 @@ export default function ChatWindow() {
 				action: (
 					<ToastAction altText='Try again'>Try again</ToastAction>
 				),
-			});
-
-			// Add error message to Zustand store
-			addMessage({
-				id: Date.now().toString(),
-				type: 'system',
-				text: 'There was an error. Please try again.',
 			});
 		}
 		setLoading(false);
