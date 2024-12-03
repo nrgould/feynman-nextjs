@@ -42,22 +42,28 @@ export async function POST(req: Request) {
 		const body = await req.json();
 		const { userId, conceptId, context, messages } = body;
 
-		// Create a new conversation
-		const newConversation = new Conversation({
-			userId,
-			conceptId,
-			context,
-			messages,
-		});
+		if (!userId || !conceptId || !messages) {
+			return NextResponse.json(
+				{
+					error: 'Missing required fields: userId, conceptId, or messages',
+				},
+				{ status: 400 }
+			);
+		}
 
-		await newConversation.save();
+		// Upsert a conversation (update if exists, create otherwise)
+		const updatedConversation = await Conversation.findOneAndUpdate(
+			{ userId, conceptId }, // Match criteria
+			{ userId, conceptId, context, messages }, // Update data
+			{ upsert: true, new: true, setDefaultsOnInsert: true } // Create new if not exists
+		);
 
 		return NextResponse.json(
 			{
-				message: 'Conversation saved successfully',
-				conversation: newConversation,
+				message: 'Conversation updated or created successfully',
+				conversation: updatedConversation,
 			},
-			{ status: 201 }
+			{ status: 200 }
 		);
 	} catch (error) {
 		console.error('POST Error:', error);

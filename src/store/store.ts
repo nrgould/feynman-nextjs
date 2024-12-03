@@ -9,10 +9,10 @@ export type Message = {
 
 type Conversation = {
 	_id: string; // Unique identifier for the chat session
-	userId: string; // Reference to the user
-	conceptId: string; // Reference to the related concept
-	context: string; // Context of the conversation
-	messages: Message[]; // Array of messages
+	userId: string;
+	conceptId: string;
+	context: string;
+	messages: Message[];
 };
 
 type FileStore = {
@@ -38,7 +38,7 @@ type MessageStore = {
 	conversation: Conversation | null;
 };
 
-export const useMessageStore = create<MessageStore & FileStore>((set) => ({
+export const useMessageStore = create<MessageStore>((set, get) => ({
 	conversation: null,
 	messages: [
 		{
@@ -49,10 +49,37 @@ export const useMessageStore = create<MessageStore & FileStore>((set) => ({
 			timestamp: new Date(),
 		},
 	],
-	addMessage: (message) =>
-		set((state) => ({
-			messages: [...state.messages, message],
-		})),
+	addMessage: (message) => {
+		set((state) => {
+			const updatedMessages = [...state.messages, message];
+
+			// Ensure conversation data is valid
+			if (
+				!state.conversation?.userId ||
+				!state.conversation?.conceptId ||
+				!state.conversation?.context
+			) {
+				console.error(
+					'Missing required conversation data: userId, conceptId, or context'
+				);
+				return { messages: updatedMessages }; // Update messages but skip saving
+			}
+
+			// Prepare the conversation data
+			const conversationData = {
+				userId: state.conversation.userId,
+				conceptId: state.conversation.conceptId,
+				context: state.conversation.context,
+				messages: updatedMessages,
+			};
+
+			// Call saveConversation to update the database
+			get().saveConversation(conversationData);
+
+			return { messages: updatedMessages };
+		});
+	},
+
 	removeMessage: (id) =>
 		set((state) => ({
 			messages: state.messages.filter((message) => message.id !== id),
@@ -72,13 +99,13 @@ export const useMessageStore = create<MessageStore & FileStore>((set) => ({
 	}) => {
 		try {
 			const response = await fetch('/api/conversations', {
-				method: 'POST',
+				method: 'POST', // This endpoint will handle both creating and updating
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(conversationData),
 			});
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error);
-			console.log('Conversation saved:', data.conversation);
+			console.log('Conversation saved or updated:', data.conversation);
 		} catch (error) {
 			console.error('Failed to save conversation:', error);
 		}
@@ -111,6 +138,9 @@ export const useMessageStore = create<MessageStore & FileStore>((set) => ({
 	},
 
 	// File management
+}));
+
+export const useFileStore = create<FileStore>((set) => ({
 	file: null,
 	setFile: (file) => {
 		set({ file });

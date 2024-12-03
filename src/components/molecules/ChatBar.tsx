@@ -3,8 +3,7 @@ import { Button } from '../ui/button';
 import { Send, Plus, Paperclip, Trash, X } from 'lucide-react';
 import { Input } from '../ui/input';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMessageStore } from '@/store/store';
-import { Label } from '../ui/label';
+import { useFileStore } from '@/store/store';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
@@ -20,9 +19,9 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const setFile = useMessageStore((state) => state.setFile);
-	const file = useMessageStore((state) => state.file);
-	const clearFile = useMessageStore((state) => state.clearFile);
+	const setFile = useFileStore((state) => state.setFile);
+	const file = useFileStore((state) => state.file);
+	const clearFile = useFileStore((state) => state.clearFile);
 
 	const handleFilePicker = () => {
 		if (fileInputRef.current) {
