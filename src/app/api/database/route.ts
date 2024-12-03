@@ -7,6 +7,7 @@ export async function GET() {
 		await connectToDatabase(); // Connect to MongoDB
 
 		const users = await User.find(); // Fetch all users
+		console.log(users);
 		return NextResponse.json({ users });
 	} catch (error) {
 		console.error(error);

@@ -48,10 +48,10 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 					value={userInput}
 					onChange={(e) => setUserInput(e.target.value)}
 					placeholder='Type a message...'
-					className='max-h-[5rem] pl-10 resize-none mr-2 flex-3'
+					className='max-h-[5rem] min-h-[3rem] pl-10 resize-none mr-2 flex-3'
 				/>
 				<Button
-					className='flex-1'
+					className='flex-1 min-h-[3rem]'
 					type='submit'
 					disabled={loading || !userInput.trim()}
 				>
