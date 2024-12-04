@@ -29,6 +29,8 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 		(state) => state.fetchConversationById
 	);
 
+	console.log(messages);
+
 	useEffect(() => {
 		const fetchConversation = async () => {
 			const conversationId = params.id;
@@ -51,10 +53,10 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 
 		fetchConversation();
 
-		return () => {
-			clearMessages();
-		};
-	}, [fetchConversationById, params.id, clearMessages]);
+		// return () => {
+		// 	clearMessages();
+		// };
+	}, [fetchConversationById, params.id]);
 
 	if (isLoading) return <LoaderPage />;
 	if (error) return <div>{error.message}</div>;

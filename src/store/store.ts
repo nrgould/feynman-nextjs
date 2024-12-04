@@ -35,20 +35,11 @@ type MessageStore = {
 	conversation: Conversation | null;
 };
 
-export const useMessageStore = create<MessageStore>((set, get) => ({
+export const useMessageStore = create<MessageStore>((set) => ({
 	conversation: null,
-	messages: [
-		{
-			id: '1732248373494',
-			userId: '64f9d9b7c29c3b7f01abc124',
-			chatId: '674f6de81361752c0162446c',
-			message:
-				"It seems like there may have been a typo in your message. Could you please provide more context or clarify your question or statement? I'm here to help with any math-related topics you might have.",
-			sender: 'system',
-			created_at: new Date(),
-		},
-	],
+	messages: [],
 	addMessage: async (message) => {
+		console.log('MESSAGE: ', message);
 		set((state) => {
 			const updatedMessages = [...state.messages, message];
 			return { messages: updatedMessages };
@@ -92,6 +83,7 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 	setConversation: (conversation: Conversation) => {
 		set(() => ({
 			conversation: { ...conversation },
+			messages: [...conversation.recentMessages],
 		}));
 	},
 
@@ -122,8 +114,10 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 			}
 
 			const data = await response.json();
+
+			console.log(data);
 			set({ conversation: data }); // Update store with the fetched conversation
-			set({ messages: data.messages });
+			set({ messages: data.recentMessages });
 		} catch (error) {
 			console.error('Error fetching conversation:', error);
 		}

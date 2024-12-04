@@ -63,6 +63,7 @@ export async function POST(req: Request) {
 		// Use validated data
 		const { userId, conceptId, context, recentMessages } = validatedData;
 
+		//request is creating two conversations when navigating to /chat for some reason
 		const newConversation = await Conversation.create({
 			userId,
 			conceptId,
