@@ -39,7 +39,7 @@ export default function NewChatWindow() {
 			id: crypto.randomUUID(),
 			sender: 'user',
 			message: userInput,
-			timestamp: new Date(),
+			created_at: new Date(),
 		});
 		setLoading(true);
 		setUserInput('');
@@ -55,7 +55,7 @@ export default function NewChatWindow() {
 				id: Date.now().toString(),
 				sender: 'system',
 				message: res.data.result,
-				timestamp: new Date(),
+				created_at: new Date(),
 			});
 			scrollToBottom();
 		} catch (error) {

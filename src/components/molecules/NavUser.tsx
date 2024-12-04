@@ -40,6 +40,8 @@ export function NavUser() {
 		isLoading: boolean;
 	};
 
+	console.log(user);
+
 	function getInitials(name: string) {
 		if (!name) return '';
 		return name

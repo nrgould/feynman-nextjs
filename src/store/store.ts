@@ -4,15 +4,16 @@ export type Message = {
 	id: string; // Unique identifier for each message
 	message: string; // The content of the message
 	sender: 'user' | 'system'; //Whether message is coming from the user or system
-	timestamp: Date;
+	created_at: Date;
+	attachments?: string[];
 };
 
-type Conversation = {
+export type Conversation = {
 	_id: string; // Unique identifier for the chat session
 	userId: string;
 	conceptId: string;
 	context: string;
-	messages: Message[];
+	recentMessages: Message[];
 };
 
 type FileStore = {
@@ -24,8 +25,6 @@ type FileStore = {
 type MessageStore = {
 	messages: Message[];
 	addMessage: (message: Message) => void;
-	removeMessage: (id: string) => void;
-	updateMessage: (id: string, updatedText: string) => void;
 	clearMessages: () => void;
 	saveConversation: (conversationData: {
 		userId: string;
@@ -46,52 +45,54 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 			message:
 				"It seems like there may have been a typo in your message. Could you please provide more context or clarify your question or statement? I'm here to help with any math-related topics you might have.",
 			sender: 'system',
-			timestamp: new Date(),
+			created_at: new Date(),
 		},
 	],
-	addMessage: (message) => {
+	addMessage: async (message) => {
 		set((state) => {
 			const updatedMessages = [...state.messages, message];
-
-			// Ensure conversation data is valid
-			if (
-				!state.conversation?.userId ||
-				!state.conversation?.conceptId ||
-				!state.conversation?.context
-			) {
-				console.error(
-					'Missing required conversation data: userId, conceptId, or context'
-				);
-				return { messages: updatedMessages }; // Update messages but skip saving
-			}
-
-			// Prepare the conversation data
-			const conversationData = {
-				userId: state.conversation.userId,
-				conceptId: state.conversation.conceptId,
-				context: state.conversation.context,
-				messages: updatedMessages,
-			};
-
-			// Call saveConversation to update the database
-			get().saveConversation(conversationData);
-
 			return { messages: updatedMessages };
 		});
-	},
 
-	removeMessage: (id) =>
-		set((state) => ({
-			messages: state.messages.filter((message) => message.id !== id),
-		})),
-	updateMessage: (id, updatedText) =>
-		set((state) => ({
-			messages: state.messages.map((message) =>
-				message.id === id ? { ...message, text: updatedText } : message
-			),
-		})),
+		try {
+			// Construct the payload to save the message with a reference to the conversation
+			const payload = {
+				chatId: get().conversation?._id, // Reference the current conversation
+				userId: get().conversation?.userId,
+				message: {
+					id: message.id,
+					message: message.message,
+					sender: message.sender,
+					attachments: message.attachments || [],
+					created_at: message.created_at,
+				},
+			};
+
+			console.log('created payload: ', payload)
+
+			// Save the message to MongoDB
+			const response = await fetch('/api/messages', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(
+					errorData.error || 'Failed to save message to MongoDB'
+				);
+			}
+
+			const data = await response.json();
+			console.log('Message saved:', data);
+		} catch (error) {
+			console.error('Error saving message:', error);
+		}
+	},
 	clearMessages: () => set({ messages: [] }),
 	saveConversation: async (conversationData: {
+		//creates or saves a converstaion to mongodb
 		userId: string;
 		conceptId: string;
 		context: string;
@@ -99,7 +100,7 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 	}) => {
 		try {
 			const response = await fetch('/api/conversations', {
-				method: 'POST', // This endpoint will handle both creating and updating
+				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(conversationData),
 			});
@@ -127,6 +128,7 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 	},
 
 	fetchConversations: async (userId: string) => {
+		//fetches all conversations for the user
 		try {
 			const response = await fetch(`/api/conversations?userId=${userId}`);
 			const data = await response.json();
@@ -147,3 +149,6 @@ export const useFileStore = create<FileStore>((set) => ({
 	},
 	clearFile: () => set({ file: null }),
 }));
+
+//user store
+//concepts store

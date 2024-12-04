@@ -5,13 +5,19 @@ interface Conversation extends Document {
 	userId: mongoose.Schema.Types.ObjectId;
 	conceptId: mongoose.Schema.Types.ObjectId;
 	context: string;
-	messages: Message[];
+	recentMessages: Message[];
 }
 
 const MessageSchema = new Schema<Message>({
-	sender: { type: String, required: true },
+	id: { type: String, required: true },
 	message: { type: String, required: true },
-	timestamp: { type: Date, default: Date.now },
+	attachments: { type: [String], default: [] },
+	sender: {
+		type: String,
+		enum: ['user', 'system'], // Restricts to 'user' or 'system'
+		required: true,
+	},
+	created_at: { type: Date, default: Date.now },
 });
 
 const ConversationSchema = new Schema<Conversation>({
@@ -23,10 +29,9 @@ const ConversationSchema = new Schema<Conversation>({
 	conceptId: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Concept',
-		required: true,
 	},
-	context: { type: String, required: true },
-	messages: { type: [MessageSchema], required: true },
+	context: { type: String },
+	recentMessages: { type: [MessageSchema], required: true },
 });
 
 const Conversation =

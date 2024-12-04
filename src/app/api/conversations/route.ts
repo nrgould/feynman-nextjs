@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import Conversation from '@/models/Conversation';
 import { connectToDatabase } from '@/lib/mongoose';
 
-// GET handler
 export async function GET(req: Request) {
 	try {
 		await connectToDatabase(); // Ensure MongoDB connection
@@ -33,7 +32,6 @@ export async function GET(req: Request) {
 	}
 }
 
-// POST handler
 export async function POST(req: Request) {
 	try {
 		await connectToDatabase(); // Ensure MongoDB connection
