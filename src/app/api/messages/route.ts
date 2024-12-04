@@ -38,9 +38,9 @@ export async function POST(req: Request) {
 		// Create a new message
 		const newMessage = await Message.create({
 			chatId: conversation._id,
-			userId: conversation.userId,
 			message: {
-				id: message.id,
+                id: message.id,
+                userId: conversation.userId,
 				message: message.message,
 				sender: message.sender,
 				attachments: message.attachments || [], // Optional attachments

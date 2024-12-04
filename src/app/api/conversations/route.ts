@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Conversation from '@/models/Conversation';
 import { connectToDatabase } from '@/lib/mongoose';
+import { z } from 'zod';
 
 export async function GET(req: Request) {
 	try {
@@ -32,39 +33,66 @@ export async function GET(req: Request) {
 	}
 }
 
+// Zod schemas
+const MessageSchema = z.object({
+	id: z.string(),
+	message: z.string(),
+	attachments: z.array(z.string()).optional(),
+	sender: z.enum(['user', 'system']),
+	created_at: z.preprocess(
+		(arg) => (typeof arg === 'string' ? new Date(arg) : arg),
+		z.date()
+	),
+});
+
+const ConversationSchema = z.object({
+	userId: z.string().min(1, 'User ID is required'),
+	conceptId: z.string().min(1, 'Concept ID is required'),
+	context: z.string(),
+	recentMessages: z.array(MessageSchema),
+});
+
 export async function POST(req: Request) {
 	try {
-		await connectToDatabase(); // Ensure MongoDB connection
+		await connectToDatabase();
 
-		// Parse the request body
+		// Parse and validate the request body
 		const body = await req.json();
-		const { userId, conceptId, context, messages } = body;
+		const validatedData = ConversationSchema.parse(body);
 
-		if (!userId || !conceptId || !messages) {
-			return NextResponse.json(
-				{
-					error: 'Missing required fields: userId, conceptId, or messages',
-				},
-				{ status: 400 }
-			);
-		}
+		// Use validated data
+		const { userId, conceptId, context, recentMessages } = validatedData;
 
-		// Upsert a conversation (update if exists, create otherwise)
-		const updatedConversation = await Conversation.findOneAndUpdate(
-			{ userId, conceptId }, // Match criteria
-			{ userId, conceptId, context, messages }, // Update data
-			{ upsert: true, new: true, setDefaultsOnInsert: true } // Create new if not exists
-		);
+		const newConversation = await Conversation.create({
+			userId,
+			conceptId,
+			context,
+			recentMessages,
+		});
 
 		return NextResponse.json(
 			{
-				message: 'Conversation updated or created successfully',
-				conversation: updatedConversation,
+				message: 'Conversation created successfully',
+				conversation: newConversation,
 			},
-			{ status: 200 }
+			{ status: 201 }
 		);
 	} catch (error) {
-		console.error('POST Error:', error);
+		if (error instanceof z.ZodError) {
+			console.error('Validation Error Details:', error.errors);
+			return NextResponse.json(
+				{ error: 'Validation failed', details: error.errors },
+				{ status: 400 }
+			);
+		}
+		console.error(
+			'POST Error:',
+			error instanceof Error ? error.message : error
+		);
+		console.error(
+			'Stack Trace:',
+			error instanceof Error ? error.stack : error
+		);
 		return NextResponse.json(
 			{ error: 'Internal server error' },
 			{ status: 500 }

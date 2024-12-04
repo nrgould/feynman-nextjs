@@ -6,8 +6,8 @@ const MessageSchema = new mongoose.Schema({
 		ref: 'Conversation',
 		required: true,
 	},
-	userId: { type: String, required: true },
 	message: {
+		userId: { type: String, required: true },
 		id: { type: String, required: true },
 		message: { type: String, required: true },
 		attachments: { type: [String], default: [] },

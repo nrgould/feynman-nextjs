@@ -10,11 +10,15 @@ interface Conversation extends Document {
 
 const MessageSchema = new Schema<Message>({
 	id: { type: String, required: true },
+	userId: {
+		type: String,
+		required: true,
+	},
 	message: { type: String, required: true },
 	attachments: { type: [String], default: [] },
 	sender: {
 		type: String,
-		enum: ['user', 'system'], // Restricts to 'user' or 'system'
+		enum: ['user', 'system'],
 		required: true,
 	},
 	created_at: { type: Date, default: Date.now },
@@ -22,13 +26,11 @@ const MessageSchema = new Schema<Message>({
 
 const ConversationSchema = new Schema<Conversation>({
 	userId: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User',
+		type: String,
 		required: true,
 	},
 	conceptId: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Concept',
+		type: String,
 	},
 	context: { type: String },
 	recentMessages: { type: [MessageSchema], required: true },

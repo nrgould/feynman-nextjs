@@ -3,10 +3,13 @@
 import { useState, useEffect, FormEvent, useRef } from 'react';
 import axios from 'axios';
 import { useMessageStore } from '@/store/store';
+import ChatBar from '@/components/molecules/ChatBar';
+import ChatMessages from '@/components/molecules/ChatMessages';
 import { ToastAction } from '@radix-ui/react-toast';
 import { toast } from '@/hooks/use-toast';
-import ChatMessages from '@/components/molecules/ChatMessages';
-import ChatBar from '@/components/molecules/ChatBar';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import Link from 'next/link';
+import LoaderPage from '@/components/atoms/LoaderPage';
 
 interface ApiResponse {
 	result: string;
@@ -17,8 +20,11 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
+	const { user, error, isLoading } = useUser();
+
 	const messages = useMessageStore((state) => state.messages);
 	const addMessage = useMessageStore((state) => state.addMessage);
+	const clearMessages = useMessageStore((state) => state.clearMessages);
 	const fetchConversationById = useMessageStore(
 		(state) => state.fetchConversationById
 	);
@@ -44,44 +50,58 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 		};
 
 		fetchConversation();
-	}, [fetchConversationById, params.id]);
 
-	useEffect(() => {
-		console.log(messages);
-	}, [loading, messages]);
+		return () => {
+			clearMessages();
+		};
+	}, [fetchConversationById, params.id, clearMessages]);
+
+	if (isLoading) return <LoaderPage />;
+	if (error) return <div>{error.message}</div>;
+	if (!user)
+		return (
+			<Link href='/api/auth/login'>
+				<a>Login</a>
+			</Link>
+		);
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 	};
 
-	//this functionality should be at the page level
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!userInput.trim()) return;
 
+		if (!user?.sub) {
+			throw new Error('User ID is missing');
+		}
+
 		// Add user message to Zustand store
 		addMessage({
-			id: Date.now().toString(),
+			chatId: params.id,
+			userId: user.sub,
+			id: crypto.randomUUID(),
 			sender: 'user',
 			message: userInput,
-			timestamp: new Date(),
+			created_at: new Date(),
 		});
 		setLoading(true);
 		setUserInput('');
 
 		try {
-			const res = await axios.post<ApiResponse>('/api/chatgpt', {
-				userInput,
-				context: messages.slice(0, -1),
-			});
-
-			// Add system message to Zustand store
-			addMessage({
-				id: Date.now().toString(),
-				sender: 'system',
-				message: res.data.result,
-				timestamp: new Date(),
-			});
+			// const res = await axios.post<ApiResponse>('/api/chatgpt', {
+			// 	userInput,
+			// 	context: messages.slice(0, -1), //this should be replaced with summarized context from GPT3.5
+			// });
+			// // Add system message to Zustand store and mongodb
+			// addMessage({
+			// 	userId: user?.sub,
+			// 	id: Date.now().toString(),
+			// 	sender: 'system',
+			// 	message: res.data.result,
+			// 	created_at: new Date(),
+			// });
 			scrollToBottom();
 		} catch (error) {
 			console.error('Error fetching response:', error);

@@ -1,18 +1,20 @@
 import { create } from 'zustand';
 
 export type Message = {
+	chatId: string;
 	id: string; // Unique identifier for each message
 	message: string; // The content of the message
 	sender: 'user' | 'system'; //Whether message is coming from the user or system
 	created_at: Date;
+	userId: string;
 	attachments?: string[];
 };
 
 export type Conversation = {
-	_id: string; // Unique identifier for the chat session
+	_id?: string;
 	userId: string;
-	conceptId: string;
-	context: string;
+	conceptId?: string;
+	context?: string;
 	recentMessages: Message[];
 };
 
@@ -26,14 +28,10 @@ type MessageStore = {
 	messages: Message[];
 	addMessage: (message: Message) => void;
 	clearMessages: () => void;
-	saveConversation: (conversationData: {
-		userId: string;
-		conceptId: string;
-		context: string;
-		messages: Message[];
-	}) => Promise<void>;
+	createConversation: (conversationData: Conversation) => Promise<void>;
 	fetchConversations: (userId: string) => Promise<void>;
 	fetchConversationById: (id: string) => Promise<void>;
+	setConversation: (conversation: Conversation) => void;
 	conversation: Conversation | null;
 };
 
@@ -42,6 +40,8 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 	messages: [
 		{
 			id: '1732248373494',
+			userId: '64f9d9b7c29c3b7f01abc124',
+			chatId: '674f6de81361752c0162446c',
 			message:
 				"It seems like there may have been a typo in your message. Could you please provide more context or clarify your question or statement? I'm here to help with any math-related topics you might have.",
 			sender: 'system',
@@ -55,10 +55,10 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 		});
 
 		try {
-			// Construct the payload to save the message with a reference to the conversation
+			// Construct the payload for the message
 			const payload = {
-				chatId: get().conversation?._id, // Reference the current conversation
-				userId: get().conversation?.userId,
+				chatId: message.chatId,
+				userId: message.userId,
 				message: {
 					id: message.id,
 					message: message.message,
@@ -67,8 +67,6 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 					created_at: message.created_at,
 				},
 			};
-
-			console.log('created payload: ', payload)
 
 			// Save the message to MongoDB
 			const response = await fetch('/api/messages', {
@@ -90,14 +88,14 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 			console.error('Error saving message:', error);
 		}
 	},
-	clearMessages: () => set({ messages: [] }),
-	saveConversation: async (conversationData: {
-		//creates or saves a converstaion to mongodb
-		userId: string;
-		conceptId: string;
-		context: string;
-		messages: Message[];
-	}) => {
+
+	setConversation: (conversation: Conversation) => {
+		set(() => ({
+			conversation: { ...conversation },
+		}));
+	},
+
+	createConversation: async (conversationData: Conversation) => {
 		try {
 			const response = await fetch('/api/conversations', {
 				method: 'POST',
@@ -106,7 +104,11 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 			});
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error);
+
 			console.log('Conversation saved or updated:', data.conversation);
+
+			// Update the conversation state with the new or updated conversation
+			set({ conversation: data.conversation });
 		} catch (error) {
 			console.error('Failed to save conversation:', error);
 		}
@@ -139,7 +141,7 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
 		}
 	},
 
-	// File management
+	clearMessages: () => set({ messages: [] }),
 }));
 
 export const useFileStore = create<FileStore>((set) => ({
