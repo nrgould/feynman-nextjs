@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import LoaderPage from '@/components/atoms/LoaderPage';
+import axios from 'axios';
 
 export default function ChatRedirect() {
 	const router = useRouter();

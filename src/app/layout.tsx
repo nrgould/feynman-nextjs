@@ -31,30 +31,23 @@ export default function RootLayout({
 		<html lang='en'>
 			<UserProvider>
 				<body className={`${PlusJakartaSans.variable}`}>
-					<ThemeProvider
-						attribute='class'
-						defaultTheme='light'
-						enableSystem
-						disableTransitionOnChange
-					>
-						<SidebarProvider>
-							<AppSidebar />
-							<SidebarInset className='h-screen'>
-								<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4 bg-white z-50'>
-									<SidebarTrigger className='-ml-1' />
-									<div className='flex flex-row items-center justify-between'>
-										<h1 className='font-bold text-xl'>
-											Feynman Learning
-										</h1>
-									</div>
-								</header>
-								<main className='flex flex-1 flex-col gap-4 p-4'>
-									{children}
-								</main>
-								<Toaster />
-							</SidebarInset>
-						</SidebarProvider>
-					</ThemeProvider>
+					<SidebarProvider>
+						<AppSidebar />
+						<SidebarInset className='h-screen'>
+							<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4 bg-white z-50'>
+								<SidebarTrigger className='-ml-1' />
+								<div className='flex flex-row items-center justify-between'>
+									<h1 className='font-bold text-xl'>
+										Feynman Learning
+									</h1>
+								</div>
+							</header>
+							<main className='flex flex-1 flex-col gap-4 p-4'>
+								{children}
+							</main>
+							<Toaster />
+						</SidebarInset>
+					</SidebarProvider>
 				</body>
 			</UserProvider>
 		</html>
