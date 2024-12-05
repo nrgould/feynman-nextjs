@@ -31,6 +31,7 @@ type MessageStore = {
 	createConversation: (conversationData: Conversation) => Promise<void>;
 	fetchConversations: (userId: string) => Promise<void>;
 	fetchConversationById: (id: string) => Promise<void>;
+	fetchMessages: (conversationId: string) => Promise<void>;
 	setConversation: (conversation: Conversation) => void;
 	conversation: Conversation | null;
 };
@@ -81,7 +82,7 @@ export const useMessageStore = create<MessageStore>((set) => ({
 	setConversation: (conversation: Conversation) => {
 		set(() => ({
 			conversation: { ...conversation },
-			messages: [...conversation.recentMessages],
+			// messages: [...conversation.recentMessages],
 		}));
 	},
 
@@ -103,6 +104,7 @@ export const useMessageStore = create<MessageStore>((set) => ({
 			console.error('Failed to save conversation:', error);
 		}
 	},
+
 	fetchConversationById: async (id: string) => {
 		try {
 			const response = await fetch(`/api/chat/${id}`);
@@ -115,9 +117,32 @@ export const useMessageStore = create<MessageStore>((set) => ({
 
 			console.log(data);
 			set({ conversation: data }); // Update store with the fetched conversation
-			set({ messages: data.recentMessages });
+			// set({ messages: data.recentMessages });
 		} catch (error) {
 			console.error('Error fetching conversation:', error);
+		}
+	},
+
+	fetchMessages: async (conversationId: string) => {
+		try {
+			// Fetch messages from the API for the given chatId
+			const response = await fetch(
+				`/api/messages?chatId=${conversationId}`
+			);
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch messages');
+			}
+
+			// Parse the response JSON
+			const data = await response.json();
+
+			console.log('Fetched messages:', data.messages);
+
+			// Update the messages state with the fetched data
+			set({ messages: data.messages });
+		} catch (error) {
+			console.error('Error fetching messages:', error);
 		}
 	},
 

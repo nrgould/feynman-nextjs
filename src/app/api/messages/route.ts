@@ -40,16 +40,6 @@ export async function POST(req: Request) {
 			created_at,
 		});
 
-		// Optionally update the conversation with the new message reference (optional)
-		// conversation.recentMessages.push({
-		// 	id: message.id,
-		// 	message: message.message,
-		// 	sender: message.sender,
-		// 	created_at: message.created_at,
-		// 	attachments: message.attachments || [],
-		// });
-		// await conversation.save();
-
 		return NextResponse.json(
 			{ message: 'Message added successfully', newMessage },
 			{ status: 201 }
@@ -92,10 +82,10 @@ export async function GET(req: Request) {
 			);
 		}
 
-		// Fetch messages for the conversation
-		const messages = await Message.find({ chatId }).sort({
-			'message.created_at': 1,
-		});
+		// Fetch the 10 most recent messages for the conversation
+		const messages = await Message.find({ chatId })
+			.sort({ created_at: -1 }) // Sort by created_at in descending order
+			.limit(10); // Limit the result to 10 messages
 
 		return NextResponse.json({ messages }, { status: 200 });
 	} catch (error) {

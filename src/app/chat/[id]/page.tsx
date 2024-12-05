@@ -18,6 +18,7 @@ interface ApiResponse {
 export default function ChatWindow({ params }: { params: { id: string } }) {
 	const [userInput, setUserInput] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
+	const [msgLoading, setMsgLoading] = useState<boolean>(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const { user, error, isLoading } = useUser();
@@ -28,14 +29,18 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 	const fetchConversationById = useMessageStore(
 		(state) => state.fetchConversationById
 	);
+	const fetchMessages = useMessageStore((state) => state.fetchMessages);
 
 	useEffect(() => {
 		const fetchConversation = async () => {
 			const conversationId = params.id;
 
+			setLoading(true);
 			try {
 				await fetchConversationById(conversationId);
 				console.log('Conversation fetched successfully');
+				await fetchMessages(conversationId);
+				console.log('fetched messages successfully');
 			} catch (error) {
 				console.error('Error fetching conversation:', error);
 				toast({
@@ -47,16 +52,17 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 					),
 				});
 			}
+			setLoading(false);
 		};
 
 		fetchConversation();
 
-		// return () => {
-		// 	clearMessages();
-		// };
+		return () => {
+			clearMessages();
+		};
 	}, [fetchConversationById, params.id]);
 
-	if (isLoading) return <LoaderPage />;
+	if (isLoading || loading) return <LoaderPage />;
 	if (error) return <div>{error.message}</div>;
 	if (!user)
 		return (
@@ -85,7 +91,7 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 			message: userInput,
 			created_at: new Date(),
 		});
-		setLoading(true);
+		setMsgLoading(true);
 		setUserInput('');
 
 		try {
@@ -114,14 +120,14 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 				),
 			});
 		}
-		setLoading(false);
+		setMsgLoading(false);
 	};
 
 	return (
 		<div className='relative flex flex-col lg:items-center md:items-baseline sm:items-baseline justify-center lg:px-24 md:px-8 sm:px-2 xs:px-0 w-full'>
 			{/* Messages Area / Chat Middle */}
 			<div className='pb-12 md:w-full'>
-				<ChatMessages messages={messages} loading={loading} />
+				<ChatMessages messages={messages} loading={msgLoading} />
 				<div style={{ marginBottom: 100 }} ref={messagesEndRef} />
 			</div>
 
