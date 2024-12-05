@@ -7,6 +7,7 @@ import {
 	CardFooter,
 } from '@/components/ui/card';
 import { Button } from '../ui/button';
+import Link from 'next/link';
 
 interface Props {
 	title: string;
@@ -36,9 +37,11 @@ export default function AppCard({
 			)}
 			{link && (
 				<CardFooter>
-					<Button className='w-fit' onClick={() => console.log(link)}>
-						{linkTitle}
-					</Button>
+					<Link href={link}>
+						<Button className='w-fit' variant='secondary'>
+							{linkTitle}
+						</Button>
+					</Link>
 				</CardFooter>
 			)}
 		</Card>

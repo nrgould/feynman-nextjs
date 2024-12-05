@@ -1,5 +1,3 @@
-'use client';
-
 import Title from '@/components/atoms/Title';
 import AppCard from '@/components/molecules/AppCard';
 import Hero from '@/components/organisms/Hero';

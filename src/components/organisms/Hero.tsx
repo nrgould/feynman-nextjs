@@ -4,10 +4,9 @@ import Subtitle from '../atoms/Subtitle';
 import { Button } from '../ui/button';
 import { AspectRatio } from '../ui/aspect-ratio';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const Hero = () => {
-	const router = useRouter();
 	return (
 		<div className='flex flex-row flex-wrap items-center justify-center w-full mb-20'>
 			<div className='flex flex-1 flex-col items-start justify-center lg:p-8 sm:p-2'>
@@ -18,9 +17,9 @@ const Hero = () => {
 					conceptual understanding to practical mastery.
 				</Subtitle>
 				<div>
-					<Button size='lg' onClick={() => router.push('/chat')}>
-						Try it now
-					</Button>
+					<Link href='/chat'>
+						<Button size='lg'>Try it now</Button>
+					</Link>
 				</div>
 			</div>
 			<div className='flex-1'>

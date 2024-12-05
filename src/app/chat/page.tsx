@@ -1,27 +1,26 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import LoaderPage from '@/components/atoms/LoaderPage';
-import { useMessageStore } from '@/store/store';
 
 export default function ChatRedirect() {
 	const router = useRouter();
 	const { user, isLoading } = useUser();
-
-	const setConversation = useMessageStore((state) => state.setConversation);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		const createConversation = async () => {
-			if (isLoading) return; // Wait for user state
+			if (isLoading || loading) return;
 			if (!user) {
 				// Redirect to login if user is not authenticated
 				router.push('/api/auth/login');
 				return;
 			}
 
+			setLoading(true);
 			try {
 				// Create a new conversation via API
 				const res = await axios.post('/api/conversations', {
@@ -31,18 +30,18 @@ export default function ChatRedirect() {
 					recentMessages: [],
 				});
 
-				setConversation(res.data.conversation);
 				const conversationId = res.data.conversation._id;
 				// Navigate to the new conversation
 				router.push(`/chat/${conversationId}`);
 			} catch (error) {
 				console.error('Error creating conversation:', error);
-				// Handle error, e.g., show an error message
+			} finally {
+				setLoading(false);
 			}
 		};
 
 		createConversation();
-	}, [isLoading, user, router]);
+	}, [user, router, isLoading, loading]);
 
 	return <LoaderPage />;
 }

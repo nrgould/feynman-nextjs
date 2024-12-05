@@ -60,7 +60,7 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 		return () => {
 			clearMessages();
 		};
-	}, [fetchConversationById, params.id]);
+	}, [fetchConversationById, params.id, fetchMessages, clearMessages]);
 
 	if (isLoading || loading) return <LoaderPage />;
 	if (error) return <div>{error.message}</div>;
@@ -95,18 +95,18 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 		setUserInput('');
 
 		try {
-			// const res = await axios.post<ApiResponse>('/api/chatgpt', {
-			// 	userInput,
-			// 	context: messages.slice(0, -1), //this should be replaced with summarized context from GPT3.5
-			// });
-			// // Add system message to Zustand store and mongodb
-			// addMessage({
-			// 	userId: user?.sub,
-			// 	id: Date.now().toString(),
-			// 	sender: 'system',
-			// 	message: res.data.result,
-			// 	created_at: new Date(),
-			// });
+			const res = await axios.post<ApiResponse>('/api/chatgpt', {
+				userInput,
+				context: messages.slice(0, -1), //this should be replaced with summarized context from GPT3.5
+			});
+			// Add system message to Zustand store and mongodb
+			addMessage({
+				chatId: params.id,
+				userId: user.sub,
+				sender: 'system',
+				message: res.data.result,
+				created_at: new Date(),
+			});
 			scrollToBottom();
 		} catch (error) {
 			console.error('Error fetching response:', error);

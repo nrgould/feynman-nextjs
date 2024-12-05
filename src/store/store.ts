@@ -25,15 +25,13 @@ type FileStore = {
 };
 
 type MessageStore = {
+	conversation: Conversation | null;
 	messages: Message[];
 	addMessage: (message: Message) => void;
-	clearMessages: () => void;
-	createConversation: (conversationData: Conversation) => Promise<void>;
 	fetchConversations: (userId: string) => Promise<void>;
 	fetchConversationById: (id: string) => Promise<void>;
 	fetchMessages: (conversationId: string) => Promise<void>;
-	setConversation: (conversation: Conversation) => void;
-	conversation: Conversation | null;
+	clearMessages: () => void;
 };
 
 export const useMessageStore = create<MessageStore>((set) => ({
@@ -79,32 +77,6 @@ export const useMessageStore = create<MessageStore>((set) => ({
 		}
 	},
 
-	setConversation: (conversation: Conversation) => {
-		set(() => ({
-			conversation: { ...conversation },
-			// messages: [...conversation.recentMessages],
-		}));
-	},
-
-	createConversation: async (conversationData: Conversation) => {
-		try {
-			const response = await fetch('/api/conversations', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(conversationData),
-			});
-			const data = await response.json();
-			if (!response.ok) throw new Error(data.error);
-
-			console.log('Conversation saved or updated:', data.conversation);
-
-			// Update the conversation state with the new or updated conversation
-			set({ conversation: data.conversation });
-		} catch (error) {
-			console.error('Failed to save conversation:', error);
-		}
-	},
-
 	fetchConversationById: async (id: string) => {
 		try {
 			const response = await fetch(`/api/chat/${id}`);
@@ -117,7 +89,6 @@ export const useMessageStore = create<MessageStore>((set) => ({
 
 			console.log(data);
 			set({ conversation: data }); // Update store with the fetched conversation
-			// set({ messages: data.recentMessages });
 		} catch (error) {
 			console.error('Error fetching conversation:', error);
 		}
