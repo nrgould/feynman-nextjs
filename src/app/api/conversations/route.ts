@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 export async function GET(req: Request) {
 	try {
-		await connectToDatabase(); // Ensure MongoDB connection
+		await connectToDatabase();
 
 		// Extract userId from the query string
 		const { searchParams } = new URL(req.url);
@@ -34,8 +34,9 @@ export async function GET(req: Request) {
 }
 
 // Zod schemas
-const MessageSchema = z.object({
-	id: z.string(),
+export const MessageSchema = z.object({
+	userId: z.string().min(1, 'User ID is required'),
+	chatId: z.string().min(1, 'Chat ID is required'),
 	message: z.string(),
 	attachments: z.array(z.string()).optional(),
 	sender: z.enum(['user', 'system']),
@@ -45,7 +46,7 @@ const MessageSchema = z.object({
 	),
 });
 
-const ConversationSchema = z.object({
+export const ConversationSchema = z.object({
 	userId: z.string().min(1, 'User ID is required'),
 	conceptId: z.string().min(1, 'Concept ID is required'),
 	context: z.string(),

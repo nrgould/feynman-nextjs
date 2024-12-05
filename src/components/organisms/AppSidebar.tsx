@@ -23,22 +23,22 @@ const items = [
 	},
 	{
 		title: 'Chat',
-		url: 'chat',
+		url: '/chat',
 		icon: MessageCircle,
 	},
 	{
 		title: 'Concepts',
-		url: 'concepts',
+		url: '/concepts',
 		icon: Brain,
 	},
 	{
 		title: 'Learn',
-		url: 'learn',
+		url: '/learn',
 		icon: Blocks,
 	},
 	{
 		title: 'Settings',
-		url: 'settings',
+		url: '/settings',
 		icon: Settings2,
 	},
 ];

@@ -2,11 +2,11 @@ import { create } from 'zustand';
 
 export type Message = {
 	chatId: string;
-	id: string; // Unique identifier for each message
+	userId: string;
+	_id?: string;
 	message: string; // The content of the message
 	sender: 'user' | 'system'; //Whether message is coming from the user or system
 	created_at: Date;
-	userId: string;
 	attachments?: string[];
 };
 
@@ -39,7 +39,6 @@ export const useMessageStore = create<MessageStore>((set) => ({
 	conversation: null,
 	messages: [],
 	addMessage: async (message) => {
-		console.log('MESSAGE: ', message);
 		set((state) => {
 			const updatedMessages = [...state.messages, message];
 			return { messages: updatedMessages };
@@ -50,14 +49,13 @@ export const useMessageStore = create<MessageStore>((set) => ({
 			const payload = {
 				chatId: message.chatId,
 				userId: message.userId,
-				message: {
-					id: message.id,
-					message: message.message,
-					sender: message.sender,
-					attachments: message.attachments || [],
-					created_at: message.created_at,
-				},
+				message: message.message,
+				sender: message.sender,
+				attachments: message.attachments || [],
+				created_at: message.created_at,
 			};
+
+			console.log(payload);
 
 			// Save the message to MongoDB
 			const response = await fetch('/api/messages', {

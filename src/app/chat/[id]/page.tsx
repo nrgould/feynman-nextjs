@@ -29,8 +29,6 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 		(state) => state.fetchConversationById
 	);
 
-	console.log(messages);
-
 	useEffect(() => {
 		const fetchConversation = async () => {
 			const conversationId = params.id;
@@ -83,7 +81,6 @@ export default function ChatWindow({ params }: { params: { id: string } }) {
 		addMessage({
 			chatId: params.id,
 			userId: user.sub,
-			id: crypto.randomUUID(),
 			sender: 'user',
 			message: userInput,
 			created_at: new Date(),
