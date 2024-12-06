@@ -16,7 +16,7 @@ export async function getMessages(chatId: string) {
 		// Parse the response JSON
 		const data = await response.json();
 
-		return data.messages as Message;
+		return data.messages as Message[];
 	} catch (error) {
 		console.error('Error fetching messages:', error);
 	}
