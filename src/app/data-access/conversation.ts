@@ -25,17 +25,10 @@ export async function createConversation({ userId }: { userId: string }) {
 			recentMessages: [],
 		};
 
-		console.log(payload);
-
 		const response = await fetch(`${BASE_URL}/api/conversations`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				userId,
-				conceptId: crypto.randomUUID(),
-				context: 'New chat',
-				recentMessages: [],
-			}),
+			body: JSON.stringify(payload),
 		});
 
 		if (!response.ok) {
@@ -46,7 +39,7 @@ export async function createConversation({ userId }: { userId: string }) {
 		}
 
 		const data = await response.json();
-		console.log(data);
+		return data;
 	} catch (error) {
 		console.error('Error creating conversation:', error);
 		throw error;
