@@ -13,9 +13,9 @@ const UserMessage = ({ message }: Props) => {
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.1, ease: 'easeIn' }}
 		>
-			<div className='px-4 py-2 max-w-xs md:max-w-lg lg:max-w-[50rem] rounded-2xl bg-black text-white'>
+			<p className='px-4 py-2 max-w-xs md:max-w-lg lg:max-w-[50rem] rounded-2xl bg-black text-white break-word'>
 				{message}
-			</div>
+			</p>
 		</motion.div>
 	);
 };

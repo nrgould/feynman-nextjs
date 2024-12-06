@@ -3,14 +3,15 @@ import Conversation from '@/models/Conversation';
 import { connectToDatabase } from '@/lib/mongoose';
 
 // GET handler: Fetch a single conversation by ID
-export async function GET(req: Request, context: { params: { id: string } }) {
+export async function GET(req: Request) {
 	try {
 		await connectToDatabase(); // Ensure MongoDB connection
 
-		const { id } = context.params; // Extract ID from the dynamic route
+		const { searchParams } = new URL(req.url);
+		const chatId = searchParams.get('chatId');
 
 		// Find the conversation by ID
-		const conversation = await Conversation.findById(id);
+		const conversation = await Conversation.findById(chatId);
 
 		if (!conversation) {
 			return NextResponse.json(
