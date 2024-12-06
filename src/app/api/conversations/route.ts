@@ -59,6 +59,7 @@ export async function POST(req: Request) {
 
 		// Parse and validate the request body
 		const body = await req.json();
+		console.log('BODY', body);
 		const validatedData = ConversationSchema.parse(body);
 
 		// Use validated data

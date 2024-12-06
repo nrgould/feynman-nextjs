@@ -23,7 +23,6 @@ export async function getMessages(chatId: string) {
 } //
 
 export async function createMessage(message: Message) {
-	console.log('ADDING MESSAGE: ', message);
 	try {
 		const response = await fetch(`${BASE_URL}/api/messages`, {
 			method: 'POST',
