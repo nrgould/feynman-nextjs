@@ -16,8 +16,6 @@ export async function getMessages(chatId: string) {
 		// Parse the response JSON
 		const data = await response.json();
 
-		console.log('Fetched messages:', data.messages);
-
 		return data.messages as Message;
 	} catch (error) {
 		console.error('Error fetching messages:', error);
@@ -40,7 +38,6 @@ export async function createMessage(message: Message) {
 		}
 
 		const data = await response.json();
-		console.log('Message saved:', data);
 	} catch (error) {
 		console.error('Error saving message:', error);
 	}
