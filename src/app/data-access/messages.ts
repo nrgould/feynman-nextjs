@@ -1,4 +1,6 @@
 import { Message } from '@/store/store';
+import axios from 'axios';
+import { NextApiResponse } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -44,4 +46,31 @@ export async function createMessage(message: Message) {
 	}
 } //creates new message in mongo
 
-export async function getChatGPTResponse() {} //move logic for getting chatGPT response here
+export async function getChatGPTResponse(userInput: string) {
+	try {
+		// Send a POST request to your custom API route
+		const response = await axios.post(`${BASE_URL}/api/chatgpt`, {
+			userInput,
+			// Optionally add context or other metadata
+			context: [], // Replace with actual context data if available
+		});
+
+		// Check for a successful response
+		if (response.status === 200 && response.data) {
+			return response.data.result.choices[0].message.content;
+		} else {
+			throw new Error('Failed to get response from ChatGPT API');
+		}
+	} catch (error) {
+		console.error('Error fetching response:', error);
+	}
+
+	// toast({
+	// 	variant: 'destructive',
+	// 	title: 'Uh oh! Something went wrong.',
+	// 	description: 'There was a problem with your request.',
+	// 	action: (
+	// 		<ToastAction altText='Try again'>Try again</ToastAction>
+	// 	),
+	// });}
+} //move logic for getting chatGPT response here

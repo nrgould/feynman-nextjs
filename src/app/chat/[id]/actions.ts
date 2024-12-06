@@ -1,6 +1,6 @@
 'use server';
 
-import { createMessage } from '@/app/data-access/messages';
+import { createMessage, getChatGPTResponse } from '@/app/data-access/messages';
 import { revalidatePath } from 'next/cache';
 
 export async function createMessageAction(
@@ -17,6 +17,23 @@ export async function createMessageAction(
 		sender: 'user',
 		created_at: new Date(),
 	});
+
+	revalidatePath(`/chat/${chatId}`);
+
+	//create API response here
+	const aiMessage = await getChatGPTResponse(message);
+	//add AI message to mongo
+
+	console.log('CHATGPT: ', aiMessage);
+
+	await createMessage({
+		chatId,
+		userId,
+		message: aiMessage,
+		sender: 'system',
+		created_at: new Date(),
+	});
+
 	revalidatePath(`/chat/${chatId}`);
 
 	return { userId, chatId };

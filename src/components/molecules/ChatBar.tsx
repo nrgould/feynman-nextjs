@@ -2,7 +2,7 @@
 
 import React, { useActionState, useRef } from 'react';
 import { Button } from '../ui/button';
-import { Send, Plus, Paperclip, Trash, X } from 'lucide-react';
+import { Send, Plus, Paperclip, Trash, X, Ellipsis } from 'lucide-react';
 import { Input } from '../ui/input';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useFileStore } from '@/store/store';
@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
 import { createMessageAction } from '@/app/chat/[id]/actions';
+import { useFormStatus } from 'react-dom';
 interface Props {
 	chatId: string;
 	userId: string;
@@ -113,12 +114,19 @@ const ChatBar = ({ chatId, userId }: Props) => {
 					name='input'
 					className='max-h-[5rem] min-h-[3rem] pl-10 resize-none mr-2 flex-3'
 				/>
-				<Button className='min-h-[3rem]' type='submit'>
-					<Send />
-				</Button>
+				<SubmitButton />
 			</form>
 		</div>
 	);
 };
+
+export function SubmitButton() {
+	const status = useFormStatus();
+	return (
+		<Button className='min-h-[3rem]' type='submit'>
+			{status.pending ? <Ellipsis /> : <Send />}
+		</Button>
+	);
+}
 
 export default ChatBar;

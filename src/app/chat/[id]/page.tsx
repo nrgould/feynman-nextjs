@@ -11,12 +11,9 @@ export default async function ChatWindow({
 }) {
 	const session = await getSession();
 	const { id: chatId } = await params;
-	const conversation = await getConversation(chatId);
+	// const conversation = await getConversation(chatId);
 	const messages = await getMessages(chatId);
 	const user = session?.user || {};
-
-	console.log(messages);
-	console.log(conversation);
 
 	// const handleSubmit = async (e: FormEvent) => {
 	// 	e.preventDefault();

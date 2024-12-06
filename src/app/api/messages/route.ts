@@ -85,7 +85,7 @@ export async function GET(req: Request) {
 		// Fetch the 10 most recent messages for the conversation
 		const messages = await Message.find({ chatId })
 			.sort({ created_at: 1 })
-			.limit(10); // Limit the result to 10 messages
+			.limit(20); // Limit the result to 10 messages
 
 		return NextResponse.json({ messages }, { status: 200 });
 	} catch (error) {

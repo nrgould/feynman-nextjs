@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 			}
 		);
 
-		const result = response.data.choices[0].message.content;
+		const result = response.data;
 
 		return NextResponse.json({ result }, { status: 200 });
 	} catch (error) {
