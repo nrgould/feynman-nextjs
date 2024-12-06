@@ -8,7 +8,7 @@ const ConversationList = ({
 	conversations: Conversation[];
 }) => {
 	return (
-		<div className='flex flex-col w-full items-start justify-center'>
+		<div className='flex flex-col w-full items-center justify-start h-full'>
 			{conversations &&
 				conversations.map((conv) => (
 					<ConversationItem key={conv._id} conversation={conv} />
