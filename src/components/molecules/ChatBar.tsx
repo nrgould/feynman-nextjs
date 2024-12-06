@@ -1,4 +1,6 @@
-import React, { useRef } from 'react';
+'use client';
+
+import React, { useActionState, useRef } from 'react';
 import { Button } from '../ui/button';
 import { Send, Plus, Paperclip, Trash, X } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -7,17 +9,21 @@ import { useFileStore } from '@/store/store';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
+import { createMessageAction } from '@/app/chat/[id]/actions';
 interface Props {
-	handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-	userInput: string;
-	setUserInput: React.Dispatch<React.SetStateAction<string>>;
-	loading: boolean;
+	chatId: string;
+	userId: string;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
+const ChatBar = ({ chatId, userId }: Props) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const [state, action] = useActionState(createMessageAction, {
+		userId,
+		chatId,
+	});
 
 	const setFile = useFileStore((state) => state.setFile);
 	const file = useFileStore((state) => state.file);
@@ -67,10 +73,7 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 			{/* File Display */}
 			<ChatBarFile file={file} />
 
-			<form
-				onSubmit={handleSubmit}
-				className='flex items-center relative'
-			>
+			<form action={action} className='flex items-center relative'>
 				<Input
 					ref={fileInputRef}
 					type='file'
@@ -105,16 +108,12 @@ const ChatBar = ({ handleSubmit, userInput, setUserInput, loading }: Props) => {
 					)}
 				</AnimatePresence>
 				<Input
-					value={userInput}
-					onChange={(e) => setUserInput(e.target.value)}
 					placeholder='Type a message...'
+					type='text'
+					name='input'
 					className='max-h-[5rem] min-h-[3rem] pl-10 resize-none mr-2 flex-3'
 				/>
-				<Button
-					className='min-h-[3rem]'
-					type='submit'
-					disabled={loading || !userInput.trim()}
-				>
+				<Button className='min-h-[3rem]' type='submit'>
 					<Send />
 				</Button>
 			</form>

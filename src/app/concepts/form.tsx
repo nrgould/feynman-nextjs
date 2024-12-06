@@ -3,11 +3,12 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import React, { useActionState } from 'react';
-import { createMessageAction } from './actions';
+import { createMessageAction } from '../chat/[id]/actions';
 
-function Form({ userId }: { userId: string }) {
+function Form({ userId, chatId }: { userId: string; chatId: string }) {
 	const [state, action] = useActionState(createMessageAction, {
 		userId,
+		chatId,
 	});
 	return (
 		<form

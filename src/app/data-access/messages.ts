@@ -23,6 +23,7 @@ export async function getMessages(chatId: string) {
 } //
 
 export async function createMessage(message: Message) {
+	console.log('ADDING MESSAGE: ', message);
 	try {
 		const response = await fetch(`${BASE_URL}/api/messages`, {
 			method: 'POST',
@@ -38,6 +39,7 @@ export async function createMessage(message: Message) {
 		}
 
 		const data = await response.json();
+		console.log(data);
 	} catch (error) {
 		console.error('Error saving message:', error);
 	}

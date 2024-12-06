@@ -1,22 +1,23 @@
 'use server';
 
+import { createMessage } from '@/app/data-access/messages';
 import { revalidatePath } from 'next/cache';
-import { createMessage } from '../data-access/messages';
 
 export async function createMessageAction(
-	prevState: { userId: string },
+	prevState: { userId: string; chatId: string },
 	formData: FormData
 ) {
 	const message = formData.get('input') as string;
-	const userId = prevState.userId;
+	const { userId, chatId } = prevState;
+
 	await createMessage({
-		chatId: '67521ef550c6335e8b87866b',
-		userId: userId,
+		chatId,
+		userId,
 		message: message,
 		sender: 'user',
 		created_at: new Date(),
 	});
-	revalidatePath('/concepts');
+	revalidatePath(`/chat/${chatId}`);
 
-	return { userId };
+	return { userId, chatId };
 }

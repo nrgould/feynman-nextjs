@@ -1,3 +1,5 @@
+'use client'
+
 import SystemMessage from '../atoms/SystemMessageBubble';
 import UserMessage from '../atoms/UserMessageBubble';
 
