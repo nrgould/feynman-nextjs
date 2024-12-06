@@ -26,23 +26,10 @@ export async function getMessages(chatId: string) {
 
 export async function createMessage(message: Message) {
 	try {
-		// Construct the payload for the message
-		const payload = {
-			chatId: message.chatId,
-			userId: message.userId,
-			message: message.message,
-			sender: message.sender,
-			attachments: message.attachments || [],
-			created_at: message.created_at,
-		};
-
-		console.log(payload);
-
-		// Save the message to MongoDB
 		const response = await fetch(`${BASE_URL}/api/messages`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload),
+			body: JSON.stringify(message),
 		});
 
 		if (!response.ok) {
