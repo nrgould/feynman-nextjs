@@ -15,3 +15,19 @@ export async function getConversation(chatId: string) {
 }
 
 export async function createConversation() {}
+
+export async function getUserConversations(userId: { userId: string }) {
+	try {
+		const response = await fetch(
+			`${BASE_URL}/api/conversations?userId=${userId}`
+		);
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! Status: ${response.status}`);
+		}
+		return await response.json();
+	} catch (error) {
+		console.error('Error fetching conversation:', error);
+		throw error;
+	}
+}

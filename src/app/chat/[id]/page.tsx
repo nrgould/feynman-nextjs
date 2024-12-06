@@ -22,21 +22,6 @@ export default async function ChatWindow({
 	// 	e.preventDefault();
 	// 	if (!userInput.trim()) return;
 
-	// 	if (!user?.sub) {
-	// 		throw new Error('User ID is missing');
-	// 	}
-
-	// 	// Add user message to Zustand store
-	// 	addMessage({
-	// 		chatId: chatId,
-	// 		userId: user.sub,
-	// 		sender: 'user',
-	// 		message: userInput,
-	// 		created_at: new Date(),
-	// 	});
-	// 	setMsgLoading(true);
-	// 	setUserInput('');
-
 	// 	try {
 	// 		const res = await axios.post<ApiResponse>('/api/chatgpt', {
 	// 			userInput,

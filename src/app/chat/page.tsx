@@ -1,47 +1,22 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import LoaderPage from '@/components/atoms/LoaderPage';
-import axios from 'axios';
+import { getSession } from '@auth0/nextjs-auth0';
+import { getUserConversations } from '../data-access/conversation';
+import { Label } from '@/components/ui/label';
+import { Conversation } from '@/store/store';
 
-export default function ChatRedirect() {
-	const router = useRouter();
-	const { user, isLoading } = useUser();
-	const [loading, setLoading] = useState(false);
+export default async function ChatHome() {
+	const session = await getSession();
+	const user = session?.user || {};
+	const { conversations } = await getUserConversations(user.sub);
 
-	useEffect(() => {
-		const createConversation = async () => {
-			if (isLoading || loading) return;
-			if (!user) {
-				// Redirect to login if user is not authenticated
-				router.push('/api/auth/login');
-				return;
-			}
+	console.log(conversations);
 
-			setLoading(true);
-			try {
-				// Create a new conversation via API
-				const res = await axios.post('/api/conversations', {
-					userId: user.sub,
-					conceptId: crypto.randomUUID(),
-					context: 'Starting a new chat',
-					recentMessages: [],
-				});
-
-				const conversationId = res.data.conversation._id;
-				// Navigate to the new conversation
-				router.push(`/chat/${conversationId}`);
-			} catch (error) {
-				console.error('Error creating conversation:', error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		createConversation();
-	}, [user, router, isLoading, loading]);
-
-	return <LoaderPage />;
+	return (
+		<div className='relative flex flex-col lg:items-center md:items-baseline sm:items-baseline justify-center lg:px-24 md:px-8 sm:px-2 xs:px-0 w-full'>
+			{conversations &&
+				conversations.map((conv: Conversation) => (
+					<Label>{conv.context}</Label>
+				))}
+		</div>
+	);
 }
