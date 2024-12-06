@@ -3,14 +3,11 @@ import Conversation from '@/models/Conversation';
 import { connectToDatabase } from '@/lib/mongoose';
 
 // GET handler: Fetch a single conversation by ID
-export async function GET(
-	req: Request,
-	{ params }: { params: { id: string } }
-) {
+export async function GET(req: Request, context: { params: { id: string } }) {
 	try {
 		await connectToDatabase(); // Ensure MongoDB connection
 
-		const { id } = params; // Extract ID from the dynamic route
+		const { id } = context.params; // Extract ID from the dynamic route
 
 		// Find the conversation by ID
 		const conversation = await Conversation.findById(id);

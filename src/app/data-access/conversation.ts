@@ -1,5 +1,3 @@
-import { Conversation } from '@/store/store';
-
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export async function getConversation(chatId: string) {

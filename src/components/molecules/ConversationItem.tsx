@@ -9,7 +9,7 @@ const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
 	return (
 		<Link
 			href={`/chat/${conversation._id}`}
-			className='sm:w-full lg:w-1/2 flex flex-col '
+			className='w-full flex flex-col '
 		>
 			<div className='flex justify-between items-center py-4'>
 				<div className='flex items-center justify-center'>

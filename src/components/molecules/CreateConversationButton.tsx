@@ -14,10 +14,14 @@ const CreateConversationButton = ({ userId }: { userId: string }) => {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<div className='fixed bottom-6 right-6'>
+					<div className='fixed bottom-8 right-8'>
 						<form action={createConversationAction}>
 							<input type='hidden' name='userId' value={userId} />
-							<Button type='submit' variant='default' size='icon'>
+							<Button
+								type='submit'
+								variant='default'
+								className='w-[3rem] h-[3rem]'
+							>
 								<Plus />
 							</Button>
 						</form>

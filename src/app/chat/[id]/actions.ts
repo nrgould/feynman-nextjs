@@ -10,6 +10,7 @@ export async function createMessageAction(
 	const message = formData.get('input') as string;
 	const { userId, chatId } = prevState;
 
+	//create user message
 	await createMessage({
 		chatId,
 		userId,
@@ -20,11 +21,8 @@ export async function createMessageAction(
 
 	revalidatePath(`/chat/${chatId}`);
 
-	//create API response here
+	//create API response 
 	const aiMessage = await getChatGPTResponse(message);
-	//add AI message to mongo
-
-	console.log('CHATGPT: ', aiMessage);
 
 	await createMessage({
 		chatId,
