@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 }
 
 // Zod schemas
-export const MessageSchema = z.object({
+const MessageSchema = z.object({
 	userId: z.string().min(1, 'User ID is required'),
 	chatId: z.string().min(1, 'Chat ID is required'),
 	message: z.string(),
@@ -46,7 +46,7 @@ export const MessageSchema = z.object({
 	),
 });
 
-export const ConversationSchema = z.object({
+const ConversationSchema = z.object({
 	userId: z.string().min(1, 'User ID is required'),
 	conceptId: z.string().min(1, 'Concept ID is required'),
 	context: z.string(),

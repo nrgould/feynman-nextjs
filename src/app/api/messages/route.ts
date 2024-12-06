@@ -1,9 +1,20 @@
 import { NextResponse } from 'next/server';
 import Conversation from '@/models/Conversation';
 import { connectToDatabase } from '@/lib/mongoose';
-import { MessageSchema } from '../conversations/route';
 import { z } from 'zod';
 import Message from '@/models/Message';
+
+const MessageSchema = z.object({
+	userId: z.string().min(1, 'User ID is required'),
+	chatId: z.string().min(1, 'Chat ID is required'),
+	message: z.string(),
+	attachments: z.array(z.string()).optional(),
+	sender: z.enum(['user', 'system']),
+	created_at: z.preprocess(
+		(arg) => (typeof arg === 'string' ? new Date(arg) : arg),
+		z.date()
+	),
+});
 
 export async function POST(req: Request) {
 	try {
@@ -82,7 +93,7 @@ export async function GET(req: Request) {
 			);
 		}
 
-		// Fetch the 10 most recent messages for the conversation
+		// Fetch the 20 most recent messages for the conversation
 		const messages = await Message.find({ chatId })
 			.sort({ created_at: 1 })
 			.limit(20); // Limit the result to 10 messages
