@@ -8,6 +8,7 @@ export async function createMessageAction(
 	formData: FormData
 ) {
 	const message = formData.get('input') as string;
+	const context = formData.get('context') as string;
 	const { userId, chatId } = prevState;
 
 	//create user message
@@ -22,7 +23,7 @@ export async function createMessageAction(
 	revalidatePath(`/chat/${chatId}`);
 
 	//create API response 
-	const aiMessage = await getChatGPTResponse(message);
+	const aiMessage = await getChatGPTResponse(message, context);
 
 	await createMessage({
 		chatId,

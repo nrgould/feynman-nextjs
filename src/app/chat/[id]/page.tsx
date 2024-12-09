@@ -16,7 +16,6 @@ export default async function ChatWindow({ params }: { params: tParams }) {
 
 	return (
 		<div className='relative flex flex-col lg:items-center md:items-baseline sm:items-baseline justify-center lg:px-24 md:px-8 sm:px-2 xs:px-0 w-full'>
-			
 			{/* Messages Area / Chat Middle */}
 			<div className='pb-16 md:w-full'>
 				<ChatMessages messages={messages || []} />
@@ -25,7 +24,11 @@ export default async function ChatWindow({ params }: { params: tParams }) {
 
 			{/* Input area / Chat Bottom */}
 			<div className='fixed bottom-0 left-0 w-full'>
-				<ChatBar userId={user.sub} chatId={id} />
+				<ChatBar
+					userId={user.sub}
+					messages={messages || []}
+					chatId={id}
+				/>
 			</div>
 		</div>
 	);

@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Send, Plus, Paperclip, Trash, X, Ellipsis } from 'lucide-react';
 import { Input } from '../ui/input';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useFileStore } from '@/store/store';
+import { Message, useFileStore } from '@/store/store';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
@@ -14,12 +14,19 @@ import { useFormStatus } from 'react-dom';
 interface Props {
 	chatId: string;
 	userId: string;
+	messages: Message[];
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-const ChatBar = ({ chatId, userId }: Props) => {
+const ChatBar = ({ chatId, userId, messages }: Props) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const contextString = messages
+		.map((msg) => `${msg.sender}: ${msg.message}`)
+		.join('\n');
+
+	console.log(contextString.length);
 
 	const [state, action] = useActionState(createMessageAction, {
 		userId,
@@ -114,6 +121,7 @@ const ChatBar = ({ chatId, userId }: Props) => {
 					name='input'
 					className='max-h-[5rem] min-h-[3rem] pl-10 resize-none mr-2 flex-3'
 				/>
+				<input type='hidden' name='context' value={contextString} />
 				<SubmitButton />
 			</form>
 		</div>

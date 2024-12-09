@@ -1,6 +1,9 @@
 import { Message } from '@/store/store';
 import axios from 'axios';
-import { NextApiResponse } from 'next';
+const delimiter = '####';
+
+const systemMessage =
+	'Act as if you are a high school math teacher checking student’s accuracy on the concept they are speaking about. Be sure to note any gaps in their understanding as if you were following the Feynman technique for learning, and report back to the student in a gentle manner. Check for correctness, logical flow, and whether the explanation covers all necessary aspects. Also make sure to ask relevant follow-up questions to ensure understanding.';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -46,18 +49,33 @@ export async function createMessage(message: Message) {
 	}
 } //creates new message in mongo
 
-export async function getChatGPTResponse(userInput: string) {
+export async function getChatGPTResponse(userInput: string, context: string) {
 	try {
-		// Send a POST request to your custom API route
-		const response = await axios.post(`${BASE_URL}/api/chatgpt`, {
-			userInput,
-			// Optionally add context or other metadata
-			context: [], // Replace with actual context data if available
-		});
-
+		const response = await axios.post(
+			'https://api.openai.com/v1/chat/completions',
+			{
+				model: 'gpt-3.5-turbo',
+				messages: [
+					{ role: 'system', content: systemMessage },
+					{
+						role: 'system',
+						content: `Here is the previous message context, denoted by delimiter ${delimiter}
+						${delimiter}${context}${delimiter}
+						`,
+					},
+					{ role: 'user', content: userInput },
+				],
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+				},
+			}
+		);
 		// Check for a successful response
 		if (response.status === 200 && response.data) {
-			return response.data.result.choices[0].message.content;
+			return response.data.choices[0].message.content;
 		} else {
 			throw new Error('Failed to get response from ChatGPT API');
 		}
