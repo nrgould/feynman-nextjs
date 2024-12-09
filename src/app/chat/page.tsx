@@ -3,9 +3,12 @@ import { getUserConversations } from '../data-access/conversation';
 import ConversationList from '@/components/organisms/ConversationList';
 import CreateConversationButton from '@/components/molecules/CreateConversationButton';
 import { Label } from '@/components/ui/label';
+import { redirect } from 'next/navigation';
 
 export default async function ChatHome() {
 	const session = await getSession();
+	if (!session) return redirect('/api/auth/login');
+
 	const user = session?.user || {};
 	const { conversations } = await getUserConversations(user.sub);
 
