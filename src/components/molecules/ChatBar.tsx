@@ -75,7 +75,7 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 	};
 
 	return (
-	<div className='relative p-4 xs:px-4 sm:px-4 md:px-48 lg:px-72 md:mr-5 xs:mr-4 pt-1 bg-white w-full pb-4'>
+		<div className='relative p-4 md:mr-5 xs:mr-4 pt-1 bg-white pb-4 md:w-1/2 sm:w-full w-full'>
 			<ChatBarFile file={file} />
 
 			<form action={action} className='flex items-center relative'>

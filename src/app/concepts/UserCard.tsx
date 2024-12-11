@@ -26,14 +26,14 @@ export default function UserCard({ user }: { user: User }) {
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent>
+			{/* <CardContent>
 				<p>{user.city}</p>
 				<p>{user.state}</p>
 				<p>{user.country}</p>
 			</CardContent>
 			<CardFooter>
 				<p>{user.email}</p>
-			</CardFooter>
+			</CardFooter> */}
 		</Card>
 	);
 }

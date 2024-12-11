@@ -29,7 +29,7 @@ export default function UserList({ initialUsers }: UserListProps) {
 	};
 
 	return (
-		<div className='scrollableDiv'>
+		<div id='scrollableDiv'>
 			<InfiniteScroll
 				dataLength={users.length}
 				next={loadMoreUsers}

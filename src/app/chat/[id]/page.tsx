@@ -20,7 +20,7 @@ export default async function ChatWindow({ params }: { params: tParams }) {
 
 	return (
 		<div className='relative flex flex-col md:items-center sm:items-baseline justify-center w-full'>
-			<div className='absolute top-0 left-0 p-0'>
+			<div className='absolute top-0 left-0'>
 				<Link
 					href='/chat'
 					className='inline-flex items-center text-gray-600 hover:text-gray-800'
@@ -35,7 +35,7 @@ export default async function ChatWindow({ params }: { params: tParams }) {
 				/>
 			</div>
 
-			<div className='fixed bottom-0 left-0 w-full'>
+			<div className='fixed bottom-0 left-0 w-full flex justify-center items-center'>
 				<ChatBar
 					userId={user.sub}
 					messages={response.messages || []}

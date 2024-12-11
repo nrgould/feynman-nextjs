@@ -22,7 +22,7 @@ export type User = {
 	zipcode: string;
 };
 
-const INITIAL_NUMBER_OF_USERS = 10;
+const INITIAL_NUMBER_OF_USERS = 5;
 
 export default async function Concepts() {
 	const initialUsers = await getUsers(0, INITIAL_NUMBER_OF_USERS);
