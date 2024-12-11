@@ -17,8 +17,8 @@ export default async function ChatWindow({ params }: { params: tParams }) {
 	const user = session?.user || {};
 
 	return (
-		<div className='relative flex flex-col lg:items-center md:items-baseline sm:items-baseline justify-center lg:px-24 md:px-8 sm:px-2 xs:px-0 w-full'>
-			<div className='pb-16 md:w-full'>
+		<div className='relative flex flex-col md:items-center sm:items-baseline justify-center  w-full'>
+			<div className='pb-16 md:w-full lg:w-3/4 xl:w-1/2 sm:w-full'>
 				<ChatMessages
 					chatId={id}
 					initialMessages={response.messages || []}

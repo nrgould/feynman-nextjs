@@ -75,8 +75,7 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 	};
 
 	return (
-		<div className='relative p-4 xs:px-4 sm:px-4 md:px-48 lg:px-72 md:mr-5 xs:mr-4 pt-1 bg-white w-full pb-4'>
-			{/* File Display */}
+	<div className='relative p-4 xs:px-4 sm:px-4 md:px-48 lg:px-72 md:mr-5 xs:mr-4 pt-1 bg-white w-full pb-4'>
 			<ChatBarFile file={file} />
 
 			<form action={action} className='flex items-center relative'>
@@ -85,7 +84,7 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 					type='file'
 					aria-label='file'
 					className='hidden'
-					onChange={handleFileChange} // Update Zustand store on file selection
+					onChange={handleFileChange}
 				/>
 				<AnimatePresence mode='sync'>
 					{file && (

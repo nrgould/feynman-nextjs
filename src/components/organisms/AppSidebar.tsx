@@ -12,6 +12,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarRail,
+	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { NavUser } from '../molecules/NavUser';
 
@@ -46,7 +47,9 @@ const items = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar collapsible='icon' {...props}>
-			<SidebarHeader></SidebarHeader>
+			<SidebarHeader>
+				<SidebarTrigger />
+			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupLabel>Platform</SidebarGroupLabel>

@@ -2,6 +2,10 @@
 
 import { createMessage, getChatGPTResponse } from '@/app/data-access/messages';
 import { revalidatePath } from 'next/cache';
+import { google } from '@ai-sdk/google';
+import { generateObject } from 'ai';
+import { z } from 'zod';
+
 
 export async function createMessageAction(
 	prevState: { userId: string; chatId: string },
