@@ -82,9 +82,11 @@ export async function GET(req: Request) {
 	try {
 		await connectToDatabase(); // Ensure MongoDB connection
 
-		// Extract conversation ID from the query string
+		// Extract query parameters
 		const { searchParams } = new URL(req.url);
 		const chatId = searchParams.get('chatId');
+		const offset = parseInt(searchParams.get('offset') || '0', 10);
+		const limit = parseInt(searchParams.get('limit') || '10', 10);
 
 		if (!chatId) {
 			return NextResponse.json(
@@ -93,10 +95,11 @@ export async function GET(req: Request) {
 			);
 		}
 
-		// Fetch the 20 most recent messages for the conversation
+		// Fetch messages with pagination
 		const messages = await Message.find({ chatId })
-			.sort({ created_at: 1 })
-			.limit(30); // Limit the result to 10 messages
+			.sort({ created_at: 1 }) // Sort messages in ascending order of creation
+			.skip(offset) // Skip the specified number of documents
+			.limit(limit); // Limit the number of documents returned
 
 		return NextResponse.json({ messages }, { status: 200 });
 	} catch (error) {
@@ -107,3 +110,33 @@ export async function GET(req: Request) {
 		);
 	}
 }
+
+// export async function GET(req: Request) {
+// 	try {
+// 		await connectToDatabase(); // Ensure MongoDB connection
+
+// 		// Extract conversation ID from the query string
+// 		const { searchParams } = new URL(req.url);
+// 		const chatId = searchParams.get('chatId');
+
+// 		if (!chatId) {
+// 			return NextResponse.json(
+// 				{ error: 'Chat ID is required' },
+// 				{ status: 400 }
+// 			);
+// 		}
+
+// 		// Fetch the 20 most recent messages for the conversation
+// 		const messages = await Message.find({ chatId })
+// 			.sort({ created_at: 1 })
+// 			.limit(30); // Limit the result to 10 messages
+
+// 		return NextResponse.json({ messages }, { status: 200 });
+// 	} catch (error) {
+// 		console.error('GET Error:', error);
+// 		return NextResponse.json(
+// 			{ error: 'Internal server error' },
+// 			{ status: 500 }
+// 		);
+// 	}
+// }
