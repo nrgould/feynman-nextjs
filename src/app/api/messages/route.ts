@@ -80,9 +80,8 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
 	try {
-		await connectToDatabase(); // Ensure MongoDB connection
+		await connectToDatabase();
 
-		// Extract query parameters
 		const { searchParams } = new URL(req.url);
 		const chatId = searchParams.get('chatId');
 		const offset = parseInt(searchParams.get('offset') || '0', 10);
@@ -95,13 +94,31 @@ export async function GET(req: Request) {
 			);
 		}
 
-		// Fetch messages with pagination
+		// Fetch messages for the current page
 		const messages = await Message.find({ chatId })
-			.sort({ created_at: 1 }) // Sort messages in ascending order of creation
-			.skip(offset) // Skip the specified number of documents
-			.limit(limit); // Limit the number of documents returned
+			.sort({ created_at: -1 })
+			.skip(offset)
+			.limit(limit)
+		.then((msgs) => msgs.reverse());
 
-		return NextResponse.json({ messages }, { status: 200 });
+		// Fetch count of remaining messagesd
+		const remainingCount = await Message.countDocuments({
+			chatId,
+			created_at: {
+				$gt:
+					messages.length > 0
+						? messages[messages.length - 1].created_at
+						: new Date(),
+			},
+		});
+
+		return NextResponse.json(
+			{
+				messages,
+				hasMore: remainingCount > 0,
+			},
+			{ status: 200 }
+		);
 	} catch (error) {
 		console.error('GET Error:', error);
 		return NextResponse.json(

@@ -26,8 +26,6 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 		.map((msg) => `${msg.sender}: ${msg.message}`)
 		.join('\n');
 
-	console.log(contextString.length);
-
 	const [state, action] = useActionState(createMessageAction, {
 		userId,
 		chatId,

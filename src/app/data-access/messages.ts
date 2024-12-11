@@ -7,15 +7,25 @@ const systemMessage =
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+interface MessagesResponse {
+	messages: Message[];
+	hasMore: boolean;
+}
+
 export async function getMessages(
 	chatId: string,
-	offset: number,
-	limit: number
-) {
+	offset: number = 0,
+	limit: number = 10
+): Promise<MessagesResponse> {
 	try {
-		// Fetch messages from the API for the given chatId
 		const response = await fetch(
-			`${BASE_URL}/api/messages?chatId=${chatId}&?offset=${offset}&limit=${limit}`
+			`${BASE_URL}/api/messages?chatId=${chatId}&offset=${offset}&limit=${limit}`,
+			{
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			}
 		);
 
 		if (!response.ok) {
@@ -23,10 +33,13 @@ export async function getMessages(
 		}
 
 		const data = await response.json();
-
-		return data.messages as Message[];
+		return {
+			messages: data.messages,
+			hasMore: data.hasMore,
+		};
 	} catch (error) {
 		console.error('Error fetching messages:', error);
+		throw error;
 	}
 }
 
