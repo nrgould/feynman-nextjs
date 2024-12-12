@@ -5,12 +5,13 @@ import { Button } from '../ui/button';
 import { Send, Plus, Paperclip, Trash, X, Ellipsis } from 'lucide-react';
 import { Input } from '../ui/input';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, useFileStore } from '@/store/store';
+import { useFileStore } from '@/store/store';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
 import { createMessageAction } from '@/app/chat/[id]/actions';
 import { useFormStatus } from 'react-dom';
+import { Message } from '@/lib/types';
 interface Props {
 	chatId: string;
 	userId: string;

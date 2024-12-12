@@ -1,4 +1,4 @@
-import { Message } from '@/store/store';
+import { Message } from '@/lib/types';
 import axios from 'axios';
 const delimiter = '####';
 
@@ -40,26 +40,6 @@ export async function getMessages(
 	} catch (error) {
 		console.error('Error fetching messages:', error);
 		throw error;
-	}
-}
-
-export async function getMoreMessages(chatId: string) {
-	try {
-		// Fetch messages from the API for the given chatId
-		const response = await fetch(
-			`${BASE_URL}/api/messages?chatId=${chatId}`
-		);
-
-		if (!response.ok) {
-			throw new Error('Failed to fetch messages');
-		}
-
-		// Parse the response JSON
-		const data = await response.json();
-
-		return data.messages as Message[];
-	} catch (error) {
-		console.error('Error fetching messages:', error);
 	}
 }
 

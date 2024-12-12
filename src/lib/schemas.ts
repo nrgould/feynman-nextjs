@@ -19,7 +19,16 @@ export type Question = z.infer<typeof questionSchema>;
 
 export const questionsSchema = z.array(questionSchema).length(4);
 
+export const conceptSchema = z.object({
+	concept: z.string().describe('The main concept or topic being tested'),
+	description: z.string().describe('A brief explanation of the concept'),
+	difficulty: z.enum(['Beginner', 'Intermediate', 'Advanced']).describe('The difficulty level of understanding this concept'),
+	prerequisites: z.array(z.string()).describe('Any concepts that should be understood before learning this one'),
+	relatedConcepts: z.array(z.string()).describe('Other concepts that are related or connected to this one')
+});
 
-//define message schema
+export type Concept = z.infer<typeof conceptSchema>;
+
+export const conceptsSchema = z.array(conceptSchema).min(1);
 
 //define schema to determine what stage the learner is in

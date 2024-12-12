@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { ThemeProvider } from '@/components/theme-provider';
 import localFont from 'next/font/local';
 import './globals.css';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
@@ -8,8 +7,10 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/organisms/AppSidebar';
+import { AppSidebar } from '@/components/nav/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
+import QueryProvider from '@/components/providers/QueryProvider';
+import Header from '@/components/nav/Header';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -35,23 +36,18 @@ export default function RootLayout({
 			/>
 			<UserProvider>
 				<body className={`${PlusJakartaSans.variable}`}>
-					<SidebarProvider>
-						<AppSidebar />
-						<SidebarInset className='h-screen'>
-							<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4 bg-white z-50'>
-								{/* <SidebarTrigger className='-ml-1' /> */}
-								<div className='flex flex-row items-center justify-between'>
-									<h1 className='font-bold text-xl'>
-										Feynman Learning
-									</h1>
-								</div>
-							</header>
-							<main className='flex flex-1 flex-col gap-4 p-4'>
-								{children}
-							</main>
-							<Toaster />
-						</SidebarInset>
-					</SidebarProvider>
+					<QueryProvider>
+						<SidebarProvider>
+							<AppSidebar />
+							<SidebarInset className='h-screen'>
+								<Header />
+								<main className='flex flex-1 flex-col gap-4 p-4'>
+									{children}
+								</main>
+								<Toaster />
+							</SidebarInset>
+						</SidebarProvider>
+					</QueryProvider>
 				</body>
 			</UserProvider>
 		</html>

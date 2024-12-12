@@ -1,22 +1,5 @@
+import { Conversation, Message } from '@/lib/types';
 import { create } from 'zustand';
-
-export type Message = {
-	chatId: string;
-	userId: string;
-	_id?: string;
-	message: string; // The content of the message
-	sender: 'user' | 'system'; //Whether message is coming from the user or system
-	created_at: Date;
-	attachments?: string[];
-};
-
-export type Conversation = {
-	_id?: string;
-	userId: string;
-	conceptId?: string;
-	context?: string;
-	recentMessages: Message[];
-};
 
 type FileStore = {
 	file: File | null; // Store the selected file
