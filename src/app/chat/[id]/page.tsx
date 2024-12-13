@@ -19,8 +19,6 @@ export default async function Chat({ params }: { params: tParams }) {
 	});
 	const user = session?.user || {};
 
-	console.log(response.messages);
-
 	return (
 		<ChatWindow
 			chatId={id}

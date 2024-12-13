@@ -1,8 +1,16 @@
 'use client';
 
-import React, { useActionState, useRef } from 'react';
+import React, { memo, useActionState, useCallback, useRef } from 'react';
 import { Button } from '../ui/button';
-import { Send, Plus, Paperclip, Trash, X, Ellipsis } from 'lucide-react';
+import {
+	Send,
+	Plus,
+	Paperclip,
+	Trash,
+	X,
+	Ellipsis,
+	ArrowUpIcon,
+} from 'lucide-react';
 import { Input } from '../ui/input';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useFileStore } from '@/store/store';
@@ -11,17 +19,48 @@ import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
 import { createMessageAction } from '@/app/chat/[id]/actions';
 import { useFormStatus } from 'react-dom';
-import { Message } from '@/lib/types';
+import { Attachment, Message } from 'ai';
+import { Textarea } from '../ui/textarea';
 interface Props {
 	chatId: string;
 	userId: string;
 	messages: Message[];
+	handleSubmit: () => void;
+	input: string;
+	setInput: (input: string) => void;
+	isLoading: boolean;
+	reload: () => void;
+	stop: () => void;
+	attachments: Attachment[];
+	setAttachments: (attachments: Attachment[]) => void;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-const ChatBar = ({ chatId, userId, messages }: Props) => {
+const ChatBar = ({
+	chatId,
+	userId,
+	messages,
+	handleSubmit,
+	input,
+	setInput,
+	isLoading,
+	reload,
+	stop,
+	attachments,
+	setAttachments,
+}: Props) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+	const adjustHeight = () => {
+		if (textareaRef.current) {
+			textareaRef.current.style.height = 'auto';
+			textareaRef.current.style.height = `${
+				textareaRef.current.scrollHeight + 2
+			}px`;
+		}
+	};
 
 	const contextString = messages
 		.map((msg) => `${msg.role}: ${msg.content}`)
@@ -71,8 +110,38 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 			}
 
 			console.log('File selected:', files[0]);
-			setFile(files[0]); // Store the file in Zustand
+			setFile(files[0]);
 		}
+	};
+
+	const submitForm = useCallback(() => {
+		window.history.replaceState({}, '', `/chat/${chatId}`);
+
+		handleSubmit();
+
+		// handleSubmit(undefined, {
+		// 	experimental_attachments: attachments,
+		// });
+
+		setAttachments([]);
+		// setLocalStorageInput('');
+
+		// if (width && width > 768) {
+		// 	textareaRef.current?.focus();
+		// }
+	}, [
+		attachments,
+		handleSubmit,
+		setAttachments,
+		// setLocalStorageInput,
+		// width,
+		chatId,
+		input,
+	]);
+
+	const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setInput(event.target.value);
+		adjustHeight();
 	};
 
 	return (
@@ -85,6 +154,7 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 					type='file'
 					aria-label='file'
 					className='hidden'
+					multiple={true}
 					onChange={handleFileChange}
 				/>
 				<AnimatePresence mode='sync'>
@@ -113,14 +183,36 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 						</motion.div>
 					)}
 				</AnimatePresence>
-				<Input
+				<Textarea
 					placeholder='Type a message...'
-					type='text'
+					ref={textareaRef}
+					value={input}
+					onChange={handleInput}
+					rows={1}
 					name='input'
-					className='max-h-[5rem] min-h-[3rem] pl-10 resize-none mr-2 flex-3'
+					className='pl-10'
+					autoFocus
+					onKeyDown={(event) => {
+						if (event.key === 'Enter' && !event.shiftKey) {
+							event.preventDefault();
+
+							if (isLoading) {
+								toast({
+									variant: 'destructive',
+									title: 'Please wait for the model to finish its response!',
+								});
+							} else {
+								submitForm();
+							}
+						}
+					}}
 				/>
 				<input type='hidden' name='context' value={contextString} />
-				<SubmitButton />
+				<SendButton
+					submitForm={submitForm}
+					input={input}
+					uploadQueue={[]}
+				/>
 			</form>
 		</div>
 	);
@@ -136,3 +228,33 @@ export function SubmitButton() {
 }
 
 export default ChatBar;
+
+function PureSendButton({
+	submitForm,
+	input,
+	uploadQueue,
+}: {
+	submitForm: () => void;
+	input: string;
+	uploadQueue: Array<string>;
+}) {
+	return (
+		<Button
+			className='rounded-full p-2 h-fit absolute bottom-2 right-2 m-0.5 border dark:border-zinc-600'
+			onClick={(event) => {
+				event.preventDefault();
+				submitForm();
+			}}
+			disabled={input.length === 0 || uploadQueue.length > 0}
+		>
+			<ArrowUpIcon size={18} />
+		</Button>
+	);
+}
+
+const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
+	if (prevProps.uploadQueue.length !== nextProps.uploadQueue.length)
+		return false;
+	if (!prevProps.input !== !nextProps.input) return false;
+	return true;
+});

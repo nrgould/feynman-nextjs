@@ -2,10 +2,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import MessageBubble from './MessageBubble';
-import { Message } from '@/lib/types';
 import { MoonLoader } from 'react-spinners';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useScrollToBottom } from '../useScrollToBottom';
+import { Message } from 'ai';
 
 interface Props {
 	messages: Message[];
@@ -18,11 +18,10 @@ const ChatMessages = ({ messages, chatId }: Props) => {
 	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
 	const [hasMore, setHasMore] = useState(true);
 
-	console.log('HAS MORE', hasMore);
+	// console.log('HAS MORE', hasMore);
 
 	const [messagesContainerRef, messagesEndRef] =
 		useScrollToBottom<HTMLDivElement>();
-
 
 	const loadMoreMessages = async () => {
 		console.log('FETCHING MESSAGES');
@@ -66,14 +65,17 @@ const ChatMessages = ({ messages, chatId }: Props) => {
 					{messages &&
 						messages.map((msg) => (
 							<MessageBubble
-								key={msg._id}
+								key={msg.id}
 								message={msg.content}
 								role={msg.role}
 							/>
 						))}
 					{messages.length === 0 && (
 						<div className='flex flex-col items-center justify-center h-full'>
-							<p>Send a message or upload a file to start learning</p>
+							<p>
+								Send a message or upload a file to start
+								learning
+							</p>
 						</div>
 					)}
 					<div ref={messagesEndRef} />

@@ -22,7 +22,7 @@ export default function Concepts() {
 	return (
 		<div className='flex flex-col gap-4 items-center justify-center'>
 			{messages.map((m, i) => (
-				<MessageBubble key={m.id} message={m.content} type={m.role} />
+				<MessageBubble key={m.id} message={m.content} role={m.role} />
 			))}
 			<form onSubmit={handleSubmit} className='flex gap-4'>
 				<Input value={input} onChange={handleInputChange} />
