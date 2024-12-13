@@ -54,13 +54,13 @@ import Message from './models/Message';
 export async function getChatById({ id }: { id: string }) {
 	try {
 		await connectToDatabase(); // Ensure MongoDB connection
-		
+
 		const selectedChat = await Conversation.findById(id);
-		
+
 		if (!selectedChat) {
 			throw new Error('Chat not found');
 		}
-		
+
 		return selectedChat;
 	} catch (error) {
 		console.error('Failed to get chat by id from database');
@@ -68,7 +68,7 @@ export async function getChatById({ id }: { id: string }) {
 	}
 }
 
-// save messages periodically instead of on every message? 
+// save messages periodically instead of on every message?
 
 // export async function saveMessages({ messages }: { messages: Array<Message> }) {
 // 	try {
@@ -81,7 +81,7 @@ export async function getChatById({ id }: { id: string }) {
 
 export async function getMessagesByChatId({ id, offset = 0, limit = 10 }: { id: string; offset?: number; limit?: number }) {
 	try {
-		await connectToDatabase(); 
+		await connectToDatabase();
 		const messages = await Message.find({ chatId: id })
 			.sort({ created_at: -1 })
 			.skip(offset)
