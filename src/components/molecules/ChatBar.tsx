@@ -24,7 +24,7 @@ const ChatBar = ({ chatId, userId, messages }: Props) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const contextString = messages
-		.map((msg) => `${msg.sender}: ${msg.message}`)
+		.map((msg) => `${msg.role}: ${msg.content}`)
 		.join('\n');
 
 	const [state, action] = useActionState(createMessageAction, {

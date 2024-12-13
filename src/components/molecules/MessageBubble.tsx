@@ -5,14 +5,14 @@ import UserMessage from '../atoms/UserMessageBubble';
 
 interface MessageBubbleProps {
 	message: string;
-	type: 'user' | 'system' | 'assistant' | 'data';
+	role: 'user' | 'system' | 'assistant' | 'data';
 }
 
 export default function MessageBubble({
 	message,
-	type,
+	role,
 }: Readonly<MessageBubbleProps>) {
-	return type === 'user' ? (
+	return role === 'user' ? (
 		<UserMessage message={message} />
 	) : (
 		<SystemMessage message={message} />

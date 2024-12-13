@@ -1,7 +1,7 @@
-import { Message } from '@/store/store';
+import { DbMessage } from '@/lib/types';
 import mongoose from 'mongoose';
 
-const MessageSchema = new mongoose.Schema<Message>({
+const MessageSchema = new mongoose.Schema<DbMessage>({
 	chatId: {
 		type: String,
 		required: true,
@@ -12,9 +12,9 @@ const MessageSchema = new mongoose.Schema<Message>({
 	},
 	message: { type: String, required: true },
 	attachments: { type: [String], default: [] },
-	sender: {
+	role: {
 		type: String,
-		enum: ['user', 'system'],
+		enum: ['user', 'system', 'assistant', 'data'],
 		required: true,
 	},
 	created_at: { type: Date, default: Date.now },

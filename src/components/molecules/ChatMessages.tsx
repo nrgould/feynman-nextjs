@@ -3,21 +3,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import MessageBubble from './MessageBubble';
 import { Message } from '@/lib/types';
-import { getMessages } from '@/app/data-access/messages';
 import { MoonLoader } from 'react-spinners';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useScrollToBottom } from '../useScrollToBottom';
 
 interface Props {
-	initialMessages: Message[];
+	messages: Message[];
 	chatId: string;
 }
 
 const NUMBER_OF_MESSAGES_TO_FETCH = 10;
 
-const ChatMessages = ({ initialMessages, chatId }: Props) => {
+const ChatMessages = ({ messages, chatId }: Props) => {
 	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
-	const [messages, setMessages] = useState<Message[]>(initialMessages);
 	const [hasMore, setHasMore] = useState(true);
 
 	console.log('HAS MORE', hasMore);
@@ -28,16 +26,16 @@ const ChatMessages = ({ initialMessages, chatId }: Props) => {
 
 	const loadMoreMessages = async () => {
 		console.log('FETCHING MESSAGES');
-		const response = await getMessages(
-			chatId,
-			offset,
-			NUMBER_OF_MESSAGES_TO_FETCH
-		);
-		if (response) {
-			setMessages((messages) => [...response.messages, ...messages]);
-			setHasMore(response.hasMore);
-			setOffset((offset) => offset + NUMBER_OF_MESSAGES_TO_FETCH);
-		}
+		// const response = await getMessages(
+		// 	chatId,
+		// 	offset,
+		// 	NUMBER_OF_MESSAGES_TO_FETCH
+		// );
+		// if (response) {
+		// 	setMessages((messages) => [...response.messages, ...messages]);
+		// 	setHasMore(response.hasMore);
+		// 	setOffset((offset) => offset + NUMBER_OF_MESSAGES_TO_FETCH);
+		// }
 	};
 	return (
 		<div ref={messagesContainerRef}>
@@ -66,11 +64,11 @@ const ChatMessages = ({ initialMessages, chatId }: Props) => {
 			>
 				<div className=' flex flex-col space-y-4'>
 					{messages &&
-						messages.map((message) => (
+						messages.map((msg) => (
 							<MessageBubble
-								key={message._id}
-								message={message.message}
-								type={message.sender}
+								key={msg._id}
+								message={msg.content}
+								role={msg.role}
 							/>
 						))}
 					{messages.length === 0 && (
