@@ -63,6 +63,7 @@ export async function POST(req: Request) {
 		console.log('BODY', body);
 		const validatedData = ConversationSchema.parse(body);
 
+
 		const { userId, conceptId, context, recentMessages } = validatedData;
 
 		console.log('Creating conversation:', validatedData);

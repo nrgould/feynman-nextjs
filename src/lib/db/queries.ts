@@ -2,60 +2,75 @@ import { connectToDatabase } from './mongoose';
 import Conversation from './models/Conversation';
 import Message from './models/Message';
 import { mapDbMessageToMessage } from '../utils';
-import { z } from 'zod';
+import { Types } from 'mongoose';
 
-// //TODO: make MongoDB queries here
+export async function saveChat({ userId }: { userId: string }) {
+	try {
+		await connectToDatabase();
 
-// export async function saveChat({
-// 	id,
-// 	userId,
-// 	title,
-// }: {
-// 	id: string;
-// 	userId: string;
-// 	title: string;
-// }) {
-// 	try {
-// 		return await db.insert(chat).values({
-// 			id,
-// 			createdAt: new Date(),
-// 			userId,
-// 			title,
-// 		});
-// 	} catch (error) {
-// 		console.error('Failed to save chat in database');
-// 		throw error;
-// 	}
-// }
+		// Create a new conversation with a MongoDB ObjectId
+		const newConversation = await Conversation.create({
+			_id: new Types.ObjectId(),
+			userId,
+			context: 'New chat',
+			recentMessages: [],
+		});
 
-// export async function deleteChatById({ id }: { id: string }) {
-// 	try {
-// 		await db.delete(vote).where(eq(vote.chatId, id));
-// 		await db.delete(message).where(eq(message.chatId, id));
+		console.log(newConversation);
 
-// 		return await db.delete(chat).where(eq(chat.id, id));
-// 	} catch (error) {
-// 		console.error('Failed to delete chat by id from database');
-// 		throw error;
-// 	}
-// }
+		return newConversation;
+	} catch (error) {
+		console.error('Failed to save chat in database', error);
+		throw error;
+	}
+}
 
-// export async function getChatsByUserId({ id }: { id: string }) {
-// 	try {
-// 		return await db
-// 			.select()
-// 			.from(chat)
-// 			.where(eq(chat.userId, id))
-// 			.orderBy(desc(chat.createdAt));
-// 	} catch (error) {
-// 		console.error('Failed to get chats by user from database');
-// 		throw error;
-// 	}
-// }
+export async function deleteChatById({ id }: { id: string }) {
+	try {
+		await connectToDatabase();
+
+		// Delete messages associated with the chat
+		await Message.deleteMany({ chatId: id });
+
+		// Delete the conversation
+		const result = await Conversation.findByIdAndDelete(id);
+
+		if (!result) {
+			throw new Error('Chat not found');
+		}
+
+		return result; // Return the deleted chat
+	} catch (error) {
+		console.error('Failed to delete chat by id from database', error);
+		throw error;
+	}
+}
+
+export async function getChatsByUserId({
+	id,
+	limit = 10,
+}: {
+	id: string;
+	limit?: number;
+}) {
+	try {
+		await connectToDatabase();
+
+		// Fetch the most recent conversations for the specified userId
+		const conversations = await Conversation.find({ userId: id })
+			.sort({ created_at: -1 }) // Sort by created_at in descending order
+			.limit(limit); // Limit the results to the specified number
+
+		return conversations; // Return the fetched conversations
+	} catch (error) {
+		console.error('Failed to get chats by user from database', error);
+		throw error;
+	}
+}
 
 export async function getChatById({ id }: { id: string }) {
 	try {
-		await connectToDatabase(); // Ensure MongoDB connection
+		await connectToDatabase();
 
 		const selectedChat = await Conversation.findById(id);
 

@@ -1,14 +1,12 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { createConversation } from '../data-access/conversation';
 import { redirect } from 'next/navigation';
+import { saveChat } from '@/lib/db/queries';
 
 export async function createConversationAction(formData: FormData) {
 	const userId = formData.get('userId') as string;
 
-	const { conversation } = await createConversation({ userId });
-	revalidatePath(`/chat`);
+	const conversation = await saveChat({ userId });
 
 	redirect(`/chat/${conversation._id}`);
 }
