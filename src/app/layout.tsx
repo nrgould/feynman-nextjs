@@ -2,15 +2,12 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
-import {
-	SidebarInset,
-	SidebarProvider,
-	SidebarTrigger,
-} from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/nav/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
 import QueryProvider from '@/components/providers/QueryProvider';
 import Header from '@/components/nav/Header';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -20,7 +17,7 @@ const PlusJakartaSans = localFont({
 
 export const metadata: Metadata = {
 	title: 'Feynman Learning',
-	description: 'Test your knowledge for your next test',
+	description: 'Use AI to test your knowledge for your next test. Learn through dynamic exercises that focus on active recall.',
 };
 
 export default function RootLayout({
@@ -30,6 +27,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en'>
+			<SpeedInsights />
 			<meta
 				name='viewport'
 				content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
