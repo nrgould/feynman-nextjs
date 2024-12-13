@@ -78,52 +78,52 @@ export async function POST(req: Request) {
 	}
 }
 
-export async function GET(req: Request) {
-	try {
-		await connectToDatabase();
+// export async function GET(req: Request) {
+// 	try {
+// 		await connectToDatabase();
 
-		const { searchParams } = new URL(req.url);
-		const chatId = searchParams.get('chatId');
-		const offset = parseInt(searchParams.get('offset') || '0', 10);
-		const limit = parseInt(searchParams.get('limit') || '10', 10);
+// 		const { searchParams } = new URL(req.url);
+// 		const chatId = searchParams.get('chatId');
+// 		const offset = parseInt(searchParams.get('offset') || '0', 10);
+// 		const limit = parseInt(searchParams.get('limit') || '10', 10);
 
-		if (!chatId) {
-			return NextResponse.json(
-				{ error: 'Chat ID is required' },
-				{ status: 400 }
-			);
-		}
+// 		if (!chatId) {
+// 			return NextResponse.json(
+// 				{ error: 'Chat ID is required' },
+// 				{ status: 400 }
+// 			);
+// 		}
 
-		// Fetch messages for the current page
-		const messages = await Message.find({ chatId })
-			.sort({ created_at: -1 })
-			.skip(offset)
-			.limit(limit)
-			.then((msgs) => msgs.reverse());
+// 		// Fetch messages for the current page
+// 		const messages = await Message.find({ chatId })
+// 			.sort({ created_at: -1 })
+// 			.skip(offset)
+// 			.limit(limit)
+// 			.then((msgs) => msgs.reverse());
 
-		// Fetch count of remaining messagesd
-		const remainingCount = await Message.countDocuments({
-			chatId,
-			created_at: {
-				$gt:
-					messages.length > 0
-						? messages[messages.length - 1].created_at
-						: new Date(),
-			},
-		});
+// 		// Fetch count of remaining messagesd
+// 		const remainingCount = await Message.countDocuments({
+// 			chatId,
+// 			created_at: {
+// 				$gt:
+// 					messages.length > 0
+// 						? messages[messages.length - 1].created_at
+// 						: new Date(),
+// 			},
+// 		});
 
-		return NextResponse.json(
-			{
-				messages,
-				hasMore: remainingCount > 0,
-			},
-			{ status: 200 }
-		);
-	} catch (error) {
-		console.error('GET Error:', error);
-		return NextResponse.json(
-			{ error: 'Internal server error' },
-			{ status: 500 }
-		);
-	}
-}
+// 		return NextResponse.json(
+// 			{
+// 				messages,
+// 				hasMore: remainingCount > 0,
+// 			},
+// 			{ status: 200 }
+// 		);
+// 	} catch (error) {
+// 		console.error('GET Error:', error);
+// 		return NextResponse.json(
+// 			{ error: 'Internal server error' },
+// 			{ status: 500 }
+// 		);
+// 	}
+// }

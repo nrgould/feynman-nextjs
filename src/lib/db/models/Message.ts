@@ -10,7 +10,7 @@ const MessageSchema = new mongoose.Schema<DbMessage>({
 		type: String,
 		required: true,
 	},
-	message: { type: String, required: true },
+	content: { type: String, required: true },
 	attachments: { type: [String], default: [] },
 	role: {
 		type: String,

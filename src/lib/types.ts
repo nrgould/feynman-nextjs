@@ -6,7 +6,7 @@ export interface DbMessage {
 	_id?: string;
 	chatId: string;
 	userId: string;
-	message: string;
+	content: string;
 	attachments?: FilePart[];
 	role: 'user' | 'system' | 'assistant' | 'data';
 	created_at: Date;

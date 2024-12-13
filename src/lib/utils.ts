@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DbMessage, Message } from '@/lib/types';
+import { CoreMessage } from 'ai';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -30,15 +31,30 @@ export function getLocalStorage(key: string) {
 	return [];
 }
 
+export function generateUUID(): string {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+		const r = (Math.random() * 16) | 0;
+		const v = c === 'x' ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
+}
+
+export function getMostRecentUserMessage(messages: Array<CoreMessage>) {
+	const userMessages = messages.filter((message) => message.role === 'user');
+	return userMessages.at(-1);
+}
+
 export function mapDbMessageToMessage(dbMessage: DbMessage): Message {
+	const { _id, role, chatId, userId, content, attachments, created_at } =
+		dbMessage;
 	return {
-		_id: dbMessage._id?.toString(),
-		id: dbMessage._id?.toString() || crypto.randomUUID(),
-		content: dbMessage.message,
-		role: dbMessage.role,
-		chatId: dbMessage.chatId,
-		userId: dbMessage.userId,
-		attachments: dbMessage.attachments,
-		created_at: dbMessage.created_at,
+		_id: _id?.toString(),
+		id: _id?.toString() || crypto.randomUUID(),
+		content,
+		role,
+		chatId,
+		userId,
+		attachments,
+		created_at,
 	};
 }

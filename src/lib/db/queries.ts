@@ -2,6 +2,7 @@ import { connectToDatabase } from './mongoose';
 import Conversation from './models/Conversation';
 import Message from './models/Message';
 import { mapDbMessageToMessage } from '../utils';
+import { z } from 'zod';
 
 // //TODO: make MongoDB queries here
 
@@ -69,16 +70,20 @@ export async function getChatById({ id }: { id: string }) {
 	}
 }
 
-// save messages periodically instead of on every message?
 
-// export async function saveMessages({ messages }: { messages: Array<Message> }) {
-// 	try {
-// 		return await db.insert(message).values(messages);
-// 	} catch (error) {
-// 		console.error('Failed to save messages in database', error);
-// 		throw error;
-// 	}
-// }
+
+export async function saveMessages({ messages }: { messages: Array<typeof Message> }) {
+	try {
+		await connectToDatabase();
+
+        // either make sure the conversation exists here, or make one in the route that calls this function
+
+		return await Message.insertMany(messages);
+	} catch (error) {
+		console.error('Failed to save messages in database', error);
+		throw error;
+	}
+}
 
 export async function getMessagesByChatId({
 	id,
@@ -90,7 +95,7 @@ export async function getMessagesByChatId({
 	limit?: number;
 }) {
 	try {
-		await connectToDatabase(); // Ensure MongoDB connection
+		await connectToDatabase();
 
 		// Fetch messages for the current page
 		const messages = await Message.find({ chatId: id })

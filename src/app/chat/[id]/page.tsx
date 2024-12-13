@@ -1,6 +1,7 @@
 import { getSession } from '@auth0/nextjs-auth0';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import ChatWindow from './ChatWindow';
+import { notFound } from 'next/navigation';
 
 type tParams = Promise<{ id: string }>;
 
@@ -11,6 +12,10 @@ export default async function Chat({ params }: { params: tParams }) {
 	const id = (await params).id;
 
 	const chat = await getChatById({ id });
+
+	if (!chat) {
+		notFound();
+	}
 
 	const response = await getMessagesByChatId({
 		id,

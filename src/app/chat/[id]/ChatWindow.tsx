@@ -2,6 +2,7 @@
 
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
+import { useScrollToBottom } from '@/components/useScrollToBottom';
 import { Message } from '@/lib/types';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
@@ -20,6 +21,9 @@ function ChatWindow({
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 	const { mutate } = useSWRConfig();
 
+	const [messagesContainerRef, messagesEndRef] =
+		useScrollToBottom<HTMLDivElement>();
+
 	const {
 		messages,
 		setMessages,
@@ -33,19 +37,23 @@ function ChatWindow({
 		data: streamingData,
 	} = useChat({
 		id: chatId,
-		// body: { id, modelId: selectedModelId },
+		body: { chatId, userId },
 		initialMessages,
-		onFinish: () => {
-			mutate('/api/history');
-		},
+		// onFinish: () => {
+		// 	mutate('/api/history');
+		// },
 	});
 
 	console.log(input);
 
 	return (
 		<div className='relative flex flex-col md:items-center sm:items-baseline justify-center w-full'>
-			<div className='pb-16 md:w-full lg:w-3/4 xl:w-1/2 sm:w-full'>
+			<div
+				className='md:w-full lg:w-3/4 xl:w-1/2 sm:w-full pb-24'
+				ref={messagesContainerRef}
+			>
 				<ChatMessages chatId={chatId} messages={messages || []} />
+				<div ref={messagesEndRef} />
 			</div>
 
 			<div className='fixed bottom-0 left-0 w-full flex justify-center items-center'>

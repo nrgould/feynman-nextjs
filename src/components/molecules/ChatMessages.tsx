@@ -20,9 +20,6 @@ const ChatMessages = ({ messages, chatId }: Props) => {
 
 	// console.log('HAS MORE', hasMore);
 
-	const [messagesContainerRef, messagesEndRef] =
-		useScrollToBottom<HTMLDivElement>();
-
 	const loadMoreMessages = async () => {
 		console.log('FETCHING MESSAGES');
 		// const response = await getMessages(
@@ -37,7 +34,7 @@ const ChatMessages = ({ messages, chatId }: Props) => {
 		// }
 	};
 	return (
-		<div ref={messagesContainerRef}>
+		<div className='pb-16'>
 			<InfiniteScroll
 				dataLength={messages.length}
 				next={loadMoreMessages}
@@ -78,7 +75,6 @@ const ChatMessages = ({ messages, chatId }: Props) => {
 							</p>
 						</div>
 					)}
-					<div ref={messagesEndRef} />
 				</div>
 			</InfiniteScroll>
 		</div>
