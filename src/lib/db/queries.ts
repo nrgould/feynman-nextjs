@@ -70,13 +70,16 @@ export async function getChatById({ id }: { id: string }) {
 	}
 }
 
-
-
-export async function saveMessages({ messages }: { messages: Array<typeof Message> }) {
+export async function saveMessages({
+	messages,
+}: {
+	messages: Array<typeof Message>;
+}) {
+	console.log('DB MESSAGES', messages);
 	try {
 		await connectToDatabase();
 
-        // either make sure the conversation exists here, or make one in the route that calls this function
+		// either make sure the conversation exists here, or make one in the route that calls this function
 
 		return await Message.insertMany(messages);
 	} catch (error) {

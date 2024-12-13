@@ -17,7 +17,6 @@ import { useFileStore } from '@/store/store';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
-import { createMessageAction } from '@/app/chat/[id]/actions';
 import { useFormStatus } from 'react-dom';
 import { Attachment, Message } from 'ai';
 import { Textarea } from '../ui/textarea';
@@ -65,11 +64,6 @@ const ChatBar = ({
 	const contextString = messages
 		.map((msg) => `${msg.role}: ${msg.content}`)
 		.join('\n');
-
-	const [state, action] = useActionState(createMessageAction, {
-		userId,
-		chatId,
-	});
 
 	const setFile = useFileStore((state) => state.setFile);
 	const file = useFileStore((state) => state.file);
@@ -148,7 +142,7 @@ const ChatBar = ({
 		<div className='relative p-4 md:mr-5 xs:mr-4 pt-1 bg-white pb-4 md:w-1/2 sm:w-full w-full'>
 			<ChatBarFile file={file} />
 
-			<form action={action} className='flex items-center relative'>
+			<form className='flex items-center relative'>
 				<Input
 					ref={fileInputRef}
 					type='file'

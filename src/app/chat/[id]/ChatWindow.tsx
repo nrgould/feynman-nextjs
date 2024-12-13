@@ -44,8 +44,6 @@ function ChatWindow({
 		// },
 	});
 
-	console.log(input);
-
 	return (
 		<div className='relative flex flex-col md:items-center sm:items-baseline justify-center w-full'>
 			<div

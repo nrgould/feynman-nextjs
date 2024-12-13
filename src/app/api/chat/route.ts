@@ -1,7 +1,11 @@
 import { systemPrompt } from '@/lib/ai/prompts';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
-import { generateUUID, getMostRecentUserMessage } from '@/lib/utils';
+import {
+	generateUUID,
+	getMostRecentUserMessage,
+	sanitizeResponseMessages,
+} from '@/lib/utils';
 import { openai } from '@ai-sdk/openai';
 import { getSession } from '@auth0/nextjs-auth0';
 import { convertToCoreMessages, StreamData, streamText } from 'ai';
@@ -47,8 +51,6 @@ export async function POST(req: Request) {
 		userId: session.user.sub,
 	});
 
-	console.log(validatedSchema);
-
 	// Save the user message to the database
 	await saveMessages({
 		messages: [
@@ -69,38 +71,46 @@ export async function POST(req: Request) {
 		model: openai('gpt-3.5-turbo'),
 		system: systemPrompt,
 		messages: coreMessages,
-		onFinish: () => {
-			// if (session.user?.id) {
-			// 	try {
-			// 		// const responseMessagesWithoutIncompleteToolCalls =
-			// 		// 	sanitizeResponseMessages(response.messages);
+		onFinish: async ({ response }) => {
+			response.messages.map((message) => {
+				console.log('message', message.content[0]);
+			});
 
-			// 		await saveMessages({
-			// 			messages:
-			// 				responseMessagesWithoutIncompleteToolCalls.map(
-			// 					(message) => {
-			// 						const messageId = generateUUID();
+			if (session.user?.sub) {
+				try {
+					const responseMessagesWithoutIncompleteToolCalls =
+						sanitizeResponseMessages(response.messages);
 
-			// 						if (message.role === 'assistant') {
-			// 							streamingData.appendMessageAnnotation({
-			// 								messageIdFromServer: messageId,
-			// 							});
-			// 						}
+					await saveMessages({
+						messages: responseMessagesWithoutIncompleteToolCalls.map(
+							(message) => {
+								let contentText = '';
+								
+								// Handle different content formats
+								if (typeof message.content === 'string') {
+									contentText = message.content;
+								} else if (Array.isArray(message.content)) {
+									// Find the first text content
+									const textContent = message.content.find(
+										(c) => c.type === 'text'
+									);
+									contentText = textContent?.text || '';
+								}
 
-			// 						return {
-			// 							id: messageId,
-			// 							chatId: id,
-			// 							role: message.role,
-			// 							content: message.content,
-			// 							createdAt: new Date(),
-			// 						};
-			// 					}
-			// 				),
-			// 		});
-			// 	} catch (error) {
-			// 		console.error('Failed to save chat');
-			// 	}
-			// }
+								return new Message({
+									userId: session.user.sub,
+									chatId,
+									role: message.role,
+									content: contentText,
+									created_at: new Date(),
+								});
+							}
+						),
+					});
+				} catch (error) {
+					console.error('Failed to save chat:', error);
+				}
+			}
 			streamingData.close();
 		},
 	});
