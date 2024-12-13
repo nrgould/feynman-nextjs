@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import Conversation from '@/models/Conversation';
-import { connectToDatabase } from '@/lib/mongoose';
+import Conversation from '@/lib/db/models/Conversation';
+import { connectToDatabase } from '@/lib/db/mongoose';
 import { z } from 'zod';
-import Message from '@/models/Message';
+import Message from '@/lib/db/models/Message';
 
 const MessageSchema = z.object({
 	userId: z.string().min(1, 'User ID is required'),
@@ -18,7 +18,7 @@ const MessageSchema = z.object({
 
 export async function POST(req: Request) {
 	try {
-		await connectToDatabase(); // Ensure MongoDB connection
+		await connectToDatabase();
 
 		// Parse the request body
 		const body = await req.json();
@@ -99,7 +99,7 @@ export async function GET(req: Request) {
 			.sort({ created_at: -1 })
 			.skip(offset)
 			.limit(limit)
-		.then((msgs) => msgs.reverse());
+			.then((msgs) => msgs.reverse());
 
 		// Fetch count of remaining messagesd
 		const remainingCount = await Message.countDocuments({

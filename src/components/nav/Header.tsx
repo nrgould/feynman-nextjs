@@ -9,8 +9,6 @@ import Link from 'next/link';
 function Header() {
 	const pathname = usePathname();
 
-	console.log(pathname);
-
 	return (
 		<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4 bg-white z-50'>
 			{pathname !== '/' && (

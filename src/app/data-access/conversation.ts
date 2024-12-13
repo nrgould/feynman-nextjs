@@ -23,6 +23,7 @@ export async function createConversation({ userId }: { userId: string }) {
 			recentMessages: [],
 		};
 
+		// TODO: make the action POST request to the DB here
 		const response = await fetch(`${BASE_URL}/api/conversations`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },

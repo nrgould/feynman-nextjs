@@ -1,4 +1,4 @@
-import { questionSchema, questionsSchema } from '@/lib/schemas';
+import { conceptSchema, conceptsSchema } from '@/lib/schemas';
 import { streamObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 			{
 				role: 'system',
 				content:
-					'You are a teacher. Your job is to take a document or image which is most likely a practice exam or homework assignment, and create a list of concepts based on the content of the document. Each option should be roughly equal in length.',
+					'You are a teacher. Your job is to take a document or image which is most likely a practice exam or homework assignment, and create a list of concepts based on the content of the document. Each option should be roughly equal in length. You may have to use OCR to extract the text from the document.',
 			},
 			{
 				role: 'user',
@@ -31,10 +31,10 @@ export async function POST(req: Request) {
 				],
 			},
 		],
-		schema: questionSchema, // TODO: change to conceptSchema
+		schema: conceptSchema,
 		output: 'array',
 		onFinish: ({ object }) => {
-			const res = questionsSchema.safeParse(object);
+			const res = conceptsSchema.safeParse(object);
 			if (res.error) {
 				throw new Error(
 					res.error.errors.map((e) => e.message).join('\n')

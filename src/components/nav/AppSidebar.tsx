@@ -25,7 +25,7 @@ import {
 	SidebarRail,
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { NavUser } from '../molecules/NavUser';
+import { NavUser } from './NavUser';
 
 const items = [
 	{

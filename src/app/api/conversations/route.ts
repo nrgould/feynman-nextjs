@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import Conversation from '@/models/Conversation';
-import { connectToDatabase } from '@/lib/mongoose';
+import Conversation from '@/lib/db/models/Conversation';
+import { connectToDatabase } from '@/lib/db/mongoose';
 import { z } from 'zod';
 
 export async function GET(req: Request) {
@@ -53,6 +53,7 @@ const ConversationSchema = z.object({
 	recentMessages: z.array(MessageSchema),
 });
 
+// creates conversation in the DB
 export async function POST(req: Request) {
 	try {
 		await connectToDatabase();
@@ -62,12 +63,10 @@ export async function POST(req: Request) {
 		console.log('BODY', body);
 		const validatedData = ConversationSchema.parse(body);
 
-		// Use validated data
 		const { userId, conceptId, context, recentMessages } = validatedData;
 
 		console.log('Creating conversation:', validatedData);
 
-		//request is creating two conversations when navigating to /chat for some reason
 		const newConversation = await Conversation.create({
 			userId,
 			conceptId,

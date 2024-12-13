@@ -1,10 +1,10 @@
 import React from 'react';
-import { RingLoader } from 'react-spinners';
+import { MoonLoader } from 'react-spinners';
 
 const LoaderPage = () => {
 	return (
 		<div className='w-full h-full flex items-center justify-center'>
-			<RingLoader />
+			<MoonLoader />
 		</div>
 	);
 };

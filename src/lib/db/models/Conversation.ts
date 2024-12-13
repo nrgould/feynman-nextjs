@@ -1,4 +1,5 @@
-import { Message } from '@/store/store';
+
+import { Message } from '@/lib/types';
 import mongoose, { Schema, model, models, Document } from 'mongoose';
 
 interface Conversation extends Document {
@@ -13,16 +14,6 @@ interface NewMessage {
 	userId: string;
 	message: Message;
 }
-
-// chatId: message.chatId,
-// userId: message.userId,
-// message: {
-// 		id: message.id,
-// 		message: message.message,
-// 		sender: message.sender,
-// 		attachments: message.attachments || [],
-// 		created_at: message.created_at,
-// 	},
 
 const MessageSchema = new Schema<NewMessage>({
 	chatId: {

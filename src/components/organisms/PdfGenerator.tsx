@@ -17,7 +17,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import Quiz from '@/components/organisms/quiz';
 import { AnimatePresence, motion } from 'framer-motion';
-import { generateQuizTitle } from '@/app/learn/actions';
+import { generateQuizTitle } from '@/app/actions';
 
 export default function ChatWithFiles() {
 	const [files, setFiles] = useState<File[]>([]);

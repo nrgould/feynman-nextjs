@@ -2,11 +2,8 @@
 
 import { createMessage, getChatGPTResponse } from '@/app/data-access/messages';
 import { revalidatePath } from 'next/cache';
-import { google } from '@ai-sdk/google';
-import { generateObject } from 'ai';
-import { z } from 'zod';
 
-
+// TODO: somehow separate the user message from the AI message
 export async function createMessageAction(
 	prevState: { userId: string; chatId: string },
 	formData: FormData

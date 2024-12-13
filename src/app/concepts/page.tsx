@@ -1,31 +1,35 @@
-import AppCard from '@/components/molecules/AppCard';
-import { getUsers } from './actions';
-import UserCard from './UserCard';
-import UserList from './UserList';
+'use client';
 
-export type User = {
-	first_name: string;
-	last_name: string;
-	email: string;
-	city: string;
-	country: string;
-	date_of_birth: string;
-	gender: string;
-	id: 1;
-	job: string;
-	latitude: number;
-	longitude: number;
-	phone: string;
-	profile_picture: string;
-	state: string;
-	street: string;
-	zipcode: string;
-};
+import MessageBubble from '@/components/molecules/MessageBubble';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useChat } from 'ai/react';
+import { CircleStopIcon, SendIcon } from 'lucide-react';
 
-const INITIAL_NUMBER_OF_USERS = 5;
+export default function Concepts() {
+	const {
+		messages,
+		input,
+		handleInputChange,
+		handleSubmit,
+		isLoading,
+		stop,
+		error,
+	} = useChat({
+		api: '/api/chat',
+	});
 
-export default async function Concepts() {
-	const initialUsers = await getUsers(0, INITIAL_NUMBER_OF_USERS);
-
-	return <UserList initialUsers={initialUsers} />;
+	return (
+		<div className='flex flex-col gap-4 items-center justify-center'>
+			{messages.map((m, i) => (
+				<MessageBubble key={m.id} message={m.content} type={m.role} />
+			))}
+			<form onSubmit={handleSubmit} className='flex gap-4'>
+				<Input value={input} onChange={handleInputChange} />
+				<Button type='submit'>
+					{isLoading ? <CircleStopIcon /> : <SendIcon />}
+				</Button>
+			</form>
+		</div>
+	);
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import MessageBubble from './MessageBubble';
 import { Message } from '@/lib/types';
 import { getMessages } from '@/app/data-access/messages';

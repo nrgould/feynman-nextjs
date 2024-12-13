@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
 import SystemMessage from '../atoms/SystemMessageBubble';
 import UserMessage from '../atoms/UserMessageBubble';
 
 interface MessageBubbleProps {
 	message: string;
-	type: 'user' | 'system';
+	type: 'user' | 'system' | 'assistant' | 'data';
 }
 
 export default function MessageBubble({
