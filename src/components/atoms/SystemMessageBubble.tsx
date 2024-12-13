@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Markdown } from './Markdown';
 interface Props {
 	message: string;
 }
@@ -21,9 +22,9 @@ const SystemMessage = ({ message }: Props) => {
 					/>
 					<AvatarFallback className='rounded-lg'>SYS</AvatarFallback>
 				</Avatar>
-				<p className='px-2 max-w-xs md:max-w-md lg:max-w-[40rem] rounded-2xl text-black leading-[2rem]'>
-					{message}
-				</p>
+				<div className='px-2 max-w-xs md:max-w-md lg:max-w-[40rem] rounded-2xl text-black leading-[2rem]'>
+					<Markdown>{message}</Markdown>
+				</div>
 			</div>
 		</motion.div>
 	);

@@ -13,7 +13,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 			return !inline && match ? (
 				<pre
 					{...props}
-					className={`${className} text-sm w-[80dvw] md:max-w-[500px] overflow-x-scroll bg-zinc-100 p-2 rounded mt-2 dark:bg-zinc-800`}
+					className={`${className} color-white text-sm w-[80dvw] md:max-w-[500px] overflow-x-scroll bg-zinc-100 p-2 rounded mt-2 dark:bg-zinc-800`}
 				>
 					<code className={match[1]}>{children}</code>
 				</pre>
@@ -57,7 +57,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 	};
 
 	return (
-		<ReactMarkdown 
+		<ReactMarkdown
 			remarkPlugins={[remarkGfm, remarkMath]}
 			rehypePlugins={[rehypeKatex]}
 			components={components}

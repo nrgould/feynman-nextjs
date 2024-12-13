@@ -1,8 +1,5 @@
 'use server';
 
-import { createMessage, getChatGPTResponse } from '@/app/data-access/messages';
-import { revalidatePath } from 'next/cache';
-
 // TODO: somehow separate the user message from the AI message
 // export async function createMessageAction(
 // 	prevState: { userId: string; chatId: string },
