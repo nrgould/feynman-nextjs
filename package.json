@@ -11,6 +11,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@agentic/ai-sdk": "^7.2.0",
+    "@ai-sdk/anthropic": "^1.0.5",
     "@ai-sdk/google": "^1.0.8",
     "@ai-sdk/openai": "^1.0.8",
     "@auth0/nextjs-auth0": "^3.5.0",

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { experimental_useObject } from 'ai/react';
-import { questionsSchema } from '@/lib/schemas';
+import { conceptSchema, conceptsSchema } from '@/lib/schemas';
 import { z } from 'zod';
-import { FileUp, Plus, Loader2, SquareLibrary } from 'lucide-react';
+import { FileUp, Loader2, SquareLibrary } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -15,15 +15,15 @@ import {
 	CardDescription,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import Quiz from '@/components/organisms/quiz';
 import { AnimatePresence, motion } from 'framer-motion';
 import { generateQuizTitle } from '@/app/actions';
 import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import AppCard from '@/components/molecules/AppCard';
 
-export default function ChatWithFiles() {
+export default function ConceptsGenerator() {
 	const [files, setFiles] = useState<File[]>([]);
-	const [questions, setQuestions] = useState<z.infer<typeof questionsSchema>>(
+	const [concepts, setConcepts] = useState<z.infer<typeof conceptsSchema>>(
 		[]
 	);
 	const [isDragging, setIsDragging] = useState(false);
@@ -31,18 +31,22 @@ export default function ChatWithFiles() {
 
 	const {
 		submit,
-		object: partialQuestions,
+		object: partialConcepts,
 		isLoading,
 	} = experimental_useObject({
-		api: '/api/generate-quiz',
-		schema: questionsSchema,
+		api: '/api/generate-concepts',
+		schema: conceptsSchema,
 		initialValue: undefined,
 		onError: (error) => {
-			console.error('Failed to generate quiz. Please try again.');
+			console.error(
+				'Failed to generate concepts. Please try again.',
+				error
+			);
 			setFiles([]);
 		},
 		onFinish: ({ object }) => {
-			setQuestions(object ?? []);
+			console.log(object);
+			setConcepts(object ?? []);
 		},
 	});
 
@@ -88,7 +92,6 @@ export default function ChatWithFiles() {
 			}))
 		);
 
-		console.log('encodedFiles', encodedFiles);
 		submit({ files: encodedFiles });
 		const generatedTitle = await generateQuizTitle(encodedFiles[0].name);
 		setTitle(generatedTitle);
@@ -96,18 +99,29 @@ export default function ChatWithFiles() {
 
 	const clearPDF = () => {
 		setFiles([]);
-		setQuestions([]);
+		setConcepts([]);
 	};
 
-	const progress = partialQuestions ? (partialQuestions.length / 4) * 100 : 0;
+	const progress = partialConcepts ? (partialConcepts.length / 5) * 100 : 0;
 
-	if (questions.length === 4) {
+	if (concepts.length === 5) {
 		return (
-			<Quiz
-				title={title ?? 'Quiz'}
-				questions={questions}
-				clearPDF={clearPDF}
-			/>
+			// <Quiz
+			// 	title={title ?? 'Quiz'}
+			// 	questions={questions}
+			// 	clearPDF={clearPDF}
+			// />
+			<div className='flex flex-col gap-4 w-1/2 mx-auto py-4'>
+				{concepts &&
+					concepts.map((concept, i) => (
+						<AppCard
+							key={i}
+							title={concept.concept}
+							description={concept.description}
+							subtitle={`Concept ${i + 1} of 5`}
+						/>
+					))}
+			</div>
 		);
 	}
 
@@ -155,11 +169,11 @@ export default function ChatWithFiles() {
 					</div>
 					<div className='space-y-2'>
 						<CardTitle className='text-2xl font-bold'>
-							PDF Quiz Generator
+							PDF Concept Generator
 						</CardTitle>
 						<CardDescription className='text-base'>
-							Upload a PDF to generate an interactive quiz based
-							on its content.
+							Upload a PDF and start learning the concepts in it
+							with interactive AI.
 						</CardDescription>
 					</div>
 				</CardHeader>
@@ -208,13 +222,13 @@ export default function ChatWithFiles() {
 				</CardContent>
 				{isLoading && (
 					<CardFooter className='flex flex-col space-y-4'>
-						<div className='w-full space-y-1'>
+						{/* <div className='w-full space-y-1'>
 							<div className='flex justify-between text-sm text-muted-foreground'>
 								<span>Progress</span>
 								<span>{Math.round(progress)}%</span>
 							</div>
 							<Progress value={progress} className='h-2' />
-						</div>
+						</div> */}
 						<div className='w-full space-y-2'>
 							<div className='grid grid-cols-6 sm:grid-cols-4 items-center space-x-2 text-sm'>
 								<div
@@ -225,9 +239,9 @@ export default function ChatWithFiles() {
 									}`}
 								/>
 								<span className='text-muted-foreground text-center col-span-4 sm:col-span-2'>
-									{partialQuestions
-										? `Generating question ${
-												partialQuestions.length + 1
+									{partialConcepts
+										? `Generating concept ${
+												partialConcepts.length + 1
 										  } of 4`
 										: 'Analyzing PDF content'}
 								</span>

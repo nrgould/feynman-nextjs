@@ -25,7 +25,7 @@ const Settings = () => {
 	};
 
 	return (
-		<div className='w-full m-h-screen flex flex-col items-start justify-between'>
+		<div className='w-full m-h-screen flex flex-col items-start justify-between p-4'>
 			<Subtitle>Settings</Subtitle>
 
 			{/* User Preferences */}

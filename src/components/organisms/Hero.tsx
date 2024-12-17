@@ -22,16 +22,6 @@ const Hero = () => {
 					</Link>
 				</div>
 			</div>
-			<div className='flex-1'>
-				<AspectRatio ratio={3 / 2}>
-					<Image
-						src='/images/InstantAnalysis.png'
-						alt='Analysis'
-						fill
-						className='h-full w-full rounded-md object-cover'
-					/>
-				</AspectRatio>
-			</div>
 		</div>
 	);
 };

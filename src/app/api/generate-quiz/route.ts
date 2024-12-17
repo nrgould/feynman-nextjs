@@ -1,15 +1,15 @@
 import { questionSchema, questionsSchema } from '@/lib/schemas';
 import { streamObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
-
+import { google } from '@ai-sdk/google';
+// import { anthropic } from '@ai-sdk/anthropic';
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
 	const { files } = await req.json();
 	const firstFile = files[0].data;
 
-	const result = await streamObject({
-		model: openai('gpt-4o-mini-2024-07-18'),
+	const result = await streamObject({ 
+		model: google('gemini-1.5-pro-latest'),
 		messages: [
 			{
 				role: 'system',
