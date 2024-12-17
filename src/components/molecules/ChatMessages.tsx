@@ -1,41 +1,61 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import MessageBubble from './MessageBubble';
 import { MoonLoader } from 'react-spinners';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useScrollToBottom } from '../useScrollToBottom';
-import { Message } from 'ai';
-
+import { ChatRequestOptions, Message } from 'ai';
+import { fetchMoreMessages } from '@/app/chat/[id]/actions';
+import { Button } from '@/components/ui/button';
 interface Props {
 	messages: Message[];
 	chatId: string;
 	messagesEndRef: React.RefObject<HTMLDivElement>;
+	setMessages: (
+		messages: Message[] | ((messages: Message[]) => Message[])
+	) => void;
+	reload: (
+		chatRequestOptions?: ChatRequestOptions
+	) => Promise<string | null | undefined>;
+	isLoading: boolean;
 }
 
 const NUMBER_OF_MESSAGES_TO_FETCH = 10;
 
-const ChatMessages = ({ messages, chatId, messagesEndRef }: Props) => {
+const ChatMessages = ({
+	messages,
+	chatId,
+	messagesEndRef,
+	setMessages,
+	reload,
+	isLoading,
+}: Props) => {
 	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
 	const [hasMore, setHasMore] = useState(true);
 
-	// console.log('HAS MORE', hasMore);
+	console.log('HAS MORE', hasMore);
 
 	const loadMoreMessages = async () => {
 		console.log('FETCHING MESSAGES');
-		// const response = await getMessages(
-		// 	chatId,
-		// 	offset,
-		// 	NUMBER_OF_MESSAGES_TO_FETCH
-		// );
-		// if (response) {
-		// 	setMessages((messages) => [...response.messages, ...messages]);
-		// 	setHasMore(response.hasMore);
-		// 	setOffset((offset) => offset + NUMBER_OF_MESSAGES_TO_FETCH);
-		// }
+		try {
+			const response = await fetchMoreMessages({
+				chatId,
+				offset,
+				limit: NUMBER_OF_MESSAGES_TO_FETCH,
+			});
+
+			if (response) {
+				setMessages((messages) => [...response.messages, ...messages]);
+				setHasMore(response.hasMore);
+				setOffset((offset) => offset + NUMBER_OF_MESSAGES_TO_FETCH);
+			}
+		} catch (error) {
+			console.error('Error loading more messages:', error);
+		}
 	};
 	return (
 		<div className='pb-16 xl:w-3/4 2xl:w-2/3 mx-auto'>
+			<Button onClick={loadMoreMessages}>Load More</Button>
 			<InfiniteScroll
 				dataLength={messages.length}
 				next={loadMoreMessages}
@@ -47,7 +67,7 @@ const ChatMessages = ({ messages, chatId, messagesEndRef }: Props) => {
 				inverse={true}
 				scrollThreshold='100px'
 				initialScrollY={0}
-				// height='100%'
+				height='100%'
 				loader={
 					<div className='flex w-full items-center justify-center my-4'>
 						<MoonLoader size={20} />

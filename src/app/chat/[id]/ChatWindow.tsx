@@ -54,6 +54,9 @@ function ChatWindow({
 					messagesEndRef={messagesEndRef}
 					chatId={chatId}
 					messages={messages || []}
+					setMessages={setMessages}
+					isLoading={isLoading}
+					reload={reload}
 				/>
 			</div>
 

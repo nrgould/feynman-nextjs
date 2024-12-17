@@ -1,5 +1,8 @@
 'use server';
 
+import { getMessagesByChatId } from '@/lib/db/queries';
+import { revalidatePath } from 'next/cache';
+
 // TODO: somehow separate the user message from the AI message
 // export async function createMessageAction(
 // 	prevState: { userId: string; chatId: string },
@@ -35,3 +38,26 @@
 
 // 	return { userId, chatId };
 // }
+
+export async function fetchMoreMessages({
+	chatId,
+	offset,
+	limit
+}: {
+	chatId: string;
+	offset: number;
+	limit: number;
+}) {
+	try {
+		const response = await getMessagesByChatId({
+			id: chatId,
+			offset,
+			limit
+		});
+
+		return response;
+	} catch (error) {
+		console.error('Error fetching more messages:', error);
+		throw error;
+	}
+}

@@ -2,11 +2,16 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { Components } from 'react-markdown';
 
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
+	const processedContent = children
+		.replace(/\\\(/g, '$')
+		.replace(/\\\)/g, '$');
+
 	const components: Components = {
 		code: ({ node, inline, className, children, ...props }: any) => {
 			const match = /language-(\w+)/.exec(className || '');
@@ -59,10 +64,10 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 	return (
 		<ReactMarkdown
 			remarkPlugins={[remarkGfm, remarkMath]}
-			rehypePlugins={[rehypeKatex]}
+			rehypePlugins={[rehypeKatex, rehypeRaw]}
 			components={components}
 		>
-			{children}
+			{processedContent}
 		</ReactMarkdown>
 	);
 };
