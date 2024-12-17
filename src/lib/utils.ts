@@ -98,3 +98,9 @@ export function sanitizeResponseMessages(
 		(message) => message.content.length > 0
 	);
 }
+
+ export function removePointerEventsFromBody() {
+		if (document.body.style.pointerEvents === 'none') {
+			document.body.style.pointerEvents = '';
+		}
+ }

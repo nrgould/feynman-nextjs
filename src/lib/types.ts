@@ -26,7 +26,7 @@ export interface Message extends AiMessage, CustomMessageFields {
 }
 
 export type Conversation = {
-	_id?: string;
+	_id: string;
 	userId: string;
 	conceptId?: string;
 	context?: string;

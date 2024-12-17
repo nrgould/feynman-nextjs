@@ -56,12 +56,15 @@ export async function getChatsByUserId({
 	try {
 		await connectToDatabase();
 
-		// Fetch the most recent conversations for the specified userId
-		const conversations = await Conversation.find({ userId: id })
-			.sort({ created_at: -1 }) // Sort by created_at in descending order
-			.limit(limit); // Limit the results to the specified number
+		const conversationsData = await Conversation.find({ userId: id })
+			.sort({ created_at: -1 })
+			.limit(limit);
 
-		return conversations; // Return the fetched conversations
+		const conversations = conversationsData
+			? JSON.parse(JSON.stringify(conversationsData))
+			: null;
+
+		return conversations;
 	} catch (error) {
 		console.error('Failed to get chats by user from database', error);
 		throw error;
