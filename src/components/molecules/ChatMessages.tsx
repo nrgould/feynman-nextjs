@@ -35,7 +35,7 @@ const ChatMessages = ({ messages, chatId, messagesEndRef }: Props) => {
 		// }
 	};
 	return (
-		<div className='pb-16'>
+		<div className='pb-16 xl:w-3/4 2xl:w-2/3 mx-auto'>
 			<InfiniteScroll
 				dataLength={messages.length}
 				next={loadMoreMessages}
