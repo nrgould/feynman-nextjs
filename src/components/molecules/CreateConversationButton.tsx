@@ -20,7 +20,7 @@ const CreateConversationButton = ({ userId }: { userId: string }) => {
 							<Button
 								type='submit'
 								variant='default'
-								className='w-[3rem] h-[3rem] bg-yellow-400 hover:bg-yellow-500'
+								className='w-[3rem] h-[3rem] bg-black'
 							>
 								<Plus />
 							</Button>

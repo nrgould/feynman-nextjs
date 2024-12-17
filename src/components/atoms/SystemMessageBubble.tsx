@@ -8,12 +8,7 @@ interface Props {
 
 const SystemMessage = ({ message }: Props) => {
 	return (
-		<motion.div
-			className='flex justify-start items-start'
-			initial={{ opacity: 0, y: 10 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.1, ease: 'easeIn' }}
-		>
+		<motion.div className='flex justify-start items-start'>
 			<div className='flex flex-row items-start justify-start'>
 				<Avatar className='h-12 w-12 rounded-lg'>
 					<AvatarImage

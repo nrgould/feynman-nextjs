@@ -10,11 +10,12 @@ import { Message } from 'ai';
 interface Props {
 	messages: Message[];
 	chatId: string;
+	messagesEndRef: React.RefObject<HTMLDivElement>;
 }
 
 const NUMBER_OF_MESSAGES_TO_FETCH = 10;
 
-const ChatMessages = ({ messages, chatId }: Props) => {
+const ChatMessages = ({ messages, chatId, messagesEndRef }: Props) => {
 	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
 	const [hasMore, setHasMore] = useState(true);
 
@@ -77,6 +78,10 @@ const ChatMessages = ({ messages, chatId }: Props) => {
 					)}
 				</div>
 			</InfiniteScroll>
+			<div
+				ref={messagesEndRef}
+				className='shrink-0 min-w-[24px] min-h-[24px]'
+			/>
 		</div>
 	);
 };

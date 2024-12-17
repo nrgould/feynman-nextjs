@@ -17,7 +17,8 @@ const PlusJakartaSans = localFont({
 
 export const metadata: Metadata = {
 	title: 'Feynman Learning',
-	description: 'Use AI to test your knowledge for your next test. Learn through dynamic exercises that focus on active recall.',
+	description:
+		'Use AI to test your knowledge for your next test. Learn through dynamic exercises that focus on active recall.',
 };
 
 export default function RootLayout({
@@ -37,9 +38,9 @@ export default function RootLayout({
 					<QueryProvider>
 						<SidebarProvider>
 							<AppSidebar />
-							<SidebarInset className='h-screen'>
+							<SidebarInset className='h-screen flex flex-col'>
 								<Header />
-								<main className='flex flex-1 flex-col gap-4 p-4'>
+								<main className='flex-1 flex flex-col min-h-0'>
 									{children}
 								</main>
 								<Toaster />
