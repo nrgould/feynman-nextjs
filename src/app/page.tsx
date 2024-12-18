@@ -6,11 +6,13 @@ import ChatWithFiles from '@/components/organisms/PdfGenerator';
 export default function Home() {
 	return (
 		<div>
-			<div className='flex flex-1 flex-col gap-4 px-4 py-10'>
+			<div className='flex flex-1 flex-col gap-4 px-4 py-10 mx-auto'>
 				<Hero />
 				<ChatWithFiles />
-				<Title>Try learning something new.</Title>
-				<div className='grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-screen-lg w-full'>
+				<div className='w-3/4 mx-auto'>
+					<Title>Try learning something new.</Title>
+				</div>
+				<div className='grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-screen-lg w-3/4 mx-auto'>
 					<AppCard
 						title='Trigonometric Identities'
 						link='/chat'

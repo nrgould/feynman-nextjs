@@ -35,7 +35,6 @@ export async function POST(req: Request) {
 		output: 'array',
 		onFinish: ({ object }) => {
 			const res = conceptsSchema.safeParse(object);
-			console.log('Response', res);
 			if (res.error) {
 				throw new Error(
 					res.error.errors.map((e) => e.message).join('\n')

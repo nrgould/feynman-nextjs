@@ -19,13 +19,45 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { generateQuizTitle } from '@/app/actions';
 import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import AppCard from '@/components/molecules/AppCard';
+import ConceptCard from './ConceptCard';
+
+    // const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
+    // 	{
+    // 		concept: 'Knowledge Tracing',
+    // 		description:
+    // 			'Predicting student performance on questions over time as they interact with a learning platform',
+    // 		difficulty: 'Intermediate',
+    // 	},
+    // 	{
+    // 		concept: 'Factorization Machines',
+    // 		description:
+    // 			'A model for regression or classification that can incorporate side information about users and items',
+    // 		difficulty: 'Difficult',
+    // 	},
+    // 	{
+    // 		concept: 'Item Response Theory',
+    // 		description:
+    // 			'Modeling student ability and question difficulty to predict performance',
+    // 		difficulty: 'Intermediate',
+    // 	},
+    // 	{
+    // 		concept: 'Side Information',
+    // 		description:
+    // 			'Additional data like skills, attempts, wins/fails that can be incorporated to improve predictions',
+    // 		difficulty: 'Intermediate',
+    // 	},
+    // 	{
+    // 		concept: 'Model Comparison',
+    // 		description:
+    // 			'Evaluating different knowledge tracing models on various datasets',
+    // 		difficulty: 'Intermediate',
+    // 	},
+    // ];
 
 export default function ConceptsGenerator() {
 	const [files, setFiles] = useState<File[]>([]);
-	const [concepts, setConcepts] = useState<z.infer<typeof conceptsSchema>>(
-		[]
-	);
+	const [concepts, setConcepts] =
+		useState<z.infer<typeof conceptsSchema>>([]);
 	const [isDragging, setIsDragging] = useState(false);
 	const [title, setTitle] = useState<string>();
 
@@ -74,7 +106,6 @@ export default function ConceptsGenerator() {
 				title: 'Only PDF files under 5MB are allowed.',
 				variant: 'destructive',
 			});
-			console.error('Only PDF files under 5MB are allowed.');
 		}
 
 		setFiles(validFiles);
@@ -106,22 +137,36 @@ export default function ConceptsGenerator() {
 
 	if (concepts.length === 5) {
 		return (
-			// <Quiz
-			// 	title={title ?? 'Quiz'}
-			// 	questions={questions}
-			// 	clearPDF={clearPDF}
-			// />
-			<div className='flex flex-col gap-4 w-1/2 mx-auto py-4'>
+			<motion.div
+				className='flex flex-col gap-4 w-1/2 mx-auto py-4'
+				initial='hidden'
+				animate='visible'
+				exit='exit'
+				variants={{
+					hidden: { opacity: 0 },
+					visible: {
+						opacity: 1,
+						transition: {
+							staggerChildren: 0.2,
+						},
+					},
+					exit: { opacity: 0 },
+				}}
+			>
+				<h1 className='text-2xl font-bold'>Concepts</h1>
 				{concepts &&
 					concepts.map((concept, i) => (
-						<AppCard
+						<motion.div
+							initial={{ opacity: 0, y: 10 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.3 }}
+							whileHover={{ scale: 1.01 }}
 							key={i}
-							title={concept.concept}
-							description={concept.description}
-							subtitle={`Concept ${i + 1} of 5`}
-						/>
+						>
+							<ConceptCard concept={concept} />
+						</motion.div>
 					))}
-			</div>
+			</motion.div>
 		);
 	}
 
@@ -163,13 +208,12 @@ export default function ConceptsGenerator() {
 				<CardHeader className='text-center space-y-6'>
 					<div className='mx-auto flex items-center justify-center space-x-2 text-muted-foreground'>
 						<div className='rounded-full bg-primary/10 p-2'>
-							{/* <FileUp className='h-6 w-6' /> */}
 							<SquareLibrary className='h-6 w-6' />
 						</div>
 					</div>
 					<div className='space-y-2'>
 						<CardTitle className='text-2xl font-bold'>
-							PDF Concept Generator
+							Concept Generator
 						</CardTitle>
 						<CardDescription className='text-base'>
 							Upload a PDF and start learning the concepts in it
@@ -212,23 +256,23 @@ export default function ConceptsGenerator() {
 							{isLoading ? (
 								<span className='flex items-center space-x-2'>
 									<Loader2 className='h-4 w-4 animate-spin' />
-									<span>Generating Quiz...</span>
+									<span>Generating Concepts...</span>
 								</span>
 							) : (
-								'Generate Quiz'
+								'Generate Concepts'
 							)}
 						</Button>
 					</form>
 				</CardContent>
 				{isLoading && (
 					<CardFooter className='flex flex-col space-y-4'>
-						{/* <div className='w-full space-y-1'>
+						<div className='w-full space-y-1'>
 							<div className='flex justify-between text-sm text-muted-foreground'>
 								<span>Progress</span>
 								<span>{Math.round(progress)}%</span>
 							</div>
 							<Progress value={progress} className='h-2' />
-						</div> */}
+						</div>
 						<div className='w-full space-y-2'>
 							<div className='grid grid-cols-6 sm:grid-cols-4 items-center space-x-2 text-sm'>
 								<div
@@ -242,7 +286,7 @@ export default function ConceptsGenerator() {
 									{partialConcepts
 										? `Generating concept ${
 												partialConcepts.length + 1
-										  } of 4`
+										  } of 5`
 										: 'Analyzing PDF content'}
 								</span>
 							</div>

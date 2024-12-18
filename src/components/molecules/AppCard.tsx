@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-
+import { motion } from 'framer-motion';
 interface Props {
 	title: string;
 	subtitle: string;

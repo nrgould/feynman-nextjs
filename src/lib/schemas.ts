@@ -22,7 +22,8 @@ export const questionsSchema = z.array(questionSchema).length(4);
 export const conceptSchema = z.object({
 	concept: z.string().describe('The main concept or topic being tested'),
 	description: z.string().describe('A brief explanation of the concept'),
-	// difficulty: z.enum(['Beginner', 'Intermediate', 'Advanced']).describe('The difficulty level of understanding this concept'),
+	// difficulty: z.enum(['Easy', 'Intermediate', 'Difficult']).describe('The difficulty level of understanding this concept'),
+	// id: z.number().describe('The id of the concept'),
 	// prerequisites: z.array(z.string()).describe('Any concepts that should be understood before learning this one'),
 	// relatedConcepts: z.array(z.string()).describe('Other concepts that are related or connected to this one')
 });

@@ -68,7 +68,7 @@ const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
 				className='flex flex-1 justify-between items-center'
 			>
 				<div>
-					<Label>{conversation.context}</Label>
+					<Label>{conversation.title}</Label>
 				</div>
 				<div className='flex items-center justify-center w-[25%]'>
 					<Label className='mr-2'>10%</Label>
