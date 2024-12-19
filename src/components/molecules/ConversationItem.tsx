@@ -49,7 +49,7 @@ const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
 		>
 			<div className='flex items-center justify-center'>
 				<DropdownMenu>
-					<DropdownMenuTrigger className='p-2 rounded-md mr-2'>
+					<DropdownMenuTrigger className='p-1 rounded-md mr-2'>
 						<Ellipsis size={18} color='gray' />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className='w-56'>

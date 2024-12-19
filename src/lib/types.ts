@@ -32,6 +32,7 @@ export type Conversation = {
 	title: string;
 	recentMessages: Message[];
 	description: string;
+	created_at: Date;
 };
 
 export type Concept = {

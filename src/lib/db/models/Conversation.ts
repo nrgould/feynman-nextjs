@@ -6,6 +6,7 @@ interface Conversation extends Document {
 	conceptId: string;
 	title: string;
 	description: string;
+	created_at: Date;
 	recentMessages: Message[];
 }
 
@@ -47,6 +48,7 @@ const ConversationSchema = new Schema<Conversation>({
 	},
 	title: { type: String },
 	description: { type: String },
+	created_at: { type: Date, default: Date.now },
 	recentMessages: { type: [MessageSchema], required: true },
 });
 

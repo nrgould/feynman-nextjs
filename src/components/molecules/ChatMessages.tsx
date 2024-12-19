@@ -7,6 +7,8 @@ import { ChatRequestOptions, Message } from 'ai';
 import { fetchMoreMessages } from '@/app/chat/[id]/actions';
 import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
+import { Label } from '@radix-ui/react-label';
+import DateLabel from '../atoms/DateLabel';
 
 interface Props {
 	messages: Message[];
@@ -18,6 +20,7 @@ interface Props {
 		chatRequestOptions?: ChatRequestOptions
 	) => Promise<string | null | undefined>;
 	isLoading: boolean;
+	createdAt: Date;
 }
 
 const NUMBER_OF_MESSAGES_TO_FETCH = 10;
@@ -28,6 +31,7 @@ const PureMessages = ({
 	setMessages,
 	reload,
 	isLoading,
+	createdAt,
 }: Props) => {
 	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
 	const [hasMore, setHasMore] = useState(true);
@@ -75,9 +79,10 @@ const PureMessages = ({
 	// }, [inView]);
 
 	return (
-		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4 min-h-[92dvh] max-h-[92dvh]'>
+		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-16 min-h-[93dvh] max-h-[93dvh]'>
 			<div className='flex flex-col gap-6 w-full md:w-3/4 xl:w-2/3 sm:w-full mx-auto'>
-				{hasMore && messages.length > 0 && (
+				<DateLabel createdAt={createdAt} />
+				{hasMore && messages.length >= 10 && (
 					<div
 						className='flex flex-col gap-2 items-center justify-center'
 						ref={ref}
