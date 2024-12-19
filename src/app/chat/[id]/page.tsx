@@ -32,17 +32,19 @@ async function ChatPage({ params }: PageParams) {
 
 	const user = session?.user || {};
 
+	const userId = user.sub;
+
 	if (response.messages.length === 0) {
-		firstMessage = await generateFirstMessage(chat.title, chat.description);
+		firstMessage = await generateFirstMessage(chat.title, chat.description, id, userId);
 		console.log(firstMessage);
 	}
 
-	return (
+	return (	
 		<ChatWindow
 			firstMessage={firstMessage?.text}
 			chat={chat}
 			initialMessages={response.messages || []}
-			userId={user.sub}
+			userId={userId}
 		/>
 	);
 }

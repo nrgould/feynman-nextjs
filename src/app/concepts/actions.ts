@@ -15,4 +15,6 @@ export async function createChatFromConcept(
 
 export async function saveConcepts(concepts: string[]) {
 	//call database function to save concepts
+
+	//set the concept for the user as well ? do this in queries.ts
 }
