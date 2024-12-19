@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Label } from '../ui/label';
-import { ChevronRight, EllipsisVertical } from 'lucide-react';
+import { ChevronRight, EllipsisVertical, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Conversation } from '@/lib/types';
 import {
@@ -29,6 +29,7 @@ import {
 import { deleteConversationAction } from '@/app/chat/actions';
 import { removePointerEventsFromBody } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { Button } from '../ui/button';
 const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
 	const handleDelete = async (e: React.MouseEvent) => {
 		try {
@@ -95,13 +96,14 @@ const DeleteDialog = ({
 				<AlertDialogHeader>
 					<AlertDialogTitle>Delete Conversation</AlertDialogTitle>
 					<AlertDialogDescription>
-						Are you sure you want to delete this conversation? This
+						Are you sure you want to delete this learning path? This
 						action cannot be undone.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
 					<AlertDialogAction onClick={handleDelete}>
+						<Trash2 size={18} className='mr-1' />
 						Delete
 					</AlertDialogAction>
 				</AlertDialogFooter>

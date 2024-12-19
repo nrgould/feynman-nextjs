@@ -1,11 +1,12 @@
-'use client';
-
 import ConceptsGenerator from './ConceptsGenerator';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
-export default function Concepts() {
+const Concepts = withPageAuthRequired(async () => {
 	return (
-		<div className='flex flex-col gap-4 items-center justify-center'>
+		<div className='pt-[3vh]flex flex-col gap-4 items-center justify-center overflow-y-scroll h-dvh'>
 			<ConceptsGenerator />
 		</div>
 	);
-}
+}, { returnTo: '/concepts' });
+
+export default Concepts;

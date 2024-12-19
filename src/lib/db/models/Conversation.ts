@@ -1,11 +1,11 @@
-
 import { Message } from '@/lib/types';
 import mongoose, { Schema, model, models, Document } from 'mongoose';
 
 interface Conversation extends Document {
 	userId: string;
 	conceptId: string;
-	context: string;
+	title: string;
+	description: string;
 	recentMessages: Message[];
 }
 
@@ -45,7 +45,8 @@ const ConversationSchema = new Schema<Conversation>({
 	conceptId: {
 		type: String,
 	},
-	context: { type: String },
+	title: { type: String },
+	description: { type: String },
 	recentMessages: { type: [MessageSchema], required: true },
 });
 

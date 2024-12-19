@@ -10,33 +10,38 @@ type PageParams = {
 
 const INITIAL_NUMBER_OF_MESSAGES = 10;
 
-const Chat = withPageAuthRequired(
-	async ({ params }: PageParams) => {
-		const session = await getSession();
-		const id = (await params).id;
+// Create a base component that will be wrapped
+async function ChatPage({ params }: PageParams) {
+	const session = await getSession();
+	const id = await params.id;
 
-		const chat = await getChatById({ id });
+	const chat = await getChatById({ id });
 
-		if (!chat) {
-			notFound();
-		}
+	if (!chat) {
+		notFound();
+	}
 
-		const response = await getMessagesByChatId({
-			id,
-			offset: 0,
-			limit: INITIAL_NUMBER_OF_MESSAGES,
-		});
-		const user = session?.user || {};
+	const response = await getMessagesByChatId({
+		id,
+		offset: 0,
+		limit: INITIAL_NUMBER_OF_MESSAGES,
+	});
+	const user = session?.user || {};
 
-		return (
-			<ChatWindow
-				chatId={id}
-				initialMessages={response.messages || []}
-				userId={user.sub}
-			/>
-		);
-	},
-	{ returnTo: `/chat/` }
-);
+	return (
+		<ChatWindow
+			chatId={id}
+			initialMessages={response.messages || []}
+			userId={user.sub}
+		/>
+	);
+}
 
-export default Chat;
+// Create the wrapped component with access to params
+export default function Chat(props: PageParams) {
+	const WrappedChat = withPageAuthRequired(ChatPage, {
+		returnTo: `/chat/${props.params.id}`,
+	});
+	
+	return <WrappedChat {...props} />;
+}

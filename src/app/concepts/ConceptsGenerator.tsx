@@ -16,50 +16,80 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { AnimatePresence, motion } from 'framer-motion';
-import { generateQuizTitle } from '@/app/actions';
 import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import ConceptCard from './ConceptCard';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
-    // const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
-    // 	{
-    // 		concept: 'Knowledge Tracing',
-    // 		description:
-    // 			'Predicting student performance on questions over time as they interact with a learning platform',
-    // 		difficulty: 'Intermediate',
-    // 	},
-    // 	{
-    // 		concept: 'Factorization Machines',
-    // 		description:
-    // 			'A model for regression or classification that can incorporate side information about users and items',
-    // 		difficulty: 'Difficult',
-    // 	},
-    // 	{
-    // 		concept: 'Item Response Theory',
-    // 		description:
-    // 			'Modeling student ability and question difficulty to predict performance',
-    // 		difficulty: 'Intermediate',
-    // 	},
-    // 	{
-    // 		concept: 'Side Information',
-    // 		description:
-    // 			'Additional data like skills, attempts, wins/fails that can be incorporated to improve predictions',
-    // 		difficulty: 'Intermediate',
-    // 	},
-    // 	{
-    // 		concept: 'Model Comparison',
-    // 		description:
-    // 			'Evaluating different knowledge tracing models on various datasets',
-    // 		difficulty: 'Intermediate',
-    // 	},
-    // ];
+const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
+	{
+		concept: 'Knowledge Tracing',
+		description:
+			'Predicting student performance on future questions based on past interaction history with learning platforms.',
+	},
+	{
+		concept: 'Factorization Machines (FMs)',
+		description:
+			'A general-purpose machine learning model used for analyzing sparse data and incorporating side information.',
+	},
+	{
+		concept: 'Item Response Theory (IRT)',
+		description:
+			'A psychometric model used to analyze student responses to test items and estimate their latent abilities.',
+	},
+	{
+		concept: 'Modeling Student Learning',
+		description:
+			'The process of creating mathematical models to represent and track student learning progress over time.',
+	},
+	{
+		concept: 'Side Information',
+		description:
+			'Additional information about students, items, or tasks used to improve the accuracy of knowledge tracing models.',
+	},
+];
+
+// const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
+// 	{
+// 		concept: 'Knowledge Tracing',
+// 		description:
+// 			'Predicting student performance on questions over time as they interact with a learning platform',
+// 		difficulty: 'Intermediate',
+// 	},
+// 	{
+// 		concept: 'Factorization Machines',
+// 		description:
+// 			'A model for regression or classification that can incorporate side information about users and items',
+// 		difficulty: 'Difficult',
+// 	},
+// 	{
+// 		concept: 'Item Response Theory',
+// 		description:
+// 			'Modeling student ability and question difficulty to predict performance',
+// 		difficulty: 'Intermediate',
+// 	},
+// 	{
+// 		concept: 'Side Information',
+// 		description:
+// 			'Additional data like skills, attempts, wins/fails that can be incorporated to improve predictions',
+// 		difficulty: 'Intermediate',
+// 	},
+// 	{
+// 		concept: 'Model Comparison',
+// 		description:
+// 			'Evaluating different knowledge tracing models on various datasets',
+// 		difficulty: 'Intermediate',
+// 	},
+// ];
 
 export default function ConceptsGenerator() {
 	const [files, setFiles] = useState<File[]>([]);
 	const [concepts, setConcepts] =
-		useState<z.infer<typeof conceptsSchema>>([]);
+		useState<z.infer<typeof conceptsSchema>>(SAMPLE_CONCEPTS);
 	const [isDragging, setIsDragging] = useState(false);
 	const [title, setTitle] = useState<string>();
+
+	const { user, isLoading: userLoading } = useUser();
 
 	const {
 		submit,
@@ -99,7 +129,6 @@ export default function ConceptsGenerator() {
 			(file) =>
 				file.type === 'application/pdf' && file.size <= 5 * 1024 * 1024
 		);
-		console.log(validFiles);
 
 		if (validFiles.length !== selectedFiles.length) {
 			toast({
@@ -124,8 +153,6 @@ export default function ConceptsGenerator() {
 		);
 
 		submit({ files: encodedFiles });
-		const generatedTitle = await generateQuizTitle(encodedFiles[0].name);
-		setTitle(generatedTitle);
 	};
 
 	const clearPDF = () => {
@@ -135,10 +162,10 @@ export default function ConceptsGenerator() {
 
 	const progress = partialConcepts ? (partialConcepts.length / 5) * 100 : 0;
 
-	if (concepts.length === 5) {
+	if (concepts.length >= 5 && !userLoading) {
 		return (
 			<motion.div
-				className='flex flex-col gap-4 w-1/2 mx-auto py-4'
+				className='flex flex-col gap-4 w-full sm:w-full lg:w-3/4 mx-auto p-4 pb-16'
 				initial='hidden'
 				animate='visible'
 				exit='exit'
@@ -157,13 +184,17 @@ export default function ConceptsGenerator() {
 				{concepts &&
 					concepts.map((concept, i) => (
 						<motion.div
+							className=''
 							initial={{ opacity: 0, y: 10 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3 }}
 							whileHover={{ scale: 1.01 }}
 							key={i}
 						>
-							<ConceptCard concept={concept} />
+							<ConceptCard
+								userId={user?.sub || ''}
+								concept={concept}
+							/>
 						</motion.div>
 					))}
 			</motion.div>

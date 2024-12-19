@@ -4,15 +4,25 @@ import Message from './models/Message';
 import { mapDbMessageToMessage } from '../utils';
 import { Types } from 'mongoose';
 
-export async function saveChat({ userId }: { userId: string }) {
+export async function saveChat({
+	userId,
+	title = 'New chat',
+	description = '',
+}: {
+	userId: string;
+	title: string;
+	description: string;
+}) {
 	try {
 		await connectToDatabase();
 
-		// Create a new conversation with a MongoDB ObjectId
+		console.log('saving chat with ', userId, title, description);
+
 		const newConversation = await Conversation.create({
 			_id: new Types.ObjectId(),
 			userId,
-			context: 'New chat',
+			title,
+			description,
 			recentMessages: [],
 		});
 

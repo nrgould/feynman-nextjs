@@ -6,12 +6,15 @@ import {
 	CardContent,
 	CardFooter,
 } from '@/components/ui/card';
-import { createConversationAction } from '../chat/actions';
+import { Button } from '@/components/ui/button';
+import { createChatFromConcept } from './actions';
 
-const ConceptCard = ({ concept }: { concept: any }) => {
+const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
 	const handleClick = () => {
-		createConversationAction(concept.concept);
+		createChatFromConcept(userId, concept.concept, concept.description);
 	};
+
+	console.log(concept, userId);
 
 	return (
 		<Card
@@ -26,7 +29,9 @@ const ConceptCard = ({ concept }: { concept: any }) => {
 				<p>{concept.description}</p>
 			</CardContent>
 			<CardFooter>
-				<a href={`/concepts/${concept.concept}`}>Start Learning</a>
+				<Button variant='outline' onClick={handleClick}>
+					Start Learning
+				</Button>
 			</CardFooter>
 		</Card>
 	);
