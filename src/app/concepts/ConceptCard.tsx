@@ -10,17 +10,15 @@ import { Button } from '@/components/ui/button';
 import { createChatFromConcept } from './actions';
 
 const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
-	const handleClick = () => {
+	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.stopPropagation();
 		createChatFromConcept(userId, concept.concept, concept.description);
 	};
 
 	console.log(concept, userId);
 
 	return (
-		<Card
-			onClick={handleClick}
-			className='cursor-pointer hover:shadow-lg transition'
-		>
+		<Card>
 			<CardHeader>
 				<CardTitle>{concept.concept}</CardTitle>
 				{/* <CardDescription>{concept.difficulty}</CardDescription> */}

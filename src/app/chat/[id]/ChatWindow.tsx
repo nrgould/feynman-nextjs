@@ -2,24 +2,28 @@
 
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
-import { useScrollToBottom } from '@/components/useScrollToBottom';
-import { Message } from '@/lib/types';
+import { Conversation, Message } from '@/lib/types';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
 import React, { useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
+import { generateFirstMessage } from './actions';
 
 function ChatWindow({
-	chatId,
 	initialMessages,
 	userId,
+	chat,
+	firstMessage,
 }: {
-	chatId: string;
+	chat: Conversation;
 	initialMessages: Message[];
 	userId: string;
+	firstMessage?: string;
 }) {
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 	const { mutate } = useSWRConfig();
+
+	const { _id: chatId, title, description } = chat;
 
 	const {
 		messages,
@@ -41,6 +45,9 @@ function ChatWindow({
 		// },
 	});
 
+	if (firstMessage) {
+		setMessages([{ role: 'assistant', content: firstMessage, id: '1' }]);
+	}
 	return (
 		<div className='flex flex-col min-w-0 max-h-[97vh] bg-background'>
 			<ChatMessages

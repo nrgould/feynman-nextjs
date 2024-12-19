@@ -75,7 +75,7 @@ const PureMessages = ({
 	// }, [inView]);
 
 	return (
-		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4'>
+		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4 h-[97dvh]'>
 			<div className='flex flex-col gap-6 w-full md:w-3/4 xl:w-2/3 sm:w-full mx-auto'>
 				{hasMore && messages.length > 0 && (
 					<div
@@ -105,7 +105,7 @@ const PureMessages = ({
 						/>
 					))}
 				{messages.length === 0 && (
-					<div className='flex flex-col items-center justify-center h-dvh'>
+					<div className='flex flex-col items-center justify-center'>
 						<p>Send a message or upload a file to start learning</p>
 					</div>
 				)}

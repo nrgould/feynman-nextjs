@@ -31,4 +31,12 @@ export type Conversation = {
 	conceptId?: string;
 	title: string;
 	recentMessages: Message[];
+	description: string;
+};
+
+export type Concept = {
+	_id: string;
+	title: string;
+	description: string;
+	relatedConcepts: string[];
 };

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Label } from '../ui/label';
-import { ChevronRight, EllipsisVertical, Trash2 } from 'lucide-react';
+import { ChevronRight, Ellipsis, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Conversation } from '@/lib/types';
 import {
@@ -29,7 +29,6 @@ import {
 import { deleteConversationAction } from '@/app/chat/actions';
 import { removePointerEventsFromBody } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Button } from '../ui/button';
 const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
 	const handleDelete = async (e: React.MouseEvent) => {
 		try {
@@ -51,7 +50,7 @@ const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
 			<div className='flex items-center justify-center'>
 				<DropdownMenu>
 					<DropdownMenuTrigger className='p-2 rounded-md mr-2'>
-						<EllipsisVertical size={18} color='gray' />
+						<Ellipsis size={18} color='gray' />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className='w-56'>
 						<DropdownMenuLabel>Options</DropdownMenuLabel>

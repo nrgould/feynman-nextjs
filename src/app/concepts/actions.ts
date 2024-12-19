@@ -8,8 +8,11 @@ export async function createChatFromConcept(
 	title: string,
 	description: string
 ) {
-	// console.log('creating convo with ', userId, title, description);
 	const conversation = await saveChat({ userId, title, description });
 
 	redirect(`/chat/${conversation._id}`);
+}
+
+export async function saveConcepts(concepts: string[]) {
+	//call database function to save concepts
 }

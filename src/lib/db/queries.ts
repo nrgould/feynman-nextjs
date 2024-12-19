@@ -3,6 +3,7 @@ import Conversation from './models/Conversation';
 import Message from './models/Message';
 import { mapDbMessageToMessage } from '../utils';
 import { Types } from 'mongoose';
+import Concept from './models/Concept';
 
 export async function saveChat({
 	userId,
@@ -15,8 +16,6 @@ export async function saveChat({
 }) {
 	try {
 		await connectToDatabase();
-
-		console.log('saving chat with ', userId, title, description);
 
 		const newConversation = await Conversation.create({
 			_id: new Types.ObjectId(),
@@ -85,11 +84,13 @@ export async function getChatById({ id }: { id: string }) {
 	try {
 		await connectToDatabase();
 
-		const selectedChat = await Conversation.findById(id);
+		const selectedChatData = await Conversation.findById(id);
 
-		if (!selectedChat) {
+		if (!selectedChatData) {
 			throw new Error('Chat not found');
 		}
+
+		const selectedChat = JSON.parse(JSON.stringify(selectedChatData));
 
 		return selectedChat;
 	} catch (error) {
@@ -128,7 +129,6 @@ export async function getMessagesByChatId({
 	try {
 		await connectToDatabase();
 
-		// Fetch messages for the current page
 		const messages = await Message.find({ chatId: id })
 			.sort({ created_at: -1 })
 			.skip(offset)
@@ -153,6 +153,26 @@ export async function getMessagesByChatId({
 		};
 	} catch (error) {
 		console.error('Failed to get messages by chat id from database', error);
+		throw error;
+	}
+}
+
+export async function saveConcepts({
+	concepts,
+}: {
+	concepts: Array<typeof Concept>;
+}) {
+	try {
+		await connectToDatabase();
+
+		const conceptDocs = concepts.map((concept) => ({
+			_id: new Types.ObjectId(),
+			...concept,
+		}));
+
+		return await Concept.insertMany(conceptDocs);
+	} catch (error) {
+		console.error('Failed to save concepts in database', error);
 		throw error;
 	}
 }
