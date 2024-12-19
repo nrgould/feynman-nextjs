@@ -5,7 +5,6 @@ import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/nav/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
-import QueryProvider from '@/components/providers/QueryProvider';
 import Header from '@/components/nav/Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
@@ -35,18 +34,16 @@ export default function RootLayout({
 			/>
 			<UserProvider>
 				<body className={`${PlusJakartaSans.variable}`}>
-					<QueryProvider>
-						<SidebarProvider>
-							<AppSidebar />
-							<SidebarInset className='h-screen flex flex-col'>
-								<Header />
-								<main className='flex-1 flex flex-col min-h-0'>
-									{children}
-								</main>
-								<Toaster />
-							</SidebarInset>
-						</SidebarProvider>
-					</QueryProvider>
+					<SidebarProvider>
+						<AppSidebar />
+						<SidebarInset className='h-screen flex flex-col'>
+							<Header />
+							<main>
+								{children}
+							</main>
+							<Toaster />
+						</SidebarInset>
+					</SidebarProvider>
 				</body>
 			</UserProvider>
 		</html>

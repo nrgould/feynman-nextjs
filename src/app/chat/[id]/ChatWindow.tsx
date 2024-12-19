@@ -21,9 +21,6 @@ function ChatWindow({
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 	const { mutate } = useSWRConfig();
 
-	const [messagesContainerRef, messagesEndRef] =
-		useScrollToBottom<HTMLDivElement>();
-
 	const {
 		messages,
 		setMessages,
@@ -45,22 +42,16 @@ function ChatWindow({
 	});
 
 	return (
-		<div className='flex flex-col flex-1 min-h-0'>
-			<div
-				className='flex-1 overflow-y-auto min-h-0 px-4'
-				ref={messagesContainerRef}
-			>
-				<ChatMessages
-					messagesEndRef={messagesEndRef}
-					chatId={chatId}
-					messages={messages || []}
-					setMessages={setMessages}
-					isLoading={isLoading}
-					reload={reload}
-				/>
-			</div>
+		<div className='flex flex-col min-w-0 h-dvh min-h-0 overflow-hidden'>
+			<ChatMessages
+				chatId={chatId}
+				messages={messages || []}
+				setMessages={setMessages}
+				isLoading={isLoading}
+				reload={reload}
+			/>
 
-			<div className='flex-shrink-0 px-4 pb-4 md:pb-6 bg-background w-full md:max-w-3xl mx-auto'>
+			<div className='flex px-4 pb-4 md:pb-6 bg-background w-full md:max-w-3xl mx-auto gap-2'>
 				<ChatBar
 					handleSubmit={handleSubmit}
 					attachments={attachments}

@@ -7,10 +7,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { ChatRequestOptions, Message } from 'ai';
 import { fetchMoreMessages } from '@/app/chat/[id]/actions';
 import { Button } from '@/components/ui/button';
+import { useScrollToBottom } from '../useScrollToBottom';
 interface Props {
 	messages: Message[];
 	chatId: string;
-	messagesEndRef: React.RefObject<HTMLDivElement>;
 	setMessages: (
 		messages: Message[] | ((messages: Message[]) => Message[])
 	) => void;
@@ -25,13 +25,15 @@ const NUMBER_OF_MESSAGES_TO_FETCH = 10;
 const ChatMessages = ({
 	messages,
 	chatId,
-	messagesEndRef,
 	setMessages,
 	reload,
 	isLoading,
 }: Props) => {
 	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
 	const [hasMore, setHasMore] = useState(true);
+
+	const [messagesContainerRef, messagesEndRef] =
+		useScrollToBottom<HTMLDivElement>();
 
 	console.log('HAS MORE', hasMore);
 
@@ -54,50 +56,24 @@ const ChatMessages = ({
 		}
 	};
 	return (
-		<div className='pb-16 xl:w-3/4 2xl:w-2/3 mx-auto'>
+		<div
+			className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-8'
+			ref={messagesContainerRef}
+		>
 			<Button onClick={loadMoreMessages}>Load More</Button>
-			<InfiniteScroll
-				dataLength={messages.length}
-				next={loadMoreMessages}
-				hasMore={hasMore}
-				style={{
-					display: 'flex',
-					flexDirection: 'column-reverse',
-				}}
-				inverse={true}
-				scrollThreshold='100px'
-				initialScrollY={0}
-				height='100%'
-				loader={
-					<div className='flex w-full items-center justify-center my-4'>
-						<MoonLoader size={20} />
-					</div>
-				}
-				endMessage={
-					<p style={{ textAlign: 'center' }}>
-						<b>Yay! You have seen it all</b>
-					</p>
-				}
-			>
-				<div className=' flex flex-col space-y-4'>
-					{messages &&
-						messages.map((msg) => (
-							<MessageBubble
-								key={msg.id}
-								message={msg.content}
-								role={msg.role}
-							/>
-						))}
-					{messages.length === 0 && (
-						<div className='flex flex-col items-center justify-center h-full'>
-							<p>
-								Send a message or upload a file to start
-								learning
-							</p>
-						</div>
-					)}
+			{messages &&
+				messages.map((msg) => (
+					<MessageBubble
+						key={msg.id}
+						message={msg.content}
+						role={msg.role}
+					/>
+				))}
+			{messages.length === 0 && (
+				<div className='flex flex-col items-center justify-center h-full'>
+					<p>Send a message or upload a file to start learning</p>
 				</div>
-			</InfiniteScroll>
+			)}
 			<div
 				ref={messagesEndRef}
 				className='shrink-0 min-w-[24px] min-h-[24px]'

@@ -139,10 +139,7 @@ const ChatBar = ({
 	};
 
 	return (
-		<div
-			// className='relative p-4 md:mr-5 xs:mr-4 pt-1 bg-white pb-4 md:w-1/2 sm:w-full w-full'
-			className='relative w-full flex flex-col gap-4'
-		>
+		<div className='relative w-full flex flex-col gap-4'>
 			<ChatBarFile file={file} />
 
 			<form className='flex items-center relative'>
@@ -187,7 +184,7 @@ const ChatBar = ({
 					onChange={handleInput}
 					rows={1}
 					name='input'
-					className='pl-10'
+					className='pl-10 overflow-hidden resize-none'
 					autoFocus
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' && !event.shiftKey) {

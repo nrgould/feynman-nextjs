@@ -2,33 +2,41 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import ChatWindow from './ChatWindow';
 import { notFound } from 'next/navigation';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
-type tParams = Promise<{ id: string }>;
+type PageParams = {
+	params: { id: string };
+};
 
-const INITIAL_NUMBER_OF_MESSAGES = 10;
+const INITIAL_NUMBER_OF_MESSAGES = 20;
 
-export default async function Chat({ params }: { params: tParams }) {
-	const session = await getSession();
-	const id = (await params).id;
+const Chat = withPageAuthRequired(
+	async ({ params }: PageParams) => {
+		const session = await getSession();
+		const id = (await params).id;
 
-	const chat = await getChatById({ id });
+		const chat = await getChatById({ id });
 
-	if (!chat) {
-		notFound();
-	}
+		if (!chat) {
+			notFound();
+		}
 
-	const response = await getMessagesByChatId({
-		id,
-		offset: 0,
-		limit: INITIAL_NUMBER_OF_MESSAGES,
-	});
-	const user = session?.user || {};
+		const response = await getMessagesByChatId({
+			id,
+			offset: 0,
+			limit: INITIAL_NUMBER_OF_MESSAGES,
+		});
+		const user = session?.user || {};
 
-	return (
-		<ChatWindow
-			chatId={id}
-			initialMessages={response.messages || []}
-			userId={user.sub}
-		/>
-	);
-}
+		return (
+			<ChatWindow
+				chatId={id}
+				initialMessages={response.messages || []}
+				userId={user.sub}
+			/>
+		);
+	},
+	{ returnTo: `/chat/` }
+);
+
+export default Chat;
