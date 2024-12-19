@@ -1,16 +1,4 @@
-import {
-	Brain,
-	Home,
-	Settings2,
-	MessageCircle,
-	Blocks,
-	ChevronRight,
-} from 'lucide-react';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Brain, Home, Settings2, MessageCircle, Blocks } from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,

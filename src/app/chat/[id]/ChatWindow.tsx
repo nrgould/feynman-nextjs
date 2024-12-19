@@ -41,21 +41,8 @@ function ChatWindow({
 		// },
 	});
 
-	useEffect(() => {
-		const mainElement = document.querySelector('main');
-		if (mainElement) {
-			mainElement.style.overflowY = 'hidden';
-		}
-
-		return () => {
-			if (mainElement) {
-				mainElement.style.overflowY = 'scroll';
-			}
-		};
-	}, []);
-
 	return (
-		<div className='flex flex-col min-w-0 h-[97vh] bg-background'>
+		<div className='flex flex-col min-w-0 max-h-[97vh] bg-background'>
 			<ChatMessages
 				chatId={chatId}
 				messages={messages || []}

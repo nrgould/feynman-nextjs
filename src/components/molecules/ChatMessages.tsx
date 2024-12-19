@@ -1,13 +1,13 @@
 'use client';
 
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import MessageBubble from './MessageBubble';
 import { MoonLoader } from 'react-spinners';
 import { ChatRequestOptions, Message } from 'ai';
 import { fetchMoreMessages } from '@/app/chat/[id]/actions';
 import { Button } from '@/components/ui/button';
-import { useScrollToBottom } from '../useScrollToBottom';
 import { useInView } from 'react-intersection-observer';
+
 interface Props {
 	messages: Message[];
 	chatId: string;
@@ -31,16 +31,24 @@ const PureMessages = ({
 }: Props) => {
 	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
 	const [hasMore, setHasMore] = useState(true);
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const messagesEndRef = useRef<HTMLDivElement>(null);
 
 	const { ref, inView } = useInView({
 		threshold: 0,
 	});
 
-	console.log('HAS MORE', hasMore);
+	// const scrollToBottom = () => {
+	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	// };
+
+	// useEffect(() => {
+	// 	scrollToBottom();
+	// }, [messages]);
 
 	const loadMoreMessages = async () => {
-		console.log('FETCHING MESSAGES');
 		try {
+			setIsLoadingMore(true);
 			const response = await fetchMoreMessages({
 				chatId,
 				offset,
@@ -54,24 +62,40 @@ const PureMessages = ({
 			}
 		} catch (error) {
 			console.error('Error loading more messages:', error);
+		} finally {
+			setIsLoadingMore(false);
 		}
 	};
 
-	useEffect(() => {
-		if (inView && hasMore) {
-			loadMoreMessages();
-		}
-	}, [inView]);
+	// useEffect(() => {
+	// 	if (inView && hasMore) {
+	// 		loadMoreMessages();
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [inView]);
 
 	return (
-		<div
-			className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4'
-			// ref={messagesContainerRef}
-		>
+		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4'>
 			<div className='flex flex-col gap-6 w-full md:w-3/4 xl:w-2/3 sm:w-full mx-auto'>
-				<div ref={ref} className='h-1' />
-
-				<Button onClick={loadMoreMessages}>Load More</Button>
+				{hasMore && (
+					<div
+						className='flex flex-col gap-2 items-center justify-center'
+						ref={ref}
+					>
+						<Button
+							size='lg'
+							className='mx-auto'
+							onClick={loadMoreMessages}
+							variant='outline'
+						>
+							{isLoadingMore ? (
+								<MoonLoader size={20} />
+							) : (
+								'Load More'
+							)}
+						</Button>
+					</div>
+				)}
 				{messages &&
 					messages.map((msg) => (
 						<MessageBubble
@@ -86,8 +110,8 @@ const PureMessages = ({
 					</div>
 				)}
 				<div
-					// ref={messagesEndRef}
-					className='shrink-0 min-w-[24px] min-h-[24px]'
+					ref={messagesEndRef}
+					className='shrink-0 min-w-[24px] min-h-[96px]'
 				/>
 			</div>
 		</div>
@@ -98,7 +122,6 @@ export const ChatMessages = memo(PureMessages, (prevProps, nextProps) => {
 	if (prevProps.isLoading !== nextProps.isLoading) return false;
 	if (prevProps.isLoading && nextProps.isLoading) return false;
 	if (prevProps.messages.length !== nextProps.messages.length) return false;
-
 	return true;
 });
 

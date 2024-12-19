@@ -35,12 +35,10 @@ export default function RootLayout({
 			<UserProvider>
 				<body className={`${PlusJakartaSans.variable}`}>
 					<SidebarProvider>
-						<AppSidebar />
+						<AppSidebar className='h-dvh' />
 						<SidebarInset>
 							<Header />
-							<main className=''>
-								{children}
-							</main>
+							<main className='h-[100vh]'>{children}</main>
 							<Toaster />
 						</SidebarInset>
 					</SidebarProvider>
