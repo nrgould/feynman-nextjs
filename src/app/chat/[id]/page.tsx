@@ -8,7 +8,7 @@ type PageParams = {
 	params: { id: string };
 };
 
-const INITIAL_NUMBER_OF_MESSAGES = 20;
+const INITIAL_NUMBER_OF_MESSAGES = 10;
 
 const Chat = withPageAuthRequired(
 	async ({ params }: PageParams) => {

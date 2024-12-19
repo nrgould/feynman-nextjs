@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useActionState, useCallback, useRef } from 'react';
+import React, { memo, useActionState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../ui/button';
 import {
 	Send,
@@ -20,6 +20,7 @@ import ChatBarFile from './ChatBarFile';
 import { useFormStatus } from 'react-dom';
 import { Attachment, Message } from 'ai';
 import { Textarea } from '../ui/textarea';
+import cx from 'classnames';
 interface Props {
 	chatId: string;
 	userId: string;
@@ -32,6 +33,7 @@ interface Props {
 	stop: () => void;
 	attachments: Attachment[];
 	setAttachments: (attachments: Attachment[]) => void;
+	className?: string;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -48,6 +50,7 @@ const ChatBar = ({
 	stop,
 	attachments,
 	setAttachments,
+	className,
 }: Props) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -60,6 +63,12 @@ const ChatBar = ({
 			}px`;
 		}
 	};
+
+	useEffect(() => {
+		if (textareaRef.current) {
+			adjustHeight();
+		}
+	}, []);
 
 	const contextString = messages
 		.map((msg) => `${msg.role}: ${msg.content}`)
@@ -184,7 +193,10 @@ const ChatBar = ({
 					onChange={handleInput}
 					rows={1}
 					name='input'
-					className='pl-10 overflow-hidden resize-none'
+					className={cx(
+						'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted pl-10',
+						className
+					)}
 					autoFocus
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' && !event.shiftKey) {
@@ -212,15 +224,6 @@ const ChatBar = ({
 	);
 };
 
-export function SubmitButton() {
-	const status = useFormStatus();
-	return (
-		<Button className='min-h-[3rem]' type='submit'>
-			{status.pending ? <Ellipsis /> : <Send />}
-		</Button>
-	);
-}
-
 export default ChatBar;
 
 function PureSendButton({
@@ -234,7 +237,7 @@ function PureSendButton({
 }) {
 	return (
 		<Button
-			className='rounded-full p-2 h-fit absolute bottom-2 right-2 m-0.5 border dark:border-zinc-600'
+			className='rounded-full p-2 h-fit absolute right-1 m-0.5 border dark:border-zinc-600'
 			onClick={(event) => {
 				event.preventDefault();
 				submitForm();

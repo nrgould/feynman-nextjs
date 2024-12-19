@@ -36,9 +36,9 @@ export default function RootLayout({
 				<body className={`${PlusJakartaSans.variable}`}>
 					<SidebarProvider>
 						<AppSidebar />
-						<SidebarInset className='h-screen flex flex-col'>
+						<SidebarInset>
 							<Header />
-							<main>
+							<main className=''>
 								{children}
 							</main>
 							<Toaster />

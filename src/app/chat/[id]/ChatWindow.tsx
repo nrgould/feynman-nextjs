@@ -6,7 +6,7 @@ import { useScrollToBottom } from '@/components/useScrollToBottom';
 import { Message } from '@/lib/types';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
 function ChatWindow({
@@ -41,8 +41,21 @@ function ChatWindow({
 		// },
 	});
 
+	useEffect(() => {
+		const mainElement = document.querySelector('main');
+		if (mainElement) {
+			mainElement.style.overflowY = 'hidden';
+		}
+
+		return () => {
+			if (mainElement) {
+				mainElement.style.overflowY = 'scroll';
+			}
+		};
+	}, []);
+
 	return (
-		<div className='flex flex-col min-w-0 h-dvh min-h-0 overflow-hidden'>
+		<div className='flex flex-col min-w-0 h-[97vh] bg-background'>
 			<ChatMessages
 				chatId={chatId}
 				messages={messages || []}
@@ -51,7 +64,7 @@ function ChatWindow({
 				reload={reload}
 			/>
 
-			<div className='flex px-4 pb-4 md:pb-6 bg-background w-full md:max-w-3xl mx-auto gap-2'>
+			<div className='flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl'>
 				<ChatBar
 					handleSubmit={handleSubmit}
 					attachments={attachments}

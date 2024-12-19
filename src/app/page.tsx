@@ -6,7 +6,7 @@ import ChatWithFiles from '@/components/organisms/PdfGenerator';
 export default function Home() {
 	return (
 		<div>
-			<div className='flex flex-1 flex-col gap-4 px-4 py-10 mx-auto'>
+			<div className='flex flex-1 flex-col gap-4 px-4 py-10 mx-auto h-screen overflow-y-scroll'>
 				<Hero />
 				<ChatWithFiles />
 				<div className='w-3/4 mx-auto'>

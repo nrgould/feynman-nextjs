@@ -10,7 +10,7 @@ function Header() {
 	const pathname = usePathname();
 
 	return (
-		<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4 bg-white z-50'>
+		<header className='sticky top-0 flex shrink-0 items-center gap-2 border-b bg-background p-4 bg-white z-50 h-[3rem]'>
 			{pathname !== '/' && (
 				<Link href='..' className='no-icon'>
 					<ChevronLeft size={20} />
