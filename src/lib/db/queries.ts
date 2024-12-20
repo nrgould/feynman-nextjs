@@ -23,6 +23,7 @@ export async function saveChat({
 			title,
 			description,
 			recentMessages: [],
+			created_at: new Date(),
 		});
 
 		console.log(newConversation);

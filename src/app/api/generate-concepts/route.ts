@@ -34,6 +34,8 @@ export async function POST(req: Request) {
 		schema: conceptSchema,
 		output: 'array',
 		onFinish: ({ object }) => {
+			// save the concepts to the database
+			// but won't necessarily have the user id, how to link? 
 			const res = conceptsSchema.safeParse(object);
 			if (res.error) {
 				throw new Error(
@@ -42,6 +44,8 @@ export async function POST(req: Request) {
 			}
 		},
 	});
+
+	
 
 	return result.toTextStreamResponse();
 }
