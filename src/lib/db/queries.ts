@@ -161,10 +161,12 @@ export async function getMessagesByChatId({
 export async function saveConcepts({
 	concepts,
 }: {
-	concepts: Array<typeof Concept>;
+	concepts: Array<any>;
 }) {
 	try {
 		await connectToDatabase();
+
+		console.log('CONCEPTS', concepts);
 
 		const conceptDocs = concepts.map((concept) => ({
 			_id: new Types.ObjectId(),

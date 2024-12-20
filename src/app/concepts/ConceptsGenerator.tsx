@@ -23,27 +23,27 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 
 const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 	{
-		concept: 'Knowledge Tracing',
+		title: 'Knowledge Tracing',
 		description:
 			'Predicting student performance on future questions based on past interaction history with learning platforms.',
 	},
 	{
-		concept: 'Factorization Machines (FMs)',
+		title: 'Factorization Machines (FMs)',
 		description:
 			'A general-purpose machine learning model used for analyzing sparse data and incorporating side information.',
 	},
 	{
-		concept: 'Item Response Theory (IRT)',
+		title: 'Item Response Theory (IRT)',
 		description:
 			'A psychometric model used to analyze student responses to test items and estimate their latent abilities.',
 	},
 	{
-		concept: 'Modeling Student Learning',
+		title: 'Modeling Student Learning',
 		description:
 			'The process of creating mathematical models to represent and track student learning progress over time.',
 	},
 	{
-		concept: 'Side Information',
+		title: 'Side Information',
 		description:
 			'Additional information about students, items, or tasks used to improve the accuracy of knowledge tracing models.',
 	},
@@ -84,10 +84,10 @@ const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 
 export default function ConceptsGenerator() {
 	const [files, setFiles] = useState<File[]>([]);
-	const [concepts, setConcepts] =
-		useState<z.infer<typeof conceptsSchema>>(SAMPLE_CONCEPTS);
+	const [concepts, setConcepts] = useState<z.infer<typeof conceptsSchema>>(
+		[]
+	);
 	const [isDragging, setIsDragging] = useState(false);
-	const [title, setTitle] = useState<string>();
 
 	const { user, isLoading: userLoading } = useUser();
 
@@ -289,43 +289,42 @@ export default function ConceptsGenerator() {
 					)}
 				</Card>
 			</div>
-			{concepts.length >= 5 &&
-				!userLoading && (
-					<motion.div
-						className='flex flex-col gap-4 w-full sm:w-full lg:w-3/4 mx-auto p-4 pb-16'
-						initial='hidden'
-						animate='visible'
-						exit='exit'
-						variants={{
-							hidden: { opacity: 0 },
-							visible: {
-								opacity: 1,
-								transition: {
-									staggerChildren: 0.2,
-								},
+			{concepts.length >= 5 && !userLoading && (
+				<motion.div
+					className='flex flex-col gap-4 w-full sm:w-full lg:w-3/4 mx-auto p-4 pb-16'
+					initial='hidden'
+					animate='visible'
+					exit='exit'
+					variants={{
+						hidden: { opacity: 0 },
+						visible: {
+							opacity: 1,
+							transition: {
+								staggerChildren: 0.2,
 							},
-							exit: { opacity: 0 },
-						}}
-					>
-						<h1 className='text-2xl font-bold'>Your Concepts</h1>
-						{concepts &&
-							concepts.map((concept, i) => (
-								<motion.div
-									className=''
-									initial={{ opacity: 0, y: 10 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.3 }}
-									whileHover={{ scale: 1.01 }}
-									key={i}
-								>
-									<ConceptCard
-										userId={user?.sub || ''}
-										concept={concept}
-									/>
-								</motion.div>
-							))}
-					</motion.div>
-				)}
+						},
+						exit: { opacity: 0 },
+					}}
+				>
+					<h1 className='text-2xl font-bold'>Your Concepts</h1>
+					{concepts &&
+						concepts.map((concept, i) => (
+							<motion.div
+								className=''
+								initial={{ opacity: 0, y: 10 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.3 }}
+								whileHover={{ scale: 1.01 }}
+								key={i}
+							>
+								<ConceptCard
+									userId={user?.sub || ''}
+									concept={concept}
+								/>
+							</motion.div>
+						))}
+				</motion.div>
+			)}
 		</div>
 	);
 }

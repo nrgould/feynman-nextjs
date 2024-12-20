@@ -1,6 +1,8 @@
 import { conceptSchema, conceptsSchema } from '@/lib/schemas';
 import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
+import { saveConcepts } from '@/lib/db/queries';
+import Concept from '@/lib/db/models/Concept';
 
 export const maxDuration = 60;
 
@@ -33,10 +35,19 @@ export async function POST(req: Request) {
 		],
 		schema: conceptSchema,
 		output: 'array',
-		onFinish: ({ object }) => {
+		onFinish: async ({ object }) => {
 			// save the concepts to the database
-			// but won't necessarily have the user id, how to link? 
+			// but won't necessarily have the user id, how to link?
 			const res = conceptsSchema.safeParse(object);
+			const concepts = res.data;
+			try {
+				await saveConcepts({
+					concepts: concepts || [],
+				});
+			} catch (error) {
+				console.error('Failed to save concepts in database', error);
+			}
+
 			if (res.error) {
 				throw new Error(
 					res.error.errors.map((e) => e.message).join('\n')
@@ -44,8 +55,6 @@ export async function POST(req: Request) {
 			}
 		},
 	});
-
-	
 
 	return result.toTextStreamResponse();
 }

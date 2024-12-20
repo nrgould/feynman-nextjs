@@ -20,7 +20,7 @@ export type Question = z.infer<typeof questionSchema>;
 export const questionsSchema = z.array(questionSchema).length(4);
 
 export const conceptSchema = z.object({
-	concept: z.string().describe('The main concept or topic being tested'),
+	title: z.string().describe('The main concept or topic being tested'),
 	description: z.string().describe('A brief explanation of the concept'),
 	// difficulty: z.enum(['Easy', 'Intermediate', 'Difficult']).describe('The difficulty level of understanding this concept'),
 	// id: z.number().describe('The id of the concept'),
