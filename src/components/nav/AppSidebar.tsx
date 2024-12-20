@@ -1,4 +1,4 @@
-import { Brain, Home, Settings2, MessageCircle, Blocks } from 'lucide-react';
+import { Brain, Home, Settings2, MessageCircle, Blocks, ChevronRight } from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,
@@ -14,7 +14,9 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { NavUser } from './NavUser';
-
+import { getSession } from '@auth0/nextjs-auth0';
+import { getChatsByUserId } from '@/lib/db/queries';
+import RecentChats from './RecentChats';
 const items = [
 	{
 		title: 'Home',
@@ -42,22 +44,14 @@ const items = [
 		icon: Settings2,
 	},
 ];
-const blogItems = [
-	{
-		title: 'How the Feynman Technique Works',
-		url: '/blog/how-the-feynman-technique-works',
-	},
-	{
-		title: 'How to Learn Faster',
-		url: '/blog/how-to-learn-faster',
-	},
-	{
-		title: 'How the Growth Mindset Applies to Math',
-		url: '/blog/how-the-growth-mindset-applies-to-math',
-	},
-];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const session = await getSession();
+
+	const user = session?.user || {};
+	const conversations = await getChatsByUserId({ id: user.sub, limit: 5 });
+
 	return (
 		<Sidebar collapsible='icon' {...props}>
 			<SidebarHeader>
@@ -83,42 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-				{/* <Collapsible
-					key={'blog'}
-					title={'blog'}
-					defaultOpen
-					className='group/collapsible'
-				>
-					<SidebarGroup>
-						<SidebarGroupLabel
-							asChild
-							className='group/label text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-						>
-							<CollapsibleTrigger>
-								{'Blog'}{' '}
-								<ChevronRight className='ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90' />
-							</CollapsibleTrigger>
-						</SidebarGroupLabel>
-						<CollapsibleContent>
-							<SidebarGroupContent>
-								<SidebarMenu>
-									{blogItems.map((item) => (
-										<SidebarMenuItem key={item.title}>
-											<SidebarMenuButton
-												asChild
-												// isActive={item.isActive}
-											>
-												<a href={item.url}>
-													{item.title}
-												</a>
-											</SidebarMenuButton>
-										</SidebarMenuItem>
-									))}
-								</SidebarMenu>
-							</SidebarGroupContent>
-						</CollapsibleContent>
-					</SidebarGroup>
-				</Collapsible> */}
+				{conversations && <RecentChats chats={conversations} />}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

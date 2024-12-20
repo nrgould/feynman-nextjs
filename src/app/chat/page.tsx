@@ -10,6 +10,7 @@ export default async function ChatHome() {
 	if (!session) return redirect('/api/auth/login');
 
 	const user = session?.user || {};
+	
 	const conversations = await getChatsByUserId({ id: user.sub });
 	return (
 		<div className='relative flex flex-col lg:items-center md:items-baseline sm:items-baseline justify-center lg:px-24 md:px-8 sm:px-2 xs:px-0 w-full pt-8'>
