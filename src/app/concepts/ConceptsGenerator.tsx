@@ -49,39 +49,6 @@ const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 	},
 ];
 
-// const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
-// 	{
-// 		concept: 'Knowledge Tracing',
-// 		description:
-// 			'Predicting student performance on questions over time as they interact with a learning platform',
-// 		difficulty: 'Intermediate',
-// 	},
-// 	{
-// 		concept: 'Factorization Machines',
-// 		description:
-// 			'A model for regression or classification that can incorporate side information about users and items',
-// 		difficulty: 'Difficult',
-// 	},
-// 	{
-// 		concept: 'Item Response Theory',
-// 		description:
-// 			'Modeling student ability and question difficulty to predict performance',
-// 		difficulty: 'Intermediate',
-// 	},
-// 	{
-// 		concept: 'Side Information',
-// 		description:
-// 			'Additional data like skills, attempts, wins/fails that can be incorporated to improve predictions',
-// 		difficulty: 'Intermediate',
-// 	},
-// 	{
-// 		concept: 'Model Comparison',
-// 		description:
-// 			'Evaluating different knowledge tracing models on various datasets',
-// 		difficulty: 'Intermediate',
-// 	},
-// ];
-
 export default function ConceptsGenerator() {
 	const [files, setFiles] = useState<File[]>([]);
 	const [concepts, setConcepts] = useState<z.infer<typeof conceptsSchema>>(
@@ -107,7 +74,6 @@ export default function ConceptsGenerator() {
 			setFiles([]);
 		},
 		onFinish: ({ object }) => {
-			console.log(object);
 			setConcepts(object ?? []);
 		},
 	});

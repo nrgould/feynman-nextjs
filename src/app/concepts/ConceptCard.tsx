@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.stopPropagation();
-		createChatFromConcept(userId, concept.concept, concept.description);
+		createChatFromConcept(userId, concept.title, concept.description);
 	};
 
 	console.log(concept, userId);
@@ -22,7 +22,7 @@ const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
 	return (
 		<Card className='max-w-sm'>
 			<CardHeader>
-				<CardTitle>{concept.concept}</CardTitle>
+				<CardTitle>{concept.title}</CardTitle>
 				{/* <CardDescription>{concept.difficulty}</CardDescription> */}
 			</CardHeader>
 			<CardContent className='gap-2'>

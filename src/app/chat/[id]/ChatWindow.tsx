@@ -46,7 +46,6 @@ function ChatWindow({
 		},
 	});
 
-	console.log('learningStage', learningStage);
 	//if learningStage is new, toast with "milestone reached"
 
 	if (firstMessage) {
