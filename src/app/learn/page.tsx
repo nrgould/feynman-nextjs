@@ -2,64 +2,73 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import React, { useState } from 'react';
-import { readStreamableValue } from 'ai/rsc';
-import { continueConversation, Message } from './actions';
+import { useChat } from 'ai/react';
+import { Weather } from './Weather';
+import { Stock } from './Stock';
 
-export const maxDuration = 30;
-
-function Learn() {
-	const [conversation, setConversation] = useState<Message[]>([]);
-	const [input, setInput] = useState<string>('');
+export default function Page() {
+	const { messages, input, handleInputChange, handleSubmit } = useChat({
+		api: '/api/test',
+	});
 
 	return (
-		<div>
-			<div>
-				{conversation.map((message, index) => (
-					<div key={index}>
-						{message.role}: {message.content}
+		<div className='flex flex-col w-3/4 p-4 mx-auto items-center justify-between'>
+			<div className='flex flex-col gap-2'>
+				{messages.map((message) => (
+					<div key={message.id}>
+						{message.role === 'user' ? 'User: ' : 'AI: '}
+						{message.content}
+						<div>
+							{message.toolInvocations?.map((toolInvocation) => {
+								const { toolName, toolCallId, state } =
+									toolInvocation;
+
+								if (state === 'result') {
+									if (toolName === 'displayWeather') {
+										const { result } = toolInvocation;
+										return (
+											<div key={toolCallId}>
+												<Weather {...result} />
+											</div>
+										);
+									} else if (toolName === 'getStockPrice') {
+										const { result } = toolInvocation;
+										return (
+											<Stock
+												key={toolCallId}
+												{...result}
+											/>
+										);
+									}
+								} else {
+									return (
+										<div key={toolCallId}>
+											{toolName === 'displayWeather' ? (
+												<div>Loading weather...</div>
+											) : toolName === 'getStockPrice' ? (
+												<div>
+													Loading stock price...
+												</div>
+											) : (
+												<div>Loading...</div>
+											)}
+										</div>
+									);
+								}
+							})}
+						</div>
 					</div>
 				))}
 			</div>
 
-			<div className='flex gap-2'>
+			<form onSubmit={handleSubmit} className='flex w-full gap-2'>
 				<Input
-					type='text'
 					value={input}
-					onChange={(event) => {
-						setInput(event.target.value);
-					}}
+					onChange={handleInputChange}
+					placeholder='Type a message...'
 				/>
-				<Button
-					onClick={async () => {
-						const { messages, newMessage } =
-							await continueConversation([
-								...conversation,
-								{ role: 'user', content: input },
-							]);
-
-						setInput('');
-						setConversation(messages);
-
-						let textContent = '';
-
-						for await (const delta of readStreamableValue(
-							newMessage
-						)) {
-							textContent = `${textContent}${delta}`;
-
-							setConversation([
-								...messages,
-								{ role: 'assistant', content: textContent },
-							]);
-						}
-					}}
-				>
-					Send Message
-				</Button>
-			</div>
+				<Button type='submit'>Send</Button>
+			</form>
 		</div>
 	);
 }
-
-export default Learn;
