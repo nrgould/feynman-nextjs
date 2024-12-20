@@ -10,9 +10,13 @@ import { Button } from '@/components/ui/button';
 import { createChatFromConcept } from './actions';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
+import { redirect } from 'next/navigation';
 
-const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
+const ConceptCard = ({ concept, userId }: { concept: any; userId?: string }) => {
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+		if (!userId) {
+			redirect('/api/auth/login');
+		}
 		e.stopPropagation();
 		createChatFromConcept(userId, concept.title, concept.description);
 	};
