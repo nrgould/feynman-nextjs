@@ -3,6 +3,7 @@
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
 import { Conversation, Message } from '@/lib/types';
+import { useLearningStageStore } from '@/store/store';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
 import React, { useState } from 'react';
@@ -20,9 +21,10 @@ function ChatWindow({
 	firstMessage?: string;
 }) {
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
+	const { setLearningStage, learningStage } = useLearningStageStore();
 	const { mutate } = useSWRConfig();
 
-	const { _id: chatId, title, description } = chat;
+	const { _id: chatId } = chat;
 
 	const {
 		messages,
@@ -37,12 +39,15 @@ function ChatWindow({
 		data: streamingData,
 	} = useChat({
 		id: chatId,
-		body: { chatId, userId },
+		body: { chatId, userId, learningStage },
 		initialMessages,
 		onFinish: () => {
 			mutate('/api/history');
 		},
 	});
+
+	console.log('learningStage', learningStage);
+	//if learningStage is new, toast with "milestone reached"
 
 	if (firstMessage) {
 		setMessages([{ role: 'assistant', content: firstMessage, id: '1' }]);
@@ -58,7 +63,7 @@ function ChatWindow({
 				reload={reload}
 			/>
 
-			<div className='flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl'>
+			<div className='flex mx-auto px-4 bg-background pb-3 pt-1 md:pb-6 gap-2 w-full md:max-w-3xl'>
 				<ChatBar
 					handleSubmit={handleSubmit}
 					attachments={attachments}

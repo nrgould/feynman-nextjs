@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { useChat } from 'ai/react';
 import { Weather } from './Weather';
 import { Stock } from './Stock';
+import { Markdown } from '@/components/atoms/Markdown';
+import { LearningStage } from './LearningStage';
 
 export default function Page() {
 	const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -17,7 +19,7 @@ export default function Page() {
 				{messages.map((message) => (
 					<div key={message.id}>
 						{message.role === 'user' ? 'User: ' : 'AI: '}
-						{message.content}
+						<Markdown>{message.content}</Markdown>
 						<div>
 							{message.toolInvocations?.map((toolInvocation) => {
 								const { toolName, toolCallId, state } =
@@ -31,10 +33,10 @@ export default function Page() {
 												<Weather {...result} />
 											</div>
 										);
-									} else if (toolName === 'getStockPrice') {
+									} else if (toolName === 'getLearningStage') {
 										const { result } = toolInvocation;
 										return (
-											<Stock
+											<LearningStage
 												key={toolCallId}
 												{...result}
 											/>

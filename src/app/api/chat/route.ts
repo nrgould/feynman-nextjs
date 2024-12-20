@@ -1,4 +1,5 @@
 import { systemPrompt } from '@/lib/ai/prompts';
+import { tools } from '@/lib/ai/tools';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
 import {
@@ -72,40 +73,38 @@ export async function POST(req: Request) {
 		system: systemPrompt,
 		messages: coreMessages,
 		onFinish: async ({ response }) => {
-			response.messages.map((message) => {
-				console.log('message', message.content[0]);
-			});
-
 			if (session.user?.sub) {
 				try {
 					const responseMessagesWithoutIncompleteToolCalls =
 						sanitizeResponseMessages(response.messages);
 
 					await saveMessages({
-						messages: responseMessagesWithoutIncompleteToolCalls.map(
-							(message) => {
-								let contentText = '';
-								
-								// Handle different content formats
-								if (typeof message.content === 'string') {
-									contentText = message.content;
-								} else if (Array.isArray(message.content)) {
-									// Find the first text content
-									const textContent = message.content.find(
-										(c) => c.type === 'text'
-									);
-									contentText = textContent?.text || '';
-								}
+						messages:
+							responseMessagesWithoutIncompleteToolCalls.map(
+								(message) => {
+									let contentText = '';
 
-								return new Message({
-									userId: session.user.sub,
-									chatId,
-									role: message.role,
-									content: contentText,
-									created_at: new Date(),
-								});
-							}
-						),
+									// Handle different content formats
+									if (typeof message.content === 'string') {
+										contentText = message.content;
+									} else if (Array.isArray(message.content)) {
+										// Find the first text content
+										const textContent =
+											message.content.find(
+												(c) => c.type === 'text'
+											);
+										contentText = textContent?.text || '';
+									}
+
+									return new Message({
+										userId: session.user.sub,
+										chatId,
+										role: message.role,
+										content: contentText,
+										created_at: new Date(),
+									});
+								}
+							),
 					});
 				} catch (error) {
 					console.error('Failed to save chat:', error);

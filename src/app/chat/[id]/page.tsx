@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { generateFirstMessage } from './actions';
 import { Suspense } from 'react';
 import LoaderPage from '@/components/atoms/LoaderPage';
+import Loading from '../Loading';
 
 type Params = Promise<{ id: string }>;
 
@@ -45,7 +46,7 @@ export default async function ChatPage(props: { params: Params }) {
 	}
 
 	return (
-		<Suspense fallback={<LoaderPage />}>
+		<Suspense fallback={<Loading />}>
 			<ChatWindow
 				firstMessage={firstMessage?.text}
 				chat={chat}

@@ -27,7 +27,7 @@ export const stockTool = createTool({
 
 //create a tool that assesses the current learning stage the user is in.
 export const learningStageTool = createTool({
-	description: 'Assess the current learning stage the user is in.',
+	description: `Assess the current learning stage the user is in. There are 7 stages of learning in this system: Initial explanation, Analogy, Easy practice, Formal definitions, Guided Practice, Hard Practice, Understanding, Mastery. A user must go through all 7 stages to fully understand the concept, and cannot skip any stages. Start by default at the first stage`,
 	parameters: z.object({
 		stage: z.enum([
 			'Initial explanation',

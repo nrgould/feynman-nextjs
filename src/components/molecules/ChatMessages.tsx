@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 import { Label } from '@radix-ui/react-label';
 import DateLabel from '../atoms/DateLabel';
+import { LearningStage } from '@/app/learn/LearningStage';
 
 interface Props {
 	messages: Message[];
@@ -79,7 +80,7 @@ const PureMessages = ({
 	// }, [inView]);
 
 	return (
-		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-16 min-h-[93dvh] max-h-[93dvh]'>
+		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-16 min-h-[92dvh] max-h-[92dvh]'>
 			<div className='flex flex-col gap-6 w-full md:w-3/4 xl:w-2/3 sm:w-full mx-auto'>
 				<DateLabel createdAt={createdAt} />
 				{hasMore && messages.length >= 10 && (
@@ -103,11 +104,35 @@ const PureMessages = ({
 				)}
 				{messages &&
 					messages.map((msg) => (
-						<MessageBubble
-							key={msg.id}
-							message={msg.content}
-							role={msg.role}
-						/>
+						<div key={msg.id}>
+							<MessageBubble
+								key={msg.id}
+								message={msg.content}
+								role={msg.role}
+							/>
+							{msg.toolInvocations?.map((toolInvocation) => {
+								const { toolName, toolCallId, state } =
+									toolInvocation;
+
+								if (state === 'result') {
+									if (toolName === 'getLearningStage') {
+										const { result } = toolInvocation;
+										return (
+											<LearningStage
+												key={toolCallId}
+												{...result}
+											/>
+										);
+									}
+								} else {
+									return (
+										<div key={toolCallId}>
+											<div>Loading Stage...</div>
+										</div>
+									);
+								}
+							})}
+						</div>
 					))}
 				{messages.length === 0 && (
 					<div className='flex flex-col items-center justify-center'>
