@@ -20,6 +20,8 @@ import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import ConceptCard from './ConceptCard';
 import { useUser } from '@auth0/nextjs-auth0/client';
+import { useConceptsStore } from '@/store/store';
+import AlertComponent from '@/components/atoms/AlertComponent';
 
 const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 	{
@@ -51,9 +53,7 @@ const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 
 export default function ConceptsGenerator() {
 	const [files, setFiles] = useState<File[]>([]);
-	const [concepts, setConcepts] = useState<z.infer<typeof conceptsSchema>>(
-		[]
-	);
+	const { concepts, setConcepts } = useConceptsStore();
 	const [isDragging, setIsDragging] = useState(false);
 
 	const { user, isLoading: userLoading } = useUser();
@@ -255,6 +255,14 @@ export default function ConceptsGenerator() {
 					)}
 				</Card>
 			</div>
+			{!user && !userLoading && (
+				<div className='w-1/2 mx-auto'>
+					<AlertComponent
+						title='Login or create an account'
+						description='Please login to save your progress'
+					/>
+				</div>
+			)}
 			{concepts.length >= 5 && !userLoading && (
 				<motion.div
 					className='flex flex-col gap-4 w-full sm:w-full lg:w-3/4 mx-auto p-4 pb-16'

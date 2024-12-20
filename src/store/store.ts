@@ -1,6 +1,9 @@
 import { Conversation, Message } from '@/lib/types';
-import { create } from 'zustand';
 import { stages } from '@/lib/ai/stages';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { conceptsSchema } from '@/lib/schemas';
+import { z } from 'zod';
 
 type FileStore = {
 	file: File | null;
@@ -20,7 +23,7 @@ type LearningStageStore = {
 };
 
 export const useLearningStageStore = create<LearningStageStore>((set) => ({
-	learningStage: "initial Explanation",
+	learningStage: 'initial Explanation',
 	setLearningStage: (stage) => set({ learningStage: stage }),
 }));
 
@@ -39,4 +42,19 @@ export const useFileStore = create<FileStore>((set) => ({
 	clearFile: () => set({ file: null }),
 }));
 
+type ConceptsState = {
+	concepts: z.infer<typeof conceptsSchema>;
+	setConcepts: (concepts: z.infer<typeof conceptsSchema>) => void;
+};
 
+export const useConceptsStore = create<ConceptsState>()(
+	persist(
+		(set) => ({
+			concepts: [],
+			setConcepts: (concepts) => set({ concepts }),
+		}),
+		{
+			name: 'concepts-storage',
+		}
+	)
+);
