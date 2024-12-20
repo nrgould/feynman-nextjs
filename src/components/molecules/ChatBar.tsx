@@ -1,14 +1,10 @@
 'use client';
 
-import React, { memo, useActionState, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../ui/button';
 import {
-	Send,
 	Plus,
-	Paperclip,
-	Trash,
 	X,
-	Ellipsis,
 	ArrowUpIcon,
 } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -17,7 +13,6 @@ import { useFileStore } from '@/store/store';
 import { toast } from '@/hooks/use-toast';
 import { ToastAction } from '../ui/toast';
 import ChatBarFile from './ChatBarFile';
-import { useFormStatus } from 'react-dom';
 import { Attachment, Message } from 'ai';
 import { Textarea } from '../ui/textarea';
 import cx from 'classnames';
@@ -133,13 +128,13 @@ const ChatBar = ({
 		// 	textareaRef.current?.focus();
 		// }
 	}, [
-		attachments,
+		// attachments,
 		handleSubmit,
 		setAttachments,
 		// setLocalStorageInput,
 		// width,
 		chatId,
-		input,
+		// input,
 	]);
 
 	const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {

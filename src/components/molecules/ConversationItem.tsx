@@ -56,7 +56,9 @@ const ConversationItem = ({ conversation }: { conversation: Conversation }) => {
 						<DropdownMenuLabel>Options</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem>Create quiz</DropdownMenuItem>
+						<DropdownMenuItem>Edit Details</DropdownMenuItem>
 						<DropdownMenuItem>Reset progress</DropdownMenuItem>
+						<DropdownMenuSeparator />
 						<DropdownMenuItem onSelect={(e) => e.preventDefault()}>
 							<DeleteDialog handleDelete={handleDelete} />
 						</DropdownMenuItem>

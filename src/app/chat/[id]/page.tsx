@@ -2,19 +2,20 @@ import { getSession } from '@auth0/nextjs-auth0';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import ChatWindow from './ChatWindow';
 import { notFound } from 'next/navigation';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { generateFirstMessage } from './actions';
+import { Suspense } from 'react';
+import LoaderPage from '@/components/atoms/LoaderPage';
 
-type PageParams = {
-	params: { id: string };
-};
+type Params = Promise<{ id: string }>;
 
 const INITIAL_NUMBER_OF_MESSAGES = 10;
 
-// Create a base component that will be wrapped
-async function ChatPage({ params }: PageParams) {
+export default async function ChatPage(props: { params: Params }) {
+	const params = await props.params;
 	const session = await getSession();
-	const id = await params.id;
+	const id = params.id;
+
+	console.log(params);
 
 	let firstMessage;
 
@@ -41,24 +42,16 @@ async function ChatPage({ params }: PageParams) {
 			id,
 			userId
 		);
-		console.log(firstMessage);
 	}
 
 	return (
-		<ChatWindow
-			firstMessage={firstMessage?.text}
-			chat={chat}
-			initialMessages={response.messages || []}
-			userId={userId}
-		/>
+		<Suspense fallback={<LoaderPage />}>
+			<ChatWindow
+				firstMessage={firstMessage?.text}
+				chat={chat}
+				initialMessages={response.messages || []}
+				userId={userId}
+			/>
+		</Suspense>
 	);
-}
-
-// Create the wrapped component with access to params
-export default function Chat(props: PageParams) {
-	const WrappedChat = withPageAuthRequired(ChatPage, {
-		returnTo: `/chat/${props.params.id}`,
-	});
-
-	return <WrappedChat {...props} />;
 }

@@ -39,9 +39,9 @@ function ChatWindow({
 		id: chatId,
 		body: { chatId, userId },
 		initialMessages,
-		// onFinish: () => {
-		// 	mutate('/api/history');
-		// },
+		onFinish: () => {
+			mutate('/api/history');
+		},
 	});
 
 	if (firstMessage) {

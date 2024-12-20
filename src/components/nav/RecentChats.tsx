@@ -16,7 +16,7 @@ import { ChevronRight, Text } from 'lucide-react';
 import Link from 'next/link';
 import { Conversation } from '@/lib/types';
 
-const RecentChats = ({ chats }: { chats: Conversation[] }) => {
+const RecentChats = ({ userId }: { userId: string }) => {
 	return (
 		<Collapsible
 			key={'Recent Learning'}
@@ -37,7 +37,7 @@ const RecentChats = ({ chats }: { chats: Conversation[] }) => {
 				<CollapsibleContent>
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{chats.map((chat) => (
+							{/* {conversations.map((chat) => (
 								<SidebarMenuItem key={chat.title}>
 									<SidebarMenuButton asChild>
 										<Link
@@ -49,7 +49,7 @@ const RecentChats = ({ chats }: { chats: Conversation[] }) => {
 										</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
-							))}
+							))} */}
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</CollapsibleContent>

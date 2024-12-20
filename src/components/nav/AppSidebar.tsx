@@ -1,4 +1,11 @@
-import { Brain, Home, Settings2, MessageCircle, Blocks, ChevronRight } from 'lucide-react';
+import {
+	Brain,
+	Home,
+	Settings2,
+	MessageCircle,
+	Blocks,
+	ChevronRight,
+} from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,
@@ -45,12 +52,12 @@ const items = [
 	},
 ];
 
-
-export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({
+	...props
+}: React.ComponentProps<typeof Sidebar>) {
 	const session = await getSession();
 
 	const user = session?.user || {};
-	const conversations = await getChatsByUserId({ id: user.sub, limit: 5 });
 
 	return (
 		<Sidebar collapsible='icon' {...props}>
@@ -77,7 +84,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-				{conversations && <RecentChats chats={conversations} />}
+				<RecentChats userId={user.sub} />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />
