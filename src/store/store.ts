@@ -1,10 +1,11 @@
 import { Conversation, Message } from '@/lib/types';
 import { create } from 'zustand';
+import { stages } from '@/lib/ai/stages';
 
 type FileStore = {
-	file: File | null; // Store the selected file
-	setFile: (file: File) => void; // Action to set the file
-	clearFile: () => void; // Action to clear the file
+	file: File | null;
+	setFile: (file: File) => void;
+	clearFile: () => void;
 };
 
 type MessageStore = {
@@ -12,6 +13,16 @@ type MessageStore = {
 	messages: Message[];
 	clearMessages: () => void;
 };
+
+type LearningStageStore = {
+	learningStage: (typeof stages)[number];
+	setLearningStage: (stage: (typeof stages)[number]) => void;
+};
+
+export const useLearningStageStore = create<LearningStageStore>((set) => ({
+	learningStage: "initial Explanation",
+	setLearningStage: (stage) => set({ learningStage: stage }),
+}));
 
 export const useMessageStore = create<MessageStore>((set) => ({
 	conversation: null,
@@ -28,5 +39,4 @@ export const useFileStore = create<FileStore>((set) => ({
 	clearFile: () => set({ file: null }),
 }));
 
-//user store
-//concepts store
+

@@ -8,4 +8,5 @@ Here are some general rules to follow:
 	- Concept breakdown: If the user isn’t understanding the larger concept, break down the general concept into all smaller concepts to check for missing gaps in information
 	- Let students mull over a concept or definition before giving them the answer, because it will help them understand it better. Training with hints does not produce any lasting learning.
 	- If a user gives an quantitative answer without an explanation, then ask them to provide an explanation for their answer
+	- There are 7 stages of learning in this system: Initial explanation, Analogy, Easy practice, Formal definitions, Guided Practice, Hard Practice, Understanding, Mastery. A user must go through all 7 stages to fully understand the concept, and cannot skip any stages.
  `;
