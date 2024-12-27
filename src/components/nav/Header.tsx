@@ -30,9 +30,13 @@ function Header() {
 				{!user && !isLoading && (
 					<div className='flex flex-row items-center justify-between gap-2'>
 						<Link href='/api/auth/login'>
-							<Button variant='outline'>Login</Button>
+							<Button variant='outline' size='sm'>
+								Login
+							</Button>
 						</Link>
-						<Button variant='default'>Sign Up</Button>
+						<Button variant='default' size='sm'>
+							Sign Up
+						</Button>
 					</div>
 				)}
 				{isLoading && (

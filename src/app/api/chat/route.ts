@@ -1,4 +1,4 @@
-import { systemPrompt } from '@/lib/ai/prompts';
+import { systemPrompt, systemPrompt2 } from '@/lib/ai/prompts';
 import { tools } from '@/lib/ai/tools';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
 	const result = streamText({
 		model: openai('gpt-3.5-turbo'),
-		system: systemPrompt,
+		system: systemPrompt2,
 		messages: coreMessages,
 		onFinish: async ({ response }) => {
 			if (session.user?.sub) {

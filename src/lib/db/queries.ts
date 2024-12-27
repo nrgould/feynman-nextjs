@@ -26,8 +26,6 @@ export async function saveChat({
 			created_at: new Date(),
 		});
 
-		console.log(newConversation);
-
 		return newConversation;
 	} catch (error) {
 		console.error('Failed to save chat in database', error);
@@ -158,11 +156,7 @@ export async function getMessagesByChatId({
 	}
 }
 
-export async function saveConcepts({
-	concepts,
-}: {
-	concepts: Array<any>;
-}) {
+export async function saveConcepts({ concepts }: { concepts: Array<any> }) {
 	try {
 		await connectToDatabase();
 
@@ -172,6 +166,12 @@ export async function saveConcepts({
 			_id: new Types.ObjectId(),
 			...concept,
 		}));
+
+		conceptDocs.forEach((concept) => {
+			concept.relatedConcepts = conceptDocs
+				.filter((c) => c._id !== concept._id)
+				.map((c) => c._id);
+		});
 
 		return await Concept.insertMany(conceptDocs);
 	} catch (error) {

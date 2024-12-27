@@ -2,26 +2,16 @@
 
 import { useState } from 'react';
 import { experimental_useObject } from 'ai/react';
-import { conceptSchema, conceptsSchema } from '@/lib/schemas';
+import { conceptsSchema } from '@/lib/schemas';
 import { z } from 'zod';
-import { FileUp, Loader2, SquareLibrary } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-	CardDescription,
-} from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { AnimatePresence, motion } from 'framer-motion';
 import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import ConceptCard from './ConceptCard';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { useConceptsStore } from '@/store/store';
 import AlertComponent from '@/components/atoms/AlertComponent';
+import ConceptsTable from './ConceptsTable';
+import GeneratorCard from './GeneratorCard';
 
 const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 	{
@@ -74,7 +64,7 @@ export default function ConceptsGenerator() {
 			setFiles([]);
 		},
 		onFinish: ({ object }) => {
-			setConcepts(object ?? []);
+			setConcepts([...concepts, ...(object ?? [])]);
 		},
 	});
 
@@ -129,7 +119,7 @@ export default function ConceptsGenerator() {
 	const progress = partialConcepts ? (partialConcepts.length / 5) * 100 : 0;
 
 	return (
-		<div>
+		<div className='mb-16'>
 			<div
 				className='min-h-[35dvh] w-full flex justify-center'
 				onDragOver={(e) => {
@@ -163,142 +153,29 @@ export default function ConceptsGenerator() {
 						</motion.div>
 					)}
 				</AnimatePresence>
-				<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit mt-12'>
-					<CardHeader className='text-center space-y-6'>
-						<div className='mx-auto flex items-center justify-center space-x-2 text-muted-foreground'>
-							<div className='rounded-full bg-primary/10 p-2'>
-								<SquareLibrary className='h-6 w-6' />
-							</div>
-						</div>
-						<div className='space-y-2'>
-							<CardTitle className='text-2xl font-bold'>
-								Concept Generator
-							</CardTitle>
-							<CardDescription className='text-base'>
-								Upload a PDF and start learning the concepts in
-								it with interactive AI.
-							</CardDescription>
-						</div>
-					</CardHeader>
-					<CardContent>
-						<form
-							onSubmit={handleSubmitWithFiles}
-							className='space-y-4'
-						>
-							<div
-								className={`relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 transition-colors hover:border-muted-foreground/50`}
-							>
-								<input
-									type='file'
-									onChange={handleFileChange}
-									accept='application/pdf'
-									className='absolute inset-0 opacity-0 cursor-pointer'
-								/>
-								<FileUp className='h-8 w-8 mb-2 text-muted-foreground' />
-								<p className='text-sm text-muted-foreground text-center'>
-									{files.length > 0 ? (
-										<span className='font-medium text-foreground'>
-											{files[0].name}
-										</span>
-									) : (
-										<span>
-											Drop your PDF here or click to
-											browse.
-										</span>
-									)}
-								</p>
-							</div>
-							<Button
-								type='submit'
-								className='w-full'
-								disabled={files.length === 0}
-							>
-								{isLoading ? (
-									<span className='flex items-center space-x-2'>
-										<Loader2 className='h-4 w-4 animate-spin' />
-										<span>Generating Concepts...</span>
-									</span>
-								) : (
-									'Generate Concepts'
-								)}
-							</Button>
-						</form>
-					</CardContent>
-					{isLoading && (
-						<CardFooter className='flex flex-col space-y-4'>
-							<div className='w-full space-y-1'>
-								<div className='flex justify-between text-sm text-muted-foreground'>
-									<span>Progress</span>
-									<span>{Math.round(progress)}%</span>
-								</div>
-								<Progress value={progress} className='h-2' />
-							</div>
-							<div className='w-full space-y-2'>
-								<div className='grid grid-cols-6 sm:grid-cols-4 items-center space-x-2 text-sm'>
-									<div
-										className={`h-2 w-2 rounded-full ${
-											isLoading
-												? 'bg-yellow-500/50 animate-pulse'
-												: 'bg-muted'
-										}`}
-									/>
-									<span className='text-muted-foreground text-center col-span-4 sm:col-span-2'>
-										{partialConcepts
-											? `Generating concept ${
-													partialConcepts.length + 1
-											  } of 5`
-											: 'Analyzing PDF content'}
-									</span>
-								</div>
-							</div>
-						</CardFooter>
-					)}
-				</Card>
+				<GeneratorCard
+					onSubmit={handleSubmitWithFiles}
+					onChange={handleFileChange}
+					isLoading={isLoading}
+					progress={progress}
+					partialConcepts={partialConcepts}
+					files={files}
+				/>
 			</div>
 			{!user && !userLoading && (
-				<div className='w-1/2 mx-auto'>
+				<div className='w-1/2 mx-auto my-8'>
 					<AlertComponent
 						title='Login or create an account'
 						description='Please login to save your progress'
 					/>
 				</div>
 			)}
-			{concepts.length >= 5 && !userLoading && (
-				<motion.div
-					className='flex flex-col gap-4 w-full sm:w-full lg:w-3/4 mx-auto p-4 pb-16'
-					initial='hidden'
-					animate='visible'
-					exit='exit'
-					variants={{
-						hidden: { opacity: 0 },
-						visible: {
-							opacity: 1,
-							transition: {
-								staggerChildren: 0.2,
-							},
-						},
-						exit: { opacity: 0 },
-					}}
-				>
-					<h1 className='text-2xl font-bold'>Your Concepts</h1>
-					{concepts &&
-						concepts.map((concept, i) => (
-							<motion.div
-								className=''
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.3 }}
-								whileHover={{ scale: 1.01 }}
-								key={i}
-							>
-								<ConceptCard
-									userId={user?.sub || ''}
-									concept={concept}
-								/>
-							</motion.div>
-						))}
-				</motion.div>
-			)}
+			<div className='w-[90%] mx-auto'>
+				<h2 className='text-2xl font-bold'>Your Concepts</h2>
+				{concepts.length >= 5 && !userLoading && (
+					<ConceptsTable concepts={concepts} />
+				)}
+			</div>
 		</div>
 	);
 }
