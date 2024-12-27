@@ -1,12 +1,16 @@
 import React from 'react';
+import { cx } from 'class-variance-authority';
 
 type Props = {
 	children: React.ReactNode;
+	className?: string;
 };
 
-const Title = ({ children }: Props) => {
+const Title = ({ children, className, ...props }: Props) => {
 	return (
-		<h1 className='text-4xl font-extrabold lg:text-5xl mb-6'>{children}</h1>
+		<h1 className='text-4xl font-extrabold lg:text-5xl mb-6' {...props}>
+			{children}
+		</h1>
 	);
 };
 
