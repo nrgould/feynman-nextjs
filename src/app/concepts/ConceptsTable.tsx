@@ -48,30 +48,30 @@ type Concept = {
 };
 
 export const columns: ColumnDef<Concept>[] = [
-	{
-		id: 'select',
-		header: ({ table }) => (
-			<Checkbox
-				checked={
-					table.getIsAllPageRowsSelected() ||
-					(table.getIsSomePageRowsSelected() && 'indeterminate')
-				}
-				onCheckedChange={(value) =>
-					table.toggleAllPageRowsSelected(!!value)
-				}
-				aria-label='Select all'
-			/>
-		),
-		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				aria-label='Select row'
-			/>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
+	// {
+	// 	id: 'select',
+	// 	header: ({ table }) => (
+	// 		<Checkbox
+	// 			checked={
+	// 				table.getIsAllPageRowsSelected() ||
+	// 				(table.getIsSomePageRowsSelected() && 'indeterminate')
+	// 			}
+	// 			onCheckedChange={(value) =>
+	// 				table.toggleAllPageRowsSelected(!!value)
+	// 			}
+	// 			aria-label='Select all'
+	// 		/>
+	// 	),
+	// 	cell: ({ row }) => (
+	// 		<Checkbox
+	// 			checked={row.getIsSelected()}
+	// 			onCheckedChange={(value) => row.toggleSelected(!!value)}
+	// 			aria-label='Select row'
+	// 		/>
+	// 	),
+	// 	enableSorting: false,
+	// 	enableHiding: false,
+	// },
 	{
 		accessorKey: 'title',
 		header: ({ column }) => {
@@ -89,7 +89,7 @@ export const columns: ColumnDef<Concept>[] = [
 		},
 		cell: ({ row }) => {
 			return (
-				<div className='font-medium text-center'>
+				<div className='font-medium'>
 					{row.original.title}
 				</div>
 			);
@@ -127,7 +127,7 @@ export const columns: ColumnDef<Concept>[] = [
 
 const ConceptsTable = ({ concepts }: { concepts: Concept[] }) => {
 	return (
-		<div className='container mx-auto py-10'>
+		<div className='container mx-auto pb-10'>
 			<DataTable columns={columns} data={concepts} />
 		</div>
 	);

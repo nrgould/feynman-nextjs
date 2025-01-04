@@ -1,78 +1,127 @@
-import React from 'react';
+'use client';
+
+import React, { useRef } from 'react';
 import { Bot, Heart } from 'lucide-react';
+import Image from 'next/image';
+import { motion, useInView } from 'framer-motion';
 
 function Features() {
+	const ref1 = useRef(null);
+	const ref2 = useRef(null);
+	const ref3 = useRef(null);
+	const isInView1 = useInView(ref1, { once: true });
+	const isInView2 = useInView(ref2, { once: true });
+	const isInView3 = useInView(ref3, { once: true });
+
 	return (
 		<div className='py-16 px-4'>
 			<div className='mx-auto w-full'>
-				{/* Features Section */}
-				<div className='container mx-auto mb-20 w-3/4'>
+				<div className='container mx-auto mb-20 w-2/3'>
 					<h2 className='text-4xl md:text-5xl font-bold text-center mb-16'>
 						Features
 					</h2>
-					<div className='grid md:grid-cols-3 gap-12'>
-						<div>
-							<h3 className='font-bold text-2xl md:text-3xl mb-6'>
-								Active Recall
-							</h3>
-							<ul className='space-y-3 text-muted-foreground list-disc pl-4'>
-								<li>
-									Strengthens memory through systematic
-									practice and review
-								</li>
-								<li>
-									Converts passive knowledge into active
-									understanding
-								</li>
-								<li>
-									Builds lasting comprehension, not temporary
-									memorization
-								</li>
-							</ul>
+					<div className='grid md:grid-cols-2 gap-12'>
+						<div className='space-y-16'>
+							<motion.div
+								ref={ref1}
+								style={{
+									transform: isInView1
+										? 'none'
+										: 'translateY(20px)',
+									opacity: isInView1 ? 1 : 0,
+									transition:
+										'all 0.9s cubic-bezier(0.17, 0.55, 0.55, 1) 0.2s',
+								}}
+							>
+								<h3 className='font-bold text-2xl md:text-3xl mb-6'>
+									Active Recall
+								</h3>
+								<ul className='space-y-3 text-muted-foreground list-disc pl-4 text-lg font-medium'>
+									<li>
+										Strengthens memory through systematic
+										practice and review
+									</li>
+									<li>
+										Converts passive knowledge into active
+										understanding
+									</li>
+									<li>
+										Builds lasting comprehension, not
+										temporary memorization
+									</li>
+								</ul>
+							</motion.div>
+
+							<motion.div
+								ref={ref2}
+								style={{
+									transform: isInView2
+										? 'none'
+										: 'translateY(20px)',
+									opacity: isInView2 ? 1 : 0,
+									transition:
+										'all 0.9s cubic-bezier(0.17, 0.55, 0.55, 1) 0.2s',
+								}}
+							>
+								<h3 className='font-bold text-2xl md:text-3xl mb-6'>
+									Concept Extraction
+								</h3>
+								<ul className='space-y-3 text-muted-foreground list-disc pl-4 text-lg font-medium'>
+									<li>
+										Use AI to extract key concepts directly
+										from your practice exams or homework
+									</li>
+									<li>
+										Automatically organize extracted
+										concepts for easier studying
+									</li>
+									<li>
+										Identify relationships between concepts
+										to deepen your understanding
+									</li>
+								</ul>
+							</motion.div>
+
+							<motion.div
+								ref={ref3}
+								style={{
+									transform: isInView3
+										? 'none'
+										: 'translateY(20px)',
+									opacity: isInView3 ? 1 : 0,
+									transition:
+										'all 0.9s cubic-bezier(0.17, 0.55, 0.55, 1) 0.2s',
+								}}
+							>
+								<h3 className='font-bold text-2xl md:text-3xl mb-6'>
+									Adaptive Learning
+								</h3>
+								<ul className='space-y-3 text-muted-foreground list-disc pl-4 text-lg font-medium'>
+									<li>
+										Adjusts difficulty to match your
+										understanding
+									</li>
+									<li>
+										Provides targeted support where you need
+										it most
+									</li>
+								</ul>
+							</motion.div>
 						</div>
 
-						<div>
-							<h3 className='font-bold text-2xl md:text-3xl mb-6'>
-								Exploratory Learning
-							</h3>
-							<ul className='space-y-3 text-muted-foreground list-disc pl-4'>
-								<li>
-									Follow your natural curiosity and interests
-								</li>
-								<li>
-									Discover connections between different
-									concepts
-								</li>
-								<li>
-									Learn through guided exploration and
-									discovery
-								</li>
-							</ul>
-						</div>
-
-						<div>
-							<h3 className='font-bold text-2xl md:text-3xl mb-6'>
-								Adaptive Learning
-							</h3>
-							<ul className='space-y-3 text-muted-foreground list-disc pl-4'>
-								<li>
-									Personalized pace based on your progress
-								</li>
-								<li>
-									Adjusts difficulty to match your
-									understanding
-								</li>
-								<li>
-									Provides targeted support where you need it
-									most
-								</li>
-							</ul>
+						<div className='hidden md:flex items-center justify-center'>
+							<Image
+								src='/images/Mathematics Illustration.svg'
+								alt='Features'
+								width={500}
+								height={500}
+								className='w-3/4 h-full rounded-xl flex items-center justify-center text-slate-400'
+							/>
 						</div>
 					</div>
 				</div>
 
-				{/* Who It's For Section */}
-				<div className='container mx-auto mb-20 w-1/2'>
+				<div className='container mx-auto my-20 w-1/2'>
 					<div className='max-w-3xl mx-auto text-center'>
 						<div className='flex justify-center mb-6'>
 							<div className='rounded-full p-3 bg-red-100'>
@@ -82,14 +131,14 @@ function Features() {
 						<h2 className='text-4xl md:text-4xl font-bold mb-6'>
 							Who It&apos;s For
 						</h2>
-						<p className='text-xl text-muted-foreground'>
-							Built for students with learning disabilities,
-							especially those underserved by traditional methods.
+						<p className='text-xl'>
+							Built for students with learning disabilities such
+							as ADHD, especially those underserved by traditional
+							methods.
 						</p>
 					</div>
 				</div>
 
-				{/* AI with Purpose Section */}
 				<div className='container mx-auto bg-slate-50 rounded-2xl p-8 w-1/2'>
 					<div className='max-w-3xl mx-auto'>
 						<div className='flex justify-center mb-6'>

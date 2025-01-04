@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 function Benefits() {
 	return (
 		<section className='py-12 px-4'>
-			<div className='mx-auto w-full md:w-3/4'>
+			<div className='mx-auto w-full md:w-2/3'>
 				<div className='container mx-auto'>
 					<div className='grid gap-6 md:grid-cols-3'>
 						{/* Knowledge Gaps Card */}
@@ -31,7 +31,7 @@ function Benefits() {
 									<CardTitle className='text-2xl font-bold'>
 										Identify Knowledge Gaps
 									</CardTitle>
-									<CardDescription>
+									<CardDescription className='text-lg'>
 										Pinpoint gaps in your understanding and
 										address them effectively.
 									</CardDescription>
@@ -54,7 +54,7 @@ function Benefits() {
 									<CardTitle className='text-2xl font-bold'>
 										Bite-sized Learning
 									</CardTitle>
-									<CardDescription>
+									<CardDescription className='text-lg'>
 										Simplify studying with bite-sized,
 										concept-focused learning.
 									</CardDescription>
@@ -77,7 +77,7 @@ function Benefits() {
 									<CardTitle className='text-2xl font-bold'>
 										Deep Understanding
 									</CardTitle>
-									<CardDescription>
+									<CardDescription className='text-lg'>
 										Prioritize deep understanding over rote
 										memorization.
 									</CardDescription>

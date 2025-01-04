@@ -14,7 +14,7 @@ const Hero = () => {
 				</Title>
 				<Subtitle className='text-center max-w-2xl'>
 					Discover your weak spots and turn them into strengths with
-					personalized learning
+					personalized assessment
 				</Subtitle>
 				<div className='flex gap-4'>
 					<Link href='/concepts'>
@@ -27,7 +27,7 @@ const Hero = () => {
 						variant='outline'
 						className='font-semibold'
 					>
-						<Play className='mr-2 h-4 w-4' /> Watch Demo
+						<Play className='mr-1 h-4 w-4' /> Watch Demo
 					</Button>
 				</div>
 			</div>

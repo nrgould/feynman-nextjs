@@ -54,7 +54,7 @@ export default function ConceptsGenerator() {
 		isLoading,
 	} = experimental_useObject({
 		api: '/api/generate-concepts',
-		schema: conceptsSchema,
+		schema: conceptsSchema,	
 		initialValue: undefined,
 		onError: (error) => {
 			console.error(
@@ -171,7 +171,7 @@ export default function ConceptsGenerator() {
 				</div>
 			)}
 			<div className='w-[90%] mx-auto'>
-				<h2 className='text-2xl font-bold'>Your Concepts</h2>
+				<h2 className='text-3xl font-bold text-center'>Your Concepts</h2>
 				{concepts.length >= 5 && !userLoading && (
 					<ConceptsTable concepts={concepts} />
 				)}
