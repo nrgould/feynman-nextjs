@@ -9,12 +9,15 @@ import {
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-interface Props {
+import { cn } from '@/lib/utils';
+
+interface AppCardProps {
 	title: string;
 	subtitle: string;
 	description: string;
 	link?: string;
 	linkTitle?: string;
+	className?: string;
 }
 
 export default function AppCard({
@@ -23,7 +26,8 @@ export default function AppCard({
 	subtitle,
 	link,
 	linkTitle,
-}: Props) {
+	className,	
+}: AppCardProps) {
 	return (
 		<Card>
 			<CardHeader>

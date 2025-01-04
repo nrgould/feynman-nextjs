@@ -3,22 +3,32 @@ import Title from '../atoms/Title';
 import Subtitle from '../atoms/Subtitle';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { Play } from 'lucide-react';
 
 const Hero = () => {
 	return (
-		<div className='flex flex-row flex-wrap items-center justify-center mb-20 w-3/4 mx-auto'>
-			<div className='flex flex-1 flex-col items-center justify-center lg:p-8 sm:p-2 '>
-				<Title className='text-center'>
-					Learn any concept in minutes.
+		<div className='flex flex-row flex-wrap items-center justify-center my-20 w-3/4 mx-auto'>
+			<div className='flex flex-1 flex-col items-center justify-center lg:p-8 sm:p-2 space-y-8'>
+				<Title className='text-center max-w-3xl'>
+					Master Any Concept Quickly with AI-Powered Learning
 				</Title>
-				<Subtitle className='text-center'>
-					Use AI to automatically assess how prepared you are for your
-					upcoming exam.
+				<Subtitle className='text-center max-w-2xl'>
+					Discover your weak spots and turn them into strengths with
+					personalized learning
 				</Subtitle>
-				<div>
+				<div className='flex gap-4'>
 					<Link href='/concepts'>
-						<Button size='lg'>Try it now</Button>
+						<Button size='lg' className='font-semibold'>
+							Try it now
+						</Button>
 					</Link>
+					<Button
+						size='lg'
+						variant='outline'
+						className='font-semibold'
+					>
+						<Play className='mr-2 h-4 w-4' /> Watch Demo
+					</Button>
 				</div>
 			</div>
 		</div>

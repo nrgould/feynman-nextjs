@@ -38,7 +38,7 @@ export default function RootLayout({
 						<AppSidebar className='h-dvh' />
 						<SidebarInset>
 							<Header />
-							<main className='h-[100vh]'>{children}</main>
+							<main className='h-[100vh] pb-20'>{children}</main>
 							<Toaster />
 						</SidebarInset>
 					</SidebarProvider>

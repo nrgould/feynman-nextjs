@@ -1,54 +1,55 @@
 import Title from '@/components/atoms/Title';
 import AppCard from '@/components/molecules/AppCard';
 import Hero from '@/components/organisms/Hero';
-import ChatWithFiles from '@/components/organisms/PdfGenerator';
 import Benefits from '@/components/organisms/Benefits';
 import Features from '@/components/organisms/Features';
 
 export default function Home() {
 	return (
-		<div>
-			<div className='flex flex-1 flex-col gap-4 px-4 py-10 mx-auto h-screen overflow-y-scroll'>
+		<div className='mb-20'>
+			<div className='flex flex-1 flex-col mx-auto h-screen overflow-y-scroll space-y-16  pb-20'>
 				<Hero />
-				{/* <ChatWithFiles /> */}
-				<div className='w-3/4 mx-auto'>
-					<Benefits />
-					<Features />
-				</div>
-				<div className='w-3/4 mx-auto'>
+				<Benefits />
+				<Features />
+
+				<div className='w-full md:w-1/2 mx-auto space-y-12 pb-20'>
 					<Title className='text-center'>
-						Try learning something new.
+						Start Your Learning Journey
 					</Title>
-				</div>
-				<div className='grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-screen-lg w-3/4 mx-auto'>
-					<AppCard
-						title='Trigonometric Identities'
-						link='/chat'
-						linkTitle='Learn'
-						description="You're about to become a master of trig identities! With these sneaky tricks up your sleeve, you'll be able to simplify even the most complicated trig expressions and save the day. Just remember: sin^2(x) + cos^2(x) = 1 is like having a magic wand that makes all your math problems disappear!"
-						subtitle='Unleash Your Inner Math Ninja: Simplify Those Tough Trig Expressions!'
-					/>
-					<AppCard
-						title='Systems of Linear Equations'
-						link='/chat'
-						linkTitle='Learn'
-						description="Are you ready to solve a mystery? With systems of linear equations, you'll be able to crack the code and find the solution set! Use your detective skills to uncover the hidden patterns and relationships between variables. And don't worry, it's not as scary as it sounds - just think of it like solving a puzzle!"
-						subtitle='Solve the Mystery: Crack Those Simultaneous Equations'
-					/>
-					<AppCard
-						title='Exponential Functions'
-						link='/chat'
-						linkTitle='Learn'
-						description="Buckle up, math adventurer! With exponential functions, you'll be able to travel through time and explore the world of rapid growth and decay. Just remember: 2^10 is like having a superpower that lets you multiply anything by itself ten times! Use this power wisely..."
-						subtitle='Become a Time Traveler: Explore the World of Exponential Growth!'
-					/>
-					<AppCard
-						title='Similar Triangles'
-						link='/chat'
-						linkTitle='Learn'
-						description="Are you ready to become a geometry master? With similar triangles, you'll be able to unlock the secrets of proportional sides and angles! Just remember: if ∠A = ∠B, then those triangles are like two peas in a pod - they're identical twins with different names!"
-						subtitle='Get Your Proportional On: Master the Art of Similar Triangles!'
-					/>
+					<div className='grid grid-cols-1 sm:grid-cols-2 gap-6 '>
+						<AppCard
+							title='Master Trigonometric Identities'
+							link='/chat'
+							linkTitle='Start Learning'
+							description="Simplify tricky trigonometric expressions and save the day! Remember: sin²θ + cos²θ = 1—it's like a magic wand for math!"
+							subtitle='Simplify Complex Trig Expressions'
+							className='hover:scale-[1.02] transition-transform duration-200'
+						/>
+						<AppCard
+							title='Systems of Linear Equations'
+							link='/chat'
+							linkTitle='Start Learning'
+							description='Crack the code of simultaneous equations! Learn to find solutions using simple, step-by-step methods that make complex problems feel like puzzles.'
+							subtitle='Master Multiple Equations'
+							className='hover:scale-[1.02] transition-transform duration-200'
+						/>
+						<AppCard
+							title='Exponential Functions'
+							link='/chat'
+							linkTitle='Start Learning'
+							description='Understand growth and decay patterns in nature and finance. Master the power of exponential functions with real-world applications.'
+							subtitle='Explore Growth Patterns'
+							className='hover:scale-[1.02] transition-transform duration-200'
+						/>
+						<AppCard
+							title='Similar Triangles'
+							link='/chat'
+							linkTitle='Start Learning'
+							description='Unlock the secrets of proportional sides and angles. Learn how similar triangles help solve real-world problems in architecture and engineering.'
+							subtitle='Understand Proportions'
+							className='hover:scale-[1.02] transition-transform duration-200'
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
