@@ -24,7 +24,7 @@ function ChatWindow({
 	const { setLearningStage, learningStage } = useLearningStageStore();
 	const { mutate } = useSWRConfig();
 
-	const { _id: chatId } = chat;
+	const { _id: chatId, title, description } = chat;
 
 	const {
 		messages,
@@ -39,7 +39,7 @@ function ChatWindow({
 		data: streamingData,
 	} = useChat({
 		id: chatId,
-		body: { chatId, userId, learningStage },
+		body: { chatId, userId, learningStage, title, description },
 		initialMessages,
 		onFinish: () => {
 			mutate('/api/history');

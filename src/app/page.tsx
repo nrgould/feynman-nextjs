@@ -2,15 +2,23 @@ import Title from '@/components/atoms/Title';
 import AppCard from '@/components/molecules/AppCard';
 import Hero from '@/components/organisms/Hero';
 import ChatWithFiles from '@/components/organisms/PdfGenerator';
+import Benefits from '@/components/organisms/Benefits';
+import Features from '@/components/organisms/Features';
 
 export default function Home() {
 	return (
 		<div>
 			<div className='flex flex-1 flex-col gap-4 px-4 py-10 mx-auto h-screen overflow-y-scroll'>
 				<Hero />
-				<ChatWithFiles />
+				{/* <ChatWithFiles /> */}
 				<div className='w-3/4 mx-auto'>
-					<Title>Try learning something new.</Title>
+					<Benefits />
+					<Features />
+				</div>
+				<div className='w-3/4 mx-auto'>
+					<Title className='text-center'>
+						Try learning something new.
+					</Title>
 				</div>
 				<div className='grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-screen-lg w-3/4 mx-auto'>
 					<AppCard

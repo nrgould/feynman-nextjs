@@ -1,4 +1,4 @@
-import { systemPrompt, systemPrompt2 } from '@/lib/ai/prompts';
+import { delimiter, systemPrompt, systemPrompt2 } from '@/lib/ai/prompts';
 import { tools } from '@/lib/ai/tools';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
@@ -28,7 +28,7 @@ const MessageSchema = z.object({
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const { chatId, messages } = await req.json();
+	const { chatId, messages, title, description } = await req.json();
 
 	const session = await getSession();
 
@@ -69,8 +69,8 @@ export async function POST(req: Request) {
 	});
 
 	const result = streamText({
-		model: openai('gpt-3.5-turbo'),
-		system: systemPrompt2,
+		model: openai('gpt-4o-mini'),
+		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}`,
 		messages: coreMessages,
 		onFinish: async ({ response }) => {
 			if (session.user?.sub) {
