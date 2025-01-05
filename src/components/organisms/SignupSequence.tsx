@@ -152,7 +152,7 @@ export function SignupSequence({
 	name,
 	email,
 	username,
-}: SignupSequenceProps) {
+}: any) {
 	const [step, setStep] = useState(1);
 	const [formData, setFormData] = useState<SignupData>({
 		educationLevel: '',

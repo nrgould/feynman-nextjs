@@ -10,16 +10,16 @@ async function page() {
 		redirect('/api/auth/login');
 	}
 
-	const user = session?.user;
+	const user = session.user;
 
 	return (
 		<div className='flex flex-col p-4 mx-auto items-center justify-between'>
 			<Suspense fallback={<div>Loading...</div>}>
 				<SignupSequence
-					userId={user?.sid as string}
-					name={user?.name as string}
-					email={user?.email as string}
-					username={user?.nickname as string}
+					userId={user.sid}
+					name={user.name}
+					email={user.email}
+					username={user.nickname}
 				/>
 			</Suspense>
 		</div>

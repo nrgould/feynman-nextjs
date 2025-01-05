@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 export async function createConversationAction(formData: FormData) {
 	const userId = formData.get('userId') as string;
 
-	const conversation = await saveChat({ userId });
+	const conversation = await saveChat({ userId, title: 'New chat', description: '' });
 
 	redirect(`/chat/${conversation._id}`);
 }
