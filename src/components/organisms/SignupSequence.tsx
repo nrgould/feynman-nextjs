@@ -147,7 +147,12 @@ interface SignupSequenceProps {
 	username: string;
 }
 
-export function SignupSequence({ userId, name, email, username }: SignupSequenceProps) {
+export function SignupSequence({
+	userId,
+	name,
+	email,
+	username,
+}: SignupSequenceProps) {
 	const [step, setStep] = useState(1);
 	const [formData, setFormData] = useState<SignupData>({
 		educationLevel: '',
@@ -192,7 +197,7 @@ export function SignupSequence({ userId, name, email, username }: SignupSequence
 		await saveUserSequence(formData);
 	};
 
-	const getProgress = () => ((step - 1) / 5) * 100;
+	const getProgress = () => (step / 5) * 100;
 
 	const getButtonText = (step: number) => {
 		if (step === 5) return 'Complete';
@@ -277,7 +282,7 @@ export function SignupSequence({ userId, name, email, username }: SignupSequence
 											/>
 											<Label
 												htmlFor={source}
-												className='text-slate-700 text-md'
+												className='text-slate-700 text-md cursor-pointer'
 											>
 												{source}
 											</Label>
@@ -425,7 +430,7 @@ export function SignupSequence({ userId, name, email, username }: SignupSequence
 				<div className='space-y-4 mt-4'>
 					<div className='flex items-center justify-between text-sm text-slate-600 mb-2 font-medium'>
 						<span>Progress</span>
-						<span>{step - 1}/5</span>
+						<span>{step}/5</span>
 					</div>
 					<Progress value={getProgress()} className='mb-4' />
 					<div className='flex gap-4'>

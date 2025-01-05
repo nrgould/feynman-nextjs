@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
 	const session = await getSession();
 
-	if (!session || !session.user || !session.user.sub) {
+	if (!session || !session.user || !session.user.sid) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 		...userMessage,
 		created_at: new Date(),
 		chatId,
-		userId: session.user.sub,
+		userId: session.user.sid,
 	});
 
 	// Save the user message to the database
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
 		maxSteps: 3,
 		messages: coreMessages,
 		onFinish: async ({ response }) => {
-			if (session.user?.sub) {
+			if (session.user?.sid) {
 				try {
 					const responseMessagesWithoutIncompleteToolCalls =
 						sanitizeResponseMessages(response.messages);
