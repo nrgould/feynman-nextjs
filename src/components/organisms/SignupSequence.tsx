@@ -32,6 +32,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { saveUserSequence } from '@/app/(manage)/user-sequence/actions';
 
 const subjects = [
 	{
@@ -103,12 +105,16 @@ const learningDisabilities = [
 	'Prefer not to say',
 ];
 
-interface SignupData {
+export interface SignupData {
 	educationLevel: string;
 	referralSource: string;
 	selectedSubjects: string[];
 	learningDisability: string;
 	goals: string;
+	userId: string;
+	name: string;
+	email: string;
+	username: string;
 }
 
 const slideIn = {
@@ -134,7 +140,14 @@ const containerVariants = {
 	},
 };
 
-export function SignupSequence() {
+interface SignupSequenceProps {
+	userId: string;
+	name: string;
+	email: string;
+	username: string;
+}
+
+export function SignupSequence({ userId, name, email, username }: SignupSequenceProps) {
 	const [step, setStep] = useState(1);
 	const [formData, setFormData] = useState<SignupData>({
 		educationLevel: '',
@@ -142,7 +155,13 @@ export function SignupSequence() {
 		selectedSubjects: [],
 		learningDisability: '',
 		goals: '',
+		userId,
+		name,
+		email,
+		username,
 	});
+
+	// console.log(formData);
 
 	const updateFormData = (field: keyof SignupData, value: any) => {
 		setFormData((prev) => ({
@@ -169,11 +188,11 @@ export function SignupSequence() {
 	};
 
 	const handleSubmit = async () => {
-		// TODO: Implement form submission logic
-		console.log('Form submitted:', formData);
+		// console.log('Form submitted:', formData);
+		await saveUserSequence(formData);
 	};
 
-	const getProgress = () => (step - 1) / 5 * 100;
+	const getProgress = () => ((step - 1) / 5) * 100;
 
 	const getButtonText = (step: number) => {
 		if (step === 5) return 'Complete';

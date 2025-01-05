@@ -4,6 +4,7 @@ import Message from './models/Message';
 import { mapDbMessageToMessage } from '../utils';
 import { Types } from 'mongoose';
 import Concept from './models/Concept';
+import User from './models/User';
 
 export async function saveChat({
 	userId,
@@ -176,6 +177,65 @@ export async function saveConcepts({ concepts }: { concepts: Array<any> }) {
 		return await Concept.insertMany(conceptDocs);
 	} catch (error) {
 		console.error('Failed to save concepts in database', error);
+		throw error;
+	}
+}
+
+export async function saveUser({
+	name,
+	email,
+	age,
+	userId,
+	learningDisability,
+	goals,
+	selectedSubjects,
+	schoolLevel,
+	profileImage,
+	referralSource,
+	educationLevel,
+	username,
+}: {
+	name: string;
+	email: string;
+	age?: number;
+	userId: string;
+	learningDisability?: string;
+	goals?: string;
+	selectedSubjects?: string[];
+	schoolLevel?: string;
+	profileImage?: string;
+	referralSource?: string;
+	educationLevel?: string;
+	username?: string;
+}) {
+	try {
+		await connectToDatabase();
+
+		const user = await User.findOneAndUpdate(
+			{ userId }, // find by userId
+			{
+				name,
+				email,
+				userId,
+				username,
+				learningDisability,
+				goals,
+				selectedSubjects,
+				schoolLevel,
+				profileImage,
+				referralSource,
+				educationLevel,
+			},
+			{
+				upsert: true, // create if doesn't exist
+				new: true, // return the updated document
+				setDefaultsOnInsert: true, // apply schema defaults if creating new doc
+			}
+		);
+
+		return JSON.parse(JSON.stringify(user));
+	} catch (error) {
+		console.error('Failed to save user in database', error);
 		throw error;
 	}
 }
