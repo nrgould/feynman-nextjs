@@ -1,5 +1,5 @@
 import { delimiter, systemPrompt, systemPrompt2 } from '@/lib/ai/prompts';
-import { tools } from '@/lib/ai/tools';
+import { gradeTool, learningStageTool, tools } from '@/lib/ai/tools';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
 import {
@@ -28,7 +28,7 @@ const MessageSchema = z.object({
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const { chatId, messages, title, description } = await req.json();
+	const { chatId, messages, title, description, learningStage } = await req.json();
 
 	const session = await getSession();
 
@@ -68,9 +68,17 @@ export async function POST(req: Request) {
 		content: userMessageId,
 	});
 
+	// TODO:
+	// add tools to the prompt, including maxSteps: 3, so the ai will return the explanation, then provide a current grade, then assess the learning stage and update it if needed
+	// provide the current learning stage of the user to the system prompt
 	const result = streamText({
 		model: openai('gpt-4o-mini'),
-		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}`,
+		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. The current learning stage is ${learningStage}`,
+		tools: {
+			grade: gradeTool,
+			learningStage: learningStageTool,
+		},
+		maxSteps: 3,
 		messages: coreMessages,
 		onFinish: async ({ response }) => {
 			if (session.user?.sub) {

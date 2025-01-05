@@ -21,7 +21,7 @@ function Benefits() {
 							initial={{ y: -10, opacity: 0 }}
 							animate={{ y: 0, opacity: 1 }}
 							transition={{ duration: 0.5, delay: 0.2 }}
-							className='h-[300px]'
+							// className='h-[300px]'
 						>
 							<Card className='flex flex-col items-center text-center p-6 h-full'>
 								<CardHeader className='flex flex-col items-center space-y-4 h-full justify-center'>
@@ -44,7 +44,7 @@ function Benefits() {
 							initial={{ y: -10, opacity: 0 }}
 							animate={{ y: 0, opacity: 1 }}
 							transition={{ duration: 0.5, delay: 0.4 }}
-							className='h-[300px]'
+							// className='h-[300px]'
 						>
 							<Card className='flex flex-col items-center text-center p-6 h-full'>
 								<CardHeader className='flex flex-col items-center space-y-4 h-full justify-center'>
@@ -67,7 +67,7 @@ function Benefits() {
 							initial={{ y: -10, opacity: 0 }}
 							animate={{ y: 0, opacity: 1 }}
 							transition={{ duration: 0.5, delay: 0.6 }}
-							className='h-[300px]'
+							// className='h-[300px]'
 						>
 							<Card className='flex flex-col items-center text-center p-6 h-full'>
 								<CardHeader className='flex flex-col items-center space-y-4 h-full justify-center'>

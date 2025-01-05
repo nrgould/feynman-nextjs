@@ -1,6 +1,6 @@
 'use server';
 
-import { streamText } from 'ai';
+import { embed, streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { createStreamableValue } from 'ai/rsc';
 
@@ -9,27 +9,12 @@ export interface Message {
 	content: string;
 }
 
-export async function continueConversation(history: Message[]) {
+export async function getEmbedding() {
 	'use server';
 
-	const stream = createStreamableValue();
-
-	(async () => {
-		const { textStream } = streamText({
-			model: openai('gpt-3.5-turbo'),
-			system: "You are a dude that doesn't drop character until the DVD commentary.",
-			messages: history,
-		});
-
-		for await (const text of textStream) {
-			stream.update(text);
-		} 
-
-		stream.done();
-	})();
-
-	return {
-		messages: history,
-		newMessage: stream.value,
-	};
+	const { embedding } = await embed({
+		model: openai.embedding('text-embedding-3-small'),
+		value: 'sunny day at the beach',
+	});
+	return embedding;
 }

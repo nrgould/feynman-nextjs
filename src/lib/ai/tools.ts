@@ -1,29 +1,16 @@
 import { tool as createTool } from 'ai';
 import { z } from 'zod';
 
-export const weatherTool = createTool({
-	description: 'Display the weather for a location',
-	parameters: z.object({
-		location: z.string(),
-	}),
-	execute: async function ({ location }) {
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-		return { weather: 'Sunny', temperature: 75, location };
-	},
-});
-
-export const stockTool = createTool({
-	description: 'Get price for a stock',
-	parameters: z.object({
-		symbol: z.string(),
-	}),
-	execute: async function ({ symbol }) {
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-		return { symbol, price: 100 };
-	},
-});
-
 //create tool that extracts a users numeric grade from the chat history and understanding of the concept.
+export const gradeTool = createTool({
+	description: 'Extract a users numeric grade out of 100 from the chat history and understanding of the concept.',
+	parameters: z.object({
+		grade: z.number(),
+	}),
+	execute: async function ({ grade }) {
+		return { grade };
+	},
+});
 
 //create a tool that assesses the current learning stage the user is in.
 export const learningStageTool = createTool({
@@ -47,4 +34,5 @@ export const learningStageTool = createTool({
 
 export const tools = {
 	getLearningStage: learningStageTool,
+	getGrade: gradeTool,
 };

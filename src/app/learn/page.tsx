@@ -1,76 +1,21 @@
-'use client';
+import { cosineSimilarity } from 'ai';
+import { embedMany } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { SignupSequence } from '@/components/organisms/SignupSequence';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useChat } from 'ai/react';
-import { Weather } from './Weather';
-import { Stock } from './Stock';
-import { Markdown } from '@/components/atoms/Markdown';
-import { LearningStage } from './LearningStage';
+export default async function Page() {
+	// const { embeddings, usage } = await embedMany({
+	// 	model: openai.embedding('text-embedding-3-small'),
+	// 	values: ['rainy day at the beach', 'sunny afternoon in the beach'],
+	// });
 
-export default function Page() {
-	const { messages, input, handleInputChange, handleSubmit } = useChat({
-		api: '/api/test',
-	});
+	// console.log(
+	// 	`cosine similarity: ${cosineSimilarity(embeddings[0], embeddings[1])}`
+	// );
 
 	return (
-		<div className='flex flex-col w-3/4 p-4 mx-auto items-center justify-between'>
-			<div className='flex flex-col gap-2'>
-				{messages.map((message) => (
-					<div key={message.id}>
-						{message.role === 'user' ? 'User: ' : 'AI: '}
-						<Markdown>{message.content}</Markdown>
-						<div>
-							{message.toolInvocations?.map((toolInvocation) => {
-								const { toolName, toolCallId, state } =
-									toolInvocation;
-
-								if (state === 'result') {
-									if (toolName === 'displayWeather') {
-										const { result } = toolInvocation;
-										return (
-											<div key={toolCallId}>
-												<Weather {...result} />
-											</div>
-										);
-									} else if (toolName === 'getLearningStage') {
-										const { result } = toolInvocation;
-										return (
-											<LearningStage
-												key={toolCallId}
-												{...result}
-											/>
-										);
-									}
-								} else {
-									return (
-										<div key={toolCallId}>
-											{toolName === 'displayWeather' ? (
-												<div>Loading weather...</div>
-											) : toolName === 'getStockPrice' ? (
-												<div>
-													Loading stock price...
-												</div>
-											) : (
-												<div>Loading...</div>
-											)}
-										</div>
-									);
-								}
-							})}
-						</div>
-					</div>
-				))}
-			</div>
-
-			<form onSubmit={handleSubmit} className='flex w-full gap-2'>
-				<Input
-					value={input}
-					onChange={handleInputChange}
-					placeholder='Type a message...'
-				/>
-				<Button type='submit'>Send</Button>
-			</form>
+		<div className='flex flex-col p-4 mx-auto items-center justify-between'>
+			<SignupSequence />
 		</div>
 	);
 }
