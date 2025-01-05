@@ -1,11 +1,11 @@
 'use server';
 
 import { SignupData } from '@/components/organisms/SignupSequence';
-import { saveUser } from '@/lib/db/queries';
+import { createUser } from '@/lib/db/queries';
 import { redirect } from 'next/navigation';
 
 export async function saveUserSequence(formData: SignupData) {
-	await saveUser(formData);
+	await createUser(formData);
 
 	redirect('/concepts');
 }

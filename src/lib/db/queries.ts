@@ -181,61 +181,108 @@ export async function saveConcepts({ concepts }: { concepts: Array<any> }) {
 	}
 }
 
-export async function saveUser({
+export async function createUser({
 	name,
 	email,
-	age,
 	userId,
+	username,
 	learningDisability,
 	goals,
 	selectedSubjects,
-	schoolLevel,
 	profileImage,
 	referralSource,
 	educationLevel,
-	username,
 }: {
 	name: string;
 	email: string;
-	age?: number;
 	userId: string;
+	username?: string;
 	learningDisability?: string;
 	goals?: string;
 	selectedSubjects?: string[];
-	schoolLevel?: string;
 	profileImage?: string;
 	referralSource?: string;
 	educationLevel?: string;
-	username?: string;
+}) {
+	try {
+		await connectToDatabase();
+
+		const user = await User.create({
+			name,
+			email,
+			userId,
+			username,
+			learningDisability,
+			goals,
+			selectedSubjects,
+			profileImage,
+			referralSource,
+			educationLevel,
+			accountType: 'free',
+			conceptLimit: 1,
+		});
+
+		return JSON.parse(JSON.stringify(user));
+	} catch (error) {
+		console.error('Failed to create user in database', error);
+		throw error;
+	}
+}
+
+export async function updateUser({
+	userId,
+	updates,
+}: {
+	userId: string;
+	updates: Partial<{
+		name: string;
+		email: string;
+		username: string;
+		learningDisability: string;
+		goals: string;
+		selectedSubjects: string[];
+		profileImage: string;
+		referralSource: string;
+		educationLevel: string;
+		accountType: string;
+		conceptLimit: number;
+	}>;
 }) {
 	try {
 		await connectToDatabase();
 
 		const user = await User.findOneAndUpdate(
-			{ userId }, // find by userId
+			{ userId },
+			{ $set: updates },
 			{
-				name,
-				email,
-				userId,
-				username,
-				learningDisability,
-				goals,
-				selectedSubjects,
-				schoolLevel,
-				profileImage,
-				referralSource,
-				educationLevel,
-			},
-			{
-				upsert: true, // create if doesn't exist
-				new: true, // return the updated document
-				setDefaultsOnInsert: true, // apply schema defaults if creating new doc
+				new: true,
 			}
 		);
 
+		if (!user) {
+			throw new Error('User not found');
+		}
+
 		return JSON.parse(JSON.stringify(user));
 	} catch (error) {
-		console.error('Failed to save user in database', error);
+		console.error('Failed to update user in database', error);
+		throw error;
+	}
+}
+
+export async function getUserById({ userId }: { userId: string }) {
+	try {
+		await connectToDatabase();
+
+		const userData = await User.findOne({ userId });
+
+		if (!userData) {
+			return null;
+		}
+
+		return JSON.parse(JSON.stringify(userData));
+	} catch (error) {
+		console.error('Failed to get user by id from database', error);
 		throw error;
 	}
 }

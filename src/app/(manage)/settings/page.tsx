@@ -1,54 +1,25 @@
-'use client';
-
 import Subtitle from '@/components/atoms/Subtitle';
-import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
+import { ProfileSettings } from '@/components/organisms/ProfileSettings';
+import { getUserById } from '@/lib/db/queries';
+import { getSession } from '@auth0/nextjs-auth0';
+import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
-import EmailPreferences from '@/components/molecules/EmailPreferences';
-import EditProfileSheet from '@/components/molecules/EditProfileSheet';
-import DeleteAccountDialog from '@/components/molecules/DeleteAccountDialog';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@auth0/nextjs-auth0/client';
+export default async function SettingsPage() {
+	const session = await getSession();
 
-const Settings = () => {
-	const { user, isLoading } = useUser();
-	const router = useRouter();
-
-	if (!isLoading && !user) {
-		router.push('/api/auth/login');
-		return null; // Return nothing while redirecting
+	if (!session?.user) {
+		redirect('/api/auth/login');
 	}
-	// Handle save action
-	const handleSave = () => {
-		alert('Settings saved!');
-		// Add logic to save settings (e.g., API call or local storage update)
-	};
+
+	const userData = await getUserById({ userId: session.user.sid });
 
 	return (
-		<div className='w-full m-h-screen flex flex-col items-start justify-between p-4'>
-			<Subtitle>Settings</Subtitle>
-
-			{/* User Preferences */}
-			<section className='w-full mb-10 flex-1 space-y-8'>
-				<h3 className='text-xl'>User Preferences</h3>
-				<div>
-					<EmailPreferences />
-				</div>
-			</section>
-
-			{/* Account Management */}
-			<section className='mb-10 flex-1 space-y-4'>
-				<h3 className='text-xl'>Account Management</h3>
-				<EditProfileSheet />
-				<DeleteAccountDialog />
-			</section>
-
-			{/* Save Button */}
-			<Button variant='default' onClick={handleSave}>
-				Save Settings
-			</Button>
-		</div>
+		<Suspense fallback={<div>Loading...</div>}>
+			<div className='w-full flex flex-col items-start justify-between p-4 mx-auto md:w-1/2 lg:w-1/3'>
+				<Subtitle>Settings</Subtitle>
+				<ProfileSettings initialData={userData} />
+			</div>
+		</Suspense>
 	);
-};
-
-export default Settings;
+}

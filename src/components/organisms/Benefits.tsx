@@ -75,7 +75,7 @@ function Benefits() {
 										<Brain className='h-8 w-8 text-purple-600' />
 									</div>
 									<CardTitle className='text-2xl font-bold'>
-										Deep Understanding
+										Deep Learning
 									</CardTitle>
 									<CardDescription className='text-lg'>
 										Prioritize deep understanding over rote
