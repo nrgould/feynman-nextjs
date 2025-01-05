@@ -67,6 +67,7 @@ export default function ConceptsGenerator() {
 		},
 		onFinish: ({ object }) => {
 			setConcepts([...concepts, ...(object ?? [])]);
+			setFiles([]);
 		},
 	});
 
@@ -162,6 +163,7 @@ export default function ConceptsGenerator() {
 					progress={progress}
 					partialConcepts={partialConcepts}
 					files={files}
+					clearPDF={clearPDF}
 				/>
 				<h1 className='text-center text-2xl font-bold'>Or...</h1>
 				<ManualConceptCard />

@@ -18,6 +18,7 @@ interface GeneratorCardProps {
 	partialConcepts: any;
 	files: File[];
 	onChange: any;
+	clearPDF: any;
 }
 
 const GeneratorCard = ({
@@ -27,6 +28,7 @@ const GeneratorCard = ({
 	progress,
 	partialConcepts,
 	files,
+	clearPDF,
 }: GeneratorCardProps) => {
 	return (
 		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-12'>
