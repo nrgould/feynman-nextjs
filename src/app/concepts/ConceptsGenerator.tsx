@@ -12,6 +12,8 @@ import { useConceptsStore } from '@/store/store';
 import AlertComponent from '@/components/atoms/AlertComponent';
 import ConceptsTable from './ConceptsTable';
 import GeneratorCard from './GeneratorCard';
+import ManualConceptCard from './ManualConceptCard';
+import Title from '@/components/atoms/Title';
 
 const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 	{
@@ -54,7 +56,7 @@ export default function ConceptsGenerator() {
 		isLoading,
 	} = experimental_useObject({
 		api: '/api/generate-concepts',
-		schema: conceptsSchema,	
+		schema: conceptsSchema,
 		initialValue: undefined,
 		onError: (error) => {
 			console.error(
@@ -121,7 +123,7 @@ export default function ConceptsGenerator() {
 	return (
 		<div className='mb-16'>
 			<div
-				className='min-h-[35dvh] w-full flex justify-center'
+				className='min-h-[40dvh] w-full flex justify-center items-center gap-6 flex-wrap'
 				onDragOver={(e) => {
 					e.preventDefault();
 					setIsDragging(true);
@@ -161,6 +163,8 @@ export default function ConceptsGenerator() {
 					partialConcepts={partialConcepts}
 					files={files}
 				/>
+				<h1 className='text-center text-2xl font-bold'>Or...</h1>
+				<ManualConceptCard />
 			</div>
 			{!user && !userLoading && (
 				<div className='w-1/2 mx-auto my-8'>
@@ -171,7 +175,9 @@ export default function ConceptsGenerator() {
 				</div>
 			)}
 			<div className='w-[90%] mx-auto'>
-				<h2 className='text-3xl font-bold text-center'>Your Concepts</h2>
+				<h2 className='text-3xl font-bold text-center'>
+					Your Concepts
+				</h2>
 				{concepts.length >= 5 && !userLoading && (
 					<ConceptsTable concepts={concepts} />
 				)}

@@ -7,7 +7,7 @@ import Features from '@/components/organisms/Features';
 export default function Home() {
 	return (
 		<div className='mb-20'>
-			<div className='flex flex-1 flex-col mx-auto h-screen overflow-y-scroll space-y-16  pb-20'>
+			<div className='flex flex-1 flex-col mx-auto h-screen overflow-y-scroll space-y-16 pb-20'>
 				<Hero />
 				<Benefits />
 				<Features />

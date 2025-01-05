@@ -32,16 +32,16 @@ const GeneratorCard = ({
 		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-12'>
 			<CardHeader className='text-center space-y-6'>
 				<div className='mx-auto flex items-center justify-center space-x-2 text-muted-foreground'>
-					<div className='rounded-full bg-primary/10 p-2'>
-						<SquareLibrary className='h-6 w-6' />
+					<div className='rounded-full bg-sky-100 p-2'>
+						<SquareLibrary className='h-6 w-6 text-sky-500' />
 					</div>
 				</div>
 				<div className='space-y-2'>
 					<CardTitle className='text-2xl font-bold'>
-						Concept Generator
+						Extract Concepts
 					</CardTitle>
 					<CardDescription className='text-base'>
-						Upload a PDF and start learning the concepts in it with
+						Upload a practice exam or homework and start learning the concepts in it with
 						interactive AI.
 					</CardDescription>
 				</div>
