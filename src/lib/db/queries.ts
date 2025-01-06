@@ -286,3 +286,23 @@ export async function getUserById({ userId }: { userId: string }) {
 		throw error;
 	}
 }
+
+export async function getAllConcepts() {
+	try {
+		await connectToDatabase();
+
+		const conceptsData = await Concept.find({})
+			.sort({ created_at: -1 })
+			.limit(5);
+
+		if (!conceptsData) {
+			return [];
+		}
+
+		// Parse the concepts to handle any MongoDB-specific data types
+		return JSON.parse(JSON.stringify(conceptsData));
+	} catch (error) {
+		console.error('Failed to get concepts from database', error);
+		throw error;
+	}
+}

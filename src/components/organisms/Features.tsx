@@ -16,7 +16,7 @@ function Features() {
 	return (
 		<div className='py-16 px-4'>
 			<div className='mx-auto w-full'>
-				<div className='container mx-auto mb-20 w-2/3'>
+				<div className='container mx-auto mb-20 w-2/3 md:w-11/12'>
 					<h2 className='text-4xl md:text-5xl font-bold text-center mb-16'>
 						Features
 					</h2>
@@ -121,7 +121,7 @@ function Features() {
 					</div>
 				</div>
 
-				<div className='container mx-auto my-20 w-1/2'>
+				<div className='container mx-auto my-20'>
 					<div className='max-w-3xl mx-auto text-center'>
 						<div className='flex justify-center mb-6'>
 							<div className='rounded-full p-3 bg-red-100'>
@@ -139,7 +139,7 @@ function Features() {
 					</div>
 				</div>
 
-				<div className='container mx-auto bg-slate-50 rounded-2xl p-8 w-1/2'>
+				<div className='container mx-auto bg-slate-50 rounded-2xl p-8'>
 					<div className='max-w-3xl mx-auto'>
 						<div className='flex justify-center mb-6'>
 							<div className='rounded-full p-3 bg-indigo-100'>

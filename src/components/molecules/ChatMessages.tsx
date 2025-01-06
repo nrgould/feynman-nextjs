@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 import { Label } from '@radix-ui/react-label';
 import DateLabel from '../atoms/DateLabel';
-import { LearningStage } from '@/app/learn/LearningStage';
+import YouTubeVideoTool from '../atoms/YouTubeVideoTool';
 
 interface Props {
 	messages: Message[];
@@ -115,10 +115,10 @@ const PureMessages = ({
 									toolInvocation;
 
 								if (state === 'result') {
-									if (toolName === 'getLearningStage') {
+									if (toolName === 'getYoutubeVideos') {
 										const { result } = toolInvocation;
 										return (
-											<LearningStage
+											<YouTubeVideoTool
 												key={toolCallId}
 												{...result}
 											/>
@@ -127,7 +127,7 @@ const PureMessages = ({
 								} else {
 									return (
 										<div key={toolCallId}>
-											<div>Loading Stage...</div>
+											<div>Finding YouTube video...</div>
 										</div>
 									);
 								}

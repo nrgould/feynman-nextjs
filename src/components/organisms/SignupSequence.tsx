@@ -32,7 +32,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import { saveUserSequence } from '@/app/(manage)/user-sequence/actions';
 
 const subjects = [
@@ -147,12 +146,7 @@ interface SignupSequenceProps {
 	username: string;
 }
 
-export function SignupSequence({
-	userId,
-	name,
-	email,
-	username,
-}: any) {
+export function SignupSequence({ userId, name, email, username }: any) {
 	const [step, setStep] = useState(1);
 	const [formData, setFormData] = useState<SignupData>({
 		educationLevel: '',
@@ -165,8 +159,6 @@ export function SignupSequence({
 		email,
 		username,
 	});
-
-	// console.log(formData);
 
 	const updateFormData = (field: keyof SignupData, value: any) => {
 		setFormData((prev) => ({

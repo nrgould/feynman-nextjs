@@ -3,7 +3,8 @@ import { z } from 'zod';
 
 //create tool that extracts a users numeric grade from the chat history and understanding of the concept.
 export const gradeTool = createTool({
-	description: 'Extract a users numeric grade out of 100 from the chat history and understanding of the concept.',
+	description:
+		'Extract a users numeric grade out of 100 from the chat history and understanding of the concept.',
 	parameters: z.object({
 		grade: z.number(),
 	}),
@@ -32,7 +33,44 @@ export const learningStageTool = createTool({
 	},
 });
 
+export const youtubeSearchTool = createTool({
+	description:
+		'Search for the most relevant educational YouTube video based on the provided concept or topic',
+	parameters: z.object({
+		concept: z.string().describe('The concept or topic to search for'),
+	}),
+	execute: async function ({ concept }) {
+		console.log('CONCEPT', concept);
+		try {
+			const response = await fetch(
+				`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(
+					concept
+				)}&type=video&key=${process.env.YOUTUBE_API_KEY}`
+			);
+
+			const data = await response.json();
+			console.log('DATA', data);
+
+			if (!data.items || data.items.length === 0) {
+				throw new Error('No videos found');
+			}
+
+			const item = data.items[0];
+			return {
+				videoId: item.id.videoId,
+				title: item.snippet.title,
+				description: item.snippet.description,
+				thumbnailUrl: item.snippet.thumbnails.medium.url,
+			};
+		} catch (error) {
+			console.error('Failed to fetch YouTube video:', error);
+			throw error;
+		}
+	},
+});
+
 export const tools = {
 	getLearningStage: learningStageTool,
 	getGrade: gradeTool,
+	getYoutubeVideos: youtubeSearchTool,
 };

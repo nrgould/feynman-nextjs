@@ -5,6 +5,7 @@ import {
 	Bell,
 	ChevronsUpDown,
 	CreditCard,
+	LogIn,
 	LogOut,
 	Sparkles,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
 import Text from '../atoms/Text';
+import { Label } from '../ui/label';
 
 const MENU_ICON_HEIGHT = 18;
 
@@ -63,9 +65,13 @@ export function NavUser() {
 
 	if (!user) {
 		return (
-			<div className='w-full flex p-2'>
-				<Link href='/api/auth/login'>
-					<Text>Login</Text>
+			<div className='w-full flex p-2 cursor-pointer'>
+				<Link
+					href='/api/auth/login'
+					className='flex items-center gap-2 '
+				>
+					<LogIn className='size-4' />
+					<Label className='text-md cursor-pointer'>Login</Label>
 				</Link>
 			</div>
 		);
