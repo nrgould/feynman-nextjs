@@ -11,19 +11,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Brain } from 'lucide-react';
 import { useState } from 'react';
-import { useConceptsStore } from '@/store/store';
+import { saveConcept } from './actions';
 
-const ManualConceptCard = () => {
+const ManualConceptCard = ({ userId }: { userId: string }) => {
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
-	const { concepts, setConcepts } = useConceptsStore();
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (title && description) {
-			setConcepts([...concepts, { title, description }]);
 			setTitle('');
 			setDescription('');
+			saveConcept({ title, description }, userId);
 		}
 	};
 

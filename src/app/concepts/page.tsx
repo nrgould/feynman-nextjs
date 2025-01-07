@@ -22,7 +22,7 @@ const Concepts = async () => {
 
 	return (
 		<div className='pt-[3vh]flex flex-col gap-4 items-center justify-center overflow-y-scroll h-dvh'>
-			<ConceptsGenerator initialConcepts={concepts} />
+			<ConceptsGenerator initialConcepts={concepts} user={session.user} />
 		</div>
 	);
 };

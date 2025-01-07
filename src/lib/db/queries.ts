@@ -157,29 +157,28 @@ export async function getMessagesByChatId({
 	}
 }
 
-export async function saveConcepts({ concepts, userId }: { concepts: Array<any>, userId: string }) {
+export async function saveConcepts({
+	concepts,
+	userId,
+}: {
+	concepts: Array<any>;
+	userId: string;
+}) {
 	try {
 		await connectToDatabase();
 
-		console.log('CONCEPTS', concepts);
-
 		const conceptDocs = concepts.map((concept) => ({
 			_id: new Types.ObjectId(),
-			...concept,
 			created_at: new Date(),
 			userId,
+			progress: 0,
+			isActive: false,
+			...concept,
 		}));
 
-		conceptDocs.forEach((concept) => {
-			concept.relatedConcepts = conceptDocs
-				.filter((c) => c._id !== concept._id)
-				.map((c) => c._id);
-		});
-
-		//set concept ids to concepts array in user
 		await User.findOneAndUpdate(
 			{ userId },
-			{ $set: { concepts: conceptDocs.map((c) => c._id) } },
+			{ $push: { concepts: { $each: conceptDocs.map((c) => c._id) } } },
 			{ new: true }
 		);
 
@@ -296,7 +295,13 @@ export async function getUserById({ userId }: { userId: string }) {
 	}
 }
 
-export async function getConceptsByUserId({ userId, limit }: { userId: string, limit: number }) {
+export async function getConceptsByUserId({
+	userId,
+	limit,
+}: {
+	userId: string;
+	limit: number;
+}) {
 	try {
 		await connectToDatabase();
 

@@ -8,53 +8,24 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useUser } from '@auth0/nextjs-auth0/client';
-import { useConceptsStore } from '@/store/store';
 import AlertComponent from '@/components/atoms/AlertComponent';
-import ConceptsTable from './ConceptsTable';
 import GeneratorCard from './GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
-import Title from '@/components/atoms/Title';
 import ConceptCard from './ConceptCard';
-
-const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
-	{
-		title: 'Knowledge Tracing',
-		description:
-			'Predicting student performance on future questions based on past interaction history with learning platforms.',
-	},
-	{
-		title: 'Factorization Machines (FMs)',
-		description:
-			'A general-purpose machine learning model used for analyzing sparse data and incorporating side information.',
-	},
-	{
-		title: 'Item Response Theory (IRT)',
-		description:
-			'A psychometric model used to analyze student responses to test items and estimate their latent abilities.',
-	},
-	{
-		title: 'Modeling Student Learning',
-		description:
-			'The process of creating mathematical models to represent and track student learning progress over time.',
-	},
-	{
-		title: 'Side Information',
-		description:
-			'Additional information about students, items, or tasks used to improve the accuracy of knowledge tracing models.',
-	},
-];
+import LoaderPage from '@/components/atoms/LoaderPage';
 
 export default function ConceptsGenerator({
 	initialConcepts,
+	user,
 }: {
 	initialConcepts: z.infer<typeof conceptsSchema>[];
+	user: any;
 }) {
 	const [files, setFiles] = useState<File[]>([]);
 	const [concepts, setConcepts] = useState<any>(initialConcepts);
-	// const { concepts, setConcepts } = useConceptsStore();
 	const [isDragging, setIsDragging] = useState(false);
 
-	const { user, isLoading: userLoading } = useUser();
+	// const { user, isLoading: userLoading } = useUser();
 
 	const {
 		submit,
@@ -172,21 +143,13 @@ export default function ConceptsGenerator({
 					clearPDF={clearPDF}
 				/>
 				<h1 className='text-center text-2xl font-bold'>Or...</h1>
-				<ManualConceptCard />
+				<ManualConceptCard userId={user.sid as string} />
 			</div>
-			{!user && !userLoading && (
-				<div className='w-1/2 mx-auto my-8'>
-					<AlertComponent
-						title='Login or create an account'
-						description='Please login to save your progress'
-					/>
-				</div>
-			)}
 			<div className='w-[90%] mx-auto'>
 				<h2 className='text-3xl font-bold text-center mb-8'>
 					Your Concepts
 				</h2>
-				<Suspense fallback={<div>Loading...</div>}>
+				<Suspense fallback={<LoaderPage />}>
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
 						{concepts &&
 							concepts.map((concept) => (

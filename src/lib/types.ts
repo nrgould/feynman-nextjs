@@ -58,4 +58,8 @@ export type Concept = {
 	title: string;
 	description: string;
 	relatedConcepts: string[];
+	created_at: Date;
+	progress: number;
+	userId: string;
+	isActive: boolean;
 };

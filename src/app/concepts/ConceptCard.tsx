@@ -60,7 +60,7 @@ const ConceptCard = ({
 	};
 
 	return (
-		<Card className='max-w-sm'>
+		<Card className='max-w-full md:max-w-sm'>
 			<CardHeader>
 				<div className='flex justify-between items-center'>
 					<CardTitle className='text-lg'>{concept.title}</CardTitle>
@@ -88,14 +88,22 @@ const ConceptCard = ({
 				<p className='line-clamp-2 text-sm text-muted-foreground'>
 					{concept.description}
 				</p>
-				<div className='flex flex-col gap-2 max-w-[50%] mt-4'>
-					<Label>Progress: {concept.progress * 100}%</Label>
-					<Progress color='secondary' className='h-2' value={50} />
-				</div>
 			</CardContent>
-			<CardFooter>
-				<Button variant='outline' onClick={handleClick}>
-					Start Learning
+			<CardFooter className='flex justify-between items-end flex-1'>
+				<div className='flex flex-col gap-2 w-1/3 mr-2'>
+					<Label>{concept.progress * 100}%</Label>
+					<Progress
+						color='secondary'
+						className='h-2'
+						value={concept.progress * 100}
+					/>
+				</div>
+				<Button
+					variant={concept.progress > 0 ? 'secondary' : 'outline'}
+					onClick={handleClick}
+					className='w-1/3'
+				>
+					{concept.progress > 0 ? 'Continue' : 'Start Learning'}
 				</Button>
 			</CardFooter>
 		</Card>
@@ -110,8 +118,7 @@ const DeleteDialog = ({
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger className='w-full flex justify-between items-center'>
-				Delete chat
-				<DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+				Delete concept
 			</AlertDialogTrigger>
 			<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 				<AlertDialogHeader>
