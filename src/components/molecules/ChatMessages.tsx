@@ -115,7 +115,7 @@ const PureMessages = ({
 									toolInvocation;
 
 								if (state === 'result') {
-									if (toolName === 'getYoutubeVideos') {
+									if (toolName === 'getYoutubeVideo') {
 										const { result } = toolInvocation;
 										return (
 											<YouTubeVideoTool

@@ -33,14 +33,24 @@ export const learningStageTool = createTool({
 	},
 });
 
+//tool for retireiving context from a data store (RAG)
+//for now, could simply access wikipedia or another source for context about concepts
+
+//tool for mathematical inputs, access wolfram alpha api
+
+//tool for retrieving knowledge from wikipedia or another source
+
+//tool for performing BKT in the background to track user progress
+
+//tool for moderating distributed practice
+
 export const youtubeSearchTool = createTool({
 	description:
-		'Search for the most relevant educational YouTube video based on the provided concept or topic',
+		'Search for the most relevant educational YouTube video based on the provided concept',
 	parameters: z.object({
 		concept: z.string().describe('The concept or topic to search for'),
 	}),
 	execute: async function ({ concept }) {
-		console.log('CONCEPT', concept);
 		try {
 			const response = await fetch(
 				`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(
@@ -49,7 +59,6 @@ export const youtubeSearchTool = createTool({
 			);
 
 			const data = await response.json();
-			console.log('DATA', data);
 
 			if (!data.items || data.items.length === 0) {
 				throw new Error('No videos found');
@@ -72,5 +81,5 @@ export const youtubeSearchTool = createTool({
 export const tools = {
 	getLearningStage: learningStageTool,
 	getGrade: gradeTool,
-	getYoutubeVideos: youtubeSearchTool,
+	getYoutubeVideo: youtubeSearchTool,
 };

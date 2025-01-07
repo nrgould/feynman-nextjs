@@ -12,9 +12,19 @@ const MessageSchema = new mongoose.Schema<DbMessage>({
 	},
 	content: { type: String, required: true },
 	attachments: { type: [String], default: [] },
+	toolArgs: {
+		type: Map,
+		of: mongoose.Schema.Types.Mixed,
+		required: false,
+	},
+	toolResult: {
+		type: Map,
+		of: mongoose.Schema.Types.Mixed,
+		required: false,
+	},
 	role: {
 		type: String,
-		enum: ['user', 'system', 'assistant', 'data'],
+		enum: ['user', 'system', 'assistant', 'data', 'tool'],
 		required: true,
 	},
 	created_at: { type: Date, default: Date.now },

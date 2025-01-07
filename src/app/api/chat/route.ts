@@ -17,7 +17,7 @@ const MessageSchema = z.object({
 	chatId: z.string().min(1, 'Chat ID is required'),
 	content: z.string(),
 	attachments: z.array(z.string()).optional(),
-	role: z.enum(['user', 'system', 'assistant', 'data']),
+	role: z.enum(['user', 'system', 'assistant', 'data', 'tool']),
 	created_at: z.preprocess(
 		(arg) => (typeof arg === 'string' ? new Date(arg) : arg),
 		z.date()
@@ -28,7 +28,8 @@ const MessageSchema = z.object({
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const { chatId, messages, title, description, learningStage } = await req.json();
+	const { chatId, messages, title, description, learningStage } =
+		await req.json();
 
 	const session = await getSession();
 
@@ -73,7 +74,8 @@ export async function POST(req: Request) {
 	// provide the current learning stage of the user to the system prompt
 	const result = streamText({
 		model: openai('gpt-4o-mini'),
-		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. The current learning stage is ${learningStage}`,
+		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}.
+		The current learning stage is ${learningStage}`,
 		tools: tools,
 		maxSteps: 3,
 		messages: coreMessages,
@@ -83,29 +85,64 @@ export async function POST(req: Request) {
 					const responseMessagesWithoutIncompleteToolCalls =
 						sanitizeResponseMessages(response.messages);
 
+					console.log(
+						responseMessagesWithoutIncompleteToolCalls.map(
+							(message) => message.content
+						)
+					);
+
 					await saveMessages({
 						messages:
 							responseMessagesWithoutIncompleteToolCalls.map(
 								(message) => {
 									let contentText = '';
+									const attachments: string[] = [];
 
 									// Handle different content formats
 									if (typeof message.content === 'string') {
 										contentText = message.content;
 									} else if (Array.isArray(message.content)) {
-										// Find the first text content
-										const textContent =
-											message.content.find(
-												(c) => c.type === 'text'
-											);
-										contentText = textContent?.text || '';
+										// Separate text content and tool calls
+										message.content.forEach((content) => {
+											if (content.type === 'text') {
+												contentText = content.text;
+											} else if (
+												content.type === 'tool_call'
+											) {
+												// Store tool calls in attachments
+												attachments.push(
+													JSON.stringify({
+														type: 'tool_call',
+														tool: content.tool_call
+															.function.name,
+														arguments:
+															content.tool_call
+																.function
+																.arguments,
+													})
+												);
+											} else if (
+												content.type === 'tool-result'
+											) {
+												// Store tool results in attachments
+												attachments.push(
+													JSON.stringify({
+														type: 'tool_result',
+														toolCallId:
+															content.toolCallId,
+														result: content.result,
+													})
+												);
+											}
+										});
 									}
 
 									return new Message({
 										userId: session.user.sub,
 										chatId,
 										role: message.role,
-										content: contentText,
+										content: contentText || ' ', // Ensure content is never empty
+										attachments,
 										created_at: new Date(),
 									});
 								}

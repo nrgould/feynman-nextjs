@@ -8,8 +8,18 @@ export interface DbMessage {
 	userId: string;
 	content: string;
 	attachments?: FilePart[];
-	role: 'user' | 'system' | 'assistant' | 'data';
+	role: 'user' | 'system' | 'assistant' | 'data' | 'tool';
 	created_at: Date;
+	toolArgs?: {
+		toolCallId: string;
+		toolName: string;
+		args: any;
+	};
+	toolResult?: {
+		toolCallId: string;
+		toolName: string;
+		result: any;
+	};
 }
 
 // Custom fields we want to add to the AI Message type
