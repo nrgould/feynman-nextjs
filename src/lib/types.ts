@@ -1,5 +1,5 @@
 import { Message as AiMessage } from 'ai/react';
-import { FilePart } from 'ai';
+import { Attachment, FilePart, ToolInvocation } from 'ai';
 
 // Base type for MongoDB document
 export interface DbMessage {
@@ -7,7 +7,7 @@ export interface DbMessage {
 	chatId: string;
 	userId: string;
 	content: string;
-	attachments?: FilePart[];
+	attachments?: string[];
 	role: 'user' | 'system' | 'assistant' | 'data' | 'tool';
 	created_at: Date;
 	toolArgs?: {
@@ -31,8 +31,16 @@ export interface CustomMessageFields {
 }
 
 // Combined type for use in the application
-export interface Message extends AiMessage, CustomMessageFields {
+export interface Message {
 	_id?: string;
+	id: string;
+	content: string;
+	role: 'data' | 'user' | 'system' | 'assistant' | 'tool';
+	chatId: string;
+	userId: string;
+	attachments?: string[];
+	created_at?: Date;
+	toolInvocations?: Array<ToolInvocation>;
 }
 
 export type Conversation = {
