@@ -29,11 +29,11 @@ function Header() {
 			<div className='flex flex-row items-center justify-between gap-2'>
 				{!user && !isLoading && (
 					<div className='flex flex-row items-center justify-between gap-2'>
-						<Link href='/api/auth/login'>
+						<a href='/api/auth/login'>
 							<Button variant='outline' size='sm'>
 								Login
 							</Button>
-						</Link>
+						</a>
 						<Button variant='default' size='sm'>
 							Sign Up
 						</Button>
