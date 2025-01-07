@@ -3,8 +3,7 @@ import ConversationList from '@/components/organisms/ConversationList';
 import CreateConversationButton from '@/components/molecules/CreateConversationButton';
 import { Label } from '@/components/ui/label';
 import { redirect } from 'next/navigation';
-import { getChatsByUserId } from '@/lib/db/queries';
-import { CodeSandboxLogoIcon } from '@radix-ui/react-icons';
+import { getUserChats } from './actions';
 
 export default async function ChatHome() {
 	const session = await getSession();
@@ -12,9 +11,8 @@ export default async function ChatHome() {
 
 	const user = session?.user || {};
 
-	console.log(user);
+	const conversations = await getUserChats(user.sid, 10);
 
-	const conversations = await getChatsByUserId({ id: user.sid, limit: 10 });
 	return (
 		<div className='relative flex flex-col lg:items-center md:items-baseline sm:items-baseline justify-center lg:px-24 md:px-8 sm:px-2 xs:px-0 w-full pt-8'>
 			{conversations ? (
@@ -29,5 +27,3 @@ export default async function ChatHome() {
 		</div>
 	);
 }
-
-

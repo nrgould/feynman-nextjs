@@ -1,9 +1,9 @@
 import Subtitle from '@/components/atoms/Subtitle';
 import { ProfileSettings } from '@/components/organisms/ProfileSettings';
-import { getUserById } from '@/lib/db/queries';
 import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+import { getUserProfile } from './actions';
 
 export default async function SettingsPage() {
 	const session = await getSession();
@@ -12,7 +12,7 @@ export default async function SettingsPage() {
 		redirect('/api/auth/login');
 	}
 
-	const userData = await getUserById({ userId: session.user.sid });
+	const userData = await getUserProfile(session.user.sid);
 
 	return (
 		<Suspense fallback={<div>Loading...</div>}>
