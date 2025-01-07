@@ -61,7 +61,7 @@ export async function AppSidebar({
 
 	return (
 		<Sidebar collapsible='icon' {...props}>
-			<SidebarHeader>
+			<SidebarHeader className="items-end">
 				<SidebarTrigger />
 			</SidebarHeader>
 			<SidebarContent>
@@ -84,7 +84,7 @@ export async function AppSidebar({
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-				<RecentChats userId={user.sub} />
+				{/* <RecentChats userId={user.sub} /> */}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

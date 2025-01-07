@@ -157,7 +157,7 @@ export async function getMessagesByChatId({
 	}
 }
 
-export async function saveConcepts({ concepts }: { concepts: Array<any> }) {
+export async function saveConcepts({ concepts, userId }: { concepts: Array<any>, userId: string }) {
 	try {
 		await connectToDatabase();
 
@@ -166,6 +166,8 @@ export async function saveConcepts({ concepts }: { concepts: Array<any> }) {
 		const conceptDocs = concepts.map((concept) => ({
 			_id: new Types.ObjectId(),
 			...concept,
+			created_at: new Date(),
+			userId,
 		}));
 
 		conceptDocs.forEach((concept) => {
@@ -173,6 +175,13 @@ export async function saveConcepts({ concepts }: { concepts: Array<any> }) {
 				.filter((c) => c._id !== concept._id)
 				.map((c) => c._id);
 		});
+
+		//set concept ids to concepts array in user
+		await User.findOneAndUpdate(
+			{ userId },
+			{ $set: { concepts: conceptDocs.map((c) => c._id) } },
+			{ new: true }
+		);
 
 		return await Concept.insertMany(conceptDocs);
 	} catch (error) {
@@ -287,22 +296,17 @@ export async function getUserById({ userId }: { userId: string }) {
 	}
 }
 
-export async function getAllConcepts() {
+export async function getConceptsByUserId({ userId, limit }: { userId: string, limit: number }) {
 	try {
 		await connectToDatabase();
 
-		const conceptsData = await Concept.find({})
+		const concepts = await Concept.find({ userId })
 			.sort({ created_at: -1 })
-			.limit(5);
+			.limit(limit);
 
-		if (!conceptsData) {
-			return [];
-		}
-
-		// Parse the concepts to handle any MongoDB-specific data types
-		return JSON.parse(JSON.stringify(conceptsData));
+		return JSON.parse(JSON.stringify(concepts));
 	} catch (error) {
-		console.error('Failed to get concepts from database', error);
+		console.error('Failed to get concepts by user id from database', error);
 		throw error;
 	}
 }

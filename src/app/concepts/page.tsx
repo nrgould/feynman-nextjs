@@ -1,5 +1,7 @@
+import { redirect } from 'next/navigation';
 import ConceptsGenerator from './ConceptsGenerator';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { getUserConcepts } from './actions';
 
 // const Concepts = withPageAuthRequired(async () => {
 // 	return (
@@ -10,9 +12,17 @@ import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 // }, { returnTo: '/concepts' });
 
 const Concepts = async () => {
+	const session = await getSession();
+
+	if (!session) {
+		return redirect('/api/auth/login');
+	}
+
+	const concepts = await getUserConcepts(session.user.sid, 10);
+
 	return (
 		<div className='pt-[3vh]flex flex-col gap-4 items-center justify-center overflow-y-scroll h-dvh'>
-			<ConceptsGenerator />
+			<ConceptsGenerator initialConcepts={concepts} />
 		</div>
 	);
 };

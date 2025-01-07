@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { experimental_useObject } from 'ai/react';
 import { conceptsSchema } from '@/lib/schemas';
 import { z } from 'zod';
@@ -14,6 +14,7 @@ import ConceptsTable from './ConceptsTable';
 import GeneratorCard from './GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
 import Title from '@/components/atoms/Title';
+import ConceptCard from './ConceptCard';
 
 const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 	{
@@ -43,9 +44,14 @@ const SAMPLE_CONCEPTS: z.infer<typeof conceptsSchema> = [
 	},
 ];
 
-export default function ConceptsGenerator() {
+export default function ConceptsGenerator({
+	initialConcepts,
+}: {
+	initialConcepts: z.infer<typeof conceptsSchema>[];
+}) {
 	const [files, setFiles] = useState<File[]>([]);
-	const { concepts, setConcepts } = useConceptsStore();
+	const [concepts, setConcepts] = useState<any>(initialConcepts);
+	// const { concepts, setConcepts } = useConceptsStore();
 	const [isDragging, setIsDragging] = useState(false);
 
 	const { user, isLoading: userLoading } = useUser();
@@ -177,12 +183,23 @@ export default function ConceptsGenerator() {
 				</div>
 			)}
 			<div className='w-[90%] mx-auto'>
-				<h2 className='text-3xl font-bold text-center'>
+				<h2 className='text-3xl font-bold text-center mb-8'>
 					Your Concepts
 				</h2>
-				{concepts.length >= 5 && !userLoading && (
-					<ConceptsTable concepts={concepts} />
-				)}
+				<Suspense fallback={<div>Loading...</div>}>
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+						{concepts &&
+							concepts.map((concept) => (
+								<ConceptCard
+									key={concept._id}
+									concept={concept}
+								/>
+							))}
+					</div>
+					{/* {concepts.length >= 5 && !userLoading && (
+						<ConceptsTable concepts={concepts} />
+					)} */}
+				</Suspense>
 			</div>
 		</div>
 	);

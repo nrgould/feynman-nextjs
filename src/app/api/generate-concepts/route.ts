@@ -3,12 +3,19 @@ import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
 import { saveConcepts } from '@/lib/db/queries';
 import Concept from '@/lib/db/models/Concept';
+import { getSession } from '@auth0/nextjs-auth0';
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
 	const { files } = await req.json();
 	const firstFile = files[0].data;
+
+	const session = await getSession();
+
+	if (!session) {
+		return new Response('Unauthorized', { status: 401 });
+	}
 
 	const result = await streamObject({
 		model: google('gemini-1.5-pro-latest'),
@@ -43,6 +50,7 @@ export async function POST(req: Request) {
 			try {
 				await saveConcepts({
 					concepts: concepts || [],
+					userId: session.user.sid,
 				});
 			} catch (error) {
 				console.error('Failed to save concepts in database', error);
