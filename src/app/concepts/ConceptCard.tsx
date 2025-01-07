@@ -103,7 +103,7 @@ const ConceptCard = ({
 					onClick={handleClick}
 					className='w-1/3'
 				>
-					{concept.progress > 0 ? 'Continue' : 'Start Learning'}
+					{concept.progress > 0 ? 'Continue' : 'Start'}
 				</Button>
 			</CardFooter>
 		</Card>

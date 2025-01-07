@@ -13,6 +13,14 @@ import GeneratorCard from './GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
 import ConceptCard from './ConceptCard';
 import LoaderPage from '@/components/atoms/LoaderPage';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import { CircleAlert } from 'lucide-react';
 
 export default function ConceptsGenerator({
 	initialConcepts,
@@ -158,10 +166,26 @@ export default function ConceptsGenerator({
 									concept={concept}
 								/>
 							))}
+						{concepts.length === 0 && (
+							<div className='col-span-3 flex justify-center items-center'>
+								<Card className='w-full max-w-sm'>
+									<CardHeader>
+										<div className='flex items-center justify-center gap-2'>
+											<CircleAlert className='w-6 h-6 text-red-500' />
+											<CardTitle className='text-center text-xl'>
+												No concepts found
+											</CardTitle>
+										</div>
+									</CardHeader>
+									<CardContent>
+										<CardDescription className='text-center text-muted-foreground text-md'>
+											Add a concept to get started!
+										</CardDescription>
+									</CardContent>
+								</Card>
+							</div>
+						)}
 					</div>
-					{/* {concepts.length >= 5 && !userLoading && (
-						<ConceptsTable concepts={concepts} />
-					)} */}
 				</Suspense>
 			</div>
 		</div>
