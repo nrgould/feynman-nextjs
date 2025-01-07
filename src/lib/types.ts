@@ -8,7 +8,7 @@ export interface DbMessage {
 	userId: string;
 	content: string;
 	attachments?: string[];
-	role: 'user' | 'system' | 'assistant' | 'data' | 'tool';
+	role: 'user' | 'system' | 'assistant' | 'data';
 	created_at: Date;
 	toolArgs?: {
 		toolCallId: string;
@@ -35,7 +35,7 @@ export interface Message {
 	_id?: string;
 	id: string;
 	content: string;
-	role: 'data' | 'user' | 'system' | 'assistant' | 'tool';
+	role: 'data' | 'user' | 'system' | 'assistant';
 	chatId: string;
 	userId: string;
 	attachments?: string[];
