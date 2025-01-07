@@ -61,6 +61,17 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 				</span>
 			);
 		},
+		a: ({ node, children, href, ...props }: any) => {
+			return (
+				<a
+					href={href}
+					className='font-semibold text-blue-500 bg-slate-100 px-2 py-1 rounded'
+					{...props}
+				>
+					{children}
+				</a>
+			);
+		},
 	};
 
 	return (
