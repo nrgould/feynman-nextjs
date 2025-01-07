@@ -1,16 +1,6 @@
-import { useConceptsStore } from '@/store/store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { YouTubeEmbed } from '@/components/molecules/YouTubeEmbed';
-import { getConcepts } from './actions';
 
 export default async function Page() {
-	// Get concepts from the store
-	const conceptVideos = await getConcepts();
-
-	// console.log(conceptVideos);
-
 	return (
 		<ScrollArea className='h-[calc(100vh-4rem)] w-full'>
 			<div className='container mx-auto py-6 px-4'>
