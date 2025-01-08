@@ -45,8 +45,6 @@ export async function POST(req: NextRequest) {
 		schema: conceptSchema,
 		output: 'array',
 		onFinish: async ({ object }) => {
-			// save the concepts to the database
-			// but won't necessarily have the user id, how to link?
 			const res = conceptsSchema.safeParse(object);
 			const concepts = res.data;
 			try {

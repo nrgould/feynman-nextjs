@@ -1,6 +1,5 @@
 'use server';
 
-import { getChatsByUserId } from '@/lib/db/queries';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
