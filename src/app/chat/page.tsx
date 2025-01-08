@@ -22,8 +22,6 @@ export default async function ChatHome() {
 					<Label>No chats! Create one below</Label>
 				</div>
 			)}
-
-			<CreateConversationButton userId={user.sid} />
 		</div>
 	);
 }
