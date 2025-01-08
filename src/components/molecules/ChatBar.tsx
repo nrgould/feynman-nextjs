@@ -189,7 +189,7 @@ const ChatBar = ({
 					rows={1}
 					name='input'
 					className={cx(
-						'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted pl-10',
+						'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted px-10',
 						className
 					)}
 					autoFocus
