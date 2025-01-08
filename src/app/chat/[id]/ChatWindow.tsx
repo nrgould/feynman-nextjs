@@ -3,10 +3,10 @@
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
 import { Conversation, Message } from '@/lib/types';
-import { useLearningStageStore } from '@/store/store';
+import { useLearningStageStore, useTitleStore } from '@/store/store';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
 function ChatWindow({
@@ -23,8 +23,13 @@ function ChatWindow({
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 	const { setLearningStage, learningStage } = useLearningStageStore();
 	const { mutate } = useSWRConfig();
+	const { title: currentTitle, setTitle } = useTitleStore();
 
 	const { _id: chatId, title, description } = chat;
+
+	useEffect(() => {
+		setTitle(title);
+	}, [title]);
 
 	const {
 		messages,

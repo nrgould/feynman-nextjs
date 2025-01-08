@@ -22,6 +22,12 @@ type LearningStageStore = {
 	setLearningStage: (stage: (typeof stages)[number]) => void;
 };
 
+type TitleStore = {
+	title: string;
+	setTitle: (title: string) => void;
+	resetTitle: () => void;
+};
+
 export const useLearningStageStore = create<LearningStageStore>((set) => ({
 	learningStage: 'initial Explanation',
 	setLearningStage: (stage) => set({ learningStage: stage }),
@@ -58,3 +64,9 @@ export const useConceptsStore = create<ConceptsState>()(
 		}
 	)
 );
+
+export const useTitleStore = create<TitleStore>((set) => ({
+	title: 'Feynman Learning',
+	setTitle: (title) => set({ title }),
+	resetTitle: () => set({ title: 'Feynman Learning' }),
+}));
