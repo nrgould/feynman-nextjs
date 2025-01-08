@@ -146,7 +146,7 @@ const ConceptCard = ({
 								<ThumbsUp size={16} />
 							</DropdownMenuItem>
 							<DropdownMenuItem className='flex justify-between items-center'>
-								I didn't enjoy this
+								I didn&apos;t enjoy this
 								<ThumbsDown size={16} />
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
