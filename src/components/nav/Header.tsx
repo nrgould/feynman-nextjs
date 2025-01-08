@@ -9,10 +9,17 @@ import { Button } from '../ui/button';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { Skeleton } from '../ui/skeleton';
 import { useTitleStore } from '@/store/store';
+import {
+	ClerkLoaded,
+	ClerkLoading,
+	SignedIn,
+	SignedOut,
+	SignInButton,
+	SignOutButton,
+} from '@clerk/nextjs';
 
 function Header() {
 	const pathname = usePathname();
-	const { user, isLoading } = useUser();
 	const { isMobile } = useSidebar();
 	const { title } = useTitleStore();
 
@@ -30,24 +37,29 @@ function Header() {
 				</div>
 			</div>
 			<div className='flex flex-row items-center justify-between gap-2'>
-				{!user && !isLoading && (
+				<ClerkLoaded>
 					<div className='flex flex-row items-center justify-between gap-2'>
-						<a href='/api/auth/login'>
-							<Button variant='outline' size='sm'>
-								Login
-							</Button>
-						</a>
-						<Button variant='default' size='sm'>
-							Sign Up
-						</Button>
+						<SignedOut>
+							<SignInButton>
+								<Button variant='outline' size='sm'>
+									Login
+								</Button>
+							</SignInButton>
+						</SignedOut>
+						<SignedIn>
+							<SignOutButton>
+								<Button variant='outline' size='sm'>
+									Sign Out
+								</Button>
+							</SignOutButton>
+						</SignedIn>
 					</div>
-				)}
-				{isLoading && (
+				</ClerkLoaded>
+				<ClerkLoading>
 					<div className='flex flex-row items-center justify-between gap-2'>
-						<Skeleton className='h-8 w-16' />
-						<Skeleton className='h-8 w-20' />
+						<Skeleton className='h-8 w-18' />
 					</div>
-				)}
+				</ClerkLoading>
 			</div>
 		</header>
 	);

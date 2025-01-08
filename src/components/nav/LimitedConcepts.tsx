@@ -20,11 +20,11 @@ function LimitedConcepts() {
 							</div>
 
 							<Progress value={33} className='h-2' />
-
+{/* 
 							<Button className='w-full bg-violet-500 hover:bg-violet-400 font-semibold'>
 								<Sparkles className='mr-2 h-4 w-4' />
 								Get Unlimited
-							</Button>
+							</Button> */}
 						</div>
 					</div>
 				)}

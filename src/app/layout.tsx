@@ -7,6 +7,13 @@ import { AppSidebar } from '@/components/nav/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/nav/Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import {
+	ClerkProvider,
+	SignInButton,
+	SignedIn,
+	SignedOut,
+	UserButton,
+} from '@clerk/nextjs';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -26,24 +33,28 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang='en'>
-			<SpeedInsights />
-			<meta
-				name='viewport'
-				content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
-			/>
-			<UserProvider>
-				<body className={`${PlusJakartaSans.variable}`}>
-					<SidebarProvider>
-						<AppSidebar className='h-dvh' />
-						<SidebarInset>
-							<Header />
-							<main className='h-[100vh] pb-20 bg-zinc-50'>{children}</main>
-							<Toaster />
-						</SidebarInset>
-					</SidebarProvider>
-				</body>
-			</UserProvider>
-		</html>
+		<ClerkProvider>
+			<html lang='en'>
+				<SpeedInsights />
+				<meta
+					name='viewport'
+					content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
+				/>
+				<UserProvider>
+					<body className={`${PlusJakartaSans.variable}`}>
+						<SidebarProvider>
+							<AppSidebar className='h-dvh' />
+							<SidebarInset>
+								<Header />
+								<main className='h-[100vh] pb-20 bg-zinc-50'>
+									{children}
+								</main>
+								<Toaster />
+							</SidebarInset>
+						</SidebarProvider>
+					</body>
+				</UserProvider>
+			</html>
+		</ClerkProvider>
 	);
 }
