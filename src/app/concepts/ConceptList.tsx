@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { CircleAlert } from 'lucide-react';
 import {
@@ -19,12 +19,13 @@ import {
 import React, { useState, useMemo } from 'react';
 import ConceptCard from './ConceptCard';
 import { useUser } from '@auth0/nextjs-auth0/client';
+import LoaderPage from '@/components/atoms/LoaderPage';
 function ConceptList({ concepts }: { concepts: any[] }) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
-	const { user } = useUser();
-	
-    const filteredAndSortedConcepts = useMemo(() => {
+	const { user, isLoading } = useUser();
+
+	const filteredAndSortedConcepts = useMemo(() => {
 		return concepts
 			.filter((concept) =>
 				concept.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -36,11 +37,15 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 				if (sortBy === 'progress') {
 					const progressA = a.progress || 0;
 					const progressB = b.progress || 0;
-					return progressB - progressA; 
+					return progressB - progressA;
 				}
 				return 0;
 			});
 	}, [concepts, searchQuery, sortBy]);
+
+	if (isLoading) {
+		return <LoaderPage title='Loading concepts' />;
+	}
 
 	return (
 		<div className='space-y-6'>
@@ -51,7 +56,7 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 					onChange={(e) => setSearchQuery(e.target.value)}
 					className='sm:max-w-[300px] bg-white'
 				/>
-				<Select value={sortBy} onValueChange={setSortBy} >
+				<Select value={sortBy} onValueChange={setSortBy}>
 					<SelectTrigger className='sm:max-w-[200px] text-center bg-white'>
 						<SelectValue placeholder='Sort by' />
 					</SelectTrigger>
@@ -72,7 +77,10 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 						key={concept._id || concept.title}
 						className='flex justify-center w-full'
 					>
-						<ConceptCard concept={concept} userId={user!.sid as string} />
+						<ConceptCard
+							concept={concept}
+							userId={user!.sid as string}
+						/>
 					</div>
 				))}
 

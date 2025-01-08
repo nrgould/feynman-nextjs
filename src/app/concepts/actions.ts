@@ -1,6 +1,6 @@
 'use server';
 
-import { getConceptsByUserId, saveChat, saveConcepts } from '@/lib/db/queries';
+import { getConceptsByUserId, saveChat, saveConcepts, updateConcept } from '@/lib/db/queries';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -12,7 +12,8 @@ export async function createChatFromConcept(
 ) {
 	console.log('createChatFromConcept', userId, title, description, conceptId);
 	const conversation = await saveChat({ userId, title, description, conceptId });
-	//set the concept as active
+	//set the concept as active && set the conversation id in the concept
+	await updateConcept({ conceptId, updates: { isActive: true, conversationId: conversation._id } });
 
 	redirect(`/chat/${conversation._id}`);
 }

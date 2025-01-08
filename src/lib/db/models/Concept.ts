@@ -9,7 +9,9 @@ const ConceptSchema = new mongoose.Schema<Concept>({
 	progress: { type: Number, default: 0 },
 	userId: { type: String, required: true },
 	isActive: { type: Boolean, default: true },
+	conversationId: { type: String, default: '' },
 });
 
 export default mongoose.models.Concept ||
 	mongoose.model('Concept', ConceptSchema);
+ 

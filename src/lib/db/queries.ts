@@ -318,3 +318,24 @@ export async function getConceptsByUserId({
 		throw error;
 	}
 }
+
+export async function updateConcept({
+	conceptId,
+	updates,
+}: {
+	conceptId: string;
+	updates: Partial<{ isActive: boolean; conversationId: string }>;
+}) {
+	try {
+		await connectToDatabase();
+
+		const concept = await Concept.findByIdAndUpdate(conceptId, updates, {
+			new: true,
+		});
+
+		return JSON.parse(JSON.stringify(concept));
+	} catch (error) {
+		console.error('Failed to update concept in database', error);
+		throw error;
+	}
+}

@@ -62,4 +62,5 @@ export type Concept = {
 	progress: number;
 	userId: string;
 	isActive: boolean;
+	conversationId?: string;
 };

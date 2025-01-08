@@ -43,19 +43,10 @@ import {
 	AlertDialogHeader,
 } from '@/components/ui/alert-dialog';
 
-const ConceptCard = ({
-	concept,
-	userId,
-}: {
-	concept: any;
-	userId: string;
-}) => {
+const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-		console.log('CONCEPT', concept);
-
-		console.log(userId)
 		if (concept.isActive) {
-			redirect(`/chat/${concept._id}`);
+			redirect(`/chat/${concept.conversationId}`);
 		}
 
 		// if (!userId) {
@@ -63,7 +54,12 @@ const ConceptCard = ({
 		// }
 
 		e.stopPropagation();
-		createChatFromConcept(userId, concept.title, concept.description, concept._id);
+		createChatFromConcept(
+			userId,
+			concept.title,
+			concept.description,
+			concept._id
+		);
 	};
 
 	const handleDelete = async (e: React.MouseEvent) => {
@@ -76,6 +72,7 @@ const ConceptCard = ({
 	};
 
 	const progress = concept.progress * 100 || 0;
+	const active = concept.isActive || false;
 
 	return (
 		<Card className='w-full max-w-full md:max-w-sm'>
@@ -139,11 +136,11 @@ const ConceptCard = ({
 					/>
 				</div>
 				<Button
-					variant={progress > 0 ? 'secondary' : 'outline'}
+					variant={active ? 'secondary' : 'outline'}
 					onClick={handleClick}
 					className='w-1/3'
 				>
-					{progress > 0 ? 'Continue' : 'Start'}
+					{active ? 'Continue' : 'Start'}
 				</Button>
 			</CardFooter>
 		</Card>
