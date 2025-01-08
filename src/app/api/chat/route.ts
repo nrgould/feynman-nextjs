@@ -1,4 +1,4 @@
-import { delimiter, systemPrompt, systemPrompt2 } from '@/lib/ai/prompts';
+import { delimiter, rules, systemPrompt, systemPrompt2 } from '@/lib/ai/prompts';
 import { tools } from '@/lib/ai/tools';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
 	const result = streamText({
 		model: openai('gpt-4o-mini'),
 		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}.
-		The current learning stage is ${learningStage}`,
+		The current learning stage is ${learningStage}. Rules: ${rules}`,
 		tools: tools,
 		maxSteps: 3,
 		messages: coreMessages,

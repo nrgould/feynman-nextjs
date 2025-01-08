@@ -24,6 +24,7 @@ import { NavUser } from './NavUser';
 import { getSession } from '@auth0/nextjs-auth0';
 import { getChatsByUserId } from '@/lib/db/queries';
 import RecentChats from './RecentChats';
+import LimitedConcepts from './LimitedConcepts';
 const items = [
 	{
 		title: 'Home',
@@ -87,6 +88,7 @@ export async function AppSidebar({
 				{/* <RecentChats userId={user.sub} /> */}
 			</SidebarContent>
 			<SidebarFooter>
+				<LimitedConcepts />
 				<NavUser />
 			</SidebarFooter>
 			<SidebarRail />
