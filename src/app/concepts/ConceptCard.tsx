@@ -45,28 +45,25 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 } from '@/components/ui/alert-dialog';
+import { useUser } from '@clerk/nextjs';
 
 const ConceptCard = ({
 	concept,
-	userId,
 	conceptLimitReached,
 }: {
 	concept: any;
-	userId: string;
 	conceptLimitReached: boolean;
 }) => {
+	const { user } = useUser();
+
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 		if (concept.isActive) {
 			redirect(`/chat/${concept.conversationId}`);
 		}
 
-		// if (!userId) {
-		// 	redirect('/api/auth/login');
-		// }
-
 		e.stopPropagation();
 		createChatFromConcept(
-			userId,
+			user!.id,
 			concept.title,
 			concept.description,
 			concept._id

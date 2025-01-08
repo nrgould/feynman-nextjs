@@ -3,8 +3,13 @@ import AppCard from '@/components/molecules/AppCard';
 import Hero from '@/components/organisms/Hero';
 import Benefits from '@/components/organisms/Benefits';
 import Features from '@/components/organisms/Features';
+import { currentUser } from '@clerk/nextjs/server';
 
-export default function Home() {
+export default async function Home() {
+	const user = await currentUser();
+
+	console.log(user);
+
 	return (
 		<div className='mb-20'>
 			<div className='flex flex-1 flex-col mx-auto h-screen overflow-y-scroll space-y-16 pb-20'>

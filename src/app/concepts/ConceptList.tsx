@@ -18,12 +18,13 @@ import {
 } from '@/components/ui/select';
 import React, { useState, useMemo } from 'react';
 import ConceptCard from './ConceptCard';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import ConceptLoader from './ConceptLoader';
+import { ClerkLoaded, useUser } from '@clerk/nextjs';
+import { ClerkLoading } from '@clerk/nextjs';
+
 function ConceptList({ concepts }: { concepts: any[] }) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
-	const { user, isLoading } = useUser();
 
 	const conceptLimitReached = true;
 
@@ -44,10 +45,6 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 				return 0;
 			});
 	}, [concepts, searchQuery, sortBy]);
-
-	if (isLoading) {
-		return <ConceptLoader />;
-	}
 
 	return (
 		<div className='space-y-6'>
@@ -73,44 +70,49 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 				</Select>
 			</div>
 
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-				{filteredAndSortedConcepts.map((concept) => (
-					<div
-						key={concept._id || concept.title}
-						className='flex justify-center w-full'
-					>
-						<ConceptCard
-							concept={concept}
-							userId={user!.sid as string}
-							conceptLimitReached={conceptLimitReached}
-						/>
-					</div>
-				))}
+			<ClerkLoading>
+				<ConceptLoader />
+			</ClerkLoading>
 
-				{filteredAndSortedConcepts.length === 0 && (
-					<div className='col-span-3 flex justify-center items-center'>
-						<Card className='w-full max-w-sm'>
-							<CardHeader>
-								<div className='flex items-center justify-center gap-2'>
-									<CircleAlert className='w-6 h-6 text-red-500' />
-									<CardTitle className='text-center text-xl'>
+			<ClerkLoaded>
+				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+					{filteredAndSortedConcepts.map((concept) => (
+						<div
+							key={concept._id || concept.title}
+							className='flex justify-center w-full'
+						>
+							<ConceptCard
+								concept={concept}
+								conceptLimitReached={conceptLimitReached}
+							/>
+						</div>
+					))}
+
+					{filteredAndSortedConcepts.length === 0 && (
+						<div className='col-span-3 flex justify-center items-center'>
+							<Card className='w-full max-w-sm'>
+								<CardHeader>
+									<div className='flex items-center justify-center gap-2'>
+										<CircleAlert className='w-6 h-6 text-red-500' />
+										<CardTitle className='text-center text-xl'>
+											{searchQuery
+												? 'No matching concepts found'
+												: 'No concepts found'}
+										</CardTitle>
+									</div>
+								</CardHeader>
+								<CardContent>
+									<CardDescription className='text-center text-muted-foreground text-md'>
 										{searchQuery
-											? 'No matching concepts found'
-											: 'No concepts found'}
-									</CardTitle>
-								</div>
-							</CardHeader>
-							<CardContent>
-								<CardDescription className='text-center text-muted-foreground text-md'>
-									{searchQuery
-										? 'Try adjusting your search query'
-										: 'Add a concept to get started!'}
-								</CardDescription>
-							</CardContent>
-						</Card>
-					</div>
-				)}
-			</div>
+											? 'Try adjusting your search query'
+											: 'Add a concept to get started!'}
+									</CardDescription>
+								</CardContent>
+							</Card>
+						</div>
+					)}
+				</div>
+			</ClerkLoaded>
 		</div>
 	);
 }

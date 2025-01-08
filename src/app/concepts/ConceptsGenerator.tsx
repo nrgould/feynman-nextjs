@@ -9,16 +9,15 @@ import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import GeneratorCard from './GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
-import LoaderPage from '@/components/atoms/LoaderPage';
 import ConceptList from './ConceptList';
 import ConceptLoader from './ConceptLoader';
 
 export default function ConceptsGenerator({
 	initialConcepts,
-	user,
+	userId,
 }: {
 	initialConcepts: z.infer<typeof conceptsSchema>[];
-	user: any;
+	userId: string;
 }) {
 	const [files, setFiles] = useState<File[]>([]);
 	const [concepts, setConcepts] = useState<any>(initialConcepts);
@@ -140,7 +139,7 @@ export default function ConceptsGenerator({
 				/>
 				<h1 className='text-center text-2xl font-bold'>Or...</h1>
 				<ManualConceptCard
-					userId={user.sid as string}
+					userId={userId}
 					setConcepts={setConcepts}
 					concepts={concepts}
 				/>
