@@ -4,7 +4,8 @@ import ChatWindow from './ChatWindow';
 import { notFound } from 'next/navigation';
 import { generateFirstMessage } from './actions';
 import { Suspense } from 'react';
-import Loading from '../Loading';
+import Loading from '../ChatLoading';
+import { currentUser } from '@clerk/nextjs/server';
 
 type Params = Promise<{ id: string }>;
 
@@ -12,7 +13,8 @@ const INITIAL_NUMBER_OF_MESSAGES = 10;
 
 export default async function ChatPage(props: { params: Params }) {
 	const params = await props.params;
-	const session = await getSession();
+
+	const user = await currentUser();
 	const id = params.id;
 
 	let firstMessage;
@@ -28,10 +30,7 @@ export default async function ChatPage(props: { params: Params }) {
 		offset: 0,
 		limit: INITIAL_NUMBER_OF_MESSAGES,
 	});
-
-	const user = session?.user || {};
-
-	const userId = user.sid;
+	const userId = user!.id;
 
 	if (response.messages.length === 0) {
 		firstMessage = await generateFirstMessage(
