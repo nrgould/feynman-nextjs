@@ -2,13 +2,12 @@
 
 import React from 'react';
 import { SidebarTrigger, useSidebar } from '../ui/sidebar';
-import { ChevronLeft } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import { Skeleton } from '../ui/skeleton';
 import { useTitleStore } from '@/store/store';
+import Image from 'next/image';
 import {
 	ClerkLoaded,
 	ClerkLoading,
@@ -33,7 +32,14 @@ function Header() {
 				)} */}
 				{isMobile && <SidebarTrigger className='-ml-1 mr-2' />}
 				<div className='w-full flex flex-row items-center justify-between'>
-					<h1 className='font-bold text-xl'>{title}</h1>
+					<Image
+						src='/images/logo.png'
+						alt='logo'
+						className='mr-1'
+						width={24}
+						height={24}
+					/>
+					<h1 className='font-extrabold text-xl'>{title}</h1>
 				</div>
 			</div>
 			<div className='flex flex-row items-center justify-between gap-2'>

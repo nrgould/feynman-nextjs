@@ -3,19 +3,18 @@ import AppCard from '@/components/molecules/AppCard';
 import Hero from '@/components/organisms/Hero';
 import Benefits from '@/components/organisms/Benefits';
 import Features from '@/components/organisms/Features';
-import { currentUser } from '@clerk/nextjs/server';
+import { Waitlist } from '@clerk/nextjs';
 
 export default async function Home() {
-	const user = await currentUser();
-
-	console.log(user);
-
 	return (
 		<div className='mb-20'>
 			<div className='flex flex-1 flex-col mx-auto h-screen overflow-y-scroll space-y-16 pb-20'>
 				<Hero />
 				<Benefits />
 				<Features />
+				<div className='mx-auto my-8'>
+					<Waitlist />
+				</div>
 
 				<div className='w-full md:w-1/2 mx-auto space-y-12 pb-20'>
 					<Title className='text-center'>
