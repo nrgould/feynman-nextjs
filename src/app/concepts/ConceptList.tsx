@@ -19,11 +19,13 @@ import {
 import React, { useState, useMemo } from 'react';
 import ConceptCard from './ConceptCard';
 import { useUser } from '@auth0/nextjs-auth0/client';
-import LoaderPage from '@/components/atoms/LoaderPage';
+import ConceptLoader from './ConceptLoader';
 function ConceptList({ concepts }: { concepts: any[] }) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
 	const { user, isLoading } = useUser();
+
+	const conceptLimitReached = true;
 
 	const filteredAndSortedConcepts = useMemo(() => {
 		return concepts
@@ -44,7 +46,7 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 	}, [concepts, searchQuery, sortBy]);
 
 	if (isLoading) {
-		return <LoaderPage title='Loading concepts' />;
+		return <ConceptLoader />;
 	}
 
 	return (
@@ -80,6 +82,7 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 						<ConceptCard
 							concept={concept}
 							userId={user!.sid as string}
+							conceptLimitReached={conceptLimitReached}
 						/>
 					</div>
 				))}

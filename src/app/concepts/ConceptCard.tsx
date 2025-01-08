@@ -1,3 +1,5 @@
+'use client';
+
 import {
 	Card,
 	CardHeader,
@@ -21,6 +23,7 @@ import {
 	Waypoints,
 	ThumbsUp,
 	ThumbsDown,
+	Sparkles,
 } from 'lucide-react';
 import {
 	DropdownMenu,
@@ -43,7 +46,15 @@ import {
 	AlertDialogHeader,
 } from '@/components/ui/alert-dialog';
 
-const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
+const ConceptCard = ({
+	concept,
+	userId,
+	conceptLimitReached,
+}: {
+	concept: any;
+	userId: string;
+	conceptLimitReached: boolean;
+}) => {
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 		if (concept.isActive) {
 			redirect(`/chat/${concept.conversationId}`);
@@ -73,13 +84,29 @@ const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
 
 	const progress = concept.progress * 100 || 0;
 	const active = concept.isActive || false;
+	const isDisabled = !active && conceptLimitReached;
 
 	return (
-		<Card className='w-full max-w-full md:max-w-sm'>
+		<Card
+			className={`w-full max-w-full md:max-w-sm ${
+				isDisabled ? 'bg-zinc-100' : ''
+			}`}
+		>
 			<CardHeader>
 				<div className='flex justify-between items-center'>
-					<CardTitle className='text-lg flex items-center'>
-						<Waypoints size={20} className='mr-2' />
+					<CardTitle
+						className={`text-lg flex items-center ${
+							active ? 'text-zinc-900 font-bold' : 'text-zinc-400'
+						}`}
+					>
+						<Waypoints
+							size={20}
+							className={`mr-2 ${
+								active
+									? 'text-yellow-400 font-bold'
+									: 'text-zinc-400'
+							}`}
+						/>
 						{concept.title}
 					</CardTitle>
 					<DropdownMenu>
@@ -87,6 +114,17 @@ const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
 							<Ellipsis size={18} color='gray' />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent className='w-56 font-medium'>
+							{isDisabled && (
+								<>
+									<DropdownMenuItem
+										onClick={() => redirect('/upgrade')}
+										className='flex justify-between items-center text-violet-500 rounded-md p-2 cursor-pointer'
+									>
+										GET PRO TO UNLOCK <Sparkles size={18} />
+									</DropdownMenuItem>
+									<DropdownMenuSeparator />
+								</>
+							)}
 							<DropdownMenuLabel className='flex justify-between items-center'>
 								Options <Bolt size={16} />
 							</DropdownMenuLabel>
@@ -139,6 +177,7 @@ const ConceptCard = ({ concept, userId }: { concept: any; userId: string }) => {
 					variant={active ? 'secondary' : 'outline'}
 					onClick={handleClick}
 					className='w-1/3'
+					disabled={isDisabled}
 				>
 					{active ? 'Continue' : 'Start'}
 				</Button>
