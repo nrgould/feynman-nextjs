@@ -7,20 +7,10 @@ import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
 import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import { useUser } from '@auth0/nextjs-auth0/client';
-import AlertComponent from '@/components/atoms/AlertComponent';
 import GeneratorCard from './GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
-import ConceptCard from './ConceptCard';
 import LoaderPage from '@/components/atoms/LoaderPage';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
-import { CircleAlert } from 'lucide-react';
+import ConceptList from './ConceptList';
 
 export default function ConceptsGenerator({
 	initialConcepts,
@@ -32,8 +22,6 @@ export default function ConceptsGenerator({
 	const [files, setFiles] = useState<File[]>([]);
 	const [concepts, setConcepts] = useState<any>(initialConcepts);
 	const [isDragging, setIsDragging] = useState(false);
-
-	// const { user, isLoading: userLoading } = useUser();
 
 	const {
 		submit,
@@ -101,7 +89,6 @@ export default function ConceptsGenerator({
 
 	const clearPDF = () => {
 		setFiles([]);
-		setConcepts([]);
 	};
 
 	const progress = partialConcepts ? (partialConcepts.length / 5) * 100 : 0;
@@ -151,41 +138,18 @@ export default function ConceptsGenerator({
 					clearPDF={clearPDF}
 				/>
 				<h1 className='text-center text-2xl font-bold'>Or...</h1>
-				<ManualConceptCard userId={user.sid as string} />
+				<ManualConceptCard
+					userId={user.sid as string}
+					setConcepts={setConcepts}
+					concepts={concepts}
+				/>
 			</div>
 			<div className='w-[90%] mx-auto'>
 				<h2 className='text-3xl font-bold text-center mb-8'>
 					Your Concepts
 				</h2>
 				<Suspense fallback={<LoaderPage />}>
-					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-						{concepts &&
-							concepts.map((concept) => (
-								<ConceptCard
-									key={concept._id}
-									concept={concept}
-								/>
-							))}
-						{concepts.length === 0 && (
-							<div className='col-span-3 flex justify-center items-center'>
-								<Card className='w-full max-w-sm'>
-									<CardHeader>
-										<div className='flex items-center justify-center gap-2'>
-											<CircleAlert className='w-6 h-6 text-red-500' />
-											<CardTitle className='text-center text-xl'>
-												No concepts found
-											</CardTitle>
-										</div>
-									</CardHeader>
-									<CardContent>
-										<CardDescription className='text-center text-muted-foreground text-md'>
-											Add a concept to get started!
-										</CardDescription>
-									</CardContent>
-								</Card>
-							</div>
-						)}
-					</div>
+					<ConceptList concepts={concepts} />
 				</Suspense>
 			</div>
 		</div>

@@ -13,13 +13,22 @@ import { Brain } from 'lucide-react';
 import { useState } from 'react';
 import { saveConcept } from './actions';
 
-const ManualConceptCard = ({ userId }: { userId: string }) => {
+const ManualConceptCard = ({
+	userId,
+	setConcepts,
+	concepts,
+}: {
+	userId: string;
+	setConcepts: (concepts: { title: string; description: string }[]) => void;
+	concepts: { title: string; description: string }[];
+}) => {
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (title && description) {
+			setConcepts([{ title, description }, ...concepts]);
 			setTitle('');
 			setDescription('');
 			saveConcept({ title, description }, userId);
@@ -67,7 +76,7 @@ const ManualConceptCard = ({ userId }: { userId: string }) => {
 						className='w-full'
 						disabled={!title || !description}
 					>
-						Create & Learn
+						Create
 					</Button>
 				</form>
 			</CardContent>

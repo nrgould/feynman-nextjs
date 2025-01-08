@@ -11,7 +11,15 @@ import { createChatFromConcept } from './actions';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { redirect } from 'next/navigation';
-import { Ellipsis, EllipsisIcon, Trash2 } from 'lucide-react';
+import {
+	Ellipsis,
+	Bolt,
+	Trash2,
+	Plus,
+	Pencil,
+	RotateCcw,
+	Waypoints,
+} from 'lucide-react';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -19,10 +27,8 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuItem,
-	DropdownMenuShortcut,
 } from '@/components/ui/dropdown-menu';
 import { removePointerEventsFromBody } from '@/lib/utils';
-import { deleteConversationAction } from '../chat/actions';
 import {
 	AlertDialog,
 	AlertDialogTrigger,
@@ -59,21 +65,36 @@ const ConceptCard = ({
 		// }
 	};
 
+	const progress = concept.progress * 100 || 0;
+
 	return (
-		<Card className='max-w-full md:max-w-sm'>
+		<Card className='w-full max-w-full md:max-w-sm'>
 			<CardHeader>
 				<div className='flex justify-between items-center'>
-					<CardTitle className='text-lg'>{concept.title}</CardTitle>
+					<CardTitle className='text-lg flex items-center'>
+						<Waypoints size={20} className='mr-2' />
+						{concept.title}
+					</CardTitle>
 					<DropdownMenu>
 						<DropdownMenuTrigger className='p-1 rounded-md mr-2'>
 							<Ellipsis size={18} color='gray' />
 						</DropdownMenuTrigger>
-						<DropdownMenuContent className='w-56'>
-							<DropdownMenuLabel>Options</DropdownMenuLabel>
+						<DropdownMenuContent className='w-56 font-medium'>
+							<DropdownMenuLabel className='flex justify-between items-center'>
+								Options <Bolt size={16} />
+							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<DropdownMenuItem>Create quiz</DropdownMenuItem>
-							<DropdownMenuItem>Edit Details</DropdownMenuItem>
-							<DropdownMenuItem>Reset progress</DropdownMenuItem>
+							<DropdownMenuItem className='flex justify-between items-center'>
+								Create quiz <Plus size={16} />
+							</DropdownMenuItem>
+							<DropdownMenuItem className='flex justify-between items-center'>
+								Edit Details
+								<Pencil size={16} />
+							</DropdownMenuItem>
+							<DropdownMenuItem className='flex justify-between items-center'>
+								Reset progress
+								<RotateCcw size={16} />
+							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
 								onSelect={(e) => e.preventDefault()}
@@ -91,19 +112,19 @@ const ConceptCard = ({
 			</CardContent>
 			<CardFooter className='flex justify-between items-end flex-1'>
 				<div className='flex flex-col gap-2 w-1/3 mr-2'>
-					<Label>{concept.progress * 100}%</Label>
+					<Label>{progress}%</Label>
 					<Progress
 						color='secondary'
 						className='h-2'
-						value={concept.progress * 100}
+						value={progress}
 					/>
 				</div>
 				<Button
-					variant={concept.progress > 0 ? 'secondary' : 'outline'}
+					variant={progress > 0 ? 'secondary' : 'outline'}
 					onClick={handleClick}
 					className='w-1/3'
 				>
-					{concept.progress > 0 ? 'Continue' : 'Start'}
+					{progress > 0 ? 'Continue' : 'Start'}
 				</Button>
 			</CardFooter>
 		</Card>
@@ -119,10 +140,11 @@ const DeleteDialog = ({
 		<AlertDialog>
 			<AlertDialogTrigger className='w-full flex justify-between items-center'>
 				Delete concept
+				<Trash2 size={16} className='text-red-500' />
 			</AlertDialogTrigger>
 			<AlertDialogContent onClick={(e) => e.stopPropagation()}>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Delete Conversation</AlertDialogTitle>
+					<AlertDialogTitle>Delete Concept?</AlertDialogTitle>
 					<AlertDialogDescription>
 						Are you sure you want to delete this learning path? This
 						action cannot be undone.

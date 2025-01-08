@@ -18,9 +18,11 @@ export async function saveConcept(
 	concept: { title: string; description: string },
 	userId: string
 ) {
-	await saveConcepts({ concepts: [concept], userId });
+	const concepts = await saveConcepts({ concepts: [concept], userId });
 
 	revalidatePath('/concepts');
+
+	return concepts[0];
 }
 
 export async function getUserConcepts(userId: string, limit: number) {
