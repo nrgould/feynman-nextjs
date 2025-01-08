@@ -3,7 +3,6 @@
 import React from 'react';
 import { SidebarTrigger, useSidebar } from '../ui/sidebar';
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { useTitleStore } from '@/store/store';
@@ -35,9 +34,9 @@ function Header() {
 					<Image
 						src='/images/logo.png'
 						alt='logo'
-						className='mr-1'
-						width={24}
-						height={24}
+						className='mr-2'
+						width={20}
+						height={20}
 					/>
 					<h1 className='font-extrabold text-xl'>{title}</h1>
 				</div>

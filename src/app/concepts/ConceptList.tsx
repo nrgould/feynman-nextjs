@@ -26,7 +26,7 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
 
-	const conceptLimitReached = true;
+	const conceptLimitReached = false;
 
 	const filteredAndSortedConcepts = useMemo(() => {
 		return concepts
