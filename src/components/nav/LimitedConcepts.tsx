@@ -13,13 +13,13 @@ function LimitedConcepts() {
 		<SidebarMenu>
 			<SidebarMenuItem>
 				{open && (
-					<div className='p-2'>
+					<div className=''>
 						<div className='space-y-2'>
 							<div className='flex justify-between text-sm font-semibold text-muted-foreground'>
 								<span>Free Concepts: 1/3</span>
 							</div>
 
-							<Progress value={33} className='h-2' />
+							<Progress value={33} className='h-2 max-w-[120px]' />
 {/* 
 							<Button className='w-full bg-violet-500 hover:bg-violet-400 font-semibold'>
 								<Sparkles className='mr-2 h-4 w-4' />

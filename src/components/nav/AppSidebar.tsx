@@ -23,18 +23,12 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { NavUser } from './NavUser';
-import { getSession } from '@auth0/nextjs-auth0';
-import LimitedConcepts from './LimitedConcepts';
+
 const items = [
 	{
 		title: 'Home',
 		url: '/',
 		icon: Home,
-	},
-	{
-		title: 'Chat',
-		url: '/chat',
-		icon: MessageCircle,
 	},
 	{
 		title: 'Concepts',
@@ -70,9 +64,6 @@ const resourceItems = [
 export async function AppSidebar({
 	...props
 }: React.ComponentProps<typeof Sidebar>) {
-	const session = await getSession();
-	const user = session?.user || {};
-
 	return (
 		<Sidebar collapsible='icon' {...props}>
 			<SidebarHeader className='items-end'>

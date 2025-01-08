@@ -54,7 +54,11 @@ const ConceptCard = ({
 	concept: any;
 	conceptLimitReached: boolean;
 }) => {
-	const { user } = useUser();
+	const { user, isSignedIn, isLoaded } = useUser();
+
+	if (!isLoaded || !isSignedIn) {
+		return null;
+	}
 
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 		if (concept.isActive) {

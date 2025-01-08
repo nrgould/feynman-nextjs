@@ -4,16 +4,18 @@ import { google } from '@ai-sdk/google';
 import { saveConcepts } from '@/lib/db/queries';
 import Concept from '@/lib/db/models/Concept';
 import { getSession } from '@auth0/nextjs-auth0';
+import { NextRequest } from 'next/server';
+import { getAuth } from '@clerk/nextjs/server';
 
 export const maxDuration = 60;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
 	const { files } = await req.json();
 	const firstFile = files[0].data;
 
-	const session = await getSession();
+	const { userId } = getAuth(req);
 
-	if (!session) {
+	if (!userId) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
 			try {
 				await saveConcepts({
 					concepts: concepts || [],
-					userId: session.user.sid,
+					userId,
 				});
 			} catch (error) {
 				console.error('Failed to save concepts in database', error);

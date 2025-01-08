@@ -1,4 +1,9 @@
-import { delimiter, rules, systemPrompt, systemPrompt2 } from '@/lib/ai/prompts';
+import {
+	delimiter,
+	rules,
+	systemPrompt,
+	systemPrompt2,
+} from '@/lib/ai/prompts';
 import { tools } from '@/lib/ai/tools';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
@@ -8,8 +13,9 @@ import {
 	sanitizeResponseMessages,
 } from '@/lib/utils';
 import { openai } from '@ai-sdk/openai';
-import { getSession } from '@auth0/nextjs-auth0';
+import { getAuth } from '@clerk/nextjs/server';
 import { convertToCoreMessages, StreamData, streamText } from 'ai';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 const MessageSchema = z.object({
@@ -24,16 +30,15 @@ const MessageSchema = z.object({
 	),
 });
 
-// Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
 	const { chatId, messages, title, description, learningStage } =
 		await req.json();
 
-	const session = await getSession();
+	const { userId } = getAuth(req);
 
-	if (!session || !session.user || !session.user.sid) {
+	if (!userId) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
@@ -50,7 +55,7 @@ export async function POST(req: Request) {
 		...userMessage,
 		created_at: new Date(),
 		chatId,
-		userId: session.user.sid,
+		userId,
 	});
 
 	// Save the user message to the database
@@ -80,7 +85,7 @@ export async function POST(req: Request) {
 		maxSteps: 3,
 		messages: coreMessages,
 		onFinish: async ({ response }) => {
-			if (session.user?.sid) {
+			if (userId) {
 				try {
 					const responseMessagesWithoutIncompleteToolCalls =
 						sanitizeResponseMessages(response.messages);
@@ -138,7 +143,7 @@ export async function POST(req: Request) {
 									}
 
 									return new Message({
-										userId: session.user.sub,
+										userId,
 										chatId,
 										role: message.role,
 										content: contentText || ' ', // Ensure content is never empty
