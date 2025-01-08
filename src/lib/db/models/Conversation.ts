@@ -45,6 +45,7 @@ const ConversationSchema = new Schema<Conversation>({
 	},
 	conceptId: {
 		type: String,
+		required: true,
 	},
 	title: { type: String },
 	description: { type: String },

@@ -7,9 +7,12 @@ import { redirect } from 'next/navigation';
 export async function createChatFromConcept(
 	userId: string,
 	title: string,
-	description: string
+	description: string,
+	conceptId: string
 ) {
-	const conversation = await saveChat({ userId, title, description });
+	console.log('createChatFromConcept', userId, title, description, conceptId);
+	const conversation = await saveChat({ userId, title, description, conceptId });
+	//set the concept as active
 
 	redirect(`/chat/${conversation._id}`);
 }

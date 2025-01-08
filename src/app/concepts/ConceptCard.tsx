@@ -19,6 +19,8 @@ import {
 	Pencil,
 	RotateCcw,
 	Waypoints,
+	ThumbsUp,
+	ThumbsDown,
 } from 'lucide-react';
 import {
 	DropdownMenu,
@@ -46,14 +48,22 @@ const ConceptCard = ({
 	userId,
 }: {
 	concept: any;
-	userId?: string;
+	userId: string;
 }) => {
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-		if (!userId) {
-			redirect('/api/auth/login');
+		console.log('CONCEPT', concept);
+
+		console.log(userId)
+		if (concept.isActive) {
+			redirect(`/chat/${concept._id}`);
 		}
+
+		// if (!userId) {
+		// 	redirect('/api/auth/login');
+		// }
+
 		e.stopPropagation();
-		createChatFromConcept(userId, concept.title, concept.description);
+		createChatFromConcept(userId, concept.title, concept.description, concept._id);
 	};
 
 	const handleDelete = async (e: React.MouseEvent) => {
@@ -96,6 +106,15 @@ const ConceptCard = ({
 								<RotateCcw size={16} />
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
+							<DropdownMenuItem className='flex justify-between items-center'>
+								I enjoyed this
+								<ThumbsUp size={16} />
+							</DropdownMenuItem>
+							<DropdownMenuItem className='flex justify-between items-center'>
+								I didn't enjoy this
+								<ThumbsDown size={16} />
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
 							<DropdownMenuItem
 								onSelect={(e) => e.preventDefault()}
 							>
@@ -111,7 +130,7 @@ const ConceptCard = ({
 				</p>
 			</CardContent>
 			<CardFooter className='flex justify-between items-end flex-1'>
-				<div className='flex flex-col gap-2 w-1/3 mr-2'>
+				<div className='flex items-center gap-2 w-1/3 mr-2 p-2 border-2 border-gray-200 rounded-md font-medium'>
 					<Label>{progress}%</Label>
 					<Progress
 						color='secondary'
@@ -138,8 +157,8 @@ const DeleteDialog = ({
 }) => {
 	return (
 		<AlertDialog>
-			<AlertDialogTrigger className='w-full flex justify-between items-center'>
-				Delete concept
+			<AlertDialogTrigger className='w-full flex justify-between items-center text-red-500'>
+				Delete
 				<Trash2 size={16} className='text-red-500' />
 			</AlertDialogTrigger>
 			<AlertDialogContent onClick={(e) => e.stopPropagation()}>

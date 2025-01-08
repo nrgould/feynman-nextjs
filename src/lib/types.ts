@@ -46,7 +46,7 @@ export interface Message {
 export type Conversation = {
 	_id: string;
 	userId: string;
-	conceptId?: string;
+	conceptId: string;
 	title: string;
 	recentMessages: Message[];
 	description: string;

@@ -1,3 +1,5 @@
+'use client'
+
 import { CircleAlert } from 'lucide-react';
 import {
 	Card,
@@ -16,12 +18,13 @@ import {
 } from '@/components/ui/select';
 import React, { useState, useMemo } from 'react';
 import ConceptCard from './ConceptCard';
-
+import { useUser } from '@auth0/nextjs-auth0/client';
 function ConceptList({ concepts }: { concepts: any[] }) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
-
-	const filteredAndSortedConcepts = useMemo(() => {
+	const { user } = useUser();
+	
+    const filteredAndSortedConcepts = useMemo(() => {
 		return concepts
 			.filter((concept) =>
 				concept.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -31,11 +34,9 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 					return a.title.localeCompare(b.title);
 				}
 				if (sortBy === 'progress') {
-					// Assuming progress is stored as a number between 0-100
-					// If progress is undefined, treat it as 0
 					const progressA = a.progress || 0;
 					const progressB = b.progress || 0;
-					return progressB - progressA; // Sort by highest progress first
+					return progressB - progressA; 
 				}
 				return 0;
 			});
@@ -48,10 +49,10 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 					placeholder='Search concepts...'
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
-					className='sm:max-w-[300px]'
+					className='sm:max-w-[300px] bg-white'
 				/>
-				<Select value={sortBy} onValueChange={setSortBy}>
-					<SelectTrigger className='sm:max-w-[200px] text-center'>
+				<Select value={sortBy} onValueChange={setSortBy} >
+					<SelectTrigger className='sm:max-w-[200px] text-center bg-white'>
 						<SelectValue placeholder='Sort by' />
 					</SelectTrigger>
 					<SelectContent align='center'>
@@ -71,7 +72,7 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 						key={concept._id || concept.title}
 						className='flex justify-center w-full'
 					>
-						<ConceptCard concept={concept} />
+						<ConceptCard concept={concept} userId={user!.sid as string} />
 					</div>
 				))}
 

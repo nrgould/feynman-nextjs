@@ -10,16 +10,19 @@ export async function saveChat({
 	userId,
 	title = 'New chat',
 	description = '',
+	conceptId,
 }: {
 	userId: string;
 	title: string;
 	description: string;
+	conceptId: string;
 }) {
 	try {
 		await connectToDatabase();
 
 		const newConversation = await Conversation.create({
 			_id: new Types.ObjectId(),
+			conceptId,
 			userId,
 			title,
 			description,
