@@ -5,6 +5,8 @@ import {
 	MessageCircle,
 	Blocks,
 	ChevronRight,
+	Bug,
+	BookOpen,
 } from 'lucide-react';
 import {
 	Sidebar,
@@ -53,16 +55,29 @@ const items = [
 	},
 ];
 
+const resourceItems = [
+	{
+		title: 'Blog',
+		url: '/blog',
+		icon: BookOpen,
+	},
+	{
+		title: 'Report a bug',
+		url: 'https://rainy-guppy-1b5.notion.site/17516e8b0b9b801e8e2cf6534c065ded?pvs=105',
+		icon: Bug,
+		external: true,
+	},
+];
+
 export async function AppSidebar({
 	...props
 }: React.ComponentProps<typeof Sidebar>) {
 	const session = await getSession();
-
 	const user = session?.user || {};
 
 	return (
 		<Sidebar collapsible='icon' {...props}>
-			<SidebarHeader className="items-end">
+			<SidebarHeader className='items-end'>
 				<SidebarTrigger />
 			</SidebarHeader>
 			<SidebarContent>
@@ -75,7 +90,39 @@ export async function AppSidebar({
 									<SidebarMenuButton asChild>
 										<a href={item.url}>
 											<item.icon size={18} />
-											<span className='font font-semibold'>
+											<span className='font-semibold'>
+												{item.title}
+											</span>
+										</a>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							))}
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
+
+				<SidebarGroup>
+					<SidebarGroupLabel>Resources</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							{resourceItems.map((item) => (
+								<SidebarMenuItem key={item.title}>
+									<SidebarMenuButton asChild>
+										<a
+											href={item.url}
+											target={
+												item.external
+													? '_blank'
+													: undefined
+											}
+											rel={
+												item.external
+													? 'noopener noreferrer'
+													: undefined
+											}
+										>
+											<item.icon size={18} />
+											<span className='font-semibold'>
 												{item.title}
 											</span>
 										</a>
