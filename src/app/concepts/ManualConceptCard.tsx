@@ -76,15 +76,14 @@ const ManualConceptCard = ({
 			</CardHeader>
 			<CardContent>
 				<form onSubmit={handleSubmit} className='space-y-4'>
-					<div className='space-y-2'>
+					<div className='space-y-2 flex flex-row gap-2 items-center justify-center'>
 						<Input
-							placeholder='Concept title'
+							placeholder='Name'
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
 							required
+							className='mt-2'
 						/>
-					</div>
-					<div className='space-y-2'>
 						<Select
 							value={subject}
 							onValueChange={setSubject}
