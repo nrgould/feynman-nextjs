@@ -12,7 +12,9 @@ import { Components } from 'react-markdown';
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 	const processedContent = children
 		.replace(/\\\(/g, '$')
-		.replace(/\\\)/g, '$');
+		.replace(/\\\)/g, '$')
+		.replace(/\[\[(.*?)\]\]/g, '$$$$1$$') // Double brackets for block math
+		.replace(/\[(.*?)\]/g, '$$$$1$$'); // Single brackets as block math
 
 	const components: Components = {
 		code: ({ node, inline, className, children, ...props }: any) => {

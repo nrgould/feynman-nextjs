@@ -1,7 +1,6 @@
 import {
 	delimiter,
 	rules,
-	systemPrompt,
 	systemPrompt2,
 } from '@/lib/ai/prompts';
 import { tools } from '@/lib/ai/tools';
@@ -74,15 +73,11 @@ export async function POST(req: NextRequest) {
 		content: userMessageId,
 	});
 
-	// TODO:
-	// add tools to the prompt, including maxSteps: 3, so the ai will return the explanation, then provide a current grade, then assess the learning stage and update it if needed
-	// provide the current learning stage of the user to the system prompt
 	const result = streamText({
 		model: openai('gpt-4o-mini'),
-		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}.
-		The current learning stage is ${learningStage}. Rules: ${rules}`,
+		system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. Rules: ${rules}`,
 		tools: tools,
-		maxSteps: 3,
+		maxSteps: 2,
 		messages: coreMessages,
 		onFinish: async ({ response }) => {
 			if (userId) {
@@ -146,7 +141,7 @@ export async function POST(req: NextRequest) {
 										userId,
 										chatId,
 										role: message.role,
-										content: contentText || ' ', // Ensure content is never empty
+										content: contentText || ' ',
 										attachments,
 										created_at: new Date(),
 									});

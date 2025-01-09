@@ -23,7 +23,7 @@ function ChatWindow({
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 	const { setLearningStage, learningStage } = useLearningStageStore();
 	const { mutate } = useSWRConfig();
-	const { title: currentTitle, setTitle } = useTitleStore();
+	const { setTitle } = useTitleStore();
 
 	const { _id: chatId, title, description } = chat;
 
@@ -50,8 +50,6 @@ function ChatWindow({
 			mutate('/api/history');
 		},
 	});
-
-	//if learningStage is new, toast with "milestone reached"
 
 	if (firstMessage) {
 		setMessages([{ role: 'assistant', content: firstMessage, id: '1' }]);

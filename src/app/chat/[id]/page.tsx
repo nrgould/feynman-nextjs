@@ -13,33 +13,36 @@ const INITIAL_NUMBER_OF_MESSAGES = 10;
 
 export default async function ChatPage(props: { params: Params }) {
 	const params = await props.params;
-
 	const user = await currentUser();
-	const id = params.id;
+	
+	const chatId = params.id;
+	const userId = user!.id;
 
 	let firstMessage;
 
-	const chat = await getChatById({ id });
+	const chat = await getChatById({ id: chatId });
 
 	if (!chat) {
 		notFound();
 	}
 
 	const response = await getMessagesByChatId({
-		id,
+		id: chatId,
 		offset: 0,
 		limit: INITIAL_NUMBER_OF_MESSAGES,
 	});
-	const userId = user!.id;
+
 
 	if (response.messages.length === 0) {
 		firstMessage = await generateFirstMessage(
 			chat.title,
 			chat.description,
-			id,
+			chatId,
 			userId
 		);
 	}
+
+	console.log(firstMessage);
 
 	return (
 		<Suspense fallback={<Loading />}>

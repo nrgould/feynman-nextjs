@@ -43,18 +43,6 @@ export async function generateFirstMessage(
 		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. If there is no title or description, first prompt me about what concept I want to learn about.`,
 	});
 
-	await saveMessages({
-		messages: [
-			new Message({
-				userId,
-				chatId,
-				created_at: new Date(),
-				role: 'assistant',
-				content: result.text,
-			}),
-		],
-	});
-
 	return result;
 }
 
