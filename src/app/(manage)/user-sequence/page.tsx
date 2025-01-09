@@ -1,25 +1,22 @@
 import { SignupSequence } from '@/components/organisms/SignupSequence';
-import { getSession } from '@auth0/nextjs-auth0';
-import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
 import React, { Suspense } from 'react';
 
 async function page() {
-	const session = await getSession();
+	const user = await currentUser();
 
-	if (!session) {
-		redirect('/api/auth/login');
+	if (!user) {
+		return null
 	}
-
-	const user = session.user;
 
 	return (
 		<div className='flex flex-col p-4 mx-auto items-center justify-between'>
 			<Suspense fallback={<div>Loading...</div>}>
 				<SignupSequence
-					userId={user.sid}
-					name={user.name}
-					email={user.email}
-					username={user.nickname}
+					userId={user.id}
+					name={user.firstName + ' ' + user.lastName}
+					email={user.emailAddresses[0].emailAddress}
+					username={user.username}
 				/>
 			</Suspense>
 		</div>
