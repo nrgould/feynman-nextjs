@@ -139,7 +139,7 @@ function Features() {
 					</div>
 				</div>
 
-				<div className='container mx-auto bg-slate-50 rounded-2xl p-8'>
+				<div className='container mx-auto bg-slate-100 rounded-2xl p-8'>
 					<div className='max-w-3xl mx-auto'>
 						<div className='flex justify-center mb-6'>
 							<div className='rounded-full p-3 bg-indigo-100'>

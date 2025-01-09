@@ -12,7 +12,7 @@ export default async function Home() {
 				<Hero />
 				<Benefits />
 				<Features />
-				<div className='mx-auto my-8'>
+				<div className='mx-auto my-8 mb-10'>
 					<Waitlist />
 				</div>
 

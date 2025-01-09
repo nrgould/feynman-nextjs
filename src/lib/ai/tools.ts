@@ -1,5 +1,7 @@
-import { tool as createTool } from 'ai';
+import { tool as createTool, generateObject } from 'ai';
 import { z } from 'zod';
+import { lessonPlanSchema } from './learningPlanSchema';
+import { openai } from '@ai-sdk/openai';
 
 //create tool that extracts a users numeric grade from the chat history and understanding of the concept.
 export const gradeTool = createTool({
@@ -37,12 +39,24 @@ export const learningStageTool = createTool({
 //for now, could simply access wikipedia or another source for context about concepts
 
 //tool for mathematical inputs, access wolfram alpha api
+export const lessonPlanTool = createTool({
+	description: 'Generate a custom lesson plan for the user to learn the concept',
+	parameters: z.object({
+		title: z.string().describe('The title of the concept'),
+		description: z.string().describe('The description of the concept'),
+		initialExplanation: z.string().describe('The initial explanation of the concept'),
+	}),
+	execute: async function ({ title, description, initialExplanation }) {
+		const result = await generateObject({
+			model: openai('gpt-4o-mini-2024-07-18'),
+			schema: lessonPlanSchema,
+			prompt: `Generate a learning plan for me to learn the concept ${title} with a description of ${description}. Using my initial explantion of ${initialExplanation}, assess my gaps in understanding and help me fill those gaps.`,
+		});
 
-//tool for retrieving knowledge from wikipedia or another source
+		return { result };
+	},
+});
 
-//tool for performing BKT in the background to track user progress
-
-//tool for moderating distributed practice
 
 export const youtubeSearchTool = createTool({
 	description:
@@ -79,7 +93,8 @@ export const youtubeSearchTool = createTool({
 });
 
 export const tools = {
-	getLearningStage: learningStageTool,
-	getGrade: gradeTool,
+	// getLearningStage: learningStageTool,
+	// getGrade: gradeTool,
 	getYoutubeVideo: youtubeSearchTool,
+	getLessonPlan: lessonPlanTool,
 };
