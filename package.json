@@ -14,7 +14,6 @@
     "@ai-sdk/anthropic": "^1.0.5",
     "@ai-sdk/google": "^1.0.8",
     "@ai-sdk/openai": "^1.0.8",
-    "@auth0/nextjs-auth0": "^3.5.0",
     "@clerk/nextjs": "^6.9.7",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",

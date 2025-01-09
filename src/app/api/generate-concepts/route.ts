@@ -2,8 +2,6 @@ import { conceptSchema, conceptsSchema } from '@/lib/schemas';
 import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
 import { saveConcepts } from '@/lib/db/queries';
-import Concept from '@/lib/db/models/Concept';
-import { getSession } from '@auth0/nextjs-auth0';
 import { NextRequest } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 

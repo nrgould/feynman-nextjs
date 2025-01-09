@@ -2,6 +2,9 @@ import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { tools } from '@/lib/ai/tools';
 import { systemPrompt } from '@/lib/ai/prompts';
+
+export const maxDuration = 30;
+
 export async function POST(request: Request) {
 	const { messages } = await request.json();
 

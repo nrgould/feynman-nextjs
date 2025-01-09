@@ -1,19 +1,17 @@
 import Subtitle from '@/components/atoms/Subtitle';
-import { ProfileSettings } from '@/components/organisms/ProfileSettings';
-import { getSession } from '@auth0/nextjs-auth0';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { getUserProfile } from './actions';
 import { Tabs, TabsTrigger, TabsList, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { currentUser } from '@clerk/nextjs/server';
 export default async function SettingsPage() {
-	const session = await getSession();
+	const user = await currentUser();
 
-	if (!session?.user) {
-		redirect('/api/auth/login');
+	if (!user) {
+		return redirect('/sign-in');
 	}
 
-	const userData = await getUserProfile(session.user.sid);
+	// const userData = await getUserProfile(session.user.sid);
 
 	return (
 		<ScrollArea className='h-dvh'>
