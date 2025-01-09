@@ -1,13 +1,4 @@
-import {
-	Brain,
-	Home,
-	Settings2,
-	MessageCircle,
-	Blocks,
-	ChevronRight,
-	Bug,
-	BookOpen,
-} from 'lucide-react';
+import { Brain, Home, Settings2, Blocks, Bug, BookOpen } from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,
@@ -23,8 +14,9 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { NavUser } from './NavUser';
+import { SignedIn, SignedOut } from '@clerk/nextjs';
 
-const items = [
+const signedInItems = [
 	{
 		title: 'Home',
 		url: '/',
@@ -44,6 +36,14 @@ const items = [
 		title: 'Settings',
 		url: '/settings',
 		icon: Settings2,
+	},
+];
+
+const signedOutItems = [
+	{
+		title: 'Home',
+		url: '/',
+		icon: Home,
 	},
 ];
 
@@ -73,20 +73,38 @@ export async function AppSidebar({
 				<SidebarGroup>
 					<SidebarGroupLabel>Platform</SidebarGroupLabel>
 					<SidebarGroupContent>
-						<SidebarMenu>
-							{items.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild>
-										<a href={item.url}>
-											<item.icon size={18} />
-											<span className='font-semibold'>
-												{item.title}
-											</span>
-										</a>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
+						<SignedIn>
+							<SidebarMenu>
+								{signedInItems.map((item) => (
+									<SidebarMenuItem key={item.title}>
+										<SidebarMenuButton asChild>
+											<a href={item.url}>
+												<item.icon size={18} />
+												<span className='font-semibold'>
+													{item.title}
+												</span>
+											</a>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								))}
+							</SidebarMenu>
+						</SignedIn>
+						<SignedOut>
+							<SidebarMenu>
+								{signedOutItems.map((item) => (
+									<SidebarMenuItem key={item.title}>
+										<SidebarMenuButton asChild>
+											<a href={item.url}>
+												<item.icon size={18} />
+												<span className='font-semibold'>
+													{item.title}
+												</span>
+											</a>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								))}
+							</SidebarMenu>
+						</SignedOut>
 					</SidebarGroupContent>
 				</SidebarGroup>
 
