@@ -138,7 +138,6 @@ export default function ConceptsGenerator({
 					files={files}
 					clearPDF={clearPDF}
 				/>
-				<h1 className='text-center text-2xl font-bold'>Or...</h1>
 				<ManualConceptCard
 					userId={userId}
 					setConcepts={setConcepts}

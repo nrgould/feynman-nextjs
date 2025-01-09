@@ -10,6 +10,7 @@ const ConceptSchema = new mongoose.Schema<Concept>({
 	userId: { type: String, required: true },
 	isActive: { type: Boolean, default: true },
 	conversationId: { type: String, default: '' },
+	subject: { type: String, required: true },
 });
 
 export default mongoose.models.Concept ||

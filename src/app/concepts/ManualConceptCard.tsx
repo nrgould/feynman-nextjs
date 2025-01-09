@@ -9,9 +9,27 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Brain } from 'lucide-react';
 import { useState } from 'react';
 import { saveConcept } from './actions';
+
+const subjects = [
+	'Mathematics',
+	'Physics',
+	'Chemistry',
+	'Biology',
+	'Computer Science',
+	'History',
+	'Literature',
+	'Other',
+];
 
 const ManualConceptCard = ({
 	userId,
@@ -19,19 +37,23 @@ const ManualConceptCard = ({
 	concepts,
 }: {
 	userId: string;
-	setConcepts: (concepts: { title: string; description: string }[]) => void;
-	concepts: { title: string; description: string }[];
+	setConcepts: (
+		concepts: { title: string; description: string; subject: string }[]
+	) => void;
+	concepts: { title: string; description: string; subject: string }[];
 }) => {
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
+	const [subject, setSubject] = useState('');
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		if (title && description) {
-			setConcepts([{ title, description }, ...concepts]);
+		if (title && description && subject) {
+			setConcepts([{ title, description, subject }, ...concepts]);
 			setTitle('');
 			setDescription('');
-			saveConcept({ title, description }, userId);
+			setSubject('');
+			saveConcept({ title, description, subject }, userId);
 		}
 	};
 
@@ -63,6 +85,24 @@ const ManualConceptCard = ({
 						/>
 					</div>
 					<div className='space-y-2'>
+						<Select
+							value={subject}
+							onValueChange={setSubject}
+							required
+						>
+							<SelectTrigger>
+								<SelectValue placeholder='Select a subject' />
+							</SelectTrigger>
+							<SelectContent>
+								{subjects.map((subject) => (
+									<SelectItem key={subject} value={subject}>
+										{subject}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className='space-y-2'>
 						<Textarea
 							placeholder='Describe the concept...'
 							value={description}
@@ -74,7 +114,7 @@ const ManualConceptCard = ({
 					<Button
 						type='submit'
 						className='w-full'
-						disabled={!title || !description}
+						disabled={!title || !description || !subject}
 					>
 						Create
 					</Button>

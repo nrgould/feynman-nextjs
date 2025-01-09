@@ -162,10 +162,15 @@ const ConceptCard = ({
 					</DropdownMenu>
 				</div>
 			</CardHeader>
-			<CardContent className='gap-2'>
-				<p className='line-clamp-2 text-sm text-muted-foreground'>
+			<CardContent className='gap-2 space-y-2'>
+				<CardDescription className='line-clamp-2 text-sm text-muted-foreground'>
 					{concept.description}
-				</p>
+				</CardDescription>
+				{concept.subject && (
+					<p className='line-clamp-2 text-sm text-muted-foreground'>
+						{concept.subject}
+					</p>
+				)}
 			</CardContent>
 			<CardFooter className='flex justify-between items-end flex-1'>
 				<div className='flex items-center gap-2 w-1/3 mr-2 p-2 border-2 border-gray-200 rounded-md font-medium'>
