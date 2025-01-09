@@ -97,7 +97,9 @@ const ConceptCard = ({
 				<div className='flex justify-between items-center'>
 					<CardTitle
 						className={`text-lg flex items-center ${
-							active ? 'text-zinc-900 font-bold' : 'text-zinc-400'
+							isDisabled
+								? 'text-zinc-400'
+								: 'text-zinc-900 font-bold'
 						}`}
 					>
 						<Waypoints
