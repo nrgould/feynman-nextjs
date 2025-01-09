@@ -1,10 +1,13 @@
 'use server';
 
 import { getMessagesByChatId, saveMessages } from '@/lib/db/queries';
-import { generateText } from 'ai';
+import { generateObject, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { systemPrompt } from '@/lib/ai/prompts';
 import Message from '@/lib/db/models/Message';
+import { conceptsSchema } from '@/lib/schemas';
+import { z } from 'zod';
+import { lessonPlanSchema } from '@/lib/ai/learningPlanSchema';
 
 export async function fetchMoreMessages({
 	chatId,
@@ -37,7 +40,7 @@ export async function generateFirstMessage(
 	const result = await generateText({
 		model: openai('gpt-4o-mini-2024-07-18'),
 		system: systemPrompt,
-		prompt: `Generate a first message for a conversation between you and a student based off of the concept ${title} with a description of ${description}. Your first message should involve asking the student to explain the concept to you in as much detail as they can. If there is no title or description, first prompt the user about what concept they want to learn about.`,
+		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. If there is no title or description, first prompt me about what concept I want to learn about.`,
 	});
 
 	await saveMessages({
@@ -50,6 +53,21 @@ export async function generateFirstMessage(
 				content: result.text,
 			}),
 		],
+	});
+
+	return result;
+}
+
+export async function generateLearningPlan(
+	title: string,
+	description: string,
+	initialExplanation: string
+) {
+	//generate learning plan
+	const result = await generateObject({
+		model: openai('gpt-4o-mini-2024-07-18'),
+		schema: lessonPlanSchema,
+		prompt: `Generate a learning plan for me to learn the concept ${title} with a description of ${description}. Using my initial explantion of ${initialExplanation}, assess my gaps in understanding and help me fill those gaps.`,
 	});
 
 	return result;

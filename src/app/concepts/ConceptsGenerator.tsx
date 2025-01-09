@@ -41,6 +41,7 @@ export default function ConceptsGenerator({
 		onFinish: ({ object }) => {
 			setConcepts([...concepts, ...(object ?? [])]);
 			setFiles([]);
+			//scroll down to concept section
 		},
 	});
 
