@@ -126,8 +126,12 @@ const PureMessages = ({
 									}
 								} else {
 									return (
-										<div key={toolCallId}>
-											<div>Finding YouTube video...</div>
+										<div
+											key={toolCallId}
+											className='flex items-center justify-center'
+										>
+											<MoonLoader size={20} />
+											<p>Thinking...</p>
 										</div>
 									);
 								}
