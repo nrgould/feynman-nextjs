@@ -3,18 +3,6 @@ import { z } from 'zod';
 import { lessonPlanSchema } from './learningPlanSchema';
 import { openai } from '@ai-sdk/openai';
 
-//create tool that extracts a users numeric grade from the chat history and understanding of the concept.
-export const gradeTool = createTool({
-	description:
-		'Extract a users numeric grade out of 100 from the chat history and understanding of the concept.',
-	parameters: z.object({
-		grade: z.number(),
-	}),
-	execute: async function ({ grade }) {
-		return { grade };
-	},
-});
-
 //create a tool that assesses the current learning stage the user is in.
 export const learningStageTool = createTool({
 	description: `Assess the current learning stage the user is in. There are 7 stages of learning in this system: Initial explanation, Analogy, Easy practice, Formal definitions, Guided Practice, Hard Practice, Understanding, Mastery. A user must go through all 7 stages to fully understand the concept, and cannot skip any stages. Start by default at the first stage`,
@@ -40,11 +28,14 @@ export const learningStageTool = createTool({
 
 //tool for mathematical inputs, access wolfram alpha api
 export const lessonPlanTool = createTool({
-	description: 'Generate a custom lesson plan for the user to learn the concept',
+	description:
+		'Generate a custom lesson plan for the user to learn the concept',
 	parameters: z.object({
 		title: z.string().describe('The title of the concept'),
 		description: z.string().describe('The description of the concept'),
-		initialExplanation: z.string().describe('The initial explanation of the concept'),
+		initialExplanation: z
+			.string()
+			.describe('The initial explanation of the concept'),
 	}),
 	execute: async function ({ title, description, initialExplanation }) {
 		const result = await generateObject({
@@ -56,7 +47,6 @@ export const lessonPlanTool = createTool({
 		return { result };
 	},
 });
-
 
 export const youtubeSearchTool = createTool({
 	description:
@@ -94,7 +84,6 @@ export const youtubeSearchTool = createTool({
 
 export const tools = {
 	// getLearningStage: learningStageTool,
-	// getGrade: gradeTool,
 	getYoutubeVideo: youtubeSearchTool,
 	getLessonPlan: lessonPlanTool,
 };
