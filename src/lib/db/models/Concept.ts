@@ -15,4 +15,3 @@ const ConceptSchema = new mongoose.Schema<Concept>({
 
 export default mongoose.models.Concept ||
 	mongoose.model('Concept', ConceptSchema);
- 

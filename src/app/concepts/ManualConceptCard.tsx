@@ -19,6 +19,7 @@ import {
 import { Brain } from 'lucide-react';
 import { useState } from 'react';
 import { saveConcept } from './actions';
+import { generateUUID } from '@/lib/utils';
 
 const subjects = [
 	'Mathematics',
@@ -38,9 +39,9 @@ const ManualConceptCard = ({
 }: {
 	userId: string;
 	setConcepts: (
-		concepts: { title: string; description: string; subject: string }[]
+		concepts: { title: string; description: string; subject: string; id: string }[]
 	) => void;
-	concepts: { title: string; description: string; subject: string }[];
+	concepts: { title: string; description: string; subject: string; id: string }[];
 }) => {
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
@@ -49,11 +50,13 @@ const ManualConceptCard = ({
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (title && description && subject) {
-			setConcepts([{ title, description, subject }, ...concepts]);
+			const id = generateUUID();
+
+			setConcepts([{ title, description, subject, id }, ...concepts]);
 			setTitle('');
 			setDescription('');
 			setSubject('');
-			saveConcept({ title, description, subject }, userId);
+			saveConcept({ title, description, subject, id }, userId);
 		}
 	};
 

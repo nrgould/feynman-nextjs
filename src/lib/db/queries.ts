@@ -172,6 +172,7 @@ export async function saveConcepts({
 
 		const conceptDocs = concepts.map((concept) => ({
 			_id: new Types.ObjectId(),
+			id: concept.id,
 			created_at: new Date(),
 			userId,
 			progress: 0,

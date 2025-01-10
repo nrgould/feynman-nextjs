@@ -7,10 +7,10 @@ import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
 import { encodeFileAsBase64 } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-import GeneratorCard from './GeneratorCard';
+import GeneratorCard from '../../components/molecules/GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
-import ConceptList from './ConceptList';
-import ConceptLoader from './ConceptLoader';
+import ConceptLoader from '../../components/atoms/ConceptLoader';
+import ConceptList from '@/components/molecules/ConceptList';
 
 export default function ConceptsGenerator({
 	initialConcepts,

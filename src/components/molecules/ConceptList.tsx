@@ -17,8 +17,8 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import React, { useState, useMemo } from 'react';
-import ConceptCard from './ConceptCard';
-import ConceptLoader from './ConceptLoader';
+import ConceptCard from '../../components/molecules/ConceptCard';
+import ConceptLoader from '../../components/atoms/ConceptLoader';
 import { ClerkLoaded, useUser } from '@clerk/nextjs';
 import { ClerkLoading } from '@clerk/nextjs';
 
