@@ -1,8 +1,4 @@
-import {
-	delimiter,
-	rules,
-	systemPrompt2,
-} from '@/lib/ai/prompts';
+import { delimiter, rules, systemPrompt2 } from '@/lib/ai/prompts';
 import { tools } from '@/lib/ai/tools';
 import Message from '@/lib/db/models/Message';
 import { saveMessages } from '@/lib/db/queries';
@@ -22,7 +18,7 @@ const MessageSchema = z.object({
 	chatId: z.string().min(1, 'Chat ID is required'),
 	content: z.string(),
 	attachments: z.array(z.string()).optional(),
-	role: z.enum(['user', 'system', 'assistant', 'data', 'tool']),
+	role: z.enum(['user', 'system', 'assistant', 'data']),
 	created_at: z.preprocess(
 		(arg) => (typeof arg === 'string' ? new Date(arg) : arg),
 		z.date()
@@ -32,14 +28,15 @@ const MessageSchema = z.object({
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
-	const { chatId, messages, title, description, learningStage } =
-		await req.json();
+	const { chatId, messages, title, description } = await req.json();
 
 	const { userId } = getAuth(req);
 
 	if (!userId) {
 		return new Response('Unauthorized', { status: 401 });
 	}
+
+	console.log('messages', messages);
 
 	const coreMessages = convertToCoreMessages(messages);
 	const userMessage = getMostRecentUserMessage(coreMessages);
