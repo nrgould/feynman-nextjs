@@ -10,7 +10,6 @@ export async function createChatFromConcept(
 	description: string,
 	conceptId: string
 ) {
-	console.log('createChatFromConcept', userId, title, description, conceptId);
 	const conversation = await saveChat({ userId, title, description, conceptId });
 	//set the concept as active && set the conversation id in the concept
 	await updateConcept({ conceptId, updates: { isActive: true, conversationId: conversation._id } });
