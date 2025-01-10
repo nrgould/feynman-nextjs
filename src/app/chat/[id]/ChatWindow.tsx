@@ -29,7 +29,7 @@ function ChatWindow({
 
 	useEffect(() => {
 		setTitle(title);
-	}, [title]);
+	}, [title, setTitle]);
 
 	const {
 		messages,
