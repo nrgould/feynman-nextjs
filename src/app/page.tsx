@@ -1,18 +1,23 @@
 import Title from '@/components/atoms/Title';
 import AppCard from '@/components/molecules/AppCard';
 import Hero from '@/components/organisms/Hero';
-import Benefits from '@/components/organisms/Benefits';
-import Features from '@/components/organisms/Features';
 import { Waitlist } from '@clerk/nextjs';
+import Testimonials from '@/components/organisms/Testimonials';
+import MoreBenefits from '@/components/organisms/MoreBenefits';
+import LearnsYou from '@/components/organisms/LearnsYou';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default async function Home() {
 	return (
 		<div className='mb-20'>
-			<div className='flex flex-1 flex-col mx-auto h-screen overflow-y-scroll space-y-16 pb-20'>
+			<ScrollArea className='w-full mx-auto h-screen  pb-20'>
 				<Hero />
-				<Benefits />
-				<Features />
-				<div className='mx-auto my-8 mb-10'>
+				<div className='mx-auto'>
+					<LearnsYou />
+				</div>
+				<MoreBenefits />
+				<Testimonials />
+				<div className='w-full mx-auto my-8 mb-10'>
 					<Waitlist />
 				</div>
 
@@ -55,7 +60,7 @@ export default async function Home() {
 						/>
 					</div>
 				</div>
-			</div>
+			</ScrollArea>
 		</div>
 	);
 }

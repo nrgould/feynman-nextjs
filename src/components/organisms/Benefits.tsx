@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 function Benefits() {
 	return (
 		<section className='py-4 px-4'>
-			<div className='mx-auto w-full md:w-2/3'>
+			<div className='mx-auto w-full xl:w-2/3'>
 				<div className='container mx-auto'>
 					<div className='grid gap-6 md:grid-cols-3'>
 						{/* Knowledge Gaps Card */}
@@ -75,10 +75,10 @@ function Benefits() {
 										<Brain className='h-8 w-8 text-purple-600' />
 									</div>
 									<CardTitle className='text-2xl font-bold'>
-										Deep Learning
+										Deep Mastery
 									</CardTitle>
 									<CardDescription className='text-lg'>
-										Prioritize deep understanding over rote
+										Prioritize deep learning over rote
 										memorization.
 									</CardDescription>
 								</CardHeader>

@@ -3,11 +3,31 @@ import Title from '../atoms/Title';
 import Subtitle from '../atoms/Subtitle';
 import { Button } from '../ui/button';
 import Link from 'next/link';
-import { Play } from 'lucide-react';
+import {
+	SquareFunction,
+	PiSquare,
+	BarChart3,
+	Atom,
+	FlaskConical,
+} from 'lucide-react';
+import { Input } from '../ui/input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '../ui/select';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '../ui/tooltip';
 
 const Hero = () => {
 	return (
-		<div className='flex flex-row flex-wrap items-center justify-center py-32 px-16 w-full mx-auto bg-slate-100'>
+		<div className='flex flex-row flex-wrap items-center justify-center py-32 px-16 w-full mx-auto bg-gradient-to-br from-sky-500/20 via-cyan-500/20 to-emerald-500/20'>
 			<div className='flex flex-1 flex-col items-start justify-center lg:p-8 sm:p-4 space-y-6 w-3/4'>
 				<h3 className='text-md font-medium text-zinc-500 tracking-widest'>
 					FEYNMAN LEARNING
@@ -19,19 +39,78 @@ const Hero = () => {
 					AI-powered tools help you focus, retain information, and
 					crush the idea that &apos;math isn&apos;t for me.&apos;
 				</Subtitle>
-				<div className='flex gap-4'>
-					<Link href='/concepts'>
-						<Button size='lg' className='font-semibold'>
-							Try it Free
-						</Button>
-					</Link>
-					<Button
-						size='lg'
-						variant='outline'
-						className='font-semibold'
-					>
-						<Play className='mr-1 h-4 w-4' /> Watch Demo
-					</Button>
+				<div className='flex gap-4 w-[400px] max-w-2xl'>
+					<Select>
+						<SelectTrigger className='w-full bg-white p-6 font-semibold'>
+							<SelectValue placeholder='Help me learn...' />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem
+								value='calculus'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<SquareFunction className='h-4 w-4 text-blue-500' />
+									Calculus
+								</div>
+							</SelectItem>
+							<SelectItem
+								value='algebra'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<PiSquare className='h-4 w-4 text-purple-500' />
+									Algebra
+								</div>
+							</SelectItem>
+							<SelectItem
+								value='statistics'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<BarChart3 className='h-4 w-4 text-green-500' />
+									Statistics
+								</div>
+							</SelectItem>
+							<SelectItem
+								value='physics'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<Atom className='h-4 w-4 text-orange-500' />
+									Physics
+								</div>
+							</SelectItem>
+							<SelectItem
+								value='chemistry'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<FlaskConical className='h-4 w-4 text-red-500' />
+									Chemistry
+								</div>
+							</SelectItem>
+						</SelectContent>
+					</Select>
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Link href='/concepts'>
+									<Button
+										size='lg'
+										className='font-semibold whitespace-nowrap p-6'
+									>
+										Start Learning
+									</Button>
+								</Link>
+							</TooltipTrigger>
+							<TooltipContent className='bg-white text-black px-4 py-3'>
+								<p className='text-lg font-semibold'>
+									Try it free!
+								</p>
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
 				</div>
 			</div>
 		</div>
