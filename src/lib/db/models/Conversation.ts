@@ -30,7 +30,7 @@ const MessageSchema = new Schema<NewMessage>({
 		message: { type: String, required: true },
 		sender: {
 			type: String,
-			enum: ['user', 'system', 'tool'],
+			enum: ['user', 'system', 'assistant'],
 			required: true,
 		},
 		attachments: { type: [String], default: [] },
