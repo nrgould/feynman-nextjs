@@ -122,5 +122,3 @@ export const exampleLessonPlan = lessonPlanSchema.parse({
 		'Learn to identify mistakes as opportunities for deeper learning.',
 	],
 });
-
-console.log(exampleLessonPlan);
