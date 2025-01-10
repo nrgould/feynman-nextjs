@@ -13,21 +13,23 @@ export async function createChatFromConcept(
 	userId: string,
 	title: string,
 	description: string,
-	conceptId: string
+	conceptId: string,
+	id: string
 ) {
-	const conversation = await saveChat({
+	const chat = await saveChat({
+		id,
 		userId,
 		title,
 		description,
 		conceptId,
 	});
 	//set the concept as active && set the conversation id in the concept
-	await updateConcept({
-		conceptId,
-		updates: { isActive: true, conversationId: conversation._id },
-	});
+	// await updateConcept({
+	// 	conceptId,
+	// 	updates: { isActive: true, conversationId: chat.id },
+	// });
 
-	redirect(`/chat/${conversation._id}`);
+	// redirect(`/chat/${chat.id}`);
 }
 
 export async function saveConcept(

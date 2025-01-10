@@ -33,7 +33,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { removePointerEventsFromBody } from '@/lib/utils';
+import { generateUUID, removePointerEventsFromBody } from '@/lib/utils';
 import {
 	AlertDialog,
 	AlertDialogTrigger,
@@ -65,8 +65,11 @@ const ConceptCard = ({
 			redirect(`/chat/${concept.conversationId}`);
 		}
 
+		const chatId = generateUUID();
+
 		e.stopPropagation();
 		createChatFromConcept(
+			chatId,
 			user!.id,
 			concept.title,
 			concept.description,
