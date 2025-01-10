@@ -1,8 +1,11 @@
-import { env } from '@/lib/env.mjs';
+import { config } from 'dotenv';
+// Load .env file before any other imports
+config();
 
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
+import { env } from '../env.mjs';
 
 const runMigrate = async () => {
 	if (!env.DATABASE_URL) {
@@ -17,7 +20,7 @@ const runMigrate = async () => {
 
 	const start = Date.now();
 
-	await migrate(db, { migrationsFolder: 'lib/db/migrations' });
+	await migrate(db, { migrationsFolder: 'src/lib/db/migrations' });
 
 	const end = Date.now();
 
