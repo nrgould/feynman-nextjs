@@ -1,12 +1,9 @@
 'use server';
 
-import { getMessagesByChatId, saveMessages } from '@/lib/db/queries';
+import { getMessagesByChatId } from '@/lib/db/queries';
 import { generateObject, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { systemPrompt } from '@/lib/ai/prompts';
-import Message from '@/lib/db/models/Message';
-import { conceptsSchema } from '@/lib/schemas';
-import { z } from 'zod';
 import { lessonPlanSchema } from '@/lib/ai/learningPlanSchema';
 
 export async function fetchMoreMessages({
