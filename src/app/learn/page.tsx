@@ -8,7 +8,7 @@ export default async function Page() {
 	// 	'Factoring is the process of breaking down expressions into their simplest building blocks.'
 	// );
 
-	console.log(exampleLessonPlan.phases);
+	// console.log(exampleLessonPlan.phases);
 
 	return (
 		<ScrollArea className='h-[calc(100vh-4rem)] w-full'>
