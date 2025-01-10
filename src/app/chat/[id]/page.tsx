@@ -1,4 +1,3 @@
-import { getSession } from '@auth0/nextjs-auth0';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import ChatWindow from './ChatWindow';
 import { notFound } from 'next/navigation';
@@ -14,7 +13,7 @@ const INITIAL_NUMBER_OF_MESSAGES = 10;
 export default async function ChatPage(props: { params: Params }) {
 	const params = await props.params;
 	const user = await currentUser();
-	
+
 	const chatId = params.id;
 	const userId = user!.id;
 
@@ -32,7 +31,6 @@ export default async function ChatPage(props: { params: Params }) {
 		limit: INITIAL_NUMBER_OF_MESSAGES,
 	});
 
-
 	if (response.messages.length === 0) {
 		firstMessage = await generateFirstMessage(
 			chat.title,
@@ -41,8 +39,6 @@ export default async function ChatPage(props: { params: Params }) {
 			userId
 		);
 	}
-
-	console.log(firstMessage);
 
 	return (
 		<Suspense fallback={<Loading />}>

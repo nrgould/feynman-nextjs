@@ -6,22 +6,22 @@ import { SignedOut, RedirectToSignIn, SignedIn } from '@clerk/nextjs';
 
 const Concepts = async () => {
 	const user = await currentUser();
-
-	console.log(user);
 	const concepts = await getUserConcepts(user!.id, 10);
 
 	return (
 		<>
-			{user && <SignedIn>
-				<ScrollArea className='h-dvh'>
-					<div className='pt-[3vh]flex flex-col gap-4 items-center justify-center overflow-y-scroll h-dvh'>
-						<ConceptsGenerator
-							initialConcepts={concepts}
-							userId={user.id}
-						/>
-					</div>
-				</ScrollArea>
-			</SignedIn>}
+			{user && (
+				<SignedIn>
+					<ScrollArea className='h-dvh'>
+						<div className='pt-[3vh]flex flex-col gap-4 items-center justify-center overflow-y-scroll h-dvh'>
+							<ConceptsGenerator
+								initialConcepts={concepts}
+								userId={user.id}
+							/>
+						</div>
+					</ScrollArea>
+				</SignedIn>
+			)}
 			<SignedOut>
 				<RedirectToSignIn />
 			</SignedOut>
