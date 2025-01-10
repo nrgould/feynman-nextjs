@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { DbMessage, Message } from '@/lib/types';
 import { CoreAssistantMessage, CoreMessage, CoreToolMessage } from 'ai';
+import { customAlphabet } from 'nanoid';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -146,3 +147,6 @@ export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
 			reader.onerror = (error) => reject(error);
 		});
  };
+
+
+ export const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789');

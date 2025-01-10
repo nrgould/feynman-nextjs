@@ -24,7 +24,7 @@ const MessageSchema = new mongoose.Schema<DbMessage>({
 	},
 	role: {
 		type: String,
-		enum: ['user', 'system', 'assistant', 'data', 'tool'],
+		enum: ['user', 'system', 'assistant', 'data'],
 		required: true,
 	},
 	created_at: { type: Date, default: Date.now },

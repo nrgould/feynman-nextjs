@@ -1,5 +1,5 @@
 import { Message as AiMessage } from 'ai/react';
-import { Attachment, FilePart, ToolInvocation } from 'ai';
+import { FilePart, ToolInvocation } from 'ai';
 
 // Base type for MongoDB document
 export interface DbMessage {
@@ -63,4 +63,5 @@ export type Concept = {
 	userId: string;
 	isActive: boolean;
 	conversationId?: string;
+	subject: string;
 };
