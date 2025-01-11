@@ -6,30 +6,32 @@ import {
 	saveConcepts,
 	updateConcept,
 } from '@/lib/db/queries';
+import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function createChatFromConcept(
-	userId: string,
 	title: string,
 	description: string,
 	conceptId: string,
 	id: string
 ) {
+	const { userId } = await auth();
+	if (!userId) throw new Error('User not found');
+
 	const chat = await saveChat({
-		id,
 		userId,
 		title,
 		description,
 		conceptId,
 	});
 	//set the concept as active && set the conversation id in the concept
-	// await updateConcept({
-	// 	conceptId,
-	// 	updates: { isActive: true, conversationId: chat.id },
-	// });
+	await updateConcept({
+		conceptId,
+		updates: { isActive: true, conversationId: chat.id },
+	});
 
-	// redirect(`/chat/${chat.id}`);
+	redirect(`/chat/${chat.id}`);
 }
 
 export async function saveConcept(

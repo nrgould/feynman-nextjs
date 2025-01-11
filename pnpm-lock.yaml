@@ -23,6 +23,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.54.2(react@18.3.1))
+      '@neondatabase/serverless':
+        specifier: ^0.10.4
+        version: 0.10.4
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.2
         version: 1.1.4(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -92,6 +95,12 @@ importers:
       '@stripe/stripe-js':
         specifier: ^5.4.0
         version: 5.5.0
+      '@supabase/ssr':
+        specifier: ^0.5.2
+        version: 0.5.2(@supabase/supabase-js@2.47.12(bufferutil@4.0.9))
+      '@supabase/supabase-js':
+        specifier: ^2.47.12
+        version: 2.47.12(bufferutil@4.0.9)
       '@t3-oss/env-nextjs':
         specifier: ^0.11.1
         version: 0.11.1(typescript@5.7.3)(zod@3.24.1)
@@ -105,7 +114,7 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(next@15.1.4(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       ai:
-        specifier: ^4.0.6
+        specifier: ^4.0.33
         version: 4.0.33(react@18.3.1)(zod@3.24.1)
       axios:
         specifier: ^1.7.7
@@ -124,10 +133,10 @@ importers:
         version: 2.1.1
       drizzle-orm:
         specifier: ^0.38.3
-        version: 0.38.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1)
+        version: 0.38.3(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1)
       drizzle-zod:
         specifier: ^0.6.1
-        version: 0.6.1(drizzle-orm@0.38.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1))(zod@3.24.1)
+        version: 0.6.1(drizzle-orm@0.38.3(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1))(zod@3.24.1)
       framer-motion:
         specifier: ^11.11.17
         version: 11.17.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1235,6 +1244,9 @@ packages:
   '@mongodb-js/saslprep@1.1.9':
     resolution: {integrity: sha512-tVkljjeEaAhCqTzajSdgbQ6gE6f3oneVwa3iXR6csiEwXXOFsiC6Uh9iAjAhXPtqa/XMDHWjjeNH/77m/Yq2dw==}
 
+  '@neondatabase/serverless@0.10.4':
+    resolution: {integrity: sha512-2nZuh3VUO9voBauuh+IGYRhGU/MskWHt1IuZvHcJw6GLjDgtqj/KViKo7SIrLdGLdot7vFbiRRw+BgEy3wT9HA==}
+
   '@neondatabase/serverless@0.9.5':
     resolution: {integrity: sha512-siFas6gItqv6wD/pZnvdu34wEqgG3nSE6zWZdq5j2DEsa+VvX8i/5HXJOo06qrw5axPXn+lGCxeR+NLaSPIXug==}
 
@@ -1863,6 +1875,33 @@ packages:
     resolution: {integrity: sha512-lkfjyAd34aeMpTKKcEVfy8IUyEsjuAT3t9EXr5yZDtdIUncnZpedl/xLV16Dkd4z+fQwixScsCCDxSMNtBOgpQ==}
     engines: {node: '>=12.16'}
 
+  '@supabase/auth-js@2.67.3':
+    resolution: {integrity: sha512-NJDaW8yXs49xMvWVOkSIr8j46jf+tYHV0wHhrwOaLLMZSFO4g6kKAf+MfzQ2RaD06OCUkUHIzctLAxjTgEVpzw==}
+
+  '@supabase/functions-js@2.4.4':
+    resolution: {integrity: sha512-WL2p6r4AXNGwop7iwvul2BvOtuJ1YQy8EbOd0dhG1oN1q8el/BIRSFCFnWAMM/vJJlHWLi4ad22sKbKr9mvjoA==}
+
+  '@supabase/node-fetch@2.6.15':
+    resolution: {integrity: sha512-1ibVeYUacxWYi9i0cf5efil6adJ9WRyZBLivgjs+AUpewx1F3xPi7gLgaASI2SmIQxPoCEjAsLAzKPgMJVgOUQ==}
+    engines: {node: 4.x || >=6.0.0}
+
+  '@supabase/postgrest-js@1.17.10':
+    resolution: {integrity: sha512-GlcwOjEmPcXfaEU0wHg1MgHU+peR+zZFyaEWjr7a7EOCB1gCtw3nW7ABfnPPH411coXHV90eb/isDgT9HRshLg==}
+
+  '@supabase/realtime-js@2.11.2':
+    resolution: {integrity: sha512-u/XeuL2Y0QEhXSoIPZZwR6wMXgB+RQbJzG9VErA3VghVt7uRfSVsjeqd7m5GhX3JR6dM/WRmLbVR8URpDWG4+w==}
+
+  '@supabase/ssr@0.5.2':
+    resolution: {integrity: sha512-n3plRhr2Bs8Xun1o4S3k1CDv17iH5QY9YcoEvXX3bxV1/5XSasA0mNXYycFmADIdtdE6BG9MRjP5CGIs8qxC8A==}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.43.4
+
+  '@supabase/storage-js@2.7.1':
+    resolution: {integrity: sha512-asYHcyDR1fKqrMpytAS1zjyEfvxuOIp1CIXX7ji4lHHcJKqyk+sLl/Vxgm4sN6u8zvuUtae9e4kDxQP2qrwWBA==}
+
+  '@supabase/supabase-js@2.47.12':
+    resolution: {integrity: sha512-My8X5K1KwOBFjQhAqIf7QJaQhP5EILjJwAgjzRNjstlMLJmdVBctwRYD6IGDWKzw+i6/aNGuRd5c9/pI/Y6UFw==}
+
   '@swc/counter@0.1.3':
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
 
@@ -1952,6 +1991,9 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
+  '@types/cookie@0.6.0':
+    resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
+
   '@types/d3-array@3.2.1':
     resolution: {integrity: sha512-Y2Jn2idRrLzUfAKV2LyRImR+y4oa2AntrgID95SHJxuMUrkNXmanDSed71sRNZysveJVt1hLLemQZIady0FpEg==}
 
@@ -2030,6 +2072,9 @@ packages:
   '@types/pg@8.11.6':
     resolution: {integrity: sha512-/2WmmBXHLsfRqzfHW7BNZ8SbYzE8OSk7i3WjFYvfgRHj7S1xj+16Je5fUKv3lVdVzk/zn9TXOqf+avFCFIE0yQ==}
 
+  '@types/phoenix@1.6.6':
+    resolution: {integrity: sha512-PIzZZlEppgrpoT2QgbnDU+MMzuR6BbCjllj0bM70lWoejMeNJAxCchxnv7J3XFkI8MpygtRpzXrIlmWUBclP5A==}
+
   '@types/prop-types@15.7.14':
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
 
@@ -2058,6 +2103,9 @@ packages:
 
   '@types/whatwg-url@11.0.5':
     resolution: {integrity: sha512-coYR071JRaHa+xoEvvYqvnIHaVqaYrLPbsufM9BF63HkwI5Lgmy2QR8Q5K/lYDYo5AK82wOvSOS0UsLTpTG7uQ==}
+
+  '@types/ws@8.5.13':
+    resolution: {integrity: sha512-osM/gWBTPKgHV8XkTunnegTRIsvF6owmf5w+JtAfOw472dptdm0dlGv4xCt6GwQRcC2XVOvvRE/0bAoQcL2QkA==}
 
   '@types/yargs-parser@21.0.3':
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -5029,6 +5077,9 @@ packages:
     resolution: {integrity: sha512-Loo5UUvLD9ScZ6jh8beX1T6sO1w2/MpCRpEP7V280GKMVUQ0Jzar2U3UJPsrdbziLEMMhu3Ujnq//rhiFuIeag==}
     engines: {node: '>=6'}
 
+  tr46@0.0.3:
+    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+
   tr46@3.0.0:
     resolution: {integrity: sha512-l7FvfAHlcmulp8kr+flpQZmVwtu7nfRV7NZujtN0OqES8EL4O4e0qqzL0DC5gAvx/ZC/9lk6rhcUwYvkBnBnYA==}
     engines: {node: '>=12'}
@@ -5259,6 +5310,9 @@ packages:
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
 
+  webidl-conversions@3.0.1:
+    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+
   webidl-conversions@7.0.0:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
@@ -5278,6 +5332,9 @@ packages:
   whatwg-url@13.0.0:
     resolution: {integrity: sha512-9WWbymnqj57+XEuqADHrCJ2eSXzn8WXIW/YSGaZtb2WKAInQ6CHfaUUcTyyver0p8BDg5StLQq8h1vtZuwmOig==}
     engines: {node: '>=16'}
+
+  whatwg-url@5.0.0:
+    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
   which-boxed-primitive@1.1.1:
     resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
@@ -6264,6 +6321,10 @@ snapshots:
     dependencies:
       sparse-bitfield: 3.0.3
 
+  '@neondatabase/serverless@0.10.4':
+    dependencies:
+      '@types/pg': 8.11.6
+
   '@neondatabase/serverless@0.9.5':
     dependencies:
       '@types/pg': 8.11.6
@@ -6881,6 +6942,54 @@ snapshots:
 
   '@stripe/stripe-js@5.5.0': {}
 
+  '@supabase/auth-js@2.67.3':
+    dependencies:
+      '@supabase/node-fetch': 2.6.15
+
+  '@supabase/functions-js@2.4.4':
+    dependencies:
+      '@supabase/node-fetch': 2.6.15
+
+  '@supabase/node-fetch@2.6.15':
+    dependencies:
+      whatwg-url: 5.0.0
+
+  '@supabase/postgrest-js@1.17.10':
+    dependencies:
+      '@supabase/node-fetch': 2.6.15
+
+  '@supabase/realtime-js@2.11.2(bufferutil@4.0.9)':
+    dependencies:
+      '@supabase/node-fetch': 2.6.15
+      '@types/phoenix': 1.6.6
+      '@types/ws': 8.5.13
+      ws: 8.18.0(bufferutil@4.0.9)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@supabase/ssr@0.5.2(@supabase/supabase-js@2.47.12(bufferutil@4.0.9))':
+    dependencies:
+      '@supabase/supabase-js': 2.47.12(bufferutil@4.0.9)
+      '@types/cookie': 0.6.0
+      cookie: 0.7.0
+
+  '@supabase/storage-js@2.7.1':
+    dependencies:
+      '@supabase/node-fetch': 2.6.15
+
+  '@supabase/supabase-js@2.47.12(bufferutil@4.0.9)':
+    dependencies:
+      '@supabase/auth-js': 2.67.3
+      '@supabase/functions-js': 2.4.4
+      '@supabase/node-fetch': 2.6.15
+      '@supabase/postgrest-js': 1.17.10
+      '@supabase/realtime-js': 2.11.2(bufferutil@4.0.9)
+      '@supabase/storage-js': 2.7.1
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@swc/counter@0.1.3': {}
 
   '@swc/helpers@0.5.15':
@@ -6972,6 +7081,8 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.5
 
+  '@types/cookie@0.6.0': {}
+
   '@types/d3-array@3.2.1': {}
 
   '@types/d3-color@3.1.3': {}
@@ -7057,6 +7168,8 @@ snapshots:
       pg-protocol: 1.7.0
       pg-types: 4.0.2
 
+  '@types/phoenix@1.6.6': {}
+
   '@types/prop-types@15.7.14': {}
 
   '@types/react-dom@18.3.5(@types/react@18.3.18)':
@@ -7081,6 +7194,10 @@ snapshots:
   '@types/whatwg-url@11.0.5':
     dependencies:
       '@types/webidl-conversions': 7.0.3
+
+  '@types/ws@8.5.13':
+    dependencies:
+      '@types/node': 20.17.12
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -7789,8 +7906,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.38.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1):
+  drizzle-orm@0.38.3(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1):
     optionalDependencies:
+      '@neondatabase/serverless': 0.10.4
       '@opentelemetry/api': 1.9.0
       '@types/pg': 8.11.6
       '@types/react': 18.3.18
@@ -7799,9 +7917,9 @@ snapshots:
       postgres: 3.4.5
       react: 18.3.1
 
-  drizzle-zod@0.6.1(drizzle-orm@0.38.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1))(zod@3.24.1):
+  drizzle-zod@0.6.1(drizzle-orm@0.38.3(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1))(zod@3.24.1):
     dependencies:
-      drizzle-orm: 0.38.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1)
+      drizzle-orm: 0.38.3(@neondatabase/serverless@0.10.4)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.18)(@vercel/postgres@0.10.0)(pg@8.13.1)(postgres@3.4.5)(react@18.3.1)
       zod: 3.24.1
 
   dunder-proto@1.0.1:
@@ -10814,6 +10932,8 @@ snapshots:
       universalify: 0.2.0
       url-parse: 1.5.10
 
+  tr46@0.0.3: {}
+
   tr46@3.0.0:
     dependencies:
       punycode: 2.3.1
@@ -11082,6 +11202,8 @@ snapshots:
 
   web-namespaces@2.0.1: {}
 
+  webidl-conversions@3.0.1: {}
+
   webidl-conversions@7.0.0: {}
 
   whatwg-encoding@2.0.0:
@@ -11099,6 +11221,11 @@ snapshots:
     dependencies:
       tr46: 4.1.1
       webidl-conversions: 7.0.0
+
+  whatwg-url@5.0.0:
+    dependencies:
+      tr46: 0.0.3
+      webidl-conversions: 3.0.1
 
   which-boxed-primitive@1.1.1:
     dependencies:

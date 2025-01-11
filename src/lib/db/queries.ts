@@ -4,109 +4,59 @@ import { mapDbMessageToMessage } from '../utils';
 import { Types } from 'mongoose';
 import Concept from './models/Concept';
 import User from './models/User';
-import { asc } from 'drizzle-orm';
-import { eq } from 'drizzle-orm';
-import { chat, message, type Message } from './schema/schema';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-
-// biome-ignore lint: Forbidden non-null assertion.
-const client = postgres(process.env.POSTGRES_URL!);
-const db = drizzle(client);
-
-// export async function getChatById({ id }: { id: string }) {
-// 	try {
-// 		const [selectedChat] = await db
-// 			.select()
-// 			.from(chat)
-// 			.where(eq(chat.id, id));
-// 		return selectedChat;
-// 	} catch (error) {
-// 		console.error('Failed to get chat by id from database');
-// 		throw error;
-// 	}
-// }
-
-// export async function saveChat({
-// 	userId,
-// 	title = 'New chat',
-// 	description = '',
-// 	conceptId,
-// }: {
-// 	userId: string;
-// 	title: string;
-// 	description: string;
-// 	conceptId: string;
-// }) {
-// 	try {
-// 		await connectToDatabase();
-
-// 		const newConversation = await Conversation.create({
-// 			_id: new Types.ObjectId(),
-// 			conceptId,
-// 			userId,
-// 			title,
-// 			description,
-// 			recentMessages: [],
-// 			created_at: new Date(),
-// 		});
-
-// 		return newConversation;
-// 	} catch (error) {
-// 		console.error('Failed to save chat in database', error);
-// 		throw error;
-// 	}
-// }
+import Message from './models/Message';
 
 export async function saveChat({
-	id,
 	userId,
-	description,
-	title,
+	title = 'New chat',
+	description = '',
 	conceptId,
 }: {
-	id: string;
 	userId: string;
 	title: string;
 	description: string;
 	conceptId: string;
 }) {
 	try {
-		return await db.insert(chat).values({
-			id,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			description,
+		await connectToDatabase();
+
+		const newConversation = await Conversation.create({
+			_id: new Types.ObjectId(),
+			conceptId,
 			userId,
 			title,
-			conceptId,
+			description,
+			recentMessages: [],
+			created_at: new Date(),
 		});
+
+		return newConversation;
 	} catch (error) {
-		console.error('Failed to save chat in database');
+		console.error('Failed to save chat in database', error);
 		throw error;
 	}
 }
 
-// export async function deleteChatById({ id }: { id: string }) {
-// 	try {
-// 		await connectToDatabase();
+export async function deleteChatById({ id }: { id: string }) {
+	try {
+		await connectToDatabase();
 
-// 		// Delete messages associated with the chat
-// 		await Message.deleteMany({ chatId: id });
+		// Delete messages associated with the chat
+		await Message.deleteMany({ chatId: id });
 
-// 		// Delete the conversation
-// 		const result = await Conversation.findByIdAndDelete(id);
+		// Delete the conversation
+		const result = await Conversation.findByIdAndDelete(id);
 
-// 		if (!result) {
-// 			throw new Error('Chat not found');
-// 		}
+		if (!result) {
+			throw new Error('Chat not found');
+		}
 
-// 		return result; // Return the deleted chat
-// 	} catch (error) {
-// 		console.error('Failed to delete chat by id from database', error);
-// 		throw error;
-// 	}
-// }
+		return result; // Return the deleted chat
+	} catch (error) {
+		console.error('Failed to delete chat by id from database', error);
+		throw error;
+	}
+}
 
 export async function getChatsByUserId({
 	id,
@@ -152,85 +102,65 @@ export async function getChatById({ id }: { id: string }) {
 	}
 }
 
-// export async function saveMessages({ messages }: { messages: Array<any> }) {
-// 	try {
-// 		await connectToDatabase();
-
-// 		// either make sure the conversation exists here, or make one in the route that calls this function
-// 		const conversation = await Conversation.findById(messages[0].chatId);
-
-// 		if (!conversation) {
-// 			throw new Error('Conversation not found');
-// 		}
-
-// 		return await Message.insertMany(messages);
-// 	} catch (error) {
-// 		console.error('Failed to save messages in database', error);
-// 		throw error;
-// 	}
-// }
-
-export async function saveMessages({ messages }: { messages: Array<Message> }) {
+export async function saveMessages({ messages }: { messages: Array<any> }) {
 	try {
-		return await db.insert(message).values(messages);
+		await connectToDatabase();
+
+		// either make sure the conversation exists here, or make one in the route that calls this function
+		const conversation = await Conversation.findById(messages[0].chatId);
+
+		if (!conversation) {
+			throw new Error('Conversation not found');
+		}
+
+		return await Message.insertMany(messages);
 	} catch (error) {
 		console.error('Failed to save messages in database', error);
 		throw error;
 	}
 }
 
-// export async function getMessagesByChatId({
-// 	id,
-// 	offset = 0,
-// 	limit = 10,
-// }: {
-// 	id: string;
-// 	offset?: number;
-// 	limit?: number;
-// }) {
-// 	try {
-// 		await connectToDatabase();
-
-// 		const messages = await Message.find({ chatId: id })
-// 			.sort({ created_at: -1 })
-// 			.skip(offset)
-// 			.limit(limit)
-// 			.then((msgs) =>
-// 				msgs.reverse().map((msg) => mapDbMessageToMessage(msg))
-// 			);
-
-// 		const remainingCount = await Message.countDocuments({
-// 			chatId: id,
-// 			created_at: {
-// 				$gt:
-// 					messages.length > 0
-// 						? messages[messages.length - 1].created_at
-// 						: new Date(),
-// 			},
-// 		});
-
-// 		return {
-// 			messages,
-// 			hasMore: remainingCount > 0,
-// 		};
-// 	} catch (error) {
-// 		console.error('Failed to get messages by chat id from database', error);
-// 		throw error;
-// 	}
-// }
-
-export async function getMessagesByChatId({ id }: { id: string }) {
+export async function getMessagesByChatId({
+	id,
+	offset = 0,
+	limit = 10,
+}: {
+	id: string;
+	offset?: number;
+	limit?: number;
+}) {
 	try {
-		return await db
-			.select()
-			.from(message)
-			.where(eq(message.chatId, id))
-			.orderBy(asc(message.createdAt));
+		await connectToDatabase();
+
+		const messages = await Message.find({ chatId: id })
+			.sort({ created_at: -1 })
+			.skip(offset)
+			.limit(limit)
+			.then((msgs) =>
+				msgs.reverse().map((msg) => mapDbMessageToMessage(msg))
+			);
+
+		const remainingCount = await Message.countDocuments({
+			chatId: id,
+			created_at: {
+				$gt:
+					messages.length > 0
+						? messages[messages.length - 1].created_at
+						: new Date(),
+			},
+		});
+
+		return {
+			messages,
+			hasMore: remainingCount > 0,
+		};
 	} catch (error) {
 		console.error('Failed to get messages by chat id from database', error);
 		throw error;
 	}
 }
+
+
 
 export async function saveConcepts({
 	concepts,

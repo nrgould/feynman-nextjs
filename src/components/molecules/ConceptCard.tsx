@@ -54,12 +54,6 @@ const ConceptCard = ({
 	concept: any;
 	conceptLimitReached: boolean;
 }) => {
-	const { user, isSignedIn, isLoaded } = useUser();
-
-	if (!isLoaded || !isSignedIn) {
-		return null;
-	}
-
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 		if (concept.isActive) {
 			redirect(`/chat/${concept.conversationId}`);
@@ -70,7 +64,6 @@ const ConceptCard = ({
 		e.stopPropagation();
 		createChatFromConcept(
 			chatId,
-			user!.id,
 			concept.title,
 			concept.description,
 			concept._id
