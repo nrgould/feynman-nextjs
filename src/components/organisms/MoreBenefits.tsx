@@ -3,8 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FeaturesSection() {
 	return (
-		<section className='w-full py-12 md:py-24 lg:py-32 bg-slate-700'>
-			<div className='container px-4 md:px-6 mx-auto w-1/2'>
+		<section className='w-full h-[35dvh] py-12 md:py-24 lg:py-32 bg-slate-700'>
+			<div className='container px-4 md:px-6 mx-auto w-full md:w-11/12 lg:w-1/2'>
 				<Tabs defaultValue='growth' className='max-w-1/3'>
 					<TabsList className='grid w-full grid-cols-3'>
 						<TabsTrigger

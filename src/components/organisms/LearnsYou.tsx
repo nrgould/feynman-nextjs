@@ -29,7 +29,7 @@ export default function AILearningSection() {
 				</div>
 
 				{/* Feature cards */}
-				<div className='mx-auto mt-16 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+				<div className='mx-auto mt-16 grid max-w-5xl gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
 					<Card className='group relative overflow-hidden border-none bg-gradient-to-br from-indigo-500/20 via-indigo-500/10 to-background'>
 						<div className='pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/30 via-violet-500/20 to-fuchsia-500/30 opacity-0 transition-opacity duration-500 group-hover:opacity-100' />
 						<div className='absolute inset-0 bg-background/80 backdrop-blur-xl transition-colors duration-500 group-hover:bg-background/40' />

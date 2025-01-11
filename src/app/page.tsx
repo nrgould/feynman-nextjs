@@ -1,64 +1,41 @@
 import Title from '@/components/atoms/Title';
-import AppCard from '@/components/molecules/AppCard';
 import Hero from '@/components/organisms/Hero';
 import { Waitlist } from '@clerk/nextjs';
 import Testimonials from '@/components/organisms/Testimonials';
 import MoreBenefits from '@/components/organisms/MoreBenefits';
 import LearnsYou from '@/components/organisms/LearnsYou';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Shapes } from 'lucide-react';
+import StartLearning from '@/components/organisms/StartLearning';
+import HomeSampleChat from '@/components/organisms/HomeSampleChat';
 
 export default async function Home() {
 	return (
 		<div className='mb-20'>
-			<ScrollArea className='w-full mx-auto h-screen  pb-20'>
+			<ScrollArea className='w-full mx-auto h-screen max-w-screen pb-20'>
 				<Hero />
 				<div className='mx-auto'>
 					<LearnsYou />
 				</div>
 				<MoreBenefits />
+				<HomeSampleChat />
 				<Testimonials />
-				<div className='w-full mx-auto my-8 mb-10'>
+				<div className='max-w-screen'>
+					<StartLearning />
+				</div>
+				<div className='flex items-center justify-center w-full mx-auto pb-20'>
 					<Waitlist />
 				</div>
 
-				<div className='w-full md:w-1/2 mx-auto space-y-12 pb-20'>
-					<Title className='text-center'>
-						Start Your Learning Journey
+				<div className='w-full md:w-1/2 mx-auto space-y-12 pb-20 px-4 flex flex-col items-center justify-center'>
+					<Title className='text-center pb-0'>
+						Start Your Learning Journey.
 					</Title>
-					<div className='grid grid-cols-1 sm:grid-cols-2 gap-6 '>
-						<AppCard
-							title='Master Trigonometric Identities'
-							link='/chat'
-							linkTitle='Start Learning'
-							description="Simplify tricky trigonometric expressions and save the day! Remember: sin²θ + cos²θ = 1—it's like a magic wand for math!"
-							subtitle='Simplify Complex Trig Expressions'
-							className='hover:scale-[1.02] transition-transform duration-200'
-						/>
-						<AppCard
-							title='Systems of Linear Equations'
-							link='/chat'
-							linkTitle='Start Learning'
-							description='Crack the code of simultaneous equations! Learn to find solutions using simple, step-by-step methods that make complex problems feel like puzzles.'
-							subtitle='Master Multiple Equations'
-							className='hover:scale-[1.02] transition-transform duration-200'
-						/>
-						<AppCard
-							title='Exponential Functions'
-							link='/chat'
-							linkTitle='Start Learning'
-							description='Understand growth and decay patterns in nature and finance. Master the power of exponential functions with real-world applications.'
-							subtitle='Explore Growth Patterns'
-							className='hover:scale-[1.02] transition-transform duration-200'
-						/>
-						<AppCard
-							title='Similar Triangles'
-							link='/chat'
-							linkTitle='Start Learning'
-							description='Unlock the secrets of proportional sides and angles. Learn how similar triangles help solve real-world problems in architecture and engineering.'
-							subtitle='Understand Proportions'
-							className='hover:scale-[1.02] transition-transform duration-200'
-						/>
-					</div>
+					<Button className='w-full md:w-auto p-6 font-semibold'>
+						<Shapes className='h-4 w-4' />
+						Start Learning
+					</Button>
 				</div>
 			</ScrollArea>
 		</div>

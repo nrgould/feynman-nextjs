@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { useTitleStore } from '@/store/store';
-import Image from 'next/image';
 import {
 	ClerkLoaded,
 	ClerkLoading,
@@ -31,13 +30,6 @@ function Header() {
 				)} */}
 				{isMobile && <SidebarTrigger className='-ml-1 mr-2' />}
 				<div className='w-full flex flex-row items-center justify-between'>
-					<Image
-						src='/images/logo.png'
-						alt='logo'
-						className='mr-2'
-						width={20}
-						height={20}
-					/>
 					<h1 className='font-extrabold text-xl'>{title}</h1>
 				</div>
 			</div>

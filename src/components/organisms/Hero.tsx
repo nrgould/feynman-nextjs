@@ -27,8 +27,8 @@ import {
 
 const Hero = () => {
 	return (
-		<div className='flex flex-row flex-wrap items-center justify-center py-32 px-16 w-full mx-auto bg-gradient-to-br from-sky-500/20 via-cyan-500/20 to-emerald-500/20'>
-			<div className='flex flex-1 flex-col items-start justify-center lg:p-8 sm:p-4 space-y-6 w-3/4'>
+		<div className='flex flex-row flex-wrap items-center justify-center py-16 sm:py-32 px-4 sm:px-16 w-full mx-auto bg-gradient-to-br from-sky-500/20 via-cyan-500/20 to-emerald-500/20'>
+			<div className='flex flex-1 flex-col items-start justify-center lg:p-8 sm:p-4 space-y-6 w-full sm:w-3/4'>
 				<h3 className='text-md font-medium text-zinc-500 tracking-widest'>
 					FEYNMAN LEARNING
 				</h3>
@@ -39,9 +39,9 @@ const Hero = () => {
 					AI-powered tools help you focus, retain information, and
 					crush the idea that &apos;math isn&apos;t for me.&apos;
 				</Subtitle>
-				<div className='flex gap-4 w-[400px] max-w-2xl'>
+				<div className='flex gap-4 w-full max-w-[400px] flex-wrap'>
 					<Select>
-						<SelectTrigger className='w-full bg-white p-6 font-semibold'>
+						<SelectTrigger className='flex-1 bg-white p-6 font-semibold'>
 							<SelectValue placeholder='Help me learn...' />
 						</SelectTrigger>
 						<SelectContent>
@@ -98,7 +98,7 @@ const Hero = () => {
 								<Link href='/concepts'>
 									<Button
 										size='lg'
-										className='font-semibold whitespace-nowrap p-6'
+										className='sm:w-full md:w-auto font-semibold whitespace-nowrap p-6'
 									>
 										Start Learning
 									</Button>
