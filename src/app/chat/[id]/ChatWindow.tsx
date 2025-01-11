@@ -3,7 +3,7 @@
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
 import { Conversation, Message } from '@/lib/types';
-import { useLearningStageStore, useTitleStore } from '@/store/store';
+import { useTitleStore } from '@/store/store';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
 import React, { useEffect, useState } from 'react';
@@ -21,7 +21,6 @@ function ChatWindow({
 	firstMessage?: string;
 }) {
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
-	const { setLearningStage, learningStage } = useLearningStageStore();
 	const { mutate } = useSWRConfig();
 	const { setTitle } = useTitleStore();
 
@@ -44,7 +43,7 @@ function ChatWindow({
 		data: streamingData,
 	} = useChat({
 		id: chatId,
-		body: { chatId, userId, learningStage, title, description },
+		body: { chatId, userId, title, description },
 		initialMessages,
 		onFinish: () => {
 			mutate('/api/history');

@@ -1,5 +1,4 @@
 import { Conversation, Message } from '@/lib/types';
-import { stages } from '@/lib/ai/stages';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { conceptsSchema } from '@/lib/schemas';
@@ -16,22 +15,11 @@ type MessageStore = {
 	messages: Message[];
 	clearMessages: () => void;
 };
-
-type LearningStageStore = {
-	learningStage: (typeof stages)[number];
-	setLearningStage: (stage: (typeof stages)[number]) => void;
-};
-
 type TitleStore = {
 	title: string;
 	setTitle: (title: string) => void;
 	resetTitle: () => void;
 };
-
-export const useLearningStageStore = create<LearningStageStore>((set) => ({
-	learningStage: 'initial Explanation',
-	setLearningStage: (stage) => set({ learningStage: stage }),
-}));
 
 export const useMessageStore = create<MessageStore>((set) => ({
 	conversation: null,
