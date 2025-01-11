@@ -36,8 +36,8 @@ export default function TestimonialsSection() {
 							Trusted by students
 						</h2>
 						<p className='max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400'>
-							Don't just take our word for it. Hear from some of
-							our amazing customers who are accomplishing great
+							Don&apos;t just take our word for it. Hear from some
+							of our amazing customers who are accomplishing great
 							things with our platform.
 						</p>
 					</div>

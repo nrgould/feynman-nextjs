@@ -22,9 +22,9 @@ export default function AILearningSection() {
 					<p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed'>
 						Our AI-powered agent acts like your personal study
 						coach, analyzing your learning patterns and tailoring
-						content to your unique needs. It doesn't just provide
-						information—it guides you step-by-step, ensuring you
-						grasp concepts deeply and retain them longer.
+						content to your unique needs. It doesn&apos;t just
+						provide information—it guides you step-by-step, ensuring
+						you grasp concepts deeply and retain them longer.
 					</p>
 				</div>
 

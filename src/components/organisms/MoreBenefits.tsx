@@ -33,15 +33,16 @@ export default function FeaturesSection() {
 					<TabsContent value='growth' className='mt-6 px-6 max-w-xl'>
 						<div className='space-y-4'>
 							<h4 className='text-2xl font-bold text-white'>
-								Break the 'Math Isn't for Me' Mindset
+								Break the &apos;Math Isn&apos;t for Me&apos;
+								Mindset
 							</h4>
 							<p className='text-base text-muted-foreground font-mono text-white'>
-								Math doesn't have to feel impossible. Our AI
-								facilitates a growth mindset by tailoring
+								Math doesn&apos;t have to feel impossible. Our
+								AI facilitates a growth mindset by tailoring
 								concepts to your pace and preferences. With
-								active recall and smart study techniques, you'll
-								discover the math genius you didn't know you
-								had.
+								active recall and smart study techniques,
+								you&apos;ll discover the math genius you
+								didn&apos;t know you had.
 							</p>
 						</div>
 					</TabsContent>
@@ -74,11 +75,11 @@ export default function FeaturesSection() {
 								Built for Students Left Behind
 							</h4>
 							<p className='text-base text-muted-foreground font-mono text-white'>
-								The school system isn't designed for
-								everyone—but we are. Whether you've been told
-								you're bad at math or felt lost in class, our AI
-								meets you where you are and helps you move
-								forward, one concept at a time.
+								The school system isn&apos;t designed for
+								everyone—but we are. Whether you&apos;ve been
+								told you&apos;re bad at math or felt lost in
+								class, our AI meets you where you are and helps
+								you move forward, one concept at a time.
 							</p>
 						</div>
 					</TabsContent>
