@@ -98,14 +98,14 @@ const ConceptCard = ({
 								: 'text-zinc-900 font-bold'
 						}`}
 					>
-						<Waypoints
+						{/* <Waypoints
 							size={20}
 							className={`mr-2 ${
 								active
 									? 'text-yellow-400 font-bold'
 									: 'text-zinc-400'
 							}`}
-						/>
+						/> */}
 						{concept.title}
 					</CardTitle>
 					<DropdownMenu>
@@ -169,14 +169,14 @@ const ConceptCard = ({
 				)}
 			</CardContent>
 			<CardFooter className='flex justify-between items-end flex-1'>
-				<div className='flex items-center gap-2 w-1/3 mr-2 p-2 border-2 border-gray-200 rounded-md font-medium'>
+				{/* <div className='flex items-center gap-2 w-1/3 mr-2 p-2 border-2 border-gray-200 rounded-md font-medium'>
 					<Label>{progress}%</Label>
 					<Progress
 						color='secondary'
 						className='h-2'
 						value={progress}
 					/>
-				</div>
+				</div> */}
 				<Button
 					variant={active ? 'secondary' : 'outline'}
 					onClick={handleClick}
