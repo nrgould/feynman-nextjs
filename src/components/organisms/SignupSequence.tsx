@@ -489,6 +489,8 @@ export function SignupSequence() {
 										(step === 3 &&
 											formData.selectedSubjects.length ===
 												0) ||
+										(step === 4 &&
+											!formData.learningDisability) ||
 										(step === 5 && !formData.goals)
 									}
 									className='flex-1'

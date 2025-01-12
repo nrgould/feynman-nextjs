@@ -120,7 +120,7 @@ const Hero = () => {
 			<div className='flex flex-1 justify-center items-center w-full lg:w-1/2 mt-8 lg:mt-0'>
 				<Image
 					src='/images/calc.svg'
-					alt='Calculator illustration'
+					alt='Calculator illustration Source: popsy.co'
 					className='w-full max-w-[500px] h-auto'
 					width={500}
 					height={500}
