@@ -24,16 +24,19 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '../ui/tooltip';
+import Image from 'next/image';
 
 const Hero = () => {
 	return (
-		<div className='flex flex-row flex-wrap items-center justify-center py-16 sm:py-32 px-4 sm:px-16 w-full mx-auto bg-gradient-to-br from-sky-500/20 via-cyan-500/20 to-emerald-500/20'>
-			<div className='flex flex-1 flex-col items-start justify-center lg:p-8 sm:p-4 space-y-6 w-full sm:w-3/4'>
+		<div className='flex flex-row flex-wrap items-center justify-center py-16 sm:py-32 px-4 sm:px-16 w-full mx-auto bg-gradient-to-br from-sky-500/10 via-cyan-500/15 to-emerald-500/15 flex-wrap'>
+			<div className='flex flex-1 flex-col items-start justify-center lg:p-8 sm:p-4 space-y-6 w-full sm:w-3/4 lg:w-1/2'>
 				<h3 className='text-md font-medium text-zinc-500 tracking-widest'>
 					FEYNMAN LEARNING
 				</h3>
 				<Title className='max-w-2xl'>
-					Conquer ADHD. Master Learning.
+					Conquer <span className='text-emerald-400'>ADHD</span>.
+					Master Learning{' '}
+					<span className='text-emerald-400'>Math</span>.
 				</Title>
 				<Subtitle className='max-w-2xl text-zinc-700 font-bold tracking-tight'>
 					AI-powered tools help you focus, retain information, and
@@ -112,6 +115,16 @@ const Hero = () => {
 						</Tooltip>
 					</TooltipProvider>
 				</div>
+			</div>
+
+			<div className='flex flex-1 justify-center items-center w-full lg:w-1/2 mt-8 lg:mt-0'>
+				<Image
+					src='/images/calc.svg'
+					alt='Calculator illustration'
+					className='w-full max-w-[500px] h-auto'
+					width={500}
+					height={500}
+				/>
 			</div>
 		</div>
 	);

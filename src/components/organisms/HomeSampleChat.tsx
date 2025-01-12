@@ -11,6 +11,7 @@ import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
 import { motion } from 'framer-motion';
 import { Markdown } from '../atoms/Markdown';
+import { MoonLoader } from 'react-spinners';
 
 const SUGGESTED_CONCEPTS = [
 	{
@@ -28,7 +29,9 @@ function HomeSampleChat() {
 	const {
 		messages,
 		setMessages,
+		isLoading,
 		input,
+        data,
 		setInput,
 		handleInputChange,
 		handleSubmit,
@@ -53,9 +56,9 @@ function HomeSampleChat() {
 					Try it for yourself.
 				</h2>
 				<p className='text-xl font-medium text-zinc-500'>
-					Experience how our AI tutor adapts to you through exploratory learning.
-					Test your knowledge on any concept in mathematics and get
-					immediate, personalized feedback.
+					Experience how our AI tutor adapts to you through
+					exploratory learning. Test your knowledge on any concept in
+					mathematics and get immediate, personalized feedback.
 				</p>
 			</div>
 
@@ -120,6 +123,12 @@ function HomeSampleChat() {
 									)}
 								</div>
 							))}
+							{isLoading && (
+								<div className='flex items-center justify-start gap-2 font-medium text-zinc-600'>
+									<MoonLoader size={16} />
+									Thinking...
+								</div>
+							)}
 						</ScrollArea>
 					</CardContent>
 
