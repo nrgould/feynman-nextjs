@@ -40,11 +40,11 @@ export default function RootLayout({
 					content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
 				/>
 				<body className={`${PlusJakartaSans.variable}`}>
-					<SidebarProvider>
+					<SidebarProvider defaultOpen={false}>
 						<AppSidebar className='h-dvh' />
 						<SidebarInset>
 							<Header />
-							<main className='h-[100vh] pb-20 bg-zinc-50'>
+							<main className='h-[100dvh] bg-zinc-50'>
 								{children}
 							</main>
 							<Toaster />

@@ -139,7 +139,6 @@ export async function AppSidebar({
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-				{/* <RecentChats userId={user.sub} /> */}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />
