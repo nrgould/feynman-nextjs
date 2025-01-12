@@ -236,7 +236,7 @@ export function SignupSequence() {
 			/>
 			<input type='hidden' name='goals' value={formData.goals} />
 
-			<Card className='w-full md:w-[600px] mx-auto px-6 py-4 h-[50dvh] flex flex-col'>
+			<Card className='w-full md:w-[600px] mx-auto px-6 py-4 h-[80dvh] md:h-[50dvh] flex flex-col'>
 				<CardHeader className='flex-none'>
 					<CardTitle className='text-2xl font-bold'>
 						Complete Your Profile

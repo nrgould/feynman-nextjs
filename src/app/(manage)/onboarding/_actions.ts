@@ -8,8 +8,6 @@ export const completeOnboarding = async (formData: FormData) => {
 	const { userId } = await auth();
 	const user = await currentUser();
 
-    console.log(formData)
-
 	if (!userId || !user) {
 		return { message: 'No Logged In User' };
 	}

@@ -12,8 +12,8 @@ const Concepts = async () => {
 		<>
 			{user && (
 				<SignedIn>
-					<ScrollArea className='h-dvh'>
-						<div className='pt-[3vh]flex flex-col gap-4 items-center justify-center overflow-y-scroll h-dvh'>
+					<ScrollArea>
+						<div className='pt-[3vh]flex flex-col gap-4 items-center justify-center h-dvh px-4 pb-48'>
 							<ConceptsGenerator
 								initialConcepts={concepts}
 								userId={user.id}

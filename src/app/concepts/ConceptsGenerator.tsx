@@ -95,7 +95,7 @@ export default function ConceptsGenerator({
 	const progress = partialConcepts ? (partialConcepts.length / 5) * 100 : 0;
 
 	return (
-		<div className='mb-16'>
+		<div className='pb-48'>
 			<div
 				className='min-h-[40dvh] w-full flex justify-center items-center gap-6 flex-wrap'
 				onDragOver={(e) => {
