@@ -3,7 +3,7 @@ import { Brain, Sparkles, Target, Clock } from 'lucide-react';
 
 export default function AILearningSection() {
 	return (
-		<section className='relative overflow-hidden  py-24'>
+		<section className='relative overflow-hidden py-24'>
 			{/* Decorative background elements */}
 			<div className='absolute inset-0 bg-grid-white/10 bg-[size:16px_16px] [mask-image:radial-gradient(white,transparent_70%)]' />
 

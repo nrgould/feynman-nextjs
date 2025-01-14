@@ -39,9 +39,19 @@ const ManualConceptCard = ({
 }: {
 	userId: string;
 	setConcepts: (
-		concepts: { title: string; description: string; subject: string; id: string }[]
+		concepts: {
+			title: string;
+			description: string;
+			subject: string;
+			id: string;
+		}[]
 	) => void;
-	concepts: { title: string; description: string; subject: string; id: string }[];
+	concepts: {
+		title: string;
+		description: string;
+		subject: string;
+		id: string;
+	}[];
 }) => {
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
@@ -64,8 +74,8 @@ const ManualConceptCard = ({
 		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-12'>
 			<CardHeader className='text-center space-y-6'>
 				<div className='mx-auto flex items-center justify-center space-x-2 text-muted-foreground'>
-					<div className='rounded-full bg-green-100 p-2'>
-						<Brain className='h-6 w-6 text-green-500' />
+					<div className='rounded-full bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 border border-emerald-500 p-3'>
+						<Brain className='h-5 w-5 text-white' />
 					</div>
 				</div>
 				<div className='space-y-2'>
