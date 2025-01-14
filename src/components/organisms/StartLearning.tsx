@@ -24,6 +24,8 @@ import {
 	PiSquare,
 	ChartScatter,
 } from 'lucide-react';
+import GradientButton from '../atoms/GradientButton';
+import ColorSpan from '../atoms/ColorSpan';
 
 export default function StartLearning() {
 	const topics = [
@@ -89,15 +91,14 @@ export default function StartLearning() {
 		<section className='w-full py-12 md:py-24 lg:py-32'>
 			<div className='container px-4 md:px-6 mx-auto'>
 				<div className='flex flex-col items-center justify-center space-y-4 text-center'>
-					<div className='space-y-2'>
+					<div className='space-y-2  max-w-2xl'>
 						<h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
-							Start Learning{' '}
-							<span className='font-italic'>anything</span> in
+							Start Learning <ColorSpan>anything</ColorSpan> in
 							Seconds
 						</h2>
 						<p className='max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400'>
-							Dive into any math topic with our
-							dynamic learing pathways. Master even the most advanced concepts at
+							Dive into any math topic with our dynamic learning
+							pathways. Master even the most advanced concepts at
 							your own pace.
 						</p>
 					</div>
@@ -158,7 +159,7 @@ export default function StartLearning() {
 								{topics.map((topic) => (
 									<CarouselItem
 										key={topic.title}
-										className='pl-2 md:pl-4 basis-1/2 lg:basis-1/3'
+										className='pl-2 md:pl-4 basis-1/2 lg:basis-1/2 xl:basis-1/3'
 									>
 										<Card className='flex flex-col h-full'>
 											<CardHeader className='flex-none'>
@@ -176,14 +177,6 @@ export default function StartLearning() {
 													{topic.description}
 												</CardDescription>
 											</CardContent>
-											<CardFooter>
-												<Button
-													variant='ghost'
-													className='w-full'
-												>
-													Learn {topic.title}
-												</Button>
-											</CardFooter>
 										</Card>
 									</CarouselItem>
 								))}
@@ -195,9 +188,9 @@ export default function StartLearning() {
 				</div>
 
 				<div className='flex justify-center mt-12'>
-					<Button size='lg' className='px-8 py-6'>
+					<GradientButton size='lg' className='py-6'>
 						Start Exploring
-					</Button>
+					</GradientButton>
 				</div>
 			</div>
 		</section>

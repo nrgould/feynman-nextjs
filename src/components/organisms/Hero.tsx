@@ -10,7 +10,6 @@ import {
 	Atom,
 	FlaskConical,
 } from 'lucide-react';
-import { Input } from '../ui/input';
 import {
 	Select,
 	SelectContent,
@@ -29,14 +28,20 @@ import Image from 'next/image';
 const Hero = () => {
 	return (
 		<div className='flex flex-row flex-wrap items-center justify-center py-16 sm:py-32 px-4 sm:px-16 w-full mx-auto bg-gradient-to-br from-sky-500/10 via-cyan-500/15 to-emerald-500/15 flex-wrap'>
-			<div className='flex flex-1 flex-col items-start justify-center lg:p-8 sm:p-4 space-y-6 w-full sm:w-3/4 lg:w-1/2'>
-				<h3 className='text-md font-medium text-zinc-500 tracking-widest'>
+			<div className='flex basis-1/2 flex-1 flex-col items-start justify-center lg:p-8 sm:p-4 space-y-6 w-full sm:w-3/4 lg:w-1/2'>
+				<h3 className='text-sm font-medium text-zinc-600 tracking-widest'>
 					FEYNMAN LEARNING
 				</h3>
-				<Title className='max-w-2xl'>
-					Conquer <span className='text-emerald-400'>ADHD</span>.
-					Master Learning{' '}
-					<span className='text-emerald-400'>Math</span>.
+				<Title className='max-w-3xl'>
+					Conquer{' '}
+					<span className='text-emerald-400 bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 bg-clip-text text-transparent'>
+						ADHD.
+					</span>
+					<br />
+					Master{' '}
+					<span className='text-emerald-400 bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 bg-clip-text text-transparent'>
+						Math.
+					</span>
 				</Title>
 				<Subtitle className='max-w-2xl text-zinc-700 font-bold tracking-tight'>
 					AI-powered tools help you focus, retain information, and
@@ -84,15 +89,6 @@ const Hero = () => {
 									Physics
 								</div>
 							</SelectItem>
-							<SelectItem
-								value='chemistry'
-								className='cursor-pointer'
-							>
-								<div className='flex items-center gap-2 font-semibold p-1'>
-									<FlaskConical className='h-4 w-4 text-red-500' />
-									Chemistry
-								</div>
-							</SelectItem>
 						</SelectContent>
 					</Select>
 					<TooltipProvider>
@@ -117,7 +113,7 @@ const Hero = () => {
 				</div>
 			</div>
 
-			<div className='flex flex-1 justify-center items-center w-full lg:w-1/2 mt-8 lg:mt-0'>
+			<div className='hidden sm:flex basis-1/2 flex-1 justify-center items-center w-full lg:w-1/2 mt-8 lg:mt-0'>
 				<Image
 					src='/images/calc.svg'
 					alt='Calculator illustration Source: popsy.co'

@@ -34,7 +34,7 @@ export default function AILearningSection() {
 						<div className='pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/30 via-violet-500/20 to-fuchsia-500/30 opacity-0 transition-opacity duration-500 group-hover:opacity-100' />
 						<div className='absolute inset-0 bg-background/80 backdrop-blur-xl transition-colors duration-500 group-hover:bg-background/40' />
 						<CardContent className='relative flex flex-col items-center gap-4 p-6'>
-							<div className='rounded-full bg-gradient-to-br from-indigo-400 to-violet-400 p-3'>
+							<div className='rounded-full bg-gradient-to-b from-violet-400 from-50% to-violet-500 border border-violet-500 p-3'>
 								<Brain className='h-7 w-7 text-white' />
 							</div>
 							<h3 className='text-xl font-semibold'>
@@ -51,7 +51,7 @@ export default function AILearningSection() {
 						<div className='pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-500/30 via-sky-500/20 to-blue-500/30 opacity-0 transition-opacity duration-500 group-hover:opacity-100' />
 						<div className='absolute inset-0 bg-background/80 backdrop-blur-xl transition-colors duration-500 group-hover:bg-background/40' />
 						<CardContent className='relative flex flex-col items-center gap-4 p-6'>
-							<div className='rounded-full bg-gradient-to-br from-sky-400 to-blue-400 p-3'>
+							<div className='rounded-full bg-gradient-to-b from-sky-400 from-50% to-sky-500 border border-sky-500 p-3'>
 								<Target className='h-7 w-7 text-white' />
 							</div>
 							<h3 className='text-xl font-semibold '>
@@ -64,11 +64,11 @@ export default function AILearningSection() {
 						</CardContent>
 					</Card>
 
-					<Card className='group relative overflow-hidden border-none bg-gradient-to-br from-green-500/20 via-green-500/10 to-background sm:col-span-2 lg:col-span-1'>
+					<Card className='group relative overflow-hidden border-none bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-background sm:col-span-2 lg:col-span-1'>
 						<div className='pointer-events-none absolute inset-0 bg-gradient-to-br from-green-500/30 via-emerald-500/20 to-teal-500/30 opacity-0 transition-opacity duration-500 group-hover:opacity-100' />
 						<div className='absolute inset-0 bg-background/80 backdrop-blur-xl transition-colors duration-500 group-hover:bg-background/40' />
 						<CardContent className='relative flex flex-col items-center gap-4 p-6'>
-							<div className='rounded-full bg-gradient-to-br from-green-400 to-emerald-500 p-3'>
+							<div className='rounded-full bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 border border-emerald-500 p-3'>
 								<Clock className='h-7 w-7 text-white' />
 							</div>
 							<h3 className='text-xl font-semibold'>

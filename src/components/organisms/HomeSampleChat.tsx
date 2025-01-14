@@ -12,6 +12,8 @@ import { ScrollArea } from '../ui/scroll-area';
 import { motion } from 'framer-motion';
 import { Markdown } from '../atoms/Markdown';
 import { MoonLoader } from 'react-spinners';
+import ColorSpan from '../atoms/ColorSpan';
+import GradientButton from '../atoms/GradientButton';
 
 const SUGGESTED_CONCEPTS = [
 	{
@@ -31,7 +33,6 @@ function HomeSampleChat() {
 		setMessages,
 		isLoading,
 		input,
-		data,
 		setInput,
 		handleInputChange,
 		handleSubmit,
@@ -53,7 +54,7 @@ function HomeSampleChat() {
 			<div className='flex-1 max-w-md space-y-6'>
 				<TestTube2 className='w-12 h-12 text-emerald-400 mb-4' />
 				<h2 className='text-4xl md:text-5xl font-bold tracking-tight'>
-					Try it for yourself.
+					<ColorSpan>Try it</ColorSpan> for yourself.
 				</h2>
 				<p className='text-xl font-medium text-zinc-500'>
 					Experience how our AI tutor adapts to you through
@@ -116,7 +117,7 @@ function HomeSampleChat() {
 											initial={{ opacity: 0, y: 20 }}
 											animate={{ opacity: 1, y: 0 }}
 											transition={{ duration: 0.3 }}
-											className='flex flex-col gap-1 p-2 px-4 rounded-xl col-start-2 col-span-2 justify-self-end bg-zinc-900 text-white'
+											className='flex flex-col gap-1 p-2 px-4 rounded-xl col-start-2 col-span-2 justify-self-end bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 text-white'
 										>
 											<Markdown>{m.content}</Markdown>
 										</motion.div>
@@ -126,16 +127,16 @@ function HomeSampleChat() {
 							{isLoading && (
 								<div className='flex items-center justify-start gap-2 font-medium text-zinc-600'>
 									<MoonLoader size={16} />
-									Thinking...
+									Thinking
 								</div>
 							)}
 						</ScrollArea>
 					</CardContent>
 
-					<CardFooter className='h-[150px] pt-2'>
+					<CardFooter className='h-[120px] pt-2'>
 						<form
 							onSubmit={handleSubmit}
-							className='w-full flex items-center flex-col gap-3 '
+							className='w-full flex items-end justify-end flex-col gap-3 '
 						>
 							{messages.length === 1 && (
 								<div className='flex flex-wrap gap-2 w-full'>
@@ -159,7 +160,7 @@ function HomeSampleChat() {
 									))}
 								</div>
 							)}
-							<div className='flex flex-row gap-0.5 w-full'>
+							<div className='flex flex-row items-center justify-center gap-0.5 w-full'>
 								<Input
 									value={input}
 									placeholder='Your answer...'
@@ -167,13 +168,14 @@ function HomeSampleChat() {
 									className='w-full mr-2 h-10 font-medium'
 								/>
 								<motion.div whileHover={{ y: -2, scale: 1.05 }}>
-									<Button
+									<GradientButton
 										type='submit'
 										size='icon'
-										className='w-12 h-10'
+										className='w-12 h-10 border-0'
+										disabled={isLoading}
 									>
 										<Send />
-									</Button>
+									</GradientButton>
 								</motion.div>
 							</div>
 						</form>
