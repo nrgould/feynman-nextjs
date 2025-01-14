@@ -29,6 +29,7 @@ export async function createClient() {
 			global: {
 				fetch: async (url, options = {}) => {
 					const clerkToken = await getToken({ template: 'supabase' });
+					// @ts-expect-error options.headers is not typed
 					const headers = new Headers(options!.headers);
 					headers.set('Authorization', `Bearer ${clerkToken}`);
 					return fetch(url, { ...options, headers });
