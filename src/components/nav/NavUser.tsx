@@ -19,7 +19,7 @@ export function NavUser() {
 				<SignedIn>
 					<div className='flex flex-row items-center justify-center'>
 						<LimitedConcepts />
-						<div className='mr-2 flex items-center justify-center'>
+						<div className='flex items-center justify-center'>
 							<UserButton />
 						</div>
 					</div>

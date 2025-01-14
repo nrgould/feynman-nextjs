@@ -1,10 +1,8 @@
-import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@/utils/supabase/server';
+import AddTaskForm from './AddTaskForm';
+import { createClerkSupabaseClientSsr } from './client';
 
 export default async function Home() {
-	const supabase = await createClient();
-
-	console.log(supabase);
+	const supabase = await createClerkSupabaseClientSsr();
 
 	const { data, error } = await supabase.from('tasks').select();
 
@@ -12,8 +10,9 @@ export default async function Home() {
 	console.log('Error', error);
 
 	return (
-		<div>
+		<div className='p-8 space-y-4'>
 			<h1>Playground</h1>
+			<AddTaskForm />
 			{data && data.map((task) => <div key={task.id}>{task.name}</div>)}
 		</div>
 	);
