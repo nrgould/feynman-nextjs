@@ -14,6 +14,9 @@ import { Markdown } from '../atoms/Markdown';
 import { MoonLoader } from 'react-spinners';
 import ColorSpan from '../atoms/ColorSpan';
 import GradientButton from '../atoms/GradientButton';
+import Link from 'next/link';
+
+const MAX_MESSAGES = 15;
 
 const SUGGESTED_CONCEPTS = [
 	{
@@ -136,7 +139,7 @@ function HomeSampleChat() {
 					<CardFooter className='h-[120px] pt-2'>
 						<form
 							onSubmit={handleSubmit}
-							className='w-full flex items-end justify-end flex-col gap-3 '
+							className='w-full flex items-end justify-end flex-col gap-3'
 						>
 							{messages.length === 1 && (
 								<div className='flex flex-wrap gap-2 w-full'>
@@ -166,13 +169,20 @@ function HomeSampleChat() {
 									placeholder='Your answer...'
 									onChange={handleInputChange}
 									className='w-full mr-2 h-10 font-medium'
+									disabled={
+										messages.length >= MAX_MESSAGES ||
+										isLoading
+									}
 								/>
 								<motion.div whileHover={{ y: -2, scale: 1.05 }}>
 									<GradientButton
 										type='submit'
 										size='icon'
 										className='w-12 h-10 border-0'
-										disabled={isLoading}
+										disabled={
+											messages.length >= MAX_MESSAGES ||
+											isLoading
+										}
 									>
 										<Send />
 									</GradientButton>
@@ -180,6 +190,22 @@ function HomeSampleChat() {
 							</div>
 						</form>
 					</CardFooter>
+
+					{messages.length >= MAX_MESSAGES && (
+						<div className='absolute inset-0 bg-zinc-100/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 text-center z-50'>
+							<h3 className='text-xl font-bold'>
+								Create an account to continue learning
+							</h3>
+							<p className='text-zinc-600 mb-2'>
+								Sign up to unlock unlimited conversations
+							</p>
+							<Link href='/concepts'>
+								<GradientButton>
+									Sign up for free
+								</GradientButton>
+							</Link>
+						</div>
+					)}
 				</Card>
 			</div>
 		</div>
