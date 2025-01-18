@@ -6,13 +6,8 @@ import { AppSidebar } from '@/components/nav/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/nav/Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import {
-	ClerkProvider,
-	SignInButton,
-	SignedIn,
-	SignedOut,
-	UserButton,
-} from '@clerk/nextjs';
+import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from '@vercel/analytics/react';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -23,7 +18,7 @@ const PlusJakartaSans = localFont({
 export const metadata: Metadata = {
 	title: 'Feynman Learning',
 	description:
-		'Use AI to test your knowledge for your next test. Learn through dynamic exercises that focus on active recall.',
+		'Use AI to test your knowledge for your next exam. Learn through dynamic exercises that focus on active recall.',
 };
 
 export default function RootLayout({
@@ -49,6 +44,7 @@ export default function RootLayout({
 							</main>
 							<Toaster />
 						</SidebarInset>
+						<Analytics />
 					</SidebarProvider>
 				</body>
 			</html>
