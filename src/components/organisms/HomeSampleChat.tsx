@@ -109,10 +109,10 @@ function HomeSampleChat() {
 							{messages.map((m) => (
 								<div
 									key={m.id}
-									className='whitespace-pre-wrap grid grid-cols-3 w-full mb-1'
+									className='whitespace-pre-wrap flex w-full mb-1'
 								>
 									{m.role === 'assistant' ? (
-										<div className='flex flex-col gap-1 p-2 px-3 rounded-xl col-span-2 bg-zinc-100 font-medium'>
+										<div className='flex flex-col gap-1 p-2 px-3 rounded-xl max-w-[66%] bg-zinc-100 font-medium '>
 											<Markdown>{m.content}</Markdown>
 										</div>
 									) : (
@@ -120,7 +120,7 @@ function HomeSampleChat() {
 											initial={{ opacity: 0, y: 20 }}
 											animate={{ opacity: 1, y: 0 }}
 											transition={{ duration: 0.3 }}
-											className='flex flex-col gap-1 p-2 px-4 rounded-xl col-start-2 col-span-2 justify-self-end bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 text-white'
+											className='flex flex-col gap-1 p-2 px-4 rounded-xl max-w-[66%] ml-auto bg-gradient-to-b from-emerald-400 from-90% to-emerald-500 text-white border-emerald-500 border'
 										>
 											<Markdown>{m.content}</Markdown>
 										</motion.div>

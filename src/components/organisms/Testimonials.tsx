@@ -4,22 +4,8 @@ import { Quote } from 'lucide-react';
 
 const testimonials = [
 	{
-		name: 'Sarah Chen',
-		title: 'Product Designer',
-		image: '/placeholder.svg?height=40&width=40',
-		content:
-			'This platform has completely transformed how we handle our workflow. The interface is intuitive and the features are exactly what we needed.',
-	},
-	{
-		name: 'Alex Rivera',
-		title: 'Engineering Lead',
-		image: '/placeholder.svg?height=40&width=40',
-		content:
-			"The attention to detail and the level of customization available is impressive. It's made our team's daily operations so much more efficient.",
-	},
-	{
-		name: 'Emily Parker',
-		title: 'Marketing Director',
+		name: 'Anna',
+		title: 'Student',
 		image: '/placeholder.svg?height=40&width=40',
 		content:
 			"We've seen a 40% increase in productivity since implementing this solution. The analytics features are particularly valuable for our reporting.",

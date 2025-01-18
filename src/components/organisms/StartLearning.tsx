@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import GradientButton from '../atoms/GradientButton';
 import ColorSpan from '../atoms/ColorSpan';
+import Link from 'next/link';
 
 export default function StartLearning() {
 	const topics = [
@@ -188,9 +189,11 @@ export default function StartLearning() {
 				</div>
 
 				<div className='flex justify-center mt-12'>
-					<GradientButton size='lg' className='py-6'>
-						Start Exploring
-					</GradientButton>
+					<Link href='/concepts'>
+						<GradientButton size='lg' className='py-6'>
+							Start Exploring
+						</GradientButton>
+					</Link>
 				</div>
 			</div>
 		</section>
