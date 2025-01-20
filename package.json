@@ -72,6 +72,7 @@
     "nanoid": "^5.0.9",
     "next": "^15.1.0",
     "next-themes": "^0.3.0",
+    "npm": "^11.0.0",
     "postgres": "^3.4.5",
     "react": "^18",
     "react-dom": "^18",

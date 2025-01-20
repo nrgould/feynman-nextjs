@@ -54,7 +54,7 @@ function ChatWindow({
 		setMessages([{ role: 'assistant', content: firstMessage, id: '1' }]);
 	}
 	return (
-		<div className='flex flex-col min-w-0 max-h-[97vh] bg-background'>
+		<div className='relative flex flex-col min-w-0 max-h-[97vh] bg-background'>
 			<ChatMessages
 				chatId={chatId}
 				createdAt={chat.created_at}
@@ -64,7 +64,7 @@ function ChatWindow({
 				reload={reload}
 			/>
 
-			<div className='flex mx-auto px-4 bg-background pb-3 pt-1 md:pb-6 gap-2 w-full md:max-w-3xl'>
+			<div className='fixed bottom-0 left-0 right-0 flex mx-auto px-2 bg-background pb-3 pt-1 md:pb-6 w-full'>
 				<ChatBar
 					handleSubmit={handleSubmit}
 					attachments={attachments}

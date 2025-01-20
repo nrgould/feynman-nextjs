@@ -40,11 +40,11 @@ const GeneratorCard = ({
 				</div>
 				<div className='space-y-2'>
 					<CardTitle className='text-2xl font-bold'>
-						Extract Concepts
+						Get Concepts
 					</CardTitle>
 					<CardDescription className='text-base'>
-						Upload a practice exam or homework and start learning
-						the concepts in it with interactive AI.
+						Upload a practice exam, homework, or any PDF and start
+						learning the concepts in it with interactive AI.
 					</CardDescription>
 				</div>
 			</CardHeader>
@@ -111,7 +111,7 @@ const GeneratorCard = ({
 									? `Generating concept ${
 											partialConcepts.length + 1
 									  } of 5`
-									: 'Analyzing PDF content'}
+									: 'Analyzing... this may take a moment'}
 							</span>
 						</div>
 					</div>

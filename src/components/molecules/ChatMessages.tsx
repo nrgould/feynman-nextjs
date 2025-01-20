@@ -80,7 +80,7 @@ const PureMessages = ({
 	// }, [inView]);
 
 	return (
-		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-16 min-h-[92dvh] max-h-[92dvh]'>
+		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-16 min-h-[92dvh] max-h-[92dvh] px-4'>
 			<div className='flex flex-col gap-6 w-full md:w-3/4 xl:w-2/3 sm:w-full mx-auto'>
 				{!hasMore && <DateLabel createdAt={createdAt} />}
 				{hasMore && messages.length >= 10 && (

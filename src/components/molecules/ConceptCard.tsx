@@ -33,7 +33,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { generateUUID, removePointerEventsFromBody } from '@/lib/utils';
+import { generateUUID } from '@/lib/utils';
 import {
 	AlertDialog,
 	AlertDialogTrigger,
@@ -45,7 +45,6 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 } from '@/components/ui/alert-dialog';
-import { useUser } from '@clerk/nextjs';
 
 const ConceptCard = ({
 	concept,
@@ -59,7 +58,11 @@ const ConceptCard = ({
 			redirect(`/chat/${concept.conversationId}`);
 		}
 
+		console.log(concept);
+
 		const chatId = generateUUID();
+
+		console.log(concept.conversationId);
 
 		e.stopPropagation();
 		createChatFromConcept(
@@ -98,14 +101,6 @@ const ConceptCard = ({
 								: 'text-zinc-900 font-bold'
 						}`}
 					>
-						{/* <Waypoints
-							size={20}
-							className={`mr-2 ${
-								active
-									? 'text-yellow-400 font-bold'
-									: 'text-zinc-400'
-							}`}
-						/> */}
 						{concept.title}
 					</CardTitle>
 					<DropdownMenu>

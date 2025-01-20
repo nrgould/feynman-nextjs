@@ -1,10 +1,10 @@
 'use server';
 
-import { createClerkSupabaseClientSsr } from './client';
-
-const client = await createClerkSupabaseClientSsr();
+import { createClient } from '@/utils/supabase/server';
 
 export async function addTask(name: string) {
+	const client = await createClient();
+	
 	try {
 		const response = await client.from('tasks').insert({
 			name,

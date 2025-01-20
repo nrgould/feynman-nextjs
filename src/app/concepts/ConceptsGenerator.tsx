@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useRef } from 'react';
 import { experimental_useObject } from 'ai/react';
 import { conceptsSchema } from '@/lib/schemas';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ export default function ConceptsGenerator({
 	const [files, setFiles] = useState<File[]>([]);
 	const [concepts, setConcepts] = useState<any>(initialConcepts);
 	const [isDragging, setIsDragging] = useState(false);
+	const conceptListRef = useRef<HTMLDivElement>(null);
 
 	const {
 		submit,
@@ -41,7 +42,11 @@ export default function ConceptsGenerator({
 		onFinish: ({ object }) => {
 			setConcepts([...concepts, ...(object ?? [])]);
 			setFiles([]);
-			//scroll down to concept section
+			toast({
+				title: 'Concepts generated!',
+				description: 'Scroll down to see your concepts.',
+			});
+			conceptListRef.current?.scrollIntoView({ behavior: 'smooth' });
 		},
 	});
 
@@ -144,7 +149,7 @@ export default function ConceptsGenerator({
 					concepts={concepts}
 				/>
 			</div>
-			<div className='w-[90%] mx-auto'>
+			<div className='w-[90%] mx-auto' ref={conceptListRef}>
 				<h2 className='text-3xl font-bold text-center mb-8'>
 					Your Concepts
 				</h2>

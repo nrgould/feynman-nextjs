@@ -2,17 +2,8 @@
 
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../ui/button';
-import {
-	Plus,
-	X,
-	ArrowUpIcon,
-} from 'lucide-react';
-import { Input } from '../ui/input';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useFileStore } from '@/store/store';
+import { ArrowUpIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { ToastAction } from '../ui/toast';
-import ChatBarFile from './ChatBarFile';
 import { Attachment, Message } from 'ai';
 import { Textarea } from '../ui/textarea';
 import cx from 'classnames';
@@ -31,7 +22,7 @@ interface Props {
 	className?: string;
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+// const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const ChatBar = ({
 	chatId,
@@ -47,7 +38,6 @@ const ChatBar = ({
 	setAttachments,
 	className,
 }: Props) => {
-	const fileInputRef = useRef<HTMLInputElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 	const adjustHeight = () => {
@@ -68,49 +58,6 @@ const ChatBar = ({
 	const contextString = messages
 		.map((msg) => `${msg.role}: ${msg.content}`)
 		.join('\n');
-
-	const setFile = useFileStore((state) => state.setFile);
-	const file = useFileStore((state) => state.file);
-	const clearFile = useFileStore((state) => state.clearFile);
-
-	const handleFilePicker = () => {
-		if (fileInputRef.current) {
-			fileInputRef.current.click();
-		}
-	};
-
-	const handleClearFile = () => {
-		clearFile();
-	};
-
-	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const files = event.target.files;
-		if (files && files[0]) {
-			const file = files[0];
-
-			if (file.size > MAX_FILE_SIZE) {
-				toast({
-					variant: 'destructive',
-					title: `File size exceeds the limit of ${
-						MAX_FILE_SIZE / (1024 * 1024)
-					}MB.`,
-					action: (
-						<ToastAction
-							onClick={handleFilePicker}
-							altText='Try again'
-						>
-							Try again
-						</ToastAction>
-					),
-				});
-
-				return;
-			}
-
-			console.log('File selected:', files[0]);
-			setFile(files[0]);
-		}
-	};
 
 	const submitForm = useCallback(() => {
 		window.history.replaceState({}, '', `/chat/${chatId}`);
@@ -143,44 +90,8 @@ const ChatBar = ({
 	};
 
 	return (
-		<div className='relative w-full flex flex-col gap-4'>
-			<ChatBarFile file={file} />
-
+		<div className='relative w-full flex flex-col gap-2 md:max-w-3xl mx-auto'>
 			<form className='flex items-center relative'>
-				<Input
-					ref={fileInputRef}
-					type='file'
-					aria-label='file'
-					className='hidden'
-					multiple={true}
-					onChange={handleFileChange}
-				/>
-				<AnimatePresence mode='sync'>
-					{file && (
-						<motion.div
-							whileTap={{ scale: 0.9 }}
-							initial={{ opacity: 0, rotate: 45 }}
-							animate={{ opacity: 1, rotate: 0 }}
-							exit={{ opacity: 0 }}
-							className='absolute left-2 cursor-pointer'
-							onClick={handleClearFile}
-						>
-							<X color='gray' />
-						</motion.div>
-					)}
-					{!file && (
-						<motion.div
-							whileTap={{ scale: 0.9 }}
-							initial={{ opacity: 0, rotate: 45 }}
-							animate={{ opacity: 1, rotate: 0 }}
-							exit={{ opacity: 0, rotate: 45 }}
-							className='absolute left-2 cursor-pointer'
-							onClick={handleFilePicker}
-						>
-							<Plus color='gray' />
-						</motion.div>
-					)}
-				</AnimatePresence>
 				<Textarea
 					placeholder='Type a message...'
 					ref={textareaRef}
@@ -189,7 +100,7 @@ const ChatBar = ({
 					rows={1}
 					name='input'
 					className={cx(
-						'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted px-10',
+						'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted pr-10 py-3 border-2 font-medium',
 						className
 					)}
 					autoFocus
@@ -232,7 +143,7 @@ function PureSendButton({
 }) {
 	return (
 		<Button
-			className='rounded-full p-2 h-fit absolute right-1 m-0.5 border dark:border-zinc-600'
+			className='rounded-xl p-3 h-fit absolute right-1 m-0.5 bg-zinc-800 hover:bg-zinc-700'
 			onClick={(event) => {
 				event.preventDefault();
 				submitForm();

@@ -1,8 +1,8 @@
+import { createClient } from '@/utils/supabase/server';
 import AddTaskForm from './AddTaskForm';
-import { createClerkSupabaseClientSsr } from './client';
 
 export default async function Home() {
-	const supabase = await createClerkSupabaseClientSsr();
+	const supabase = await createClient();
 
 	const { data, error } = await supabase.from('tasks').select();
 
