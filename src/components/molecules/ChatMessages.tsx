@@ -1,13 +1,12 @@
 'use client';
 
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, useState, useRef } from 'react';
 import MessageBubble from './MessageBubble';
 import { MoonLoader } from 'react-spinners';
 import { ChatRequestOptions, Message } from 'ai';
 import { fetchMoreMessages } from '@/app/chat/[id]/actions';
 import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
-import { Label } from '@radix-ui/react-label';
 import DateLabel from '../atoms/DateLabel';
 import YouTubeVideoTool from '../atoms/YouTubeVideoTool';
 
@@ -105,11 +104,12 @@ const PureMessages = ({
 				{messages &&
 					messages.map((msg) => (
 						<div key={msg.id}>
-							<MessageBubble
+							<pre>{JSON.stringify(msg.content, null, 2)}</pre>
+							{/* <MessageBubble
 								key={msg.id}
 								message={msg.content}
 								role={msg.role}
-							/>
+							/> */}
 							{msg.toolInvocations?.map((toolInvocation) => {
 								const { toolName, toolCallId, state } =
 									toolInvocation;

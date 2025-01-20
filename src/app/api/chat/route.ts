@@ -7,6 +7,7 @@ import {
 	getMostRecentUserMessage,
 	sanitizeResponseMessages,
 } from '@/lib/utils';
+import { createClient } from '@/utils/supabase/server';
 import { openai } from '@ai-sdk/openai';
 import { auth } from '@clerk/nextjs/server';
 import {
@@ -37,9 +38,13 @@ export async function POST(req: NextRequest) {
 
 	const { userId } = await auth();
 
+	console.log(chatId);
+
 	if (!userId) {
 		return new Response('Unauthorized', { status: 401 });
 	}
+
+	const supabase = await createClient();
 
 	const coreMessages = convertToCoreMessages(messages);
 	const userMessage = getMostRecentUserMessage(coreMessages);
@@ -50,21 +55,19 @@ export async function POST(req: NextRequest) {
 
 	const userMessageId = generateUUID();
 
-	const validatedSchema = MessageSchema.parse({
-		...userMessage,
+	const { data: message, error } = await supabase.from('Message').insert({
+		id: userMessageId,
+		content: userMessage.content,
+		role: userMessage.role,
 		created_at: new Date(),
-		chatId,
-		userId,
+		chat_id: chatId,
 	});
 
-	// Save the user message to the database
-	await saveMessages({
-		messages: [
-			new Message({
-				...validatedSchema,
-			}),
-		],
-	});
+	if (error) {
+		console.error('Error adding message to database', error);
+	}
+
+	console.log('MESSAGE', message);
 
 	return createDataStreamResponse({
 		execute: (dataStream) => {
@@ -93,87 +96,29 @@ export async function POST(req: NextRequest) {
 								)
 							);
 
-							await saveMessages({
-								messages:
-									responseMessagesWithoutIncompleteToolCalls.map(
-										(message) => {
-											console.log('MESSAGE', message);
-											console.log('ROLE', message.role);
+							// await saveMessages({
+							// 	messages:
+							// 		responseMessagesWithoutIncompleteToolCalls.map(
+							// 			(message) => {
+							// 				console.log('MESSAGE', message);
+							// 				console.log('ROLE', message.role);
 
-											const roleText =
-												message.role === 'tool'
-													? 'assistant'
-													: message.role;
+							// 				const roleText =
+							// 					message.role === 'tool'
+							// 						? 'assistant'
+							// 						: message.role;
 
-											let contentText = '';
-											const attachments: string[] = [];
-
-											// Handle different content formats
-											if (
-												typeof message.content ===
-												'string'
-											) {
-												contentText = message.content;
-											} else if (
-												Array.isArray(message.content)
-											) {
-												// Separate text content and tool calls
-												message.content.forEach(
-													(content) => {
-														if (
-															content.type ===
-															'text'
-														) {
-															contentText =
-																content.text;
-														} else if (
-															content.type ===
-															'tool_call'
-														) {
-															// Store tool calls in attachments
-															attachments.push(
-																JSON.stringify({
-																	type: 'tool_call',
-																	tool: content
-																		.tool_call
-																		.function
-																		.name,
-																	arguments:
-																		content
-																			.tool_call
-																			.function
-																			.arguments,
-																})
-															);
-														} else if (
-															content.type ===
-															'tool-result'
-														) {
-															// Store tool results in attachments
-															attachments.push(
-																JSON.stringify({
-																	type: 'tool_result',
-																	toolCallId:
-																		content.toolCallId,
-																	result: content.result,
-																})
-															);
-														}
-													}
-												);
-											}
-
-											return new Message({
-												userId,
-												chatId,
-												role: roleText,
-												content: contentText || ' ',
-												attachments,
-												created_at: new Date(),
-											});
-										}
-									),
-							});
+							// 				// return new Message({
+							// 				// 	userId,
+							// 				// 	chatId,
+							// 				// 	role: roleText,
+							// 				// 	content: contentText || ' ',
+							// 				// 	attachments,
+							// 				// 	created_at: new Date(),
+							// 				// });
+							// 			}
+							// 		),
+							// });
 						} catch (error) {
 							console.error('Failed to save chat:', error);
 						}

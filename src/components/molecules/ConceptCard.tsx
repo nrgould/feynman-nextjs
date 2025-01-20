@@ -54,22 +54,18 @@ const ConceptCard = ({
 	conceptLimitReached: boolean;
 }) => {
 	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-		if (concept.isActive) {
-			redirect(`/chat/${concept.conversationId}`);
+		if (concept.is_active) {
+			redirect(`/chat/${concept.chat_id}`);
 		}
 
 		console.log(concept);
 
 		const chatId = generateUUID();
 
-		console.log(concept.conversationId);
-
 		e.stopPropagation();
 		createChatFromConcept(
+			concept,
 			chatId,
-			concept.title,
-			concept.description,
-			concept._id
 		);
 	};
 
@@ -83,7 +79,7 @@ const ConceptCard = ({
 	};
 
 	const progress = concept.progress * 100 || 0;
-	const active = concept.isActive || false;
+	const active = concept.is_active || false;
 	const isDisabled = !active && conceptLimitReached;
 
 	return (

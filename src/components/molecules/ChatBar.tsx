@@ -26,7 +26,6 @@ interface Props {
 
 const ChatBar = ({
 	chatId,
-	userId,
 	messages,
 	handleSubmit,
 	input,
@@ -40,53 +39,17 @@ const ChatBar = ({
 }: Props) => {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-	const adjustHeight = () => {
-		if (textareaRef.current) {
-			textareaRef.current.style.height = 'auto';
-			textareaRef.current.style.height = `${
-				textareaRef.current.scrollHeight + 2
-			}px`;
-		}
-	};
-
-	useEffect(() => {
-		if (textareaRef.current) {
-			adjustHeight();
-		}
-	}, []);
-
-	const contextString = messages
-		.map((msg) => `${msg.role}: ${msg.content}`)
-		.join('\n');
-
 	const submitForm = useCallback(() => {
 		window.history.replaceState({}, '', `/chat/${chatId}`);
 
 		handleSubmit();
-
-		// handleSubmit(undefined, {
-		// 	experimental_attachments: attachments,
-		// });
-
 		setAttachments([]);
-		// setLocalStorageInput('');
 
-		// if (width && width > 768) {
-		// 	textareaRef.current?.focus();
-		// }
-	}, [
-		// attachments,
-		handleSubmit,
-		setAttachments,
-		// setLocalStorageInput,
-		// width,
-		chatId,
-		// input,
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [handleSubmit, setAttachments, chatId, input]);
 
 	const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setInput(event.target.value);
-		adjustHeight();
 	};
 
 	return (
@@ -119,7 +82,6 @@ const ChatBar = ({
 						}
 					}}
 				/>
-				<input type='hidden' name='context' value={contextString} />
 				<SendButton
 					submitForm={submitForm}
 					input={input}
@@ -158,6 +120,6 @@ function PureSendButton({
 const SendButton = memo(PureSendButton, (prevProps, nextProps) => {
 	if (prevProps.uploadQueue.length !== nextProps.uploadQueue.length)
 		return false;
-	if (!prevProps.input !== !nextProps.input) return false;
+	if (prevProps.input !== nextProps.input) return false;
 	return true;
 });

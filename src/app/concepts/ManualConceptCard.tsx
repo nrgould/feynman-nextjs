@@ -66,7 +66,7 @@ const ManualConceptCard = ({
 			setTitle('');
 			setDescription('');
 			setSubject('');
-			saveConcept({ title, description, subject, id }, userId);
+			saveConcept({ title, description, subject, id });
 		}
 	};
 

@@ -24,7 +24,7 @@ function ChatWindow({
 	const { mutate } = useSWRConfig();
 	const { setTitle } = useTitleStore();
 
-	const { _id: chatId, title, description } = chat;
+	const { id: chatId, title, description } = chat;
 
 	useEffect(() => {
 		setTitle(title);

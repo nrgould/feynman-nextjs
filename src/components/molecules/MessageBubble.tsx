@@ -12,9 +12,11 @@ export default function MessageBubble({
 	message,
 	role,
 }: Readonly<MessageBubbleProps>) {
-	return role === 'user' ? (
-		<UserMessage message={message} />
-	) : (
-		<SystemMessage message={message} />
-	);
+	console.log(message);
+	return <div>{message}</div>;
+	// return role === 'user' ? (
+	// 	<UserMessage message={message} />
+	// ) : (
+	// 	<SystemMessage message={message} />
+	// );
 }

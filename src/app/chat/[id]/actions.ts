@@ -43,17 +43,17 @@ export async function generateFirstMessage(
 	return result;
 }
 
-export async function generateLearningPlan(
-	title: string,
-	description: string,
-	initialExplanation: string
-) {
-	//generate learning plan
-	const result = await generateObject({
-		model: openai('gpt-4o-mini-2024-07-18'),
-		schema: lessonPlanSchema,
-		prompt: `Generate a learning plan for me to learn the concept ${title} with a description of ${description}. Using my initial explantion of ${initialExplanation}, assess my gaps in understanding and help me fill those gaps.`,
-	});
+// export async function generateLearningPlan(
+// 	title: string,
+// 	description: string,
+// 	initialExplanation: string
+// ) {
+// 	//generate learning plan
+// 	const result = await generateObject({
+// 		model: openai('gpt-4o-mini-2024-07-18'),
+// 		schema: lessonPlanSchema,
+// 		prompt: `Generate a learning plan for me to learn the concept ${title} with a description of ${description}. Using my initial explantion of ${initialExplanation}, assess my gaps in understanding and help me fill those gaps.`,
+// 	});
 
-	return result;
-}
+// 	return result;
+// }

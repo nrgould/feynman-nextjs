@@ -32,23 +32,19 @@ export interface CustomMessageFields {
 
 // Combined type for use in the application
 export interface Message {
-	_id?: string;
 	id: string;
-	content: string;
+	content: any;
 	role: 'data' | 'user' | 'system' | 'assistant';
 	chatId: string;
 	userId: string;
-	attachments?: string[];
-	created_at?: Date;
-	toolInvocations?: Array<ToolInvocation>;
+	created_at: Date;
 }
 
 export type Conversation = {
-	_id: string;
+	id: string;
 	userId: string;
 	conceptId: string;
 	title: string;
-	recentMessages: Message[];
 	description: string;
 	created_at: Date;
 };
