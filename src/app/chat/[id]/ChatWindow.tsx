@@ -53,7 +53,7 @@ function ChatWindow({
 	});
 
 	if (firstMessage) {
-		setMessages([{ role: 'assistant', content: firstMessage, id: '1' }]);
+		setMessages([{ role: 'assistant', content: firstMessage, id: '123456789`' }]);
 	}
 
 	return (

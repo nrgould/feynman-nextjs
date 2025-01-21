@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function ConceptLoader() {
 	return (
 		<div className='w-full'>
-			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-[100%] xl:max-w-[75%] mx-auto'>
 				{Array.from({ length: 6 }).map((_, i) => (
 					<div
 						key={i}
@@ -13,10 +13,8 @@ export default function ConceptLoader() {
 							{/* Header */}
 							<div className='flex justify-between items-center'>
 								<div className='flex items-center gap-2'>
-									<Skeleton className='h-5 w-5 rounded-full' />
 									<Skeleton className='h-6 w-32' />
 								</div>
-								<Skeleton className='h-6 w-6 rounded-md' />
 							</div>
 
 							{/* Content */}
@@ -27,8 +25,7 @@ export default function ConceptLoader() {
 
 							{/* Footer */}
 							<div className='flex justify-between items-center pt-4'>
-								<Skeleton className='h-10 w-1/3' />
-								<Skeleton className='h-10 w-1/3' />
+								<Skeleton className='h-8 w-1/3' />
 							</div>
 						</div>
 					</div>

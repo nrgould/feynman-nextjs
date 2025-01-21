@@ -48,13 +48,15 @@ export default async function ChatPage(props: { params: Params }) {
 	}
 
 	return (
-		<Suspense fallback={<Loading />}>
-			<ChatWindow
-				firstMessage={firstMessage?.text}
-				chat={chat}
-				initialMessages={orderedMessages}
-				userId={userId}
-			/>
-		</Suspense>
+		<div>
+			<Suspense fallback={<Loading />}>
+				<ChatWindow
+					firstMessage={firstMessage?.text}
+					chat={chat}
+					initialMessages={orderedMessages}
+					userId={userId}
+				/>
+			</Suspense>
+		</div>
 	);
 }
