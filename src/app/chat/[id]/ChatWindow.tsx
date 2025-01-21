@@ -3,6 +3,7 @@
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
 import { Conversation, Message } from '@/lib/types';
+import { generateUUID } from '@/lib/utils';
 import { useTitleStore } from '@/store/store';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
@@ -45,13 +46,14 @@ function ChatWindow({
 		id: chatId,
 		body: { chatId, userId, title, description },
 		initialMessages,
+		sendExtraMessageFields: true,
 		onFinish: () => {
 			mutate('/api/history');
 		},
 	});
 
 	if (firstMessage) {
-		setMessages([{ role: 'assistant', content: firstMessage, id: '1' }]);
+		setMessages([{ role: 'assistant', content: firstMessage, id: generateUUID() }]);
 	}
 	return (
 		<div className='relative flex flex-col min-w-0 max-h-[97vh] bg-background'>

@@ -1,4 +1,3 @@
-import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import ChatWindow from './ChatWindow';
 import { notFound } from 'next/navigation';
 import { generateFirstMessage } from './actions';
@@ -40,8 +39,6 @@ export default async function ChatPage(props: { params: Params }) {
 		.order('created_at', { ascending: false })
 		.limit(INITIAL_NUMBER_OF_MESSAGES);
 
-	console.log(messages);
-
 	// if (messages && messages.length === 0) {
 	// 	firstMessage = await generateFirstMessage(
 	// 		chat.title,
@@ -51,12 +48,14 @@ export default async function ChatPage(props: { params: Params }) {
 	// 	);
 	// }
 
+	const orderedMessages = messages ? [...messages].reverse() : [];
+
 	return (
 		<Suspense fallback={<Loading />}>
 			<ChatWindow
 				firstMessage={firstMessage?.text}
 				chat={chat}
-				initialMessages={messages || []}
+				initialMessages={orderedMessages}
 				userId={userId}
 			/>
 		</Suspense>

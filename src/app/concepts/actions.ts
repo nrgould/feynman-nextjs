@@ -1,11 +1,5 @@
 'use server';
 
-import {
-	getConceptsByUserId,
-	saveChat,
-	saveConcepts,
-	updateConcept,
-} from '@/lib/db/queries';
 import { createClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';

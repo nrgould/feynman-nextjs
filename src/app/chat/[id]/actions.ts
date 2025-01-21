@@ -1,10 +1,9 @@
 'use server';
 
-import { getMessagesByChatId } from '@/lib/db/queries';
 import { generateObject, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { systemPrompt } from '@/lib/ai/prompts';
-import { lessonPlanSchema } from '@/lib/ai/learningPlanSchema';
+import { createClient } from '@/utils/supabase/server';
 
 export async function fetchMoreMessages({
 	chatId,
@@ -16,18 +15,39 @@ export async function fetchMoreMessages({
 	limit: number;
 }) {
 	try {
-		const response = await getMessagesByChatId({
-			id: chatId,
-			offset,
-			limit,
-		});
+		const supabase = await createClient();
 
-		return response;
+		// Get messages for current page, using offset correctly
+		const { data: messages, error: messagesError } = await supabase
+			.from('Message')
+			.select('*')
+			.eq('chat_id', chatId)
+			.order('created_at', { ascending: false }) // Change to descending to get newest first
+			.range(offset, offset + limit - 1);
+
+		if (messagesError) throw messagesError;
+
+		// Get total count of messages
+		const { count, error: countError } = await supabase
+			.from('Message')
+			.select('*', { count: 'exact', head: true })
+			.eq('chat_id', chatId);
+
+		if (countError) throw countError;
+
+		// Sort messages back to ascending order for display
+		const sortedMessages = messages ? [...messages].reverse() : [];
+
+		return {
+			messages: sortedMessages,
+			hasMore: count ? offset + limit < count : false,
+		};
 	} catch (error) {
 		console.error('Error fetching more messages:', error);
 		throw error;
 	}
 }
+
 export async function generateFirstMessage(
 	title: string,
 	description: string,

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 import DateLabel from '../atoms/DateLabel';
 import YouTubeVideoTool from '../atoms/YouTubeVideoTool';
-
+import { PreviewMessage } from '@/app/chat/[id]/Message';
 interface Props {
 	messages: Message[];
 	chatId: string;
@@ -33,7 +33,7 @@ const PureMessages = ({
 	isLoading,
 	createdAt,
 }: Props) => {
-	const [offset, setOffset] = useState(NUMBER_OF_MESSAGES_TO_FETCH);
+	const [offset, setOffset] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -42,27 +42,21 @@ const PureMessages = ({
 		threshold: 0,
 	});
 
-	// const scrollToBottom = () => {
-	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	// };
-
-	// useEffect(() => {
-	// 	scrollToBottom();
-	// }, [messages]);
-
 	const loadMoreMessages = async () => {
 		try {
 			setIsLoadingMore(true);
 			const response = await fetchMoreMessages({
 				chatId,
-				offset,
+				offset: messages.length,
 				limit: NUMBER_OF_MESSAGES_TO_FETCH,
 			});
 
 			if (response) {
-				setMessages((messages) => [...response.messages, ...messages]);
+				setMessages((currentMessages) => [
+					...response.messages,
+					...currentMessages,
+				]);
 				setHasMore(response.hasMore);
-				setOffset((offset) => offset + NUMBER_OF_MESSAGES_TO_FETCH);
 			}
 		} catch (error) {
 			console.error('Error loading more messages:', error);
@@ -70,13 +64,6 @@ const PureMessages = ({
 			setIsLoadingMore(false);
 		}
 	};
-
-	// useEffect(() => {
-	// 	if (inView && hasMore) {
-	// 		loadMoreMessages();
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [inView]);
 
 	return (
 		<div className='flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-16 min-h-[92dvh] max-h-[92dvh] px-4'>
@@ -104,12 +91,13 @@ const PureMessages = ({
 				{messages &&
 					messages.map((msg) => (
 						<div key={msg.id}>
-							<pre>{JSON.stringify(msg.content, null, 2)}</pre>
-							{/* <MessageBubble
-								key={msg.id}
-								message={msg.content}
-								role={msg.role}
-							/> */}
+							{msg.content && (
+								<MessageBubble
+									key={msg.id}
+									message={msg.content}
+									role={msg.role}
+								/>
+							)}
 							{msg.toolInvocations?.map((toolInvocation) => {
 								const { toolName, toolCallId, state } =
 									toolInvocation;
@@ -140,7 +128,7 @@ const PureMessages = ({
 					))}
 				{messages.length === 0 && (
 					<div className='flex flex-col items-center justify-center'>
-						<p>Send a message or upload a file to start learning</p>
+						<p>Send a message to start learning</p>
 					</div>
 				)}
 				<div

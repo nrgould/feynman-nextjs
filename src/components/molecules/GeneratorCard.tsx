@@ -44,7 +44,7 @@ const GeneratorCard = ({
 					</CardTitle>
 					<CardDescription className='text-base'>
 						Upload a practice exam, homework, or any PDF and start
-						learning the concepts in it with interactive AI.
+						learning with interactive AI.
 					</CardDescription>
 				</div>
 			</CardHeader>

@@ -83,7 +83,7 @@ const ManualConceptCard = ({
 						Add Concept
 					</CardTitle>
 					<CardDescription className='text-base'>
-						Add a concept you want to learn about
+						Add a concept you want to learn
 					</CardDescription>
 				</div>
 			</CardHeader>

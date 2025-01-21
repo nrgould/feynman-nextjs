@@ -8,7 +8,7 @@ interface Props {
 const UserMessage = ({ message }: Props) => {
 	return (
 		<motion.div
-			className='flex justify-end items-start space-x-2'
+			className='flex justify-end items-start'
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.1, ease: 'easeIn' }}

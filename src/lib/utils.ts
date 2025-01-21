@@ -1,7 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { DbMessage, Message } from '@/lib/types';
-import { CoreAssistantMessage, CoreMessage, CoreToolMessage } from 'ai';
+import { CoreAssistantMessage, CoreMessage, CoreToolMessage, Message } from 'ai';
 import { customAlphabet } from 'nanoid';
 
 export function cn(...inputs: ClassValue[]) {
@@ -43,21 +42,6 @@ export function generateUUID(): string {
 export function getMostRecentUserMessage(messages: Array<CoreMessage>) {
 	const userMessages = messages.filter((message) => message.role === 'user');
 	return userMessages.at(-1);
-}
-
-export function mapDbMessageToMessage(dbMessage: DbMessage): Message {
-	const { _id, role, chatId, userId, content, attachments, created_at } =
-		dbMessage;
-	return {
-		_id: _id?.toString(),
-		id: _id?.toString() || crypto.randomUUID(),
-		content,
-		role,
-		chatId,
-		userId,
-		attachments,
-		created_at,
-	};
 }
 
 // sanitize response messages to remove incomplete tool calls
