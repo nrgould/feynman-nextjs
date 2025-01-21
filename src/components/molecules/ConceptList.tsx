@@ -75,7 +75,7 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 			</ClerkLoading>
 
 			<ClerkLoaded>
-				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-[90%] lg:max-w-[80%] xl:max-w-[60%] mx-auto gap-6'>
 					{filteredAndSortedConcepts.map((concept) => (
 						<div
 							key={concept._id || concept.title}
