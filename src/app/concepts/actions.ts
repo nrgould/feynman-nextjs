@@ -89,7 +89,7 @@ export async function saveConcept(concept: {
 	return data;
 }
 
-export async function getUserConcepts(limit: number) {
+export async function getUserConcepts(limit: number, offset: number = 0) {
 	const { userId } = await auth();
 
 	if (!userId) throw new Error('User not found');
@@ -100,7 +100,7 @@ export async function getUserConcepts(limit: number) {
 		.from('Concept')
 		.select('*')
 		.eq('user_id', userId)
-		.limit(limit)
+		.range(offset, offset + limit - 1)
 		.order('created_at', { ascending: false });
 
 	if (error) throw new Error('Failed to fetch concepts');

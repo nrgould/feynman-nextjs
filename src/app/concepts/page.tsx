@@ -4,9 +4,11 @@ import { getUserConcepts } from './actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SignedOut, RedirectToSignIn, SignedIn } from '@clerk/nextjs';
 
+export const CONCEPTS_TO_FETCH = 10;
+
 const Concepts = async () => {
 	const user = await currentUser();
-	const concepts = await getUserConcepts(10);
+	const concepts = await getUserConcepts(CONCEPTS_TO_FETCH, 0);
 
 	return (
 		<>

@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, Loader2 } from 'lucide-react';
 import {
 	Card,
 	CardTitle,
@@ -21,10 +21,15 @@ import ConceptCard from '../../components/molecules/ConceptCard';
 import ConceptLoader from '../../components/atoms/ConceptLoader';
 import { ClerkLoaded } from '@clerk/nextjs';
 import { ClerkLoading } from '@clerk/nextjs';
+import { getUserConcepts } from '@/app/concepts/actions';
+import { Button } from '@/components/ui/button';
 
-function ConceptList({ concepts }: { concepts: any[] }) {
+function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
+	const [concepts, setConcepts] = useState(initialConcepts);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
+	const [isLoading, setIsLoading] = useState(false);
+	const [hasMore, setHasMore] = useState(initialConcepts.length === 10);
 
 	const conceptLimitReached = false;
 
@@ -37,14 +42,38 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 				if (sortBy === 'title') {
 					return a.title.localeCompare(b.title);
 				}
-				if (sortBy === 'progress') {
-					const progressA = a.progress || 0;
-					const progressB = b.progress || 0;
-					return progressB - progressA;
+				// if (sortBy === 'progress') {
+				// 	const progressA = a.progress || 0;
+				// 	const progressB = b.progress || 0;
+				// 	return progressB - progressA;
+				// }
+				if (sortBy === 'subject') {
+					const subjectA = a.subject || '';
+					const subjectB = b.subject || '';
+					return subjectA.localeCompare(subjectB);
 				}
 				return 0;
 			});
 	}, [concepts, searchQuery, sortBy]);
+
+	const loadMoreConcepts = async () => {
+		try {
+			setIsLoading(true);
+			const offset = concepts.length;
+			const limit = 10; // Or whatever batch size you prefer
+			const newConcepts = await getUserConcepts(limit, offset);
+
+			if (newConcepts.length < limit) {
+				setHasMore(false);
+			}
+
+			setConcepts((prevConcepts) => [...prevConcepts, ...newConcepts]);
+		} catch (error) {
+			console.error('Error loading more concepts:', error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<div className='space-y-6'>
@@ -63,8 +92,8 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 						<SelectItem value='title' className='text-center'>
 							Sort by Title
 						</SelectItem>
-						<SelectItem value='progress' className='text-center'>
-							Sort by Progress
+						<SelectItem value='topic' className='text-center'>
+							Sort by Topic
 						</SelectItem>
 					</SelectContent>
 				</Select>
@@ -87,6 +116,26 @@ function ConceptList({ concepts }: { concepts: any[] }) {
 							/>
 						</div>
 					))}
+
+					{filteredAndSortedConcepts.length > 0 && hasMore && (
+						<div className='col-span-1 md:col-span-2 lg:col-span-3 flex justify-center'>
+							<Button
+								variant='outline'
+								onClick={loadMoreConcepts}
+								disabled={isLoading}
+								className='w-full max-w-sm'
+							>
+								{isLoading ? (
+									<>
+										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+										Loading...
+									</>
+								) : (
+									'Load More'
+								)}
+							</Button>
+						</div>
+					)}
 
 					{filteredAndSortedConcepts.length === 0 && (
 						<div className='col-span-3 flex justify-center items-center'>
