@@ -18,10 +18,6 @@ export default async function ChatPage(props: { params: Params }) {
 	const chatId = params.id;
 	const userId = user!.id;
 
-	console.log(chatId);
-
-	let firstMessage;
-
 	const { data: chat, error: chatError } = await supabase
 		.from('Chat')
 		.select('*')
@@ -39,16 +35,17 @@ export default async function ChatPage(props: { params: Params }) {
 		.order('created_at', { ascending: false })
 		.limit(INITIAL_NUMBER_OF_MESSAGES);
 
-	// if (messages && messages.length === 0) {
-	// 	firstMessage = await generateFirstMessage(
-	// 		chat.title,
-	// 		chat.description,
-	// 		chatId,
-	// 		userId
-	// 	);
-	// }
-
 	const orderedMessages = messages ? [...messages].reverse() : [];
+
+	let firstMessage;
+
+	if (messages && messages.length === 0) {
+		firstMessage = await generateFirstMessage(
+			chat.title,
+			chat.description,
+			chatId
+		);
+	}
 
 	return (
 		<Suspense fallback={<Loading />}>

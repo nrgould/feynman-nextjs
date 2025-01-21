@@ -4,6 +4,7 @@ import { generateObject, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { systemPrompt } from '@/lib/ai/prompts';
 import { createClient } from '@/utils/supabase/server';
+import { generateUUID } from '@/lib/utils';
 
 export async function fetchMoreMessages({
 	chatId,
@@ -51,14 +52,26 @@ export async function fetchMoreMessages({
 export async function generateFirstMessage(
 	title: string,
 	description: string,
-	chatId: string,
-	userId: string
+	chatId: string
 ) {
+	const supabase = await createClient();
+
 	const result = await generateText({
 		model: openai('gpt-4o-mini-2024-07-18'),
 		system: systemPrompt,
 		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. If there is no title or description, first prompt me about what concept I want to learn about.`,
 	});
+
+	await supabase
+		.from('Message')
+		.insert({
+			id: generateUUID(),
+			chat_id: chatId,
+			content: result.text,
+			role: 'assistant',
+			created_at: new Date().toISOString(),
+		})
+		.throwOnError();
 
 	return result;
 }

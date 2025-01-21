@@ -53,8 +53,9 @@ function ChatWindow({
 	});
 
 	if (firstMessage) {
-		setMessages([{ role: 'assistant', content: firstMessage, id: generateUUID() }]);
+		setMessages([{ role: 'assistant', content: firstMessage, id: '1' }]);
 	}
+
 	return (
 		<div className='relative flex flex-col min-w-0 max-h-[97vh] bg-background'>
 			<ChatMessages

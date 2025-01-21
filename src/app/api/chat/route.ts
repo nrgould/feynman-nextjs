@@ -75,8 +75,6 @@ export async function POST(req: NextRequest) {
 						created_at: lastMessage.createdAt,
 					};
 
-					console.log('MESSAGES TO INSERT', messagesToInsert);
-					
 					await supabase
 						.from('Message')
 						.insert(messagesToInsert)

@@ -17,13 +17,21 @@ export async function createChatFromConcept(
 	if (!userId) throw new Error('User not found');
 
 	const { title, description, id: conceptId } = concept;
-
 	const supabase = await createClient();
 
-	console.log('CONCEPTID:', conceptId);
+	// First verify the user owns this concept
+	const { data: conceptData, error: conceptError } = await supabase
+		.from('Concept')
+		.select('user_id')
+		.eq('id', conceptId)
+		.eq('user_id', userId)
+		.single();
+
+	if (conceptError || !conceptData)
+		throw new Error('Concept not found or access denied');
 
 	// Create the chat
-	const { data: chat, error: chatError } = await supabase
+	await supabase
 		.from('Chat')
 		.insert({
 			id: chatId,
@@ -33,20 +41,19 @@ export async function createChatFromConcept(
 			created_at: new Date().toISOString(),
 		})
 		.select()
-		.single();
+		.single()
+		.throwOnError();
 
-	if (chatError) throw new Error('Failed to create chat');
-
-	// Update the concept to mark it as active and store the chat ID
-	const { error: conceptError } = await supabase
+	// Update the concept
+	const { error: updateError } = await supabase
 		.from('Concept')
 		.update({
 			is_active: true,
 			chat_id: chatId,
 		})
-		.eq('id', conceptId);
-
-	if (conceptError) throw new Error('Failed to update concept');
+		.eq('id', conceptId)
+		.eq('user_id', userId)
+		.throwOnError();
 
 	redirect(`/chat/${chatId}`);
 }
