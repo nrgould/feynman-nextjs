@@ -6,7 +6,7 @@ import { SignedOut, RedirectToSignIn, SignedIn } from '@clerk/nextjs';
 
 const Concepts = async () => {
 	const user = await currentUser();
-	const concepts = await getUserConcepts(user!.id, 10);
+	const concepts = await getUserConcepts(10);
 
 	return (
 		<>

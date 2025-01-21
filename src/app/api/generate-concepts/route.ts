@@ -1,10 +1,9 @@
 import { conceptSchema, conceptsSchema } from '@/lib/schemas';
-import { generateId, streamObject } from 'ai';
+import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/utils/supabase/server';
-import { generateUUID } from '@/lib/utils';
 
 export const maxDuration = 60;
 

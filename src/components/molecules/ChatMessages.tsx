@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 import DateLabel from '../atoms/DateLabel';
 import YouTubeVideoTool from '../atoms/YouTubeVideoTool';
-import { PreviewMessage } from '@/app/chat/[id]/Message';
 interface Props {
 	messages: Message[];
 	chatId: string;

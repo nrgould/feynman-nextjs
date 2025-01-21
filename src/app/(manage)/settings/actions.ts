@@ -1,7 +1,5 @@
 'use server';
 
-import { getUserById, createUser, updateUser } from '@/lib/db/queries';
-
 interface UserProfileData {
 	name: string;
 	email: string;
@@ -14,21 +12,6 @@ interface UserProfileData {
 	profileImage?: string;
 }
 
-export async function saveUserProfile(data: UserProfileData) {
-	try {
-		await updateUser({
-			userId: data.userId,
-			updates: data,
-		});
+export async function saveUserProfile(data: UserProfileData) {}
 
-		return { success: true };
-	} catch (error) {
-		console.error('Failed to save user profile:', error);
-		return { success: false, error: 'Failed to save profile' };
-	}
-}
-
-export async function getUserProfile(userId: string) {
-	const user = await getUserById({ userId });
-	return user;
-}
+export async function getUserProfile(userId: string) {}
