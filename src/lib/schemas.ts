@@ -23,7 +23,11 @@ export const conceptSchema = z.object({
 	title: z.string().describe('The main concept or topic being tested'),
 	description: z.string().describe('A brief explanation of the concept'),
 	subject: z.string().describe('The subject of the concept'),
-	// difficulty: z.enum(['Easy', 'Intermediate', 'Difficult']).describe('The difficulty level of understanding this concept'),
+	id: z
+		.string()
+		.describe(
+			'The unique identifier for the concept, in UUID format. An example is: e583e9ae-6801-4266-9e92-2eed491ffcf6 but do not use that exact ID. '
+		),
 });
 
 export type Concept = z.infer<typeof conceptSchema>;

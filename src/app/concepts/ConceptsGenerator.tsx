@@ -39,14 +39,19 @@ export default function ConceptsGenerator({
 			);
 			setFiles([]);
 		},
-		onFinish: ({ object }) => {
+		onFinish: ({ object, error }) => {
+			console.log(object);
+			console.log(error);
 			setConcepts([...concepts, ...(object ?? [])]);
 			setFiles([]);
-			toast({
-				title: 'Concepts generated!',
-				description: 'Scroll down to see your concepts.',
-			});
-			conceptListRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+			if (object && !error) {
+				toast({
+					title: 'Concepts generated!',
+					description: 'Scroll down to see your concepts.',
+				});
+				conceptListRef.current?.scrollIntoView({ behavior: 'smooth' });
+			}
 		},
 	});
 

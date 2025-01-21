@@ -1,9 +1,10 @@
 import { conceptSchema, conceptsSchema } from '@/lib/schemas';
-import { streamObject } from 'ai';
+import { generateId, streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
-import { saveConcepts } from '@/lib/db/queries';
 import { NextRequest } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@/utils/supabase/server';
+import { generateUUID } from '@/lib/utils';
 
 export const maxDuration = 60;
 
@@ -11,13 +12,15 @@ export async function POST(req: NextRequest) {
 	const { files } = await req.json();
 	const firstFile = files[0].data;
 
-	const { userId } = getAuth(req);
+	const { userId } = await auth();
+
+	const supabase = await createClient();
 
 	if (!userId) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	const result = await streamObject({
+	const result = streamObject({
 		model: google('gemini-1.5-pro-latest'),
 		messages: [
 			{
@@ -44,21 +47,16 @@ export async function POST(req: NextRequest) {
 		output: 'array',
 		onFinish: async ({ object }) => {
 			const res = conceptsSchema.safeParse(object);
-			const concepts = res.data;
-			try {
-				await saveConcepts({
-					concepts: concepts || [],
-					userId,
-				});
-			} catch (error) {
-				console.error('Failed to save concepts in database', error);
-			}
+			const concepts =
+				res.data?.map((c) => ({
+					...c,
+					user_id: userId,
+					progress: 0,
+					is_active: false,
+					created_at: new Date(),
+				})) || [];
 
-			if (res.error) {
-				throw new Error(
-					res.error.errors.map((e) => e.message).join('\n')
-				);
-			}
+			await supabase.from('Concept').insert(concepts).throwOnError();
 		},
 	});
 

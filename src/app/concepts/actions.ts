@@ -20,7 +20,7 @@ export async function createChatFromConcept(
 
 	const supabase = await createClient();
 
-	console.log(title, description, conceptId, chatId);
+	console.log('CONCEPTID:', conceptId);
 
 	// Create the chat
 	const { data: chat, error: chatError } = await supabase
