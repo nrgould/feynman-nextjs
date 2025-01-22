@@ -3,7 +3,6 @@
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
 import { Conversation, Message } from '@/lib/types';
-import { generateUUID } from '@/lib/utils';
 import { useTitleStore } from '@/store/store';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
@@ -52,8 +51,8 @@ function ChatWindow({
 		},
 	});
 
-	if (firstMessage) {
-		setMessages([{ role: 'assistant', content: firstMessage, id: '123456789`' }]);
+	if (firstMessage && messages.length === 0) {
+		setMessages([{ role: 'assistant', content: firstMessage, id: '123`' }]);
 	}
 
 	return (

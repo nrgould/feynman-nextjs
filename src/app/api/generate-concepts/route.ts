@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 			{
 				role: 'system',
 				content:
-					'You are a teacher. Your job is to take a document or image which is most likely a practice exam or homework assignment, and create a list of concepts based on the content of the document. Each option should be roughly equal in length. You may have to use OCR to extract the text from the document. You should only return 5 core concepts of the document.',
+					'You are a teacher. Your job is to take a document or image (which is most likely a practice exam or homework assignment), and create a list of concepts that are covered in the document and are most important to the student to learn. Focus on the high-level concepts. Be precise when analyzing the document. Limit your response to 5 core concepts.',
 			},
 			{
 				role: 'user',
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
 		output: 'array',
 		onFinish: async ({ object }) => {
 			const res = conceptsSchema.safeParse(object);
+			console.log(res);
 			const concepts =
 				res.data?.map((c) => ({
 					...c,

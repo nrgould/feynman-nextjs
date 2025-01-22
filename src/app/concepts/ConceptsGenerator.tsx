@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState, useRef } from 'react';
-import { experimental_useObject } from 'ai/react';
+import { experimental_useObject, } from 'ai/react';
 import { conceptsSchema } from '@/lib/schemas';
 import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -41,14 +41,13 @@ export default function ConceptsGenerator({
 		},
 		onFinish: ({ object, error }) => {
 			console.log(object);
-			console.log(error);
 			setConcepts([...concepts, ...(object ?? [])]);
 			setFiles([]);
 
 			if (object && !error) {
 				toast({
 					title: 'Concepts generated!',
-					description: 'Scroll down to see your concepts.',
+					description: 'You may need to refresh to see your new concepts.',
 				});
 				conceptListRef.current?.scrollIntoView({ behavior: 'smooth' });
 			}

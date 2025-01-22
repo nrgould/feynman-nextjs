@@ -108,9 +108,7 @@ const GeneratorCard = ({
 							/>
 							<span className='text-muted-foreground text-center col-span-4 sm:col-span-2'>
 								{partialConcepts
-									? `Generating concept ${
-											partialConcepts.length + 1
-									  } of 5`
+									? `Generating concept ${partialConcepts.length} of 5`
 									: 'Analyzing... this may take a moment'}
 							</span>
 						</div>

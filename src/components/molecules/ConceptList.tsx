@@ -28,6 +28,7 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 	const [concepts, setConcepts] = useState(initialConcepts);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
+	const [statusFilter, setStatusFilter] = useState('all');
 	const [isLoading, setIsLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(initialConcepts.length === 10);
 
@@ -35,18 +36,24 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 
 	const filteredAndSortedConcepts = useMemo(() => {
 		return concepts
-			.filter((concept) =>
-				concept.title.toLowerCase().includes(searchQuery.toLowerCase())
-			)
+			.filter((concept) => {
+				const matchesSearch = concept.title
+					.toLowerCase()
+					.includes(searchQuery.toLowerCase());
+
+				const matchesStatus =
+					statusFilter === 'all'
+						? true
+						: statusFilter === 'active'
+						? concept.is_active
+						: !concept.is_active;
+
+				return matchesSearch && matchesStatus;
+			})
 			.sort((a, b) => {
 				if (sortBy === 'title') {
 					return a.title.localeCompare(b.title);
 				}
-				// if (sortBy === 'progress') {
-				// 	const progressA = a.progress || 0;
-				// 	const progressB = b.progress || 0;
-				// 	return progressB - progressA;
-				// }
 				if (sortBy === 'subject') {
 					const subjectA = a.subject || '';
 					const subjectB = b.subject || '';
@@ -54,7 +61,7 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 				}
 				return 0;
 			});
-	}, [concepts, searchQuery, sortBy]);
+	}, [concepts, searchQuery, sortBy, statusFilter]);
 
 	const loadMoreConcepts = async () => {
 		try {
@@ -84,19 +91,44 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 					onChange={(e) => setSearchQuery(e.target.value)}
 					className='sm:max-w-[300px] bg-white'
 				/>
-				<Select value={sortBy} onValueChange={setSortBy}>
-					<SelectTrigger className='sm:max-w-[200px] text-center bg-white'>
-						<SelectValue placeholder='Sort by' />
-					</SelectTrigger>
-					<SelectContent align='center'>
-						<SelectItem value='title' className='text-center'>
-							Sort by Title
-						</SelectItem>
-						<SelectItem value='topic' className='text-center'>
-							Sort by Topic
-						</SelectItem>
-					</SelectContent>
-				</Select>
+				<div className='flex gap-2'>
+					<Select value={sortBy} onValueChange={setSortBy}>
+						<SelectTrigger className='sm:max-w-[200px] text-center bg-white'>
+							<SelectValue placeholder='Sort by' />
+						</SelectTrigger>
+						<SelectContent align='center'>
+							<SelectItem value='title' className='text-center'>
+								Sort by Title
+							</SelectItem>
+							<SelectItem value='topic' className='text-center'>
+								Sort by Topic
+							</SelectItem>
+						</SelectContent>
+					</Select>
+
+					<Select
+						value={statusFilter}
+						onValueChange={setStatusFilter}
+					>
+						<SelectTrigger className='sm:max-w-[200px] gap-2 text-center bg-white'>
+							<SelectValue placeholder='Filter by status' />
+						</SelectTrigger>
+						<SelectContent align='center'>
+							<SelectItem value='all' className='text-center'>
+								All Concepts
+							</SelectItem>
+							<SelectItem value='active' className='text-center'>
+								Active
+							</SelectItem>
+							<SelectItem
+								value='inactive'
+								className='text-center'
+							>
+								Not Started
+							</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 			</div>
 
 			<ClerkLoading>
@@ -123,7 +155,7 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 								variant='outline'
 								onClick={loadMoreConcepts}
 								disabled={isLoading}
-								className='w-full max-w-sm'
+								className='w-full max-w-[120px]'
 							>
 								{isLoading ? (
 									<>

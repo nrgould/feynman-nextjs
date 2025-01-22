@@ -63,10 +63,7 @@ const ConceptCard = ({
 		const chatId = generateUUID();
 
 		e.stopPropagation();
-		createChatFromConcept(
-			concept,
-			chatId,
-		);
+		createChatFromConcept(concept, chatId);
 	};
 
 	const handleDelete = async (e: React.MouseEvent) => {
@@ -154,7 +151,7 @@ const ConceptCard = ({
 					{concept.description}
 				</CardDescription>
 				{concept.subject && (
-					<p className='line-clamp-2 text-sm text-muted-foreground'>
+					<p className='line-clamp-2 text-xs text-muted-foreground font-medium bg-zinc-50 rounded-md px-2 py-1 inline-block'>
 						{concept.subject}
 					</p>
 				)}

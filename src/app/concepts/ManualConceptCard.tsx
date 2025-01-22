@@ -22,18 +22,22 @@ import { saveConcept } from './actions';
 import { generateUUID } from '@/lib/utils';
 
 const subjects = [
-	'Mathematics',
-	'Physics',
-	'Chemistry',
-	'Biology',
+	'Algebra',
+	'Geometry',
+	'Trigonometry',
+	'Pre-Calculus',
+	'Statistics',
+	'Number Theory',
+	'Functions',
+	'Probability',
+	'Calculus',
+	'Linear Algebra',
+	'Discrete Mathematics',
 	'Computer Science',
-	'History',
-	'Literature',
-	'Other',
+	'Physics',
 ];
 
 const ManualConceptCard = ({
-	userId,
 	setConcepts,
 	concepts,
 }: {
@@ -103,7 +107,7 @@ const ManualConceptCard = ({
 							required
 						>
 							<SelectTrigger>
-								<SelectValue placeholder='Select a subject' />
+								<SelectValue placeholder='Select a topic' />
 							</SelectTrigger>
 							<SelectContent>
 								{subjects.map((subject) => (
