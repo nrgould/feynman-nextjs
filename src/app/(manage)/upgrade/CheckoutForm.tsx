@@ -1,7 +1,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardTitle,
+	CardFooter,
+	CardHeader,
+} from '@/components/ui/card';
 import convertToSubcurrency from '@/lib/convertToSubcurrency';
 import {
 	useElements,
@@ -63,7 +70,7 @@ const CheckoutForm = ({ amount }: { amount: number }) => {
 
 	if (!clientSecret || !stripe || !elements)
 		return (
-			<Card className='pt-8 min-h-[400px]'>
+			<Card className='min-h-[400px]'>
 				<CardContent className='space-y-4'>
 					<Skeleton className='h-20 w-full' />
 					<Skeleton className='h-20 w-full' />
@@ -77,7 +84,15 @@ const CheckoutForm = ({ amount }: { amount: number }) => {
 
 	return (
 		<form onSubmit={handleSubmit}>
-			<Card className='pt-8 min-h-[400px]'>
+			<Card className='min-h-[400px]'>
+				<CardHeader>
+					<CardTitle className='text-3xl font-bold'>
+						Upgrade to Pro
+					</CardTitle>
+					<CardDescription className='text-md'>
+						Unlock unlimited concepts and advanced features
+					</CardDescription>
+				</CardHeader>
 				<CardContent>{clientSecret && <PaymentElement />}</CardContent>
 				<CardFooter className='flex flex-col space-y-2'>
 					<Button
@@ -90,7 +105,7 @@ const CheckoutForm = ({ amount }: { amount: number }) => {
 								<span>Processing...</span>
 							</span>
 						) : (
-							'Upgrade'
+							`Upgrade for $${amount}/mo`
 						)}
 					</Button>
 					{errorMessage && (

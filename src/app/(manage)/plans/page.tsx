@@ -8,7 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import GradientButton from '@/components/atoms/GradientButton';
+import Link from 'next/link';
 
 export default function PricingPage() {
 	return (
@@ -59,8 +59,8 @@ export default function PricingPage() {
 						</ul>
 					</CardContent>
 					<CardFooter>
-						<Button className='w-full' variant='secondary'>
-							Get Started
+						<Button className='w-full' variant='secondary' asChild>
+							<Link href='/concepts'>Get Started</Link>
 						</Button>
 					</CardFooter>
 				</Card>
@@ -110,7 +110,9 @@ export default function PricingPage() {
 						</ul>
 					</CardContent>
 					<CardFooter>
-						<Button className='w-full'>Upgrade to Pro</Button>
+						<Button className='w-full' asChild>
+							<Link href='/upgrade'>Upgrade to Pro</Link>
+						</Button>
 					</CardFooter>
 				</Card>
 

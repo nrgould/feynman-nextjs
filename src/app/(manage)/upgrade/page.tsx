@@ -15,11 +15,10 @@ const stripePromise = loadStripe(
 );
 
 const Upgrade = () => {
-	const amount = 5;
+	const amount = 8;
 
 	return (
 		<div className='flex flex-col justify-center items-center h-screen'>
-			<h1 className='text-2xl font-bold'>Upgrade to Pro</h1>
 			<div className='w-full md:w-2/3 lg:w-1/3 xl:w-1/4 mx-auto p-4'>
 				<Elements
 					stripe={stripePromise}
