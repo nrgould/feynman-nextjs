@@ -31,16 +31,16 @@ function Header() {
 			<div className='flex flex-row items-center justify-between gap-2'>
 				<ClerkLoaded>
 					<div className='flex flex-row items-center justify-between gap-2'>
-						<GradientButton>
-							<Link href='/#waitlist'>Early Access</Link>
-						</GradientButton>
-						{/* <SignedOut>
-							<SignInButton>
+						<SignedOut>
+							<GradientButton>
+								<Link href='/#waitlist'>Early Access</Link>
+							</GradientButton>
+							{/* <SignInButton>
 								<Button variant='outline' size='sm'>
 									Login
 								</Button>
-							</SignInButton>
-						</SignedOut> */}
+							</SignInButton> */}
+						</SignedOut>
 						<SignedIn>
 							<SignOutButton>
 								<Button variant='outline' size='sm'>

@@ -26,7 +26,10 @@ export default async function Home() {
 				<div className='max-w-screen'>
 					<StartLearning />
 				</div>
-				<div id='waitlist' className='flex items-center justify-center w-full mx-auto pb-20'>
+				<div
+					id='waitlist'
+					className='flex items-center justify-center w-full mx-auto pb-20'
+				>
 					<Waitlist />
 				</div>
 
@@ -35,7 +38,7 @@ export default async function Home() {
 						<Title className='text-center text-white pb-0'>
 							Start Your Learning Journey.
 						</Title>
-						<Link href='/concepts'>
+						<Link href='#waitlist'>
 							<Button
 								variant='secondary'
 								className='hover:scale-105 transition-all duration-300 w-full md:w-auto p-6 font-semibold'
