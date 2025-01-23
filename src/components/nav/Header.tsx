@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { SidebarTrigger, useSidebar } from '../ui/sidebar';
-import { usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { useTitleStore } from '@/store/store';
@@ -14,20 +13,16 @@ import {
 	SignInButton,
 	SignOutButton,
 } from '@clerk/nextjs';
+import GradientButton from '../atoms/GradientButton';
+import Link from 'next/link';
 
 function Header() {
-	const pathname = usePathname();
 	const { isMobile } = useSidebar();
 	const { title } = useTitleStore();
 
 	return (
 		<header className='sticky top-0 flex shrink-0 items-center justify-between gap-2 border-b bg-background p-4 bg-white z-50 h-[3rem]'>
 			<div className='flex flex-row items-center justify-between'>
-				{/* {pathname !== '/' && (
-					<Link href='..' className='no-icon'>
-						<ChevronLeft size={20} />
-					</Link>
-				)} */}
 				{isMobile && <SidebarTrigger className='-ml-1 mr-2' />}
 				<div className='w-full flex flex-row items-center justify-between'>
 					<h1 className='font-extrabold text-xl'>{title}</h1>
@@ -36,13 +31,16 @@ function Header() {
 			<div className='flex flex-row items-center justify-between gap-2'>
 				<ClerkLoaded>
 					<div className='flex flex-row items-center justify-between gap-2'>
-						<SignedOut>
+						<GradientButton>
+							<Link href='/#waitlist'>Early Access</Link>
+						</GradientButton>
+						{/* <SignedOut>
 							<SignInButton>
 								<Button variant='outline' size='sm'>
 									Login
 								</Button>
 							</SignInButton>
-						</SignedOut>
+						</SignedOut> */}
 						<SignedIn>
 							<SignOutButton>
 								<Button variant='outline' size='sm'>

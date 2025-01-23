@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-const isPublicRoute = createRouteMatcher(['/', '/plans']);
+const isPublicRoute = createRouteMatcher(['/', '/plans', '/api/sample-chat']);
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -28,6 +28,7 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
+	// matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 	matcher: [
 		// Skip Next.js internals and all static files, unless found in search params
 		'/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',

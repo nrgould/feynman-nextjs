@@ -94,14 +94,13 @@ const Hero = () => {
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<Link href='/concepts'>
-									<Button
-										size='lg'
-										className='sm:w-full md:w-auto font-semibold whitespace-nowrap p-6'
-									>
-										Start Learning
-									</Button>
-								</Link>
+								<Button
+									size='lg'
+									asChild
+									className='sm:w-full md:w-auto font-semibold whitespace-nowrap p-6'
+								>
+									<Link href='#waitlist'>Start Learning</Link>
+								</Button>
 							</TooltipTrigger>
 							<TooltipContent className='bg-white text-black px-4 py-3'>
 								<p className='text-lg font-semibold'>

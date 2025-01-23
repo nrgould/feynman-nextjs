@@ -1,26 +1,26 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
+import { clerkClient, currentUser } from '@clerk/nextjs/server';
 
 export const completeOnboarding = async (formData: FormData) => {
 	const client = await clerkClient();
 	const supabase = await createClient();
 
-	const { userId } = await auth();
 	const user = await currentUser();
+	const userId = user?.id;
 
 	if (!userId || !user) {
 		return { message: 'No Logged In User' };
 	}
-
-	console.log('user: ', user);
 
 	try {
 		// // Update Clerk user metadata
 		await client.users.updateUser(userId, {
 			publicMetadata: {
 				onboardingComplete: true,
+				account_type: 'free',
+				concept_limit: 3,
 			},
 		});
 

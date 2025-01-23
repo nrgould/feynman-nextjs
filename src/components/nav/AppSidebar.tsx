@@ -27,11 +27,11 @@ const signedInItems = [
 		url: '/concepts',
 		icon: Brain,
 	},
-	{
-		title: 'Learn',
-		url: '/learn',
-		icon: Blocks,
-	},
+	// {
+	// 	title: 'Learn',
+	// 	url: '/learn',
+	// 	icon: Blocks,
+	// },
 	{
 		title: 'Settings',
 		url: '/settings',
@@ -48,11 +48,11 @@ const signedOutItems = [
 ];
 
 const resourceItems = [
-	{
-		title: 'Blog',
-		url: '/blog',
-		icon: BookOpen,
-	},
+	// {
+	// 	title: 'Blog',
+	// 	url: '/blog',
+	// 	icon: BookOpen,
+	// },
 	{
 		title: 'Report a bug',
 		url: 'https://rainy-guppy-1b5.notion.site/17516e8b0b9b801e8e2cf6534c065ded?pvs=105',
