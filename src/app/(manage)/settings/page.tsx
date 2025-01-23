@@ -11,8 +11,6 @@ export default async function SettingsPage() {
 		return redirect('/sign-in');
 	}
 
-	// const userData = await getUserProfile(session.user.sid);
-
 	return (
 		<ScrollArea className='h-dvh'>
 			<Subtitle className='pt-4 pl-4 font-bold mb-0'>Settings</Subtitle>
