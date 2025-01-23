@@ -10,7 +10,7 @@ import StartLearning from '@/components/organisms/StartLearning';
 import HomeSampleChat from '@/components/organisms/HomeSampleChat';
 import FeaturesSection from '@/components/organisms/Features';
 import Link from 'next/link';
- 
+
 export default async function Home() {
 	return (
 		<div>
@@ -22,11 +22,11 @@ export default async function Home() {
 				{/* <MoreBenefits /> */}
 				<FeaturesSection />
 				<HomeSampleChat />
-				<Testimonials />
+				{/* <Testimonials /> */}
 				<div className='max-w-screen'>
 					<StartLearning />
 				</div>
-				<div className='flex items-center justify-center w-full mx-auto pb-20'>
+				<div id='waitlist' className='flex items-center justify-center w-full mx-auto pb-20'>
 					<Waitlist />
 				</div>
 
@@ -36,7 +36,10 @@ export default async function Home() {
 							Start Your Learning Journey.
 						</Title>
 						<Link href='/concepts'>
-							<Button variant='secondary' className='hover:scale-105 transition-all duration-300 w-full md:w-auto p-6 font-semibold'>
+							<Button
+								variant='secondary'
+								className='hover:scale-105 transition-all duration-300 w-full md:w-auto p-6 font-semibold'
+							>
 								<Shapes className='h-4 w-4' />
 								Start Learning
 							</Button>

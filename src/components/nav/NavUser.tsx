@@ -13,9 +13,9 @@ export function NavUser() {
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
-				<SignedOut>
+				{/* <SignedOut>
 					<SignInButton />
-				</SignedOut>
+				</SignedOut> */}
 				<SignedIn>
 					<div className='flex flex-row items-center justify-center'>
 						<LimitedConcepts />
