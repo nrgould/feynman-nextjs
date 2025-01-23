@@ -4,19 +4,21 @@ import { createClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { generateFirstMessage } from '../chat/[id]/actions';
 
 export async function createChatFromConcept(
 	concept: {
 		title: string;
 		description: string;
 		id: string;
+		subject: string;
 	},
 	chatId: string
 ) {
 	const { userId } = await auth();
 	if (!userId) throw new Error('User not found');
 
-	const { title, description, id: conceptId } = concept;
+	const { title, description, id: conceptId, subject } = concept;
 	const supabase = await createClient();
 
 	// Create the chat
@@ -48,6 +50,8 @@ export async function createChatFromConcept(
 			error: chatError || updateError,
 		};
 	}
+
+	await generateFirstMessage(title, description, chatId, subject);
 
 	redirect(`/chat/${chatId}`);
 }

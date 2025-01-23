@@ -13,22 +13,16 @@ function ChatWindow({
 	initialMessages,
 	userId,
 	chat,
-	firstMessage,
 }: {
 	chat: Conversation;
 	initialMessages: Message[];
 	userId: string;
-	firstMessage?: string;
 }) {
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 	const { mutate } = useSWRConfig();
 	const { setTitle } = useTitleStore();
 
 	const { id: chatId, title, description } = chat;
-
-	useEffect(() => {
-		setTitle(title);
-	}, [title, setTitle]);
 
 	const {
 		messages,
@@ -51,9 +45,13 @@ function ChatWindow({
 		},
 	});
 
-	if (firstMessage && messages.length === 0) {
-		setMessages([{ role: 'assistant', content: firstMessage, id: '123`' }]);
-	}
+	useEffect(() => {
+		setTitle(title);
+
+		return () => {
+			setTitle('Feynman Learning');
+		};
+	}, [title, setTitle]);
 
 	return (
 		<div className='relative flex flex-col min-w-0 max-h-[97vh] bg-background'>

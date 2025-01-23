@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import Loading from '../ChatLoading';
 import { currentUser } from '@clerk/nextjs/server';
 import { createClient } from '@/utils/supabase/server';
+import { generateUUID } from '@/lib/utils';
 
 type Params = Promise<{ id: string }>;
 
@@ -37,21 +38,10 @@ export default async function ChatPage(props: { params: Params }) {
 
 	const orderedMessages = messages ? [...messages].reverse() : [];
 
-	let firstMessage;
-
-	if (messages && messages.length === 0) {
-		firstMessage = await generateFirstMessage(
-			chat.title,
-			chat.description,
-			chatId
-		);
-	}
-
 	return (
 		<div>
 			<Suspense fallback={<Loading />}>
 				<ChatWindow
-					firstMessage={firstMessage?.text}
 					chat={chat}
 					initialMessages={orderedMessages}
 					userId={userId}

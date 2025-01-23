@@ -52,20 +52,23 @@ export async function fetchMoreMessages({
 export async function generateFirstMessage(
 	title: string,
 	description: string,
-	chatId: string
+	chatId: string,
+	subject: string
 ) {
 	const supabase = await createClient();
 
 	const result = await generateText({
 		model: openai('gpt-4o-mini-2024-07-18'),
 		system: systemPrompt,
-		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. If there is no title or description, first prompt me about what concept I want to learn about.`,
+		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} in the subject of ${subject} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. This is the first message, do not act like you are responding to something.`,
 	});
+
+	const id = generateUUID();
 
 	await supabase
 		.from('Message')
 		.insert({
-			id: generateUUID(),
+			id,
 			chat_id: chatId,
 			content: result.text,
 			role: 'assistant',
