@@ -6,7 +6,6 @@ const testimonials = [
 	{
 		name: 'Anna',
 		title: 'Student',
-		image: '/placeholder.svg?height=40&width=40',
 		content:
 			"We've seen a 40% increase in productivity since implementing this solution. The analytics features are particularly valuable for our reporting.",
 	},
@@ -37,10 +36,10 @@ export default function TestimonialsSection() {
 							<CardHeader className='pb-0'>
 								<div className='flex items-center gap-4'>
 									<Avatar>
-										<AvatarImage
+										{/* <AvatarImage
 											alt={testimonial.name}
 											src={testimonial.image}
-										/>
+										/> */}
 										<AvatarFallback>
 											{testimonial.name
 												.split(' ')

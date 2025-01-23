@@ -18,7 +18,6 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import {
 	Calculator,
@@ -35,7 +34,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
-import { completeOnboarding } from '@/app/(manage)/onboarding/_actions';
+import { completeOnboarding } from '@/app/(manage)/onboarding/actions';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 
