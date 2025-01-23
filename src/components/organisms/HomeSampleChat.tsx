@@ -199,9 +199,9 @@ function HomeSampleChat() {
 							<p className='text-zinc-600 mb-2'>
 								Sign up to unlock unlimited conversations
 							</p>
-							<Link href='/concepts'>
+							<Link href='#waitlist'>
 								<GradientButton>
-									Sign up for free
+									Join the waitlist
 								</GradientButton>
 							</Link>
 						</div>
