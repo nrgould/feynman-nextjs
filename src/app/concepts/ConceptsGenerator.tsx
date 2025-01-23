@@ -158,7 +158,7 @@ export default function ConceptsGenerator({
 					Your Concepts
 				</h2>
 				<Suspense fallback={<ConceptLoader />}>
-					<ConceptList concepts={concepts} />
+					<ConceptList concepts={concepts} setConcepts={setConcepts} />
 				</Suspense>
 			</div>
 		</div>

@@ -24,13 +24,19 @@ import { ClerkLoading } from '@clerk/nextjs';
 import { getUserConcepts } from '@/app/concepts/actions';
 import { Button } from '@/components/ui/button';
 
-function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
-	const [concepts, setConcepts] = useState(initialConcepts);
+function ConceptList({
+	concepts,
+	setConcepts,
+}: {
+	concepts: any[];
+	setConcepts: React.Dispatch<React.SetStateAction<any[]>>;
+}) {
+	// const [concepts, setConcepts] = useState(initialConcepts);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
 	const [statusFilter, setStatusFilter] = useState('all');
-	const [isLoading, setIsLoading] = useState(false);
-	const [hasMore, setHasMore] = useState(initialConcepts.length === 10);
+	const [loading, setLoading] = useState(false);
+	const [hasMore, setHasMore] = useState(concepts.length === 10);
 
 	const conceptLimitReached = false;
 
@@ -65,7 +71,7 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 
 	const loadMoreConcepts = async () => {
 		try {
-			setIsLoading(true);
+			setLoading(true);
 			const offset = concepts.length;
 			const limit = 10; // Or whatever batch size you prefer
 			const newConcepts = await getUserConcepts(limit, offset);
@@ -78,7 +84,7 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 		} catch (error) {
 			console.error('Error loading more concepts:', error);
 		} finally {
-			setIsLoading(false);
+			setLoading(false);
 		}
 	};
 
@@ -154,10 +160,10 @@ function ConceptList({ concepts: initialConcepts }: { concepts: any[] }) {
 							<Button
 								variant='outline'
 								onClick={loadMoreConcepts}
-								disabled={isLoading}
+								disabled={loading}
 								className='w-full max-w-[120px]'
 							>
-								{isLoading ? (
+								{loading ? (
 									<>
 										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 										Loading...

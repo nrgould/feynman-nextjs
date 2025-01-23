@@ -10,8 +10,6 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { createChatFromConcept } from '../../app/concepts/actions';
-import { Progress } from '@/components/ui/progress';
-import { Label } from '@/components/ui/label';
 import { redirect } from 'next/navigation';
 import {
 	Ellipsis,
@@ -20,10 +18,10 @@ import {
 	Plus,
 	Pencil,
 	RotateCcw,
-	Waypoints,
 	ThumbsUp,
 	ThumbsDown,
 	Sparkles,
+	Loader2,
 } from 'lucide-react';
 import {
 	DropdownMenu,
@@ -45,6 +43,8 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 } from '@/components/ui/alert-dialog';
+import { useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 const ConceptCard = ({
 	concept,
@@ -53,8 +53,12 @@ const ConceptCard = ({
 	concept: any;
 	conceptLimitReached: boolean;
 }) => {
-	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+	const [loading, setLoading] = useState(false);
+
+	const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+		setLoading(true);
 		if (concept.is_active) {
+			setLoading(false);
 			redirect(`/chat/${concept.chat_id}`);
 		}
 
@@ -63,17 +67,18 @@ const ConceptCard = ({
 		const chatId = generateUUID();
 
 		e.stopPropagation();
-		createChatFromConcept(concept, chatId);
+		const { success, error } = await createChatFromConcept(concept, chatId);
+		if (error) {
+			toast({
+				title: 'Failed to create chat',
+				description: 'Try reloading the page',
+				variant: 'destructive',
+			});
+		}
+		setLoading(false);
 	};
 
-	const handleDelete = async (e: React.MouseEvent) => {
-		// try {
-		// 	await deleteConversationAction(conversation._id);
-		// 	removePointerEventsFromBody();
-		// } catch (error) {
-		// 	console.error('Error deleting conversation:', error);
-		// }
-	};
+	const handleDelete = async (e: React.MouseEvent) => {};
 
 	const progress = concept.progress * 100 || 0;
 	const active = concept.is_active || false;
@@ -157,21 +162,21 @@ const ConceptCard = ({
 				)}
 			</CardContent>
 			<CardFooter className='flex justify-between items-end flex-1'>
-				{/* <div className='flex items-center gap-2 w-1/3 mr-2 p-2 border-2 border-gray-200 rounded-md font-medium'>
-					<Label>{progress}%</Label>
-					<Progress
-						color='secondary'
-						className='h-2'
-						value={progress}
-					/>
-				</div> */}
 				<Button
 					variant={active ? 'secondary' : 'outline'}
 					onClick={handleClick}
 					className='w-1/3'
 					disabled={isDisabled}
 				>
-					{active ? 'Continue' : 'Start'}
+					{loading ? (
+						<span className='flex items-center space-x-2'>
+							<Loader2 className='h-4 w-4 animate-spin' />
+						</span>
+					) : active ? (
+						'Continue'
+					) : (
+						'Start'
+					)}
 				</Button>
 			</CardFooter>
 		</Card>

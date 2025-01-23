@@ -16,7 +16,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Brain } from 'lucide-react';
+import { Brain, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { saveConcept } from './actions';
 import { generateUUID } from '@/lib/utils';
@@ -60,18 +60,21 @@ const ManualConceptCard = ({
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
 	const [subject, setSubject] = useState('');
+	const [loading, setLoading] = useState(false);
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		setLoading(true);
 		e.preventDefault();
 		if (title && description && subject) {
 			const id = generateUUID();
 
+			await saveConcept({ title, description, subject, id });
 			setConcepts([{ title, description, subject, id }, ...concepts]);
 			setTitle('');
 			setDescription('');
 			setSubject('');
-			saveConcept({ title, description, subject, id });
 		}
+		setLoading(false);
 	};
 
 	return (
@@ -132,7 +135,13 @@ const ManualConceptCard = ({
 						className='w-full'
 						disabled={!title || !description || !subject}
 					>
-						Create
+						{loading ? (
+							<span className='flex items-center space-x-2'>
+								<Loader2 className='h-4 w-4 animate-spin' />
+							</span>
+						) : (
+							'Create'
+						)}
 					</Button>
 				</form>
 			</CardContent>
