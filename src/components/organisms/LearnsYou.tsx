@@ -81,6 +81,12 @@ export default function AILearningSection() {
 						</CardContent>
 					</Card>
 				</div>
+
+				{/* New Headline */}
+				<h3 className='text-2xl font-semibold mt-12 text-center'>
+					Like a personal tutor—
+					<span className='italic'>without the hefty price tag.</span>
+				</h3>
 			</div>
 		</section>
 	);

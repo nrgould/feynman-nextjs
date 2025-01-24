@@ -11,6 +11,9 @@ import HomeSampleChat from '@/components/organisms/HomeSampleChat';
 import FeaturesSection from '@/components/organisms/Features';
 import Link from 'next/link';
 import Footer from '@/components/organisms/Footer';
+import TextAside from '@/components/organisms/TextAside';
+import LinearPath from '@/components/organisms/LinearPath';
+import Steps from '@/components/organisms/Home/Steps';
 
 export default async function Home() {
 	return (
@@ -21,23 +24,30 @@ export default async function Home() {
 					<LearnsYou />
 				</div>
 				<FeaturesSection />
+				<Steps />
 				<HomeSampleChat />
 				{/* <Testimonials /> */}
 				<div className='max-w-screen'>
 					<StartLearning />
 				</div>
+				<LinearPath />
 				<div
 					id='waitlist'
 					className='flex items-center justify-center w-full mx-auto pb-20'
 				>
 					<Waitlist />
 				</div>
-
+				<TextAside />
 				<div className='w-full flex-1 pt-40 pb-40 px-4 bg-gradient-to-br from-emerald-400 from-80% to-emerald-500'>
 					<div className='space-y-12 mx-auto flex flex-col items-center justify-center w-full md:w-1/2'>
 						<Title className='text-center text-white pb-0'>
 							Start Your Learning Journey.
 						</Title>
+						<h3 className='text-center text-2xl font-semibold text-white pb-0'>
+							Dont fall further behind—give yourself the tools you
+							need to succeed. Start now and see the difference in
+							just 15 minutes a day.
+						</h3>
 						<Link href='#waitlist'>
 							<Button
 								variant='secondary'

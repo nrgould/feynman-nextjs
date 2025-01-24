@@ -190,9 +190,9 @@ export default function StartLearning() {
 
 				<div className='flex justify-center mt-12'>
 					<Link href='#waitlist'>
-						<GradientButton size='lg' className='py-6'>
+						<Button size='lg' variant='outline' className='py-6'>
 							Start Exploring
-						</GradientButton>
+						</Button>
 					</Link>
 				</div>
 			</div>
