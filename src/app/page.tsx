@@ -10,6 +10,7 @@ import StartLearning from '@/components/organisms/StartLearning';
 import HomeSampleChat from '@/components/organisms/HomeSampleChat';
 import FeaturesSection from '@/components/organisms/Features';
 import Link from 'next/link';
+import Footer from '@/components/organisms/Footer';
 
 export default async function Home() {
 	return (
@@ -19,7 +20,6 @@ export default async function Home() {
 				<div className='mx-auto'>
 					<LearnsYou />
 				</div>
-				{/* <MoreBenefits /> */}
 				<FeaturesSection />
 				<HomeSampleChat />
 				{/* <Testimonials /> */}
@@ -49,6 +49,7 @@ export default async function Home() {
 						</Link>
 					</div>
 				</div>
+				<Footer />
 			</ScrollArea>
 		</div>
 	);
