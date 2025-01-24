@@ -1,19 +1,19 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Input } from '../ui/input';
+import { Input } from '../../ui/input';
 import { useChat } from 'ai/react';
-import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Button } from '../ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '../../ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
+import { Button } from '../../ui/button';
 import { RotateCcw, Send, TestTube2 } from 'lucide-react';
-import { Label } from '../ui/label';
-import { ScrollArea } from '../ui/scroll-area';
+import { Label } from '../../ui/label';
+import { ScrollArea } from '../../ui/scroll-area';
 import { motion } from 'framer-motion';
-import { Markdown } from '../atoms/Markdown';
+import { Markdown } from '../../atoms/Markdown';
 import { MoonLoader } from 'react-spinners';
-import ColorSpan from '../atoms/ColorSpan';
-import GradientButton from '../atoms/GradientButton';
+import ColorSpan from '../../atoms/ColorSpan';
+import GradientButton from '../../atoms/GradientButton';
 import Link from 'next/link';
 
 const MAX_MESSAGES = 15;

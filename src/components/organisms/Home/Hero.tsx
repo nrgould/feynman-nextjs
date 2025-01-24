@@ -1,7 +1,7 @@
 import React from 'react';
-import Title from '../atoms/Title';
-import Subtitle from '../atoms/Subtitle';
-import { Button } from '../ui/button';
+import Title from '../../atoms/Title';
+import Subtitle from '../../atoms/Subtitle';
+import { Button } from '../../ui/button';
 import Link from 'next/link';
 import {
 	SquareFunction,
@@ -16,13 +16,13 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '../ui/select';
+} from '../../ui/select';
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
-} from '../ui/tooltip';
+} from '../../ui/tooltip';
 import Image from 'next/image';
 
 const Hero = () => {

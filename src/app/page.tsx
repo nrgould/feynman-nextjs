@@ -1,18 +1,18 @@
 import Title from '@/components/atoms/Title';
-import Hero from '@/components/organisms/Hero';
+import Hero from '@/components/organisms/Home/Hero';
 import { Waitlist } from '@clerk/nextjs';
 import Testimonials from '@/components/organisms/Testimonials';
-import LearnsYou from '@/components/organisms/LearnsYou';
+import LearnsYou from '@/components/organisms/Home/LearnsYou';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Shapes } from 'lucide-react';
 import StartLearning from '@/components/organisms/StartLearning';
-import HomeSampleChat from '@/components/organisms/HomeSampleChat';
-import FeaturesSection from '@/components/organisms/Features';
+import HomeSampleChat from '@/components/organisms/Home/HomeSampleChat';
+import FeaturesSection from '@/components/organisms/Home/Features';
 import Link from 'next/link';
-import Footer from '@/components/organisms/Footer';
+import Footer from '@/components/organisms/Home/Footer';
 import TextAside from '@/components/organisms/TextAside';
-import LinearPath from '@/components/organisms/LinearPath';
+import LinearPath from '@/components/organisms/Home/LinearPath';
 import Steps from '@/components/organisms/Home/Steps';
 
 export default async function Home() {
@@ -38,7 +38,7 @@ export default async function Home() {
 					<Waitlist />
 				</div>
 				<TextAside />
-				<div className='w-full flex-1 pt-40 pb-40 px-4 bg-gradient-to-br from-emerald-400 from-80% to-emerald-500'>
+				<div className='w-full flex-1 py-24 px-4 bg-gradient-to-br from-emerald-400 from-80% to-emerald-500'>
 					<div className='space-y-12 mx-auto flex flex-col items-center justify-center w-full md:w-1/2'>
 						<Title className='text-center text-white pb-0'>
 							Start Your Learning Journey.

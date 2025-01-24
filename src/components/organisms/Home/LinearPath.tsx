@@ -1,14 +1,14 @@
 import React from 'react';
 import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 import Link from 'next/link';
 import * as motion from 'motion/react-client';
-import ColoredIcon from '../atoms/ColoredIcon';
+import ColoredIcon from '../../atoms/ColoredIcon';
 
 function LinearPath() {
 	return (
-		<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-24 px-4 mx-auto'>
+		<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-12 px-4 mx-auto'>
 			<div className='flex-1 max-w-md space-y-6'>
 				<ColoredIcon icon={ArrowUpRight} color='emerald' size='sm' />
 
