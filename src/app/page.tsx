@@ -55,7 +55,7 @@ export default async function Home() {
 						</Link>
 					</div>
 				</div>
-				<Footer />
+				{/* <Footer /> */}
 			</ScrollArea>
 		</div>
 	);
