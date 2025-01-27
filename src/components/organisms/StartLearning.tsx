@@ -94,7 +94,7 @@ export default function StartLearning() {
 				<div className='flex flex-col items-center justify-center space-y-4 text-center'>
 					<div className='space-y-2  max-w-2xl'>
 						<h2 className='text-3xl font-bold tracking-tighter sm:text-5xl'>
-							Start Learning <ColorSpan>anything</ColorSpan> in
+							Start learning <ColorSpan>anything</ColorSpan> in
 							Seconds
 						</h2>
 						<p className='max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400'>

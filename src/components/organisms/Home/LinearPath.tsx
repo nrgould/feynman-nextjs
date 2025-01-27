@@ -12,13 +12,13 @@ function LinearPath() {
 			<div className='flex-1 max-w-md space-y-6'>
 				<ColoredIcon icon={ArrowUpRight} color='emerald' size='sm' />
 
-				<h2 className='text-3xl md:text-4xl font-bold leading-loose'>
+				<h2 className='text-3xl md:text-4xl font-bold leading-loose tracking-tighter'>
 					<span className='relative'>
 						<span>A linear</span>
 						<motion.span
-							className='absolute -bottom-1 left-[1.2ch] h-[5px] bg-emerald-400'
+							className='absolute -bottom-1 left-[1.15ch] h-[5px] bg-emerald-400'
 							initial={{ width: 0 }}
-							whileInView={{ width: '3.8ch' }}
+							whileInView={{ width: '3.3ch' }}
 							transition={{
 								duration: 0.8,
 								ease: 'easeOut',

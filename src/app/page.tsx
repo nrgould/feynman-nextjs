@@ -14,6 +14,8 @@ import Footer from '@/components/organisms/Home/Footer';
 import TextAside from '@/components/organisms/TextAside';
 import LinearPath from '@/components/organisms/Home/LinearPath';
 import Steps from '@/components/organisms/Home/Steps';
+import MicroLearning from '@/components/organisms/Home/MicroLearning';
+import HomeWaitlist from '@/components/organisms/Home/HomeWaitlist';
 
 export default async function Home() {
 	return (
@@ -27,16 +29,10 @@ export default async function Home() {
 				<Steps />
 				<HomeSampleChat />
 				{/* <Testimonials /> */}
-				<div className='max-w-screen'>
-					<StartLearning />
-				</div>
 				<LinearPath />
-				<div
-					id='waitlist'
-					className='flex items-center justify-center w-full mx-auto pb-20'
-				>
-					<Waitlist />
-				</div>
+				<MicroLearning />
+				<HomeWaitlist />
+				<StartLearning />
 				<TextAside />
 				<div className='w-full flex-1 py-24 px-4 bg-gradient-to-br from-emerald-400 from-80% to-emerald-500'>
 					<div className='space-y-12 mx-auto flex flex-col items-center justify-center w-full md:w-1/2'>

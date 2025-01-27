@@ -58,16 +58,8 @@ export default function Footer() {
 								</Link>
 							</li>
 							<li>
-								<Link
-									href='/pricing'
-									className='hover:underline'
-								>
+								<Link href='/plans' className='hover:underline'>
 									Pricing
-								</Link>
-							</li>
-							<li>
-								<Link href='/faq' className='hover:underline'>
-									FAQ
 								</Link>
 							</li>
 						</ul>
@@ -157,14 +149,31 @@ export default function Footer() {
 				{/* Divider */}
 				<div className='my-8 border-t border-gray-700'></div>
 
-				{/* Subscribe Section */}
+				{/* Subscribe Section and Attribution */}
 				<div className='flex flex-col md:flex-row items-center justify-between'>
-					<p className='text-center md:text-left mb-4 md:mb-0'>
-						&copy; {new Date().getFullYear()} Feynman Learning. All
-						rights reserved.
-					</p>
+					<div className='space-y-2 text-center md:text-left mb-4 md:mb-0'>
+						<p>
+							&copy; {new Date().getFullYear()} Feynman Learning.
+							All rights reserved.
+						</p>
+						<p className='text-sm text-gray-400'>
+							Images Source:{' '}
+							<Link
+								href='https://popsy.co'
+								target='_blank'
+								rel='noopener noreferrer'
+								className='hover:text-gray-300 underline'
+							>
+								popsy.co
+							</Link>
+						</p>
+					</div>
 					<div>
-						<Button asChild variant='secondary' className='px-6 py-2'>
+						<Button
+							asChild
+							variant='secondary'
+							className='px-6 py-2'
+						>
 							<Link href='/subscribe'>Subscribe</Link>
 						</Button>
 					</div>

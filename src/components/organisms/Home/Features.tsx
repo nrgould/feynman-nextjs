@@ -49,15 +49,15 @@ export default function FeaturesSection() {
 			</div>
 
 			<div className='container relative px-4 mx-auto'>
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.8, ease: 'easeOut' }}
-					className='max-w-2xl mx-auto text-center space-y-6'
-				>
-					<h2 className='text-3xl md:text-5xl font-bold'>
+				<motion.div className='max-w-2xl mx-auto text-center space-y-6'>
+					<motion.h2
+						initial={{ opacity: 0, y: 20 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.8, ease: 'easeOut' }}
+						className='text-3xl md:text-5xl font-bold'
+					>
 						<ColorSpan>Concepts</ColorSpan>, Not Random Memorization
-					</h2>
+					</motion.h2>
 					<p className='text-2xl text-zinc-700 font-medium'>
 						Math just clicks when you understand it.
 					</p>
