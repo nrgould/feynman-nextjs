@@ -7,6 +7,12 @@ export const completeOnboarding = async (formData: FormData) => {
 	const client = await clerkClient();
 	const supabase = await createClient();
 
+	// Add debug logging for Supabase client
+	if (!supabase) {
+		console.error('Supabase client is null or undefined');
+		return { message: 'Error initializing database connection' };
+	}
+
 	const user = await currentUser();
 	const userId = user?.id;
 
@@ -15,7 +21,7 @@ export const completeOnboarding = async (formData: FormData) => {
 	}
 
 	try {
-		// // Update Clerk user metadata
+		// Update Clerk user metadata
 		await client.users.updateUser(userId, {
 			publicMetadata: {
 				onboardingComplete: true,
@@ -23,8 +29,11 @@ export const completeOnboarding = async (formData: FormData) => {
 				concept_limit: 3,
 			},
 		});
+		
+		console.log('SUPABASE CLIENT: ', supabase);
 
 		// Insert user into Supabase
+		console.log('INSERTING USER INTO SUPABASE');
 		const { data, error } = await supabase
 			.from('User')
 			.insert({
@@ -50,7 +59,10 @@ export const completeOnboarding = async (formData: FormData) => {
 			.select()
 			.single();
 
-		if (error) throw error;
+		if (error) {
+			console.error('Supabase error:', error);
+			throw error;
+		}
 
 		return { message: 'User created successfully', data };
 	} catch (e) {

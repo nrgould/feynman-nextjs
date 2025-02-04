@@ -44,8 +44,9 @@ const Hero = () => {
 					</span>
 				</Title>
 				<Subtitle className='max-w-2xl text-zinc-700 font-bold tracking-tight'>
-					AI-powered tools help you focus, retain information, and
-					crush the idea that &apos;math isn&apos;t for me.&apos;
+					AI-powered learning platform help you focus, retain
+					information, and crush the idea that &apos;math isn&apos;t
+					for me.&apos;
 				</Subtitle>
 				<div className='flex gap-4 w-full max-w-[400px] flex-wrap'>
 					<Select>
