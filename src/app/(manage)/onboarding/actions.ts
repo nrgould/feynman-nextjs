@@ -13,24 +13,37 @@ export const completeOnboarding = async (formData: FormData) => {
 		return { message: 'Error initializing database connection' };
 	}
 
+	// Check if User table exists
+	const { data: tableCheck, error: tableError } = await supabase
+		.from('User')
+		.select('*')
+		.limit(1);
+
+	if (tableError) {
+		console.error('User table does not exist:', tableError);
+		return { message: 'Database table not found' };
+	}
+
 	const user = await currentUser();
 	const userId = user?.id;
+
+	console.log('USER: ', user);
 
 	if (!userId || !user) {
 		return { message: 'No Logged In User' };
 	}
 
+	console.log('FORMDATA: ', formData);
+
 	try {
 		// Update Clerk user metadata
-		await client.users.updateUser(userId, {
-			publicMetadata: {
-				onboardingComplete: true,
-				account_type: 'free',
-				concept_limit: 3,
-			},
-		});
-		
-		console.log('SUPABASE CLIENT: ', supabase);
+		// await client.users.updateUser(userId, {
+		// 	publicMetadata: {
+		// 		onboardingComplete: true,
+		// 		account_type: 'free',
+		// 		concept_limit: 3,
+		// 	},
+		// });
 
 		// Insert user into Supabase
 		console.log('INSERTING USER INTO SUPABASE');
