@@ -1,9 +1,11 @@
 import { conceptSchema, conceptsSchema } from '@/lib/schemas';
 import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
+import { anthropic } from '@ai-sdk/anthropic';
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/utils/supabase/server';
+import { generateUUID } from '@/lib/utils';
 
 export const maxDuration = 60;
 
@@ -20,7 +22,8 @@ export async function POST(req: NextRequest) {
 	}
 
 	const result = streamObject({
-		model: google('gemini-1.5-pro-latest'),
+		// model: google('gemini-1.5-pro-latest'),
+		model: anthropic('claude-3-5-sonnet-20240620'),
 		messages: [
 			{
 				role: 'system',

@@ -14,6 +14,7 @@ export const completeOnboarding = async (formData: FormData) => {
 	}
 
 	// Check if User table exists
+	//getting error here now as well. Some issue with Supabase
 	const { data: tableCheck, error: tableError } = await supabase
 		.from('User')
 		.select('*')
@@ -26,8 +27,6 @@ export const completeOnboarding = async (formData: FormData) => {
 
 	const user = await currentUser();
 	const userId = user?.id;
-
-	console.log('USER: ', user);
 
 	if (!userId || !user) {
 		return { message: 'No Logged In User' };

@@ -20,13 +20,19 @@ export type Question = z.infer<typeof questionSchema>;
 export const questionsSchema = z.array(questionSchema).length(4);
 
 export const conceptSchema = z.object({
-	title: z.string().describe('One of the central concepts or topics being presented.'),
+	title: z
+		.string()
+		.describe('One of the central concepts or topics being presented.'),
 	description: z.string().describe('A brief explanation of the concept'),
-	subject: z.string().describe('The subject of the concept. Use a high-level subject of the concept, such as "Algebra", "Calculus 1", etc.'),
+	subject: z
+		.string()
+		.describe(
+			'The subject of the concept. Use a high-level subject of the concept, such as "Algebra", "Calculus 1", etc.'
+		),
 	id: z
 		.string()
 		.describe(
-			'The unique identifier for the concept, in UUID format. An example is: e583e9ae-6801-4266-9e92-2eed491ffcf6. Use this exact format but do not use that exact ID.'
+			'The unique identifier for the concept, in UUID format. An example is: e583e9ae-6801-4266-9e92-2eed491ffcf6. Use this exact format but do not use that exact ID. Make it unique.'
 		),
 });
 
