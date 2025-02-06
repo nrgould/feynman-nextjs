@@ -13,16 +13,12 @@ export const completeOnboarding = async (formData: FormData) => {
 		return { message: 'Error initializing database connection' };
 	}
 
-	console.log('SUPABASE: ', supabase.auth);
-
 	const user = await currentUser();
 	const userId = user?.id;
 
 	if (!userId || !user) {
 		return { message: 'No Logged In User' };
 	}
-
-	console.log('FORMDATA: ', formData);
 
 	try {
 		// Update Clerk user metadata
@@ -60,8 +56,6 @@ export const completeOnboarding = async (formData: FormData) => {
 			})
 			.select()
 			.single();
-
-		console.log('ERROR: ', error);
 
 		if (error) {
 			console.error('Supabase error:', error);
