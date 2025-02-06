@@ -13,18 +13,6 @@ export const completeOnboarding = async (formData: FormData) => {
 		return { message: 'Error initializing database connection' };
 	}
 
-	// Check if User table exists
-	//getting error here now as well. Some issue with Supabase
-	const { data: tableCheck, error: tableError } = await supabase
-		.from('User')
-		.select('*')
-		.limit(1);
-
-	if (tableError) {
-		console.error('User table does not exist:', tableError);
-		return { message: 'Database table not found' };
-	}
-
 	const user = await currentUser();
 	const userId = user?.id;
 
