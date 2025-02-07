@@ -58,9 +58,9 @@ export async function generateFirstMessage(
 	const supabase = await createClient();
 
 	const result = await generateText({
-		model: openai('gpt-4o-mini-2024-07-18'),
+		model: openai('gpt-4o'),
 		system: systemPrompt,
-		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} in the subject of ${subject} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. This is the first message, do not act like you are responding to something.`,
+		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} in the subject of ${subject} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. Do not act like you are responding to a previous message. I may have ADHD or Dyscalculia, so keep your response concise, only asking one question to not overwhelm me.`,
 	});
 
 	const id = generateUUID();

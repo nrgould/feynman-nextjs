@@ -17,7 +17,7 @@ const SystemMessage = ({ message }: Props) => {
 					/>
 					<AvatarFallback className='rounded-lg'>SYS</AvatarFallback>
 				</Avatar>
-				<div className='px-2 max-w-xs md:max-w-md lg:max-w-[40rem] rounded-2xl text-black leading-[2rem]'>
+				<div className='px-2 max-w-xs md:max-w-md lg:max-w-[40rem] rounded-2xl text-black leading-[2rem] text-lg'>
 					<Markdown>{message}</Markdown>
 				</div>
 			</div>

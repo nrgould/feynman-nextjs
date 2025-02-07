@@ -32,7 +32,7 @@ export const conceptSchema = z.object({
 	id: z
 		.string()
 		.describe(
-			'The unique identifier for the concept, in UUID format. An example is: e583e9ae-6801-4266-9e92-2eed491ffcf6. Use this exact format but do not use that exact ID. Make it unique.'
+			'The unique identifier for the concept, in UUID format. An example is: e583e9ae-6801-4266-9e92-2eed491ffcf6. Use this exact format but do not use that exact ID. generate random ones.'
 		),
 });
 

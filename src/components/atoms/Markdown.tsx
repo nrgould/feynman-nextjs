@@ -33,6 +33,13 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 				</code>
 			);
 		},
+		p: ({ node, children, ...props }: any) => {
+			return (
+				<p className='mb-4' {...props}>
+					{children}
+				</p>
+			);
+		},
 		ol: ({ node, children, ...props }: any) => {
 			return (
 				<ol className='list-decimal list-inside ml-4' {...props}>

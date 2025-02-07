@@ -8,6 +8,11 @@ import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
 import React, { useEffect, useState } from 'react';
 import { useSWRConfig } from 'swr';
+import Timer from '@/components/atoms/Timer';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+
+const TIMER_DURATION = 10;
 
 function ChatWindow({
 	initialMessages,
@@ -55,6 +60,18 @@ function ChatWindow({
 
 	return (
 		<div className='relative flex flex-col min-w-0 max-h-[97vh] bg-background'>
+			<div className='absolute top-4 left-4 z-10'>
+				<Link
+					href='/concepts'
+					className='flex items-center gap-1 text-md font-medium hover:opacity-80 transition-opacity'
+				>
+					<ChevronLeft size={20} />
+					Concepts
+				</Link>
+			</div>
+			<div className='absolute top-4 right-4 z-10'>
+				<Timer initialMinutes={TIMER_DURATION} />
+			</div>
 			<ChatMessages
 				chatId={chatId}
 				createdAt={chat.created_at}
