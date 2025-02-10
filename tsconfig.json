@@ -34,7 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "src/components/FacebookPixel.js"  ],
   "exclude": [
     "node_modules"
   ]

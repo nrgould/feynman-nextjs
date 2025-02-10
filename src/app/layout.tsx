@@ -8,6 +8,7 @@ import Header from '@/components/nav/Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
+import { GoogleTagManager } from '@next/third-parties/google';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -30,6 +31,7 @@ export default function RootLayout({
 		<ClerkProvider>
 			<html lang='en'>
 				<SpeedInsights />
+				<GoogleTagManager gtmId='GTM-ND4L2HBL' />
 				<meta
 					name='viewport'
 					content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
