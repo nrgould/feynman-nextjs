@@ -31,7 +31,7 @@ export default async function Home() {
 				{/* <Testimonials /> */}
 				<LinearPath />
 				<MicroLearning />
-				<HomeWaitlist />
+				{/* <HomeWaitlist /> */}
 				<StartLearning />
 				<TextAside />
 				<div className='w-full flex-1 py-24 px-4 bg-gradient-to-br from-emerald-400 from-80% to-emerald-500'>
@@ -44,7 +44,7 @@ export default async function Home() {
 							need to succeed. Start now and see the difference in
 							just 15 minutes a day.
 						</h3>
-						<Link href='#waitlist'>
+						<Link href='/waitlist'>
 							<Button
 								variant='secondary'
 								className='hover:scale-105 transition-all duration-300 w-full md:w-auto p-6 font-semibold'

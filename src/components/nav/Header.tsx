@@ -33,7 +33,7 @@ function Header() {
 					<div className='flex flex-row items-center justify-between gap-2'>
 						<SignedOut>
 							<GradientButton>
-								<Link href='/#waitlist'>Early Access</Link>
+								<Link href='/waitlist'>Try Free</Link>
 							</GradientButton>
 							{/* <SignInButton>
 								<Button variant='outline' size='sm'>

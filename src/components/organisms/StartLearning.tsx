@@ -189,7 +189,7 @@ export default function StartLearning() {
 				</div>
 
 				<div className='flex justify-center mt-12'>
-					<Link href='#waitlist'>
+					<Link href='/waitlist'>
 						<Button size='lg' variant='outline' className='py-6'>
 							Start Exploring
 						</Button>
