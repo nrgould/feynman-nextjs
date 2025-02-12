@@ -6,6 +6,7 @@ const isPublicRoute = createRouteMatcher([
 	'/plans',
 	'/api/sample-chat',
 	'/waitlist',
+	'/sitemap.xml',
 ]);
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
