@@ -46,8 +46,8 @@ const signedInItems = [
 		icon: Settings2,
 	},
 	{
-		title: 'Assess Competency',
-		url: '/weak-area-generator',
+		title: 'Assess',
+		url: '/feynman-technique',
 		icon: Gauge,
 	},
 ];
