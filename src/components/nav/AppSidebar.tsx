@@ -1,4 +1,4 @@
-import { Brain, Home, Settings2, Blocks, Bug, BookOpen } from 'lucide-react';
+import { Brain, Home, Settings2, Blocks, Bug, BookOpen, Gauge } from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,
@@ -36,6 +36,11 @@ const signedInItems = [
 		title: 'Settings',
 		url: '/settings',
 		icon: Settings2,
+	},
+	{
+		title: 'Assess Competency',
+		url: '/weak-area-generator',
+		icon: Gauge,
 	},
 ];
 

@@ -40,4 +40,92 @@ export type Concept = z.infer<typeof conceptSchema>;
 
 export const conceptsSchema = z.array(conceptSchema).length(5);
 
+// Assessment Result Schema
+export const subconceptSchema = z.object({
+	concept: z.string().describe('Name of the identified subconcept'),
+	accuracy: z
+		.number()
+		.min(0)
+		.max(100)
+		.describe(
+			'Percentage indicating how accurately the subconcept was explained'
+		),
+});
+
+export const metricsSchema = z.object({
+	clarity: z
+		.object({
+			score: z.number().min(0).max(100),
+			feedback: z.string(),
+		})
+		.describe(
+			'Assessment of how clearly the explanation is communicated, including language and logical flow, out of 100'
+		),
+	completeness: z
+		.object({
+			score: z.number().min(0).max(100),
+			feedback: z.string(),
+		})
+		.describe(
+			'Evaluation of whether all key aspects of the concept are covered, out of 100'
+		),
+	depth: z
+		.object({
+			score: z.number().min(0).max(100),
+			feedback: z.string(),
+		})
+		.describe(
+			'Assessment of understanding depth, including fundamental concepts and nuances, out of 100'
+		),
+	creativity: z
+		.object({
+			score: z.number().min(0).max(100),
+			feedback: z.string(),
+		})
+		.describe(
+			'Evaluation of use of analogies, examples, and novel approaches, out of 100'
+		),
+	correctness: z
+		.object({
+			score: z.number().min(0).max(100),
+			feedback: z.string(),
+		})
+		.describe(
+			'Overall assessment of logical soundness and factual accuracy, out of 100'
+		),
+	language: z
+		.object({
+			score: z.number().min(0).max(100),
+			feedback: z.string(),
+		})
+		.describe(
+			'Evaluation of grammar, syntax, and writing quality, out of 100'
+		),
+});
+
+export const assessmentSchema = z.object({
+	grade: z
+		.number()
+		.min(0)
+		.max(100)
+		.describe('Overall grade for the concept explanation, out of 100'),
+	subconcepts: z
+		.array(subconceptSchema)
+		.min(1)
+		.describe(
+			'Array of subconcepts identified and assessed in the explanation, out of 100'
+		),
+	metrics: metricsSchema.describe('Detailed assessment metrics'),
+	summary: z
+		.string()
+		.min(1)
+		.describe(
+			'A detailed summary of the assessment, including strengths, weaknesses, and suggestions for improvement. Written directed at the user, for example using "you" instead of "the student".'
+		),
+});
+
+export type SubConcept = z.infer<typeof subconceptSchema>;
+export type Metrics = z.infer<typeof metricsSchema>;
+export type Assessment = z.infer<typeof assessmentSchema>;
+
 //define schema to determine what stage the learner is in

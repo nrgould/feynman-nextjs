@@ -7,6 +7,8 @@ const isPublicRoute = createRouteMatcher([
 	'/api/sample-chat',
 	'/waitlist',
 	'/sitemap.xml',
+	'/feynman-technique',
+	'/api/assess',
 ]);
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
