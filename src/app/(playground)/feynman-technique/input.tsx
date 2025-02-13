@@ -1,6 +1,6 @@
 'use client';
 
-import { experimental_useObject as useObject } from '@ai-sdk/react';
+import { experimental_useObject as useObject } from 'ai/react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -65,6 +65,7 @@ export default function Input() {
 	const [gradeLevel, setGradeLevel] = useState<string>('');
 	const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
 	const [showAlert, setShowAlert] = useState(false);
+	const [alertMessage, setAlertMessage] = useState('');
 
 	const {
 		object: partialAssessment,
@@ -90,6 +91,17 @@ export default function Input() {
 		e.preventDefault();
 
 		if (!conceptTitle || !gradeLevel) {
+			setAlertMessage(
+				'Please fill in both the concept and grade level before submitting.'
+			);
+			setShowAlert(true);
+			return;
+		}
+
+		if (!input || input.trim().length < 50) {
+			setAlertMessage(
+				'Your explanation is too short. Please provide a more detailed explanation (at least 50 characters).'
+			);
 			setShowAlert(true);
 			return;
 		}
@@ -108,8 +120,7 @@ export default function Input() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Missing Information</AlertDialogTitle>
 						<AlertDialogDescription>
-							Please fill in both the concept and grade level
-							before submitting.
+							{alertMessage}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
