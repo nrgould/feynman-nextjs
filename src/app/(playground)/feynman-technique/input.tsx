@@ -27,6 +27,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { toast } from '@/hooks/use-toast';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -80,9 +81,19 @@ export default function Input() {
 				'Failed to generate assessment. Please try again.',
 				error
 			);
+			toast({
+				title: 'Asessment Failed!',
+				description: 'Failed to generate assessment. Please try again.',
+				variant: 'destructive',
+			});
 		},
 		onFinish: ({ object, error }) => {
-			console.log(object);
+			console.log(error);
+			toast({
+				title: 'Asessment Complete!',
+				description: 'You may need to scroll down see your results.',
+			});
+
 			setAssessment(object ?? null);
 		},
 	});
