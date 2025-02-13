@@ -1,14 +1,3 @@
-export interface AssessmentResult {
-	grade: number;
-	subconcepts: {
-		concept: string;
-		accuracy: number;
-	}[];
-	metrics: {
-		[key: string]: {
-			score: number;
-			feedback: string;
-		};
-	};
-	summary: string;
-}
+import { Assessment } from '@/lib/schemas';
+
+export type AssessmentResult = Assessment;

@@ -1,4 +1,12 @@
-import { Brain, Home, Settings2, Blocks, Bug, BookOpen, Gauge } from 'lucide-react';
+import {
+	Brain,
+	Home,
+	Settings2,
+	Blocks,
+	Bug,
+	BookOpen,
+	Gauge,
+} from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,
@@ -49,6 +57,11 @@ const signedOutItems = [
 		title: 'Home',
 		url: '/',
 		icon: Home,
+	},
+	{
+		title: 'Feynman Technique',
+		url: '/feynman-technique',
+		icon: Gauge,
 	},
 ];
 

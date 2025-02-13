@@ -7,7 +7,7 @@ import { NextRequest } from 'next/server';
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
-	const { input } = await req.json();
+	const { input, gradeLevel, conceptTitle } = await req.json();
 
 	console.log(input);
 
@@ -17,13 +17,11 @@ export async function POST(req: NextRequest) {
 		messages: [
 			{
 				role: 'system',
-				content:
-					'You are a professor at a prestigious university. Your job is to assess the competency of the student on the given concept.',
+				content: `You are a teacher teaching at a ${gradeLevel} level. Your job is to assess the competency of the student on the given concept of ${conceptTitle}. Grade harshly, but be fair. Point out all the weaknesses in the student's explanation, but make sure that the grading is appropriate for the grade level and also includes the student's strengths. The next message is the student's explanation of the concept.`,
 			},
 			{
 				role: 'user',
-				content:
-					'The quadratic formula is a way to find where a quadratic equation crosses the x-axis, also called the solutions or roots. A quadratic equation is shaped like a U, and the goal is to figure out exactly where it touches or crosses the horizontal axis. The formula itself is a shortcut that avoids needing to factor the equation or complete the square. It works for every quadratic equation and gives you the solutions in one step. What it really does is combine all the steps of solving a quadratic into a single tool by using the coefficients of the equation. You just need to plug those coefficients into the formula, and it gives you the solutions. Sometimes, there are two answers, one answer, or no real answer, depending on whether the U-shape actually crosses the axis.',
+				content: input,
 			},
 		],
 		schema: assessmentSchema,

@@ -18,6 +18,15 @@ import { assessmentSchema } from '@/lib/schemas';
 import { AssessmentResults } from './AssessmentResults';
 import { AssessmentResult } from './types';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -30,13 +39,14 @@ const GRADE_LEVELS = [
 
 const GUIDELINES = [
 	{
-		title: 'Simple Definition/Big Picture',
-		description: 'Start with a clear, basic definition of the concept',
-	},
-	{
-		title: '"Why" Behind the Concept',
+		title: 'The "Why" Behind the Concept',
 		description:
 			'Explain the purpose and importance of understanding this concept',
+	},
+	{
+		title: 'Key Components',
+		description:
+			'Identify and explain the essential parts or elements of the concept.',
 	},
 	{
 		title: 'Example/Analogy',
@@ -54,6 +64,7 @@ export default function Input() {
 	const [conceptTitle, setConceptTitle] = useState('');
 	const [gradeLevel, setGradeLevel] = useState<string>('');
 	const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
+	const [showAlert, setShowAlert] = useState(false);
 
 	const {
 		object: partialAssessment,
@@ -79,7 +90,7 @@ export default function Input() {
 		e.preventDefault();
 
 		if (!conceptTitle || !gradeLevel) {
-			alert('Please fill in all fields');
+			setShowAlert(true);
 			return;
 		}
 
@@ -92,12 +103,27 @@ export default function Input() {
 
 	return (
 		<div className='space-y-6'>
+			<AlertDialog open={showAlert} onOpenChange={setShowAlert}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Missing Information</AlertDialogTitle>
+						<AlertDialogDescription>
+							Please fill in both the concept and grade level
+							before submitting.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogAction>OK</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
 			<div className='grid gap-6 md:grid-cols-2'>
 				<div className='space-y-6'>
 					<form onSubmit={handleSubmit} className='space-y-6'>
 						<div className='grid gap-4 md:grid-cols-2'>
 							<div className='space-y-2'>
-								<Label>Concept to Assess</Label>
+								<Label>High-Level Concept</Label>
 								<InputField
 									placeholder='e.g., Quadratic Formula, Photosynthesis'
 									value={conceptTitle}
@@ -107,7 +133,7 @@ export default function Input() {
 								/>
 							</div>
 							<div className='space-y-2'>
-								<Label>Grade Level</Label>
+								<Label>Your Grade Level</Label>
 								<Select
 									value={gradeLevel}
 									onValueChange={setGradeLevel}
@@ -159,7 +185,7 @@ export default function Input() {
 				<Card>
 					<CardContent className='pt-6'>
 						<h2 className='text-xl font-semibold mb-4'>
-							Explanation Guidelines
+							Try to include:
 						</h2>
 						<ul className='space-y-4'>
 							{GUIDELINES.map((guideline) => (
