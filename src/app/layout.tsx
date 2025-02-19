@@ -9,6 +9,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
 import { GoogleTagManager } from '@next/third-parties/google';
+import { PostHogProvider } from './providers';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -37,17 +38,19 @@ export default function RootLayout({
 					content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
 				/>
 				<body className={`${PlusJakartaSans.variable}`}>
-					<SidebarProvider defaultOpen={false}>
-						<AppSidebar className='h-dvh' />
-						<SidebarInset>
-							<Header />
-							<main className='h-[100dvh] bg-zinc-50'>
-								{children}
-							</main>
-							<Toaster />
-						</SidebarInset>
-						<Analytics />
-					</SidebarProvider>
+					<PostHogProvider>
+						<SidebarProvider defaultOpen={false}>
+							<AppSidebar className='h-dvh' />
+							<SidebarInset>
+								<Header />
+								<main className='h-[100dvh] bg-zinc-50'>
+									{children}
+								</main>
+								<Toaster />
+							</SidebarInset>
+							<Analytics />
+						</SidebarProvider>
+					</PostHogProvider>
 				</body>
 			</html>
 		</ClerkProvider>
