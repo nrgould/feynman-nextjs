@@ -363,16 +363,7 @@ export function AssessmentResults({ assessment }: AssessmentResultsProps) {
 												{metric.score}%
 											</span>
 										</div>
-										<div
-											className={`h-2 w-full rounded-full bg-secondary`}
-										>
-											<div
-												className={`h-2 rounded-full ${styles.bgColor} transition-all`}
-												style={{
-													width: `${metric.score}%`,
-												}}
-											/>
-										</div>
+										<Progress value={metric.score} />
 										<p className='text-sm text-muted-foreground'>
 											{metric.feedback}
 										</p>
@@ -383,6 +374,28 @@ export function AssessmentResults({ assessment }: AssessmentResultsProps) {
 					})}
 				</div>
 			</div>
+
+			<MotionCard variants={item}>
+				<CardContent className='pt-6'>
+					<div className='text-center space-y-4'>
+						<h2 className='text-2xl font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent'>
+							Ready to Master Any Concept?
+						</h2>
+						<p className='text-muted-foreground max-w-2xl mx-auto'>
+							Get personalized AI tutoring, interactive exercises,
+							and detailed progress tracking. Transform the way
+							you learn with our full AI learning experience.
+						</p>
+						<Button
+							asChild
+							size='lg'
+							className='bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700'
+						>
+							<Link href='/'>Start Learning for Free</Link>
+						</Button>
+					</div>
+				</CardContent>
+			</MotionCard>
 		</motion.div>
 	);
 }

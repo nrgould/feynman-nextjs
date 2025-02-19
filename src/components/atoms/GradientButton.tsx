@@ -16,7 +16,7 @@ function GradientButton({
 	return (
 		<Button
 			className={cx(
-				'bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 hover:from-emerald-300 hover:to-emerald-500 border-emerald-500 border',
+				'bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 border-emerald-500 border',
 				className
 			)}
 			{...props}
