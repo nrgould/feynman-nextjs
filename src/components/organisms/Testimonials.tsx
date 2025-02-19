@@ -4,10 +4,10 @@ import { Quote } from 'lucide-react';
 
 const testimonials = [
 	{
-		name: 'Anna',
+		name: 'Anonymous',
 		title: 'Student',
 		content:
-			"We've seen a 40% increase in productivity since implementing this solution. The analytics features are particularly valuable for our reporting.",
+			"I tried it out and it actually helped me understand some math concepts better than my textbook. The AI asks good questions that make you think about what you're learning.",
 	},
 ];
 

@@ -125,7 +125,7 @@ export async function AppSidebar({
 						</SignedOut>
 					</SidebarGroupContent>
 				</SidebarGroup>
-
+{/* 
 				<SidebarGroup>
 					<SidebarGroupLabel>Resources</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -156,7 +156,7 @@ export async function AppSidebar({
 							))}
 						</SidebarMenu>
 					</SidebarGroupContent>
-				</SidebarGroup>
+				</SidebarGroup> */}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

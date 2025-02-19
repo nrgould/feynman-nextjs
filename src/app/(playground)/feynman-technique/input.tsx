@@ -28,6 +28,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
+import { useAssessmentStore } from '@/store/store';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -61,12 +62,19 @@ const GUIDELINES = [
 ];
 
 export default function Input() {
-	const [input, setInput] = useState('');
-	const [conceptTitle, setConceptTitle] = useState('');
-	const [gradeLevel, setGradeLevel] = useState<string>('');
-	const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
 	const [showAlert, setShowAlert] = useState(false);
 	const [alertMessage, setAlertMessage] = useState('');
+
+	const {
+		assessment,
+		setAssessment,
+		conceptTitle,
+		setConceptTitle,
+		gradeLevel,
+		setGradeLevel,
+		explanation: input,
+		setExplanation: setInput,
+	} = useAssessmentStore();
 
 	const {
 		object: partialAssessment,
@@ -82,7 +90,7 @@ export default function Input() {
 				error
 			);
 			toast({
-				title: 'Asessment Failed!',
+				title: 'Assessment Failed!',
 				description: 'Failed to generate assessment. Please try again.',
 				variant: 'destructive',
 			});
@@ -90,7 +98,7 @@ export default function Input() {
 		onFinish: ({ object, error }) => {
 			console.log(error);
 			toast({
-				title: 'Asessment Complete!',
+				title: 'Assessment Complete!',
 				description: 'You may need to scroll down see your results.',
 			});
 
@@ -152,6 +160,7 @@ export default function Input() {
 									onChange={(e) =>
 										setConceptTitle(e.target.value)
 									}
+									className='bg-white'
 								/>
 							</div>
 							<div className='space-y-2'>
@@ -160,7 +169,7 @@ export default function Input() {
 									value={gradeLevel}
 									onValueChange={setGradeLevel}
 								>
-									<SelectTrigger>
+									<SelectTrigger className='bg-white'>
 										<SelectValue placeholder='Select grade level' />
 									</SelectTrigger>
 									<SelectContent>
@@ -183,7 +192,7 @@ export default function Input() {
 								placeholder='Explain the concept in your own words...'
 								value={input}
 								onChange={(e) => setInput(e.target.value)}
-								className='min-h-[200px]'
+								className='min-h-[200px] bg-white'
 							/>
 						</div>
 
