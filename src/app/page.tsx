@@ -22,6 +22,8 @@ export default async function Home() {
 		<div>
 			<ScrollArea className='w-full mx-auto h-screen max-w-screen mb-20'>
 				<Hero />
+				<LinearPath />
+				<MicroLearning />
 				<div className='mx-auto'>
 					<LearnsYou />
 				</div>
@@ -29,9 +31,6 @@ export default async function Home() {
 				<Steps />
 				<HomeSampleChat />
 				{/* <Testimonials /> */}
-				<LinearPath />
-				<MicroLearning />
-				{/* <HomeWaitlist /> */}
 				<StartLearning />
 				<TextAside />
 				<div className='w-full flex-1 py-24 px-4 bg-gradient-to-br from-emerald-400 from-80% to-emerald-500'>
