@@ -1,6 +1,5 @@
 // app/providers.jsx
 'use client';
-import SuspendedPostHogPageView from '@/lib/posthog/PostHogPageView';
 import PostHogPageView from '@/lib/posthog/PostHogPageView';
 import posthog from 'posthog-js';
 import { PostHogProvider as PHProvider } from 'posthog-js/react';
@@ -22,7 +21,7 @@ export function PostHogProvider({ children }) {
 
 	return (
 		<PHProvider client={posthog}>
-			<SuspendedPostHogPageView />
+			<PostHogPageView />
 			{children}
 		</PHProvider>
 	);
