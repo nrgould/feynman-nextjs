@@ -20,5 +20,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			changeFrequency: 'monthly',
 			priority: 0.6,
 		},
+		{
+			url: 'https://www.feynlearn.com/feynman-technique',
+			lastModified: new Date(),
+			changeFrequency: 'weekly',
+			priority: 1,
+		},
 	];
 }
