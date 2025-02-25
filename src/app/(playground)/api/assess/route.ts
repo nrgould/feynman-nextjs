@@ -1,23 +1,34 @@
-import { assessmentSchema, conceptSchema, conceptsSchema } from '@/lib/schemas';
+import { assessmentSchema } from '@/lib/schemas';
 import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
-import { anthropic } from '@ai-sdk/anthropic';
 import { NextRequest } from 'next/server';
 
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
-	const { input, gradeLevel, conceptTitle } = await req.json();
-
-	console.log(input);
+	const {
+		input,
+		gradeLevel,
+		conceptTitle,
+		subconcepts,
+		subconceptExplanations,
+	} = await req.json();
 
 	const result = streamObject({
 		model: google('gemini-1.5-pro-latest'),
-		// model: anthropic('claude-3-5-sonnet-20240620'),
 		messages: [
 			{
 				role: 'system',
-				content: `You are a teacher teaching at a ${gradeLevel} level. Your job is to assess the competency of the student on the given concept of ${conceptTitle}. Grade harshly, but be fair. Point out all the weaknesses in the student's explanation, but make sure that the grading is appropriate for the grade level and also includes the student's strengths. The next message is the student's explanation of the concept.`,
+				content: `You are a teacher teaching at a ${gradeLevel} level. Your task is to assess the student's understanding of ${conceptTitle} based on their explanations of key subconcepts.
+
+Important Assessment Guidelines:
+- Focus on conceptual understanding rather than strict technical accuracy
+- Consider the student's grade level (${gradeLevel}) when assessing
+- Look for evidence that they grasp the fundamental ideas
+- Value clear explanations and real-world connections over formal/mathematical precision
+- Consider this a formative assessment to help guide learning
+
+The student has provided explanations for these specific subconcepts:`,
 			},
 			{
 				role: 'user',
@@ -33,3 +44,20 @@ export async function POST(req: NextRequest) {
 
 	return result.toTextStreamResponse();
 }
+
+// messages: [
+// 			{
+// 				role: 'system',
+// 				content: `You are a teacher teaching at a ${gradeLevel} level. Your task is to assess the student's understanding of ${conceptTitle} based on their explanations of key subconcepts.
+
+// Important Assessment Guidelines:
+// - Focus on conceptual understanding rather than strict technical accuracy
+// - Consider the student's grade level (${gradeLevel}) when assessing
+// - Look for evidence that they grasp the fundamental ideas
+// - Value clear explanations and real-world connections over formal/mathematical precision
+// - Consider this a formative assessment to help guide learning
+
+// The student has provided explanations for these specific subconcepts:
+// ${subconcepts.map((subconcept: string) => `- ${subconcept}: "${subconceptExplanations[subconcept]}"`).join('\n')}
+
+// Their final combined explanation is: "${input}"

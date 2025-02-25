@@ -128,4 +128,4 @@ export type SubConcept = z.infer<typeof subconceptSchema>;
 export type Metrics = z.infer<typeof metricsSchema>;
 export type Assessment = z.infer<typeof assessmentSchema>;
 
-//define schema to determine what stage the learner is in
+export const subconceptsSchema = z.array(z.string());

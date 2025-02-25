@@ -14,9 +14,8 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import { assessmentSchema } from '@/lib/schemas';
+import { assessmentSchema, subconceptsSchema } from '@/lib/schemas';
 import { AssessmentResults } from './AssessmentResults';
-import { AssessmentResult } from './types';
 import { Card, CardContent } from '@/components/ui/card';
 import {
 	AlertDialog,
@@ -29,6 +28,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { useAssessmentStore } from '@/store/store';
+import { getSubConcepts } from './actions';
+import { z } from 'zod';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -61,9 +62,20 @@ const GUIDELINES = [
 	},
 ];
 
+const subconcepts_with_prompts_schema = z
+	.array(
+		z.object({
+			concept: z.string(),
+			prompt: z.string(),
+		})
+	)
+	.length(5);
+
 export default function Input() {
 	const [showAlert, setShowAlert] = useState(false);
 	const [alertMessage, setAlertMessage] = useState('');
+	const [currentStep, setCurrentStep] = useState(1);
+	const [isLoadingSubConcepts, setIsLoadingSubConcepts] = useState(false);
 
 	const {
 		assessment,
@@ -74,11 +86,15 @@ export default function Input() {
 		setGradeLevel,
 		explanation: input,
 		setExplanation: setInput,
+		subConcepts,
+		setSubConcepts,
+		subConceptExplanations,
+		setSubConceptExplanation,
 	} = useAssessmentStore();
 
 	const {
 		object: partialAssessment,
-		submit,
+		submit: submitAssessment,
 		isLoading,
 	} = useObject({
 		initialValue: undefined,
@@ -106,6 +122,40 @@ export default function Input() {
 		},
 	});
 
+	const {
+		object: partialSubConcepts,
+		submit: submitConcepts,
+		isLoading: isLoadingConcepts,
+	} = useObject({
+		initialValue: undefined,
+		api: '/api/subconcepts',
+		schema: subconcepts_with_prompts_schema,
+		onError: (error) => {
+			console.error('Failed to generate subconcepts:', error);
+			toast({
+				title: 'Subconcepts Failed!',
+				description:
+					'Failed to generate subconcepts. Please try again.',
+				variant: 'destructive',
+			});
+		},
+		onFinish: ({ object, error }) => {
+			if (error) {
+				console.error('Error generating subconcepts:', error);
+				return;
+			}
+
+			setSubConcepts(object?.map((s) => s.concept) ?? []);
+			if (object && object.length > 0) {
+				setCurrentStep((prev) => prev + 1);
+				toast({
+					title: 'Subconcepts Generated',
+					description: 'Please explain each subconcept.',
+				});
+			}
+		},
+	});
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -125,33 +175,89 @@ export default function Input() {
 			return;
 		}
 
-		submit({
+		submitAssessment({
 			input,
 			conceptTitle,
 			gradeLevel,
+			subconcepts: subConcepts,
+			subconceptExplanations: subConceptExplanations,
 		});
 	};
 
-	return (
-		<div className='space-y-6'>
-			<AlertDialog open={showAlert} onOpenChange={setShowAlert}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Missing Information</AlertDialogTitle>
-						<AlertDialogDescription>
-							{alertMessage}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogAction>OK</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+	const handleNext = async () => {
+		if (currentStep === 1 && !conceptTitle) {
+			setAlertMessage('Please enter a concept before proceeding.');
+			setShowAlert(true);
+			return;
+		}
+		if (currentStep === 2 && !gradeLevel) {
+			setAlertMessage('Please select a grade level before proceeding.');
+			setShowAlert(true);
+			return;
+		}
+		if (currentStep === 2 && subConcepts.length === 0) {
+			// Only fetch subconcepts if we don't have them yet
+			try {
+				await submitConcepts({
+					concept: conceptTitle,
+					gradeLevel,
+				});
+				// Only proceed if we have subconcepts
+				if (subConcepts.length === 0) {
+					return;
+				}
+			} catch (error) {
+				console.error('Failed to fetch subconcepts:', error);
+				toast({
+					title: 'Error',
+					description:
+						'Failed to fetch subconcepts. Please try again.',
+					variant: 'destructive',
+				});
+				return;
+			}
+		}
 
-			<div className='grid gap-6 md:grid-cols-2'>
-				<div className='space-y-6'>
-					<form onSubmit={handleSubmit} className='space-y-6'>
-						<div className='grid gap-4 md:grid-cols-2'>
+		// Check if current step is a subconcept step
+		const currentSubConceptIndex = currentStep - 3;
+		if (
+			currentSubConceptIndex >= 0 &&
+			currentSubConceptIndex < subConcepts.length
+		) {
+			const currentSubConcept = subConcepts[currentSubConceptIndex];
+			if (!subConceptExplanations[currentSubConcept]?.trim()) {
+				setAlertMessage(
+					'Please explain your understanding of this subconcept before proceeding.'
+				);
+				setShowAlert(true);
+				return;
+			}
+
+			// If this is the last subconcept, combine all explanations
+			if (currentSubConceptIndex === subConcepts.length - 1) {
+				const combinedExplanation = subConcepts
+					.map(
+						(subconcept) =>
+							`${subconcept}:\n${subConceptExplanations[subconcept]}\n\n`
+					)
+					.join('');
+				setInput(combinedExplanation);
+			}
+		}
+
+		setCurrentStep((prev) => prev + 1);
+	};
+
+	const handleBack = () => {
+		setCurrentStep((prev) => prev - 1);
+	};
+
+	const getStepContent = () => {
+		if (currentStep === 1) {
+			return (
+				<Card>
+					<CardContent className='pt-6'>
+						<div className='space-y-4'>
 							<div className='space-y-2'>
 								<Label>High-Level Concept</Label>
 								<InputField
@@ -163,6 +269,22 @@ export default function Input() {
 									className='bg-white'
 								/>
 							</div>
+							<div className='flex justify-end'>
+								<Button type='button' onClick={handleNext}>
+									Next
+								</Button>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			);
+		}
+
+		if (currentStep === 2) {
+			return (
+				<Card>
+					<CardContent className='pt-6'>
+						<div className='space-y-4'>
 							<div className='space-y-2'>
 								<Label>Your Grade Level</Label>
 								<Select
@@ -184,54 +306,160 @@ export default function Input() {
 									</SelectContent>
 								</Select>
 							</div>
+							<div className='flex justify-between'>
+								<Button
+									type='button'
+									variant='outline'
+									onClick={handleBack}
+								>
+									Back
+								</Button>
+								<Button
+									type='button'
+									onClick={handleNext}
+									disabled={isLoadingConcepts}
+								>
+									{isLoadingConcepts ? (
+										<span className='flex items-center space-x-2'>
+											<Loader2 className='h-4 w-4 animate-spin' />
+											<span>Loading Subconcepts...</span>
+										</span>
+									) : (
+										'Next'
+									)}
+								</Button>
+							</div>
 						</div>
-
-						<div className='space-y-2'>
-							<Label>Your Explanation</Label>
-							<Textarea
-								placeholder='Explain the concept in your own words...'
-								value={input}
-								onChange={(e) => setInput(e.target.value)}
-								className='min-h-[200px] bg-white'
-							/>
-						</div>
-
-						<Button
-							type='submit'
-							className='w-full'
-							disabled={isLoading}
-						>
-							{isLoading ? (
-								<span className='flex items-center space-x-2'>
-									<Loader2 className='h-4 w-4 animate-spin' />
-									<span>Assessing...</span>
-								</span>
-							) : (
-								'Assess My Understanding'
-							)}
-						</Button>
-					</form>
-				</div>
-
-				<Card>
-					<CardContent className='pt-6'>
-						<h2 className='text-xl font-semibold mb-4'>
-							Try to include:
-						</h2>
-						<ul className='space-y-4'>
-							{GUIDELINES.map((guideline) => (
-								<li key={guideline.title} className='space-y-1'>
-									<h3 className='font-medium'>
-										{guideline.title}
-									</h3>
-									<p className='text-sm text-muted-foreground'>
-										{guideline.description}
-									</p>
-								</li>
-							))}
-						</ul>
 					</CardContent>
 				</Card>
+			);
+		}
+
+		const subConceptIndex = currentStep - 3;
+		if (subConceptIndex >= 0 && subConceptIndex < subConcepts.length) {
+			const currentSubConcept = subConcepts[subConceptIndex];
+			const prompt = Array.isArray(partialSubConcepts)
+				? partialSubConcepts[subConceptIndex]?.prompt
+				: undefined;
+
+			return (
+				<Card>
+					<CardContent className='pt-6'>
+						<div className='space-y-4'>
+							<div className='space-y-2'>
+								<Label>
+									Explain: {currentSubConcept}{' '}
+									<span className='text-muted-foreground text-sm'>
+										({subConceptIndex + 1} of{' '}
+										{subConcepts.length})
+									</span>
+								</Label>
+								{prompt && (
+									<p className='text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg'>
+										{prompt}
+									</p>
+								)}
+								<Textarea
+									placeholder={`Explain your understanding of ${currentSubConcept}...`}
+									value={
+										subConceptExplanations[
+											currentSubConcept
+										] || ''
+									}
+									onChange={(e) =>
+										setSubConceptExplanation(
+											currentSubConcept,
+											e.target.value
+										)
+									}
+									className='min-h-[150px] bg-white'
+								/>
+							</div>
+							<div className='flex justify-between'>
+								<Button
+									type='button'
+									variant='outline'
+									onClick={handleBack}
+								>
+									Back
+								</Button>
+								<Button type='button' onClick={handleNext}>
+									{subConceptIndex === subConcepts.length - 1
+										? 'Review Full Explanation'
+										: 'Next Subconcept'}
+								</Button>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			);
+		}
+
+		// Final step - review and submit combined explanation
+		return (
+			<Card>
+				<CardContent className='pt-6'>
+					<div className='space-y-4'>
+						<div className='space-y-2'>
+							<Label>Review Your Complete Explanation</Label>
+							<p className='text-sm text-muted-foreground mb-4'>
+								Your explanations of all subconcepts have been
+								combined below. Feel free to make any final
+								adjustments before submitting.
+							</p>
+							<Textarea
+								value={input}
+								onChange={(e) => setInput(e.target.value)}
+								className='min-h-[300px] bg-white'
+							/>
+						</div>
+						<div className='flex justify-between'>
+							<Button
+								type='button'
+								variant='outline'
+								onClick={handleBack}
+							>
+								Back
+							</Button>
+							<Button
+								type='submit'
+								disabled={isLoading}
+								className='bg-primary'
+							>
+								{isLoading ? (
+									<span className='flex items-center space-x-2'>
+										<Loader2 className='h-4 w-4 animate-spin' />
+										<span>Assessing...</span>
+									</span>
+								) : (
+									'Assess My Understanding'
+								)}
+							</Button>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		);
+	};
+
+	return (
+		<div className='space-y-6'>
+			<AlertDialog open={showAlert} onOpenChange={setShowAlert}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Missing Information</AlertDialogTitle>
+						<AlertDialogDescription>
+							{alertMessage}
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogAction>OK</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			<div className='max-w-2xl mx-auto'>
+				<form onSubmit={handleSubmit}>{getStepContent()}</form>
 			</div>
 
 			{assessment && <AssessmentResults assessment={assessment} />}

@@ -64,12 +64,16 @@ type AssessmentState = {
 	conceptTitle: string;
 	gradeLevel: string;
 	explanation: string;
+	subConcepts: string[];
+	subConceptExplanations: Record<string, string>;
 	setAssessment: (
 		assessment: z.infer<typeof assessmentSchema> | null
 	) => void;
 	setConceptTitle: (title: string) => void;
 	setGradeLevel: (level: string) => void;
 	setExplanation: (explanation: string) => void;
+	setSubConcepts: (concepts: string[]) => void;
+	setSubConceptExplanation: (concept: string, explanation: string) => void;
 	clearAssessment: () => void;
 };
 
@@ -80,16 +84,28 @@ export const useAssessmentStore = create<AssessmentState>()(
 			conceptTitle: '',
 			gradeLevel: '',
 			explanation: '',
+			subConcepts: [],
+			subConceptExplanations: {},
 			setAssessment: (assessment) => set({ assessment }),
 			setConceptTitle: (conceptTitle) => set({ conceptTitle }),
 			setGradeLevel: (gradeLevel) => set({ gradeLevel }),
 			setExplanation: (explanation) => set({ explanation }),
+			setSubConcepts: (subConcepts) => set({ subConcepts }),
+			setSubConceptExplanation: (concept, explanation) =>
+				set((state) => ({
+					subConceptExplanations: {
+						...state.subConceptExplanations,
+						[concept]: explanation,
+					},
+				})),
 			clearAssessment: () =>
 				set({
 					assessment: null,
 					conceptTitle: '',
 					gradeLevel: '',
 					explanation: '',
+					subConcepts: [],
+					subConceptExplanations: {},
 				}),
 		}),
 		{

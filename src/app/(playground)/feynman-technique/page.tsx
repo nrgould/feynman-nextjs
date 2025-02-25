@@ -2,13 +2,22 @@ import Head from 'next/head';
 import Input from './input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getSubConcepts } from './actions';
 
-export default function FeynmanTechniquePage() {
+export default async function FeynmanTechniquePage() {
+	// const subconcepts = await getSubConcepts(
+	// 	'quadratic formula',
+	// 	'high school'
+	// );
+
+	// console.log(subconcepts);
+
 	return (
 		<>
 			<Head>
 				<title>
-					Feynman Learning Technique | Improve Your Understanding
+					Feynman Learning Technique | Improve Your Understanding of
+					Any Concept
 				</title>
 				<meta
 					name='description'
@@ -58,10 +67,10 @@ export default function FeynmanTechniquePage() {
 						<Tabs defaultValue='assessment' className='space-y-6'>
 							<TabsList className='grid w-full grid-cols-2'>
 								<TabsTrigger value='assessment'>
-									Assessment
+									Assess
 								</TabsTrigger>
 								<TabsTrigger value='about'>
-									About the Technique
+									How to use
 								</TabsTrigger>
 							</TabsList>
 							<TabsContent value='assessment'>
