@@ -9,6 +9,7 @@ const isPublicRoute = createRouteMatcher([
 	'/sitemap.xml',
 	'/feynman-technique',
 	'/api/assess',
+	'/api/subconcepts',
 ]);
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
