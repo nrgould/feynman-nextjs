@@ -16,11 +16,15 @@ export function MobilePreviousConcepts() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<div className='fixed bottom-4 right-4 z-50'>
+		<div className='fixed bottom-10 right-4 z-50'>
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger asChild>
-					<Button size='icon' className='rounded-full shadow-lg'>
-						<History className='h-5 w-5' />
+					<Button
+						size='icon'
+						className='rounded-full shadow-lg bg-primary h-12 w-12 flex items-center justify-center'
+						aria-label='View previous concepts'
+					>
+						<History className='h-7 w-7 text-white' />
 					</Button>
 				</SheetTrigger>
 				<SheetContent
@@ -28,7 +32,9 @@ export function MobilePreviousConcepts() {
 					className='p-0 w-full max-w-[300px] sm:max-w-[350px]'
 				>
 					<SheetHeader className='p-4 border-b'>
-						<SheetTitle>Previous Concepts</SheetTitle>
+						<SheetTitle className='text-zinc-800'>
+							Previous Concepts
+						</SheetTitle>
 					</SheetHeader>
 					<div className='h-[calc(100vh-65px)] overflow-hidden'>
 						<PreviousConcepts

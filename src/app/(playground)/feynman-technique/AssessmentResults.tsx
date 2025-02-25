@@ -159,22 +159,10 @@ export function AssessmentResults({ assessment }: AssessmentResultsProps) {
 			<MotionCard variants={item}>
 				<CardContent className='pt-6'>
 					<div className='text-center space-y-6'>
-						<div className='flex items-center justify-between'>
-							<Button
-								variant='ghost'
-								size='sm'
-								onClick={clearAssessment}
-								className='text-muted-foreground hover:text-primary'
-							>
-								<RefreshCw className='w-4 h-4 mr-2' />
-								Start Over
-							</Button>
-							<div className='text-2xl font-semibold'>
-								Overall Grade
-							</div>
-							<div className='w-[88px]' />{' '}
-							{/* Spacer for alignment */}
-						</div>
+						<h2 className='text-2xl font-semibold text-center'>
+							Overall Grade
+						</h2>
+						<div className='w-[88px]' />{' '}
 						<div className='flex items-center justify-center gap-6'>
 							<div className='text-6xl font-bold text-primary'>
 								{assessment.grade}/100
@@ -185,7 +173,6 @@ export function AssessmentResults({ assessment }: AssessmentResultsProps) {
 								{letterGrade.letter}
 							</div>
 						</div>
-
 						<div className='border-t pt-6'>
 							<p className='text-muted-foreground mb-4'>
 								Not happy with your grade? Get the full learning
@@ -202,60 +189,50 @@ export function AssessmentResults({ assessment }: AssessmentResultsProps) {
 				</CardContent>
 			</MotionCard>
 
-			<MotionCard variants={item}>
-				<CardContent className='pt-6'>
-					<div className='space-y-6'>
-						<div>
-							<h2 className='text-xl font-semibold mb-4'>
-								Summary
-							</h2>
-							<p className='text-muted-foreground leading-relaxed'>
-								{assessment.summary}
-							</p>
-						</div>
+			<motion.div variants={item} className='space-y-6'>
+				<div>
+					<h2 className='text-xl font-semibold mb-4'>Summary</h2>
+					<p className='text-primary text-md leading-[2.5] tracking-wide '>
+						{assessment.summary}
+					</p>
+				</div>
 
-						<div className='border-t pt-6'>
-							<h2 className='text-xl font-semibold mb-6'>
-								Subconcepts Analysis
-							</h2>
-							<div className='grid gap-6 md:grid-cols-2 px-2'>
-								{assessment.subconcepts.map(
-									(subconcept, index) => (
+				<div className='border-t pt-6'>
+					<h2 className='text-xl font-semibold mb-6'>
+						Subconcepts Analysis
+					</h2>
+					<div className='grid gap-6 md:grid-cols-2 px-2'>
+						{assessment.subconcepts.map((subconcept, index) => (
+							<div
+								key={index}
+								className='space-y-4 rounded-lg p-2'
+							>
+								<h3 className='font-medium'>
+									{subconcept.concept}
+								</h3>
+								<div className='space-y-2'>
+									<div className='flex justify-between text-sm'>
+										<span>Accuracy</span>
+										<span>{subconcept.accuracy}%</span>
+									</div>
+									<div
+										className={`h-2 w-full rounded-full bg-secondary`}
+									>
 										<div
-											key={index}
-											className='space-y-4 rounded-lg p-2'
-										>
-											<h3 className='font-medium'>
-												{subconcept.concept}
-											</h3>
-											<div className='space-y-2'>
-												<div className='flex justify-between text-sm'>
-													<span>Accuracy</span>
-													<span>
-														{subconcept.accuracy}%
-													</span>
-												</div>
-												<div
-													className={`h-2 w-full rounded-full bg-secondary`}
-												>
-													<div
-														className={`h-2 rounded-full ${getScoreColor(
-															subconcept.accuracy
-														)} transition-all`}
-														style={{
-															width: `${subconcept.accuracy}%`,
-														}}
-													/>
-												</div>
-											</div>
-										</div>
-									)
-								)}
+											className={`h-2 rounded-full ${getScoreColor(
+												subconcept.accuracy
+											)} transition-all`}
+											style={{
+												width: `${subconcept.accuracy}%`,
+											}}
+										/>
+									</div>
+								</div>
 							</div>
-						</div>
+						))}
 					</div>
-				</CardContent>
-			</MotionCard>
+				</div>
+			</motion.div>
 
 			<div className='space-y-4'>
 				<h2 className='text-xl font-semibold'>Detailed Metrics</h2>

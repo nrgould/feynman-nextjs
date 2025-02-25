@@ -11,7 +11,7 @@ export function ClientSideStrengthsWeaknesses() {
 	return (
 		<div className='hidden md:block border-l'>
 			<div className='w-[300px] h-screen'>
-				<div className='p-4 border-b bg-gradient-to-r from-red-50 to-emerald-50'>
+				<div className='p-4 border-b'>
 					<h2 className='font-semibold text-zinc-800'>
 						Strengths & Weaknesses
 					</h2>

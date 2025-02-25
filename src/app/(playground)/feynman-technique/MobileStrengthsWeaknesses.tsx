@@ -23,11 +23,15 @@ export function MobileStrengthsWeaknesses({
 	const [open, setOpen] = useState(false);
 
 	return (
-		<div className='fixed bottom-4 left-4 z-50'>
+		<div className='fixed bottom-10 left-4 z-50'>
 			<Drawer open={open} onOpenChange={setOpen}>
 				<DrawerTrigger asChild>
-					<Button size='icon' className='rounded-full shadow-lg p-3'>
-						<BarChart2 className='h-8 w-8 text-white' />
+					<Button
+						size='icon'
+						className='rounded-full shadow-lg bg-primary h-12 w-12 flex items-center justify-center'
+						aria-label='View strengths and weaknesses'
+					>
+						<BarChart2 className='h-7 w-7 text-white' />
 					</Button>
 				</DrawerTrigger>
 				<DrawerContent className='p-0'>

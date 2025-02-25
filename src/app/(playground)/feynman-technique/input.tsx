@@ -13,10 +13,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw, ArrowLeft, ArrowRight } from 'lucide-react';
 import { assessmentSchema } from '@/lib/schemas';
 import { AssessmentResults } from './AssessmentResults';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	CardDescription,
+	CardFooter,
+} from '@/components/ui/card';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -31,6 +38,7 @@ import { useAssessmentStore } from '@/store/store';
 import { getSubConcepts } from './actions';
 import { z } from 'zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Progress } from '@/components/ui/progress';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -63,20 +71,21 @@ const GUIDELINES = [
 	},
 ];
 
-const subconcepts_with_prompts_schema = z
-	.array(
-		z.object({
-			concept: z.string(),
-			prompt: z.string(),
-		})
-	)
-	.length(5);
+// Define the schema for a single subconcept
+const subconceptSchema = z.object({
+	concept: z.string(),
+	prompt: z.string(),
+});
+
+// Define the schema for the response object that contains the array of subconcepts
+const subconcepts_schema = z.object({
+	subconcepts: z.array(subconceptSchema).length(5),
+});
 
 export default function Input() {
 	const [showAlert, setShowAlert] = useState(false);
 	const [alertMessage, setAlertMessage] = useState('');
 	const [currentStep, setCurrentStep] = useState(1);
-	const [isLoadingSubConcepts, setIsLoadingSubConcepts] = useState(false);
 	const [isRestoredAssessment, setIsRestoredAssessment] = useState(false);
 
 	const {
@@ -148,7 +157,7 @@ export default function Input() {
 	} = useObject({
 		initialValue: undefined,
 		api: '/api/subconcepts',
-		schema: subconcepts_with_prompts_schema,
+		schema: subconcepts_schema,
 		onError: (error) => {
 			console.error('Failed to generate subconcepts:', error);
 			toast({
@@ -164,8 +173,8 @@ export default function Input() {
 				return;
 			}
 
-			setSubConcepts(object?.map((s) => s.concept) ?? []);
-			if (object && object.length > 0) {
+			if (object && object.subconcepts && object.subconcepts.length > 0) {
+				setSubConcepts(object.subconcepts.map((s) => s.concept));
 				setCurrentStep((prev) => prev + 1);
 				toast({
 					title: 'Subconcepts Generated',
@@ -219,7 +228,7 @@ export default function Input() {
 		if (currentStep === 2 && subConcepts.length === 0) {
 			// Only fetch subconcepts if we don't have them yet
 			try {
-				await submitConcepts({
+				submitConcepts({
 					concept: conceptTitle,
 					gradeLevel,
 				});
@@ -273,85 +282,118 @@ export default function Input() {
 		setCurrentStep((prev) => prev - 1);
 	};
 
+	const handleStartOver = () => {
+		clearAssessment();
+		setCurrentStep(1);
+		setIsRestoredAssessment(false);
+		toast({
+			title: 'Started New Assessment',
+			description: 'You can now enter a new concept to assess.',
+		});
+	};
+
+	// Calculate progress percentage
+	const totalSteps = 3 + (subConcepts.length || 5); // Concept, Grade Level, Subconcepts (default 5), Final Review
+	const progressPercentage = Math.round((currentStep / totalSteps) * 100);
+
 	const getStepContent = () => {
 		if (currentStep === 1) {
 			return (
-				<Card>
-					<CardContent className='pt-6'>
+				<Card className='shadow-md w-full'>
+					<CardHeader className='px-4 sm:px-6'>
+						<CardTitle>
+							What concept would you like to learn?
+						</CardTitle>
+						<CardDescription>
+							Enter a high-level concept you want to understand
+							better
+						</CardDescription>
+					</CardHeader>
+					<CardContent className='px-4 sm:px-6'>
 						<div className='space-y-4'>
-							<div className='space-y-2'>
-								<Label>High-Level Concept</Label>
-								<InputField
-									placeholder='e.g., Quadratic Formula, Photosynthesis'
-									value={conceptTitle}
-									onChange={(e) =>
-										setConceptTitle(e.target.value)
-									}
-									className='bg-white'
-								/>
-							</div>
-							<div className='flex justify-end'>
-								<Button type='button' onClick={handleNext}>
-									Next
-								</Button>
-							</div>
+							<InputField
+								placeholder='e.g., Quadratic Formula, Photosynthesis, Machine Learning'
+								value={conceptTitle}
+								onChange={(e) =>
+									setConceptTitle(e.target.value)
+								}
+								className='bg-white text-base sm:text-lg p-4 sm:p-6 h-12 sm:h-14'
+							/>
 						</div>
 					</CardContent>
+					<CardFooter className='flex flex-col sm:flex-row gap-3 px-4 sm:px-6'>
+						<div className='w-full'>
+							<Button
+								onClick={handleNext}
+								size='lg'
+								className='gap-2 w-full'
+							>
+								Next
+								<ArrowRight className='h-4 w-4' />
+							</Button>
+						</div>
+					</CardFooter>
 				</Card>
 			);
 		}
 
 		if (currentStep === 2) {
 			return (
-				<Card>
-					<CardContent className='pt-6'>
+				<Card className='shadow-md w-full'>
+					<CardHeader className='px-4 sm:px-6'>
+						<CardTitle>What is your grade level?</CardTitle>
+						<CardDescription>
+							This helps us tailor the assessment to your
+							educational level
+						</CardDescription>
+					</CardHeader>
+					<CardContent className='px-4 sm:px-6'>
 						<div className='space-y-4'>
-							<div className='space-y-2'>
-								<Label>Your Grade Level</Label>
-								<Select
-									value={gradeLevel}
-									onValueChange={setGradeLevel}
-								>
-									<SelectTrigger className='bg-white'>
-										<SelectValue placeholder='Select grade level' />
-									</SelectTrigger>
-									<SelectContent>
-										{GRADE_LEVELS.map((level) => (
-											<SelectItem
-												key={level}
-												value={level}
-											>
-												{level}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-							<div className='flex justify-between'>
-								<Button
-									type='button'
-									variant='outline'
-									onClick={handleBack}
-								>
-									Back
-								</Button>
-								<Button
-									type='button'
-									onClick={handleNext}
-									disabled={isLoadingConcepts}
-								>
-									{isLoadingConcepts ? (
-										<span className='flex items-center space-x-2'>
-											<Loader2 className='h-4 w-4 animate-spin' />
-											<span>Loading Subconcepts...</span>
-										</span>
-									) : (
-										'Next'
-									)}
-								</Button>
-							</div>
+							<Select
+								value={gradeLevel}
+								onValueChange={setGradeLevel}
+							>
+								<SelectTrigger className='bg-white text-base sm:text-lg h-12 sm:h-14'>
+									<SelectValue placeholder='Select your grade level' />
+								</SelectTrigger>
+								<SelectContent>
+									{GRADE_LEVELS.map((level) => (
+										<SelectItem key={level} value={level}>
+											{level}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</CardContent>
+					<CardFooter className='flex flex-col sm:flex-row gap-3 px-4 sm:px-6'>
+						<Button
+							variant='outline'
+							onClick={handleBack}
+							className='gap-2 w-full'
+						>
+							<ArrowLeft className='h-4 w-4' />
+							Back
+						</Button>
+						<Button
+							onClick={handleNext}
+							disabled={isLoadingConcepts}
+							size='lg'
+							className='gap-2 w-full'
+						>
+							{isLoadingConcepts ? (
+								<>
+									<Loader2 className='h-4 w-4 animate-spin' />
+									Generating...
+								</>
+							) : (
+								<>
+									Next
+									<ArrowRight className='h-4 w-4' />
+								</>
+							)}
+						</Button>
+					</CardFooter>
 				</Card>
 			);
 		}
@@ -359,109 +401,130 @@ export default function Input() {
 		const subConceptIndex = currentStep - 3;
 		if (subConceptIndex >= 0 && subConceptIndex < subConcepts.length) {
 			const currentSubConcept = subConcepts[subConceptIndex];
-			const prompt = Array.isArray(partialSubConcepts)
-				? partialSubConcepts[subConceptIndex]?.prompt
-				: undefined;
+			const prompt =
+				partialSubConcepts?.subconcepts?.[subConceptIndex]?.prompt;
 
 			return (
-				<Card>
-					<CardContent className='pt-6'>
+				<Card className='shadow-md w-full'>
+					<CardHeader className='px-4 sm:px-6'>
+						<CardTitle>Explain: {currentSubConcept}</CardTitle>
+						<CardDescription>
+							Subconcept {subConceptIndex + 1} of{' '}
+							{subConcepts.length}
+						</CardDescription>
+					</CardHeader>
+					<CardContent className='px-4 sm:px-6'>
 						<div className='space-y-4'>
-							<div className='space-y-2'>
-								<Label>
-									Explain: {currentSubConcept}{' '}
-									<span className='text-muted-foreground text-sm'>
-										({subConceptIndex + 1} of{' '}
-										{subConcepts.length})
-									</span>
-								</Label>
-								{prompt && (
-									<p className='text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg'>
-										{prompt}
-									</p>
-								)}
-								<Textarea
-									placeholder={`Explain your understanding of ${currentSubConcept}...`}
-									value={
-										subConceptExplanations[
-											currentSubConcept
-										] || ''
-									}
-									onChange={(e) =>
-										setSubConceptExplanation(
-											currentSubConcept,
-											e.target.value
-										)
-									}
-									className='min-h-[150px] bg-white'
-								/>
-							</div>
-							<div className='flex justify-between'>
-								<Button
-									type='button'
-									variant='outline'
-									onClick={handleBack}
-								>
-									Back
-								</Button>
-								<Button type='button' onClick={handleNext}>
-									{subConceptIndex === subConcepts.length - 1
-										? 'Review Full Explanation'
-										: 'Next Subconcept'}
-								</Button>
-							</div>
+							{prompt && (
+								<div className='text-sm text-muted-foreground bg-muted/50 p-3 sm:p-4 rounded-lg'>
+									{prompt}
+								</div>
+							)}
+							<Textarea
+								placeholder={`Explain your understanding of ${currentSubConcept}...`}
+								value={
+									subConceptExplanations[currentSubConcept] ||
+									''
+								}
+								onChange={(e) =>
+									setSubConceptExplanation(
+										currentSubConcept,
+										e.target.value
+									)
+								}
+								className='min-h-[180px] sm:min-h-[200px] bg-white text-sm sm:text-base p-3 sm:p-4'
+							/>
 						</div>
 					</CardContent>
+					<CardFooter className='flex flex-col sm:flex-row gap-3 px-4 sm:px-6'>
+						<Button
+							variant='outline'
+							onClick={handleBack}
+							className='gap-2 w-full'
+						>
+							<ArrowLeft className='h-4 w-4' />
+							Back
+						</Button>
+						<Button
+							onClick={handleNext}
+							size='lg'
+							className='gap-2 w-full'
+						>
+							{subConceptIndex === subConcepts.length - 1
+								? 'Review'
+								: 'Next'}
+							<ArrowRight className='h-4 w-4' />
+						</Button>
+					</CardFooter>
 				</Card>
 			);
 		}
 
 		// Final step - review and submit combined explanation
 		return (
-			<Card>
-				<CardContent className='pt-6'>
+			<Card className='shadow-md w-full'>
+				<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
+					<div>
+						<CardTitle>Review Your Complete Explanation</CardTitle>
+						<CardDescription>
+							Your explanations of all subconcepts have been
+							combined below. Feel free to make any final
+							adjustments before submitting.
+						</CardDescription>
+					</div>
+					{isRestoredAssessment && (
+						<Button
+							variant='ghost'
+							size='sm'
+							onClick={handleStartOver}
+							className='gap-1 text-muted-foreground hover:text-foreground'
+						>
+							<RefreshCw className='h-3.5 w-3.5' />
+							<span className='text-xs'>Start Over</span>
+						</Button>
+					)}
+				</CardHeader>
+				<CardContent className='px-4 sm:px-6'>
 					<div className='space-y-4'>
-						<div className='space-y-2'>
-							<Label>Review Your Complete Explanation</Label>
-							<p className='text-sm text-muted-foreground mb-4'>
-								Your explanations of all subconcepts have been
-								combined below. Feel free to make any final
-								adjustments before submitting.
-							</p>
-							<Textarea
-								value={input}
-								onChange={(e) => setInput(e.target.value)}
-								className='min-h-[300px] bg-white'
-							/>
-						</div>
-						<div className='flex justify-between'>
-							<Button
-								type='button'
-								variant='outline'
-								onClick={handleBack}
-							>
-								Back
-							</Button>
-							<Button
-								onClick={(e) => {
-									e.preventDefault();
-									handleSubmit(e);
-								}}
-								disabled={isLoading}
-								className='bg-primary'
-							>
-								{isLoading ? (
-									<span className='flex items-center space-x-2'>
-										<Loader2 className='h-4 w-4 animate-spin' />
-										<span>Assessing...</span>
-									</span>
-								) : (
-									'Assess My Understanding'
-								)}
-							</Button>
-						</div>
+						<Textarea
+							value={input}
+							onChange={(e) => setInput(e.target.value)}
+							className='min-h-[250px] sm:min-h-[300px] bg-white text-sm sm:text-base p-3 sm:p-4'
+						/>
 					</div>
 				</CardContent>
+				<CardFooter className='flex flex-col gap-3 px-4 sm:px-6'>
+					<div className='flex flex-col sm:flex-row gap-3 w-full'>
+						<Button
+							variant='outline'
+							onClick={handleBack}
+							className='gap-2 w-full'
+						>
+							<ArrowLeft className='h-4 w-4' />
+							Back
+						</Button>
+						<Button
+							onClick={(e) => {
+								e.preventDefault();
+								handleSubmit(e);
+							}}
+							disabled={isLoading}
+							size='lg'
+							className='gap-2 w-full'
+						>
+							{isLoading ? (
+								<>
+									<Loader2 className='h-4 w-4 animate-spin' />
+									Assessing...
+								</>
+							) : isRestoredAssessment ? (
+								'Reassess My Understanding'
+							) : (
+								'Assess My Understanding'
+							)}
+						</Button>
+					</div>
+				</CardFooter>
 			</Card>
 		);
 	};
@@ -469,7 +532,7 @@ export default function Input() {
 	return (
 		<div className='h-screen flex flex-col'>
 			<AlertDialog open={showAlert} onOpenChange={setShowAlert}>
-				<AlertDialogContent>
+				<AlertDialogContent className='max-w-[90vw] sm:max-w-md'>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Missing Information</AlertDialogTitle>
 						<AlertDialogDescription>
@@ -483,7 +546,7 @@ export default function Input() {
 			</AlertDialog>
 
 			<ScrollArea className='flex-1'>
-				<div className='p-4 sm:p-6 space-y-6 mb-64'>
+				<div className='p-3 sm:p-6 space-y-6 mb-64'>
 					<div className='w-full max-w-3xl mx-auto space-y-6'>
 						<div className='text-center space-y-2'>
 							<h1 className='text-2xl font-bold sm:text-3xl md:text-4xl'>
@@ -493,29 +556,29 @@ export default function Input() {
 								Explain a concept in simple terms to test your
 								understanding
 							</p>
-							{isRestoredAssessment && (
-								<div className='mt-2 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border-amber-200'>
-									Viewing previous assessment: {conceptTitle}
-									<button
-										onClick={() => {
-											clearAssessment();
-											setCurrentStep(1);
-											setIsRestoredAssessment(false);
-										}}
-										className='ml-2 text-amber-700 hover:text-amber-900'
-									>
-										Start New
-									</button>
+
+							{/* Progress indicator */}
+							<div className='w-full max-w-md mx-auto mt-4 px-2 sm:px-0'>
+								<div className='flex justify-between text-xs text-muted-foreground mt-6 mb-1'>
+									<span>
+										Step {currentStep} of {totalSteps}
+									</span>
+									<span>{progressPercentage}% Complete</span>
 								</div>
-							)}
+								<Progress
+									value={progressPercentage}
+									className='h-2'
+								/>
+							</div>
 						</div>
-						<div className='max-w-xl mx-auto'>
+
+						<div className='w-full mx-auto px-2 sm:px-0'>
 							{getStepContent()}
 						</div>
 					</div>
 
 					{assessment && (
-						<div className='max-w-3xl mx-auto'>
+						<div className='max-w-3xl mx-auto mt-8 px-2 sm:px-0'>
 							<AssessmentResults assessment={assessment} />
 						</div>
 					)}
