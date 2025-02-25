@@ -194,6 +194,8 @@ export default function Input() {
 			return;
 		}
 
+		// This will update an existing concept if one with the same title exists
+		// Otherwise, it will create a new entry in the previous concepts list
 		submitAssessment({
 			input,
 			conceptTitle,

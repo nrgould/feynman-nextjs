@@ -106,12 +106,23 @@ export const useAssessmentStore = create<AssessmentState>()(
 			setAssessment: (assessment) => {
 				set({ assessment });
 				if (assessment) {
-					set((state) => ({
-						previousConcepts: [
-							{
+					set((state) => {
+						// Check if we already have a concept with the same title
+						const existingConceptIndex =
+							state.previousConcepts.findIndex(
+								(concept) =>
+									concept.conceptTitle === state.conceptTitle
+							);
+
+						// If we found an existing concept with the same title, update it
+						if (existingConceptIndex !== -1) {
+							const updatedPreviousConcepts = [
+								...state.previousConcepts,
+							];
+							updatedPreviousConcepts[existingConceptIndex] = {
 								title: state.conceptTitle,
 								grade: assessment.grade,
-								timestamp: Date.now(),
+								timestamp: Date.now(), // Update timestamp to move it to the top
 								conceptTitle: state.conceptTitle,
 								gradeLevel: state.gradeLevel,
 								explanation: state.explanation,
@@ -119,10 +130,32 @@ export const useAssessmentStore = create<AssessmentState>()(
 								subConceptExplanations:
 									state.subConceptExplanations,
 								assessment: assessment,
-							},
-							...state.previousConcepts,
-						].slice(0, 10), // Keep only the 10 most recent
-					}));
+							};
+
+							return {
+								previousConcepts: updatedPreviousConcepts,
+							};
+						}
+
+						// Otherwise, create a new entry
+						return {
+							previousConcepts: [
+								{
+									title: state.conceptTitle,
+									grade: assessment.grade,
+									timestamp: Date.now(),
+									conceptTitle: state.conceptTitle,
+									gradeLevel: state.gradeLevel,
+									explanation: state.explanation,
+									subConcepts: state.subConcepts,
+									subConceptExplanations:
+										state.subConceptExplanations,
+									assessment: assessment,
+								},
+								...state.previousConcepts,
+							].slice(0, 10), // Keep only the 10 most recent
+						};
+					});
 				}
 			},
 			setConceptTitle: (conceptTitle) => set({ conceptTitle }),
@@ -160,6 +193,15 @@ export const useAssessmentStore = create<AssessmentState>()(
 
 					if (!previousConcept) return state;
 
+					// Move the restored concept to the top of the list without creating a duplicate
+					const updatedPreviousConcepts =
+						state.previousConcepts.filter(
+							(concept) => concept.timestamp !== timestamp
+						);
+
+					// We don't add it back to the list here because when the user makes changes
+					// and submits for assessment, setAssessment will handle adding it back
+
 					return {
 						assessment: previousConcept.assessment,
 						conceptTitle: previousConcept.conceptTitle,
@@ -168,6 +210,10 @@ export const useAssessmentStore = create<AssessmentState>()(
 						subConcepts: previousConcept.subConcepts,
 						subConceptExplanations:
 							previousConcept.subConceptExplanations,
+						previousConcepts: [
+							previousConcept,
+							...updatedPreviousConcepts,
+						],
 					};
 				}),
 			deletePreviousConcept: (timestamp) =>

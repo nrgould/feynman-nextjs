@@ -41,7 +41,6 @@ export function StrengthsWeaknessesSidebar({
 					{(weakAreas.length > 0 || weakMetrics.length > 0) && (
 						<div className='p-4 rounded-lg border-l-4 border-red-400 bg-red-50'>
 							<h2 className='font-semibold text-zinc-800 mb-4 flex items-center'>
-								<span className='h-2 w-2 rounded-full bg-red-500 mr-2'></span>
 								Areas Needing Improvement
 							</h2>
 							{weakMetrics.length > 0 && (
@@ -85,7 +84,6 @@ export function StrengthsWeaknessesSidebar({
 					{(strongAreas.length > 0 || strongMetrics.length > 0) && (
 						<div className='p-4 rounded-lg border-l-4 border-emerald-400 bg-emerald-50'>
 							<h2 className='font-semibold text-zinc-800 mb-4 flex items-center'>
-								<span className='h-2 w-2 rounded-full bg-emerald-500 mr-2'></span>
 								Strong Areas
 							</h2>
 							{strongMetrics.length > 0 && (
