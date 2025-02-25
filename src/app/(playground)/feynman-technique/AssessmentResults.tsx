@@ -37,7 +37,7 @@ interface AssessmentResultsProps {
 }
 
 export function AssessmentResults({ assessment }: AssessmentResultsProps) {
-	const { clearAssessment } = useAssessmentStore();
+	const { clearAssessment, conceptTitle } = useAssessmentStore();
 
 	// Find weak areas (subconcepts with accuracy < 70%)
 	const weakAreas = assessment.subconcepts.filter(
@@ -191,10 +191,28 @@ export function AssessmentResults({ assessment }: AssessmentResultsProps) {
 
 			<motion.div variants={item} className='space-y-6'>
 				<div>
-					<h2 className='text-xl font-semibold mb-4'>Summary</h2>
-					<p className='text-primary text-md leading-[2.5] tracking-wide '>
+					<motion.h2
+						className='text-xl font-semibold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary/70 bg-clip-text text-transparent inline-block animate-gradient-x bg-[length:200%_auto]'
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{ delay: 0.2, duration: 0.5 }}
+					>
+						Understanding of {conceptTitle}
+					</motion.h2>
+					<motion.div
+						className='h-0.5 w-16 bg-gradient-to-r from-primary via-primary/80 to-primary/40 rounded-full mb-4 animate-shimmer bg-[length:200%_auto]'
+						initial={{ width: 0, opacity: 0 }}
+						animate={{ width: '4rem', opacity: 1 }}
+						transition={{ delay: 0.4, duration: 0.5 }}
+					></motion.div>
+					<motion.p
+						className='text-primary text-md leading-[2.5] tracking-wide'
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.5, duration: 0.5 }}
+					>
 						{assessment.summary}
-					</p>
+					</motion.p>
 				</div>
 
 				<div className='border-t pt-6'>

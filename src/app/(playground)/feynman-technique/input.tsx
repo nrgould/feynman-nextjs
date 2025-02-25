@@ -39,6 +39,7 @@ import { getSubConcepts } from './actions';
 import { z } from 'zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -367,7 +368,7 @@ export default function Input() {
 								size='lg'
 								className='gap-2 w-full'
 							>
-								Next
+								Start
 								<ArrowRight className='h-4 w-4' />
 							</Button>
 						</div>
@@ -382,6 +383,16 @@ export default function Input() {
 					<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
 						<div>
 							<CardTitle>What is your grade level?</CardTitle>
+							{conceptTitle && (
+								<div className='mt-1 mb-2'>
+									<span className='text-sm text-muted-foreground'>
+										Concept:{' '}
+										<span className='font-medium text-primary'>
+											{conceptTitle}
+										</span>
+									</span>
+								</div>
+							)}
 							<CardDescription>
 								This helps us tailor the assessment to your
 								educational level
@@ -459,6 +470,16 @@ export default function Input() {
 					<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
 						<div>
 							<CardTitle>Explain: {currentSubConcept}</CardTitle>
+							{conceptTitle && (
+								<div className='mt-1 mb-2'>
+									<span className='text-sm text-muted-foreground'>
+										Concept:{' '}
+										<span className='font-medium text-primary'>
+											{conceptTitle}
+										</span>
+									</span>
+								</div>
+							)}
 							<CardDescription>
 								Subconcept {subConceptIndex + 1} of{' '}
 								{subConcepts.length}
@@ -527,6 +548,16 @@ export default function Input() {
 				<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
 					<div>
 						<CardTitle>Review Your Complete Explanation</CardTitle>
+						{conceptTitle && (
+							<div className='mt-1 mb-2'>
+								<span className='text-sm text-muted-foreground'>
+									Concept:{' '}
+									<span className='font-medium text-primary'>
+										{conceptTitle}
+									</span>
+								</span>
+							</div>
+						)}
 						<CardDescription>
 							Your explanations of all subconcepts have been
 							combined below. Feel free to make any final
@@ -607,29 +638,148 @@ export default function Input() {
 			<ScrollArea className='flex-1'>
 				<div className='p-3 sm:p-6 space-y-6 mb-64'>
 					<div className='w-full max-w-3xl mx-auto space-y-6'>
-						<div className='text-center space-y-2'>
-							<h1 className='text-2xl font-bold sm:text-3xl md:text-4xl'>
-								Feynman Technique
-							</h1>
-							<p className='text-muted-foreground text-xs sm:text-sm md:text-base max-w-2xl mx-auto'>
-								Explain a concept in simple terms to test your
-								understanding
-							</p>
+						<LayoutGroup id='header-transition'>
+							<div className='text-center space-y-2 relative min-h-[120px]'>
+								<AnimatePresence mode='wait'>
+									<motion.div
+										key='header-container'
+										className='flex flex-col items-center'
+										layout
+									>
+										<motion.div
+											className='uppercase tracking-wider origin-center'
+											initial={{
+												fontSize:
+													currentStep === 1
+														? '2rem'
+														: '0.75rem',
+												fontWeight:
+													currentStep === 1
+														? 700
+														: 500,
+												color:
+													currentStep === 1
+														? 'hsl(var(--foreground))'
+														: 'hsl(var(--muted-foreground))',
+												marginBottom:
+													currentStep === 1
+														? '1rem'
+														: '0.25rem',
+												textAlign: 'center',
+												width: '100%',
+											}}
+											animate={{
+												fontSize:
+													conceptTitle &&
+													currentStep > 1
+														? '0.75rem'
+														: '2rem',
+												fontWeight:
+													conceptTitle &&
+													currentStep > 1
+														? 500
+														: 700,
+												color:
+													conceptTitle &&
+													currentStep > 1
+														? 'hsl(var(--muted-foreground))'
+														: 'hsl(var(--foreground))',
+												marginBottom:
+													conceptTitle &&
+													currentStep > 1
+														? '0.25rem'
+														: '1rem',
+											}}
+											transition={{
+												duration: 0.5,
+												ease: 'easeInOut',
+											}}
+											layout='position'
+										>
+											Feynman Technique
+										</motion.div>
 
-							{/* Progress indicator */}
-							<div className='w-full max-w-md mx-auto mt-4 px-2 sm:px-0'>
-								<div className='flex justify-between text-xs text-muted-foreground mt-6 mb-1'>
-									<span>
-										Step {currentStep} of {totalSteps}
-									</span>
-									<span>{progressPercentage}% Complete</span>
-								</div>
-								<Progress
-									value={progressPercentage}
-									className='h-2'
-								/>
+										{conceptTitle && currentStep > 1 ? (
+											<>
+												<motion.h1
+													className='text-2xl font-bold sm:text-3xl md:text-5xl bg-gradient-to-r from-primary via-primary/80 to-primary/70 bg-clip-text text-transparent px-4 sm:px-0 leading-normal pb-1 animate-gradient-x bg-[length:200%_auto]'
+													initial={{
+														opacity: 0,
+														scale: 0.9,
+														y: 10,
+													}}
+													animate={{
+														opacity: 1,
+														scale: 1,
+														y: 0,
+													}}
+													transition={{
+														delay: 0.3,
+														duration: 0.5,
+													}}
+													layout='position'
+												>
+													{conceptTitle}
+												</motion.h1>
+												<motion.div
+													className='h-1 w-16 sm:w-24 bg-gradient-to-r from-primary via-primary/80 to-primary/40 rounded-full mx-auto mt-1 mb-3 animate-shimmer bg-[length:200%_auto]'
+													initial={{
+														width: 0,
+														opacity: 0,
+													}}
+													animate={{
+														width: '5rem',
+														opacity: 1,
+													}}
+													transition={{
+														delay: 0.5,
+														duration: 0.5,
+													}}
+													layout='position'
+												></motion.div>
+											</>
+										) : (
+											<motion.p
+												className='text-muted-foreground text-xs sm:text-sm md:text-base max-w-2xl mx-auto'
+												initial={{ opacity: 0, y: 10 }}
+												animate={{ opacity: 1, y: 0 }}
+												exit={{ opacity: 0, y: -10 }}
+												transition={{ duration: 0.5 }}
+												layout='position'
+											>
+												Explain a concept in simple
+												terms to test your understanding
+											</motion.p>
+										)}
+									</motion.div>
+								</AnimatePresence>
+
+								{/* Progress indicator - only show from step 2 onwards */}
+								{currentStep > 1 && (
+									<motion.div
+										className='w-full max-w-md mx-auto mt-4 px-2 sm:px-0'
+										initial={{ opacity: 0, y: 20 }}
+										animate={{ opacity: 1, y: 0 }}
+										transition={{ duration: 0.5 }}
+										layout='position'
+									>
+										<div className='flex justify-between text-xs text-muted-foreground mt-6 mb-1'>
+											<span>
+												Step {currentStep} of{' '}
+												{totalSteps}
+											</span>
+											<span>
+												{progressPercentage}% Complete
+											</span>
+										</div>
+										<Progress
+											value={progressPercentage}
+											className='h-2'
+										/>
+									</motion.div>
+								)}
 							</div>
-						</div>
+						</LayoutGroup>
 
 						<div className='w-full mx-auto px-2 sm:px-0'>
 							{getStepContent()}
@@ -638,6 +788,15 @@ export default function Input() {
 
 					{assessment && (
 						<div className='max-w-3xl mx-auto mt-8 px-2 sm:px-0'>
+							<div className='text-center mb-6'>
+								<h2 className='text-xl font-semibold'>
+									Assessment Results
+								</h2>
+								<p className='text-sm text-muted-foreground'>
+									Your understanding of {conceptTitle} has
+									been evaluated
+								</p>
+							</div>
 							<AssessmentResults assessment={assessment} />
 						</div>
 					)}
