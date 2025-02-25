@@ -422,7 +422,10 @@ export default function Input() {
 								Back
 							</Button>
 							<Button
-								type='submit'
+								onClick={(e) => {
+									e.preventDefault();
+									handleSubmit(e);
+								}}
 								disabled={isLoading}
 								className='bg-primary'
 							>
@@ -459,7 +462,7 @@ export default function Input() {
 			</AlertDialog>
 
 			<div className='max-w-2xl mx-auto'>
-				<form onSubmit={handleSubmit}>{getStepContent()}</form>
+				<div>{getStepContent()}</div>
 			</div>
 
 			{assessment && <AssessmentResults assessment={assessment} />}
