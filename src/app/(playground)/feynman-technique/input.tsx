@@ -13,7 +13,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Loader2, RefreshCw, ArrowLeft, ArrowRight } from 'lucide-react';
+import {
+	Loader2,
+	RefreshCw,
+	ArrowLeft,
+	ArrowRight,
+	ListChecks,
+} from 'lucide-react';
 import { assessmentSchema } from '@/lib/schemas';
 import { AssessmentResults } from './AssessmentResults';
 import {
@@ -49,28 +55,6 @@ const GRADE_LEVELS = [
 	'Graduate',
 	'Professional',
 ] as const;
-
-const GUIDELINES = [
-	{
-		title: 'The "Why" Behind the Concept',
-		description:
-			'Explain the purpose and importance of understanding this concept',
-	},
-	{
-		title: 'Key Components',
-		description:
-			'Identify and explain the essential parts or elements of the concept.',
-	},
-	{
-		title: 'Example/Analogy',
-		description:
-			'Provide a real-world example or analogy to make it relatable',
-	},
-	{
-		title: 'Process Explanation',
-		description: 'Break down how the concept works step by step',
-	},
-];
 
 // Define the schema for a single subconcept
 const subconceptSchema = z.object({
@@ -546,7 +530,7 @@ export default function Input() {
 
 		// Final step - review and submit combined explanation
 		return (
-			<Card className='shadow-md w-full'>
+			<Card className='shadow-md max-w-3xl'>
 				<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
 					<div>
 						<CardTitle>Review Your Complete Explanation</CardTitle>
@@ -611,9 +595,15 @@ export default function Input() {
 									Assessing...
 								</>
 							) : isRestoredAssessment ? (
-								'Reassess My Understanding'
+								<>
+									Reassess
+									<ListChecks className='h-4 w-4' />
+								</>
 							) : (
-								'Assess My Understanding'
+								<>
+									Assess
+									<ListChecks className='h-4 w-4' />
+								</>
 							)}
 						</Button>
 					</div>
@@ -623,7 +613,7 @@ export default function Input() {
 	};
 
 	return (
-		<div className='h-screen flex flex-col'>
+		<div className='h-screen flex flex-col overflow-x-hidden'>
 			<AlertDialog open={showAlert} onOpenChange={setShowAlert}>
 				<AlertDialogContent className='max-w-[90vw] sm:max-w-md'>
 					<AlertDialogHeader>
