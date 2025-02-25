@@ -375,7 +375,7 @@ export function AssessmentResults({ assessment }: AssessmentResultsProps) {
 				</div>
 			</div>
 
-			<MotionCard variants={item}>
+			<MotionCard variants={item} className='mb-24'>
 				<CardContent className='pt-6'>
 					<div className='text-center space-y-4'>
 						<h2 className='text-2xl font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent'>

@@ -14,7 +14,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
-import { assessmentSchema, subconceptsSchema } from '@/lib/schemas';
+import { assessmentSchema } from '@/lib/schemas';
 import { AssessmentResults } from './AssessmentResults';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -30,6 +30,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAssessmentStore } from '@/store/store';
 import { getSubConcepts } from './actions';
 import { z } from 'zod';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -76,6 +77,7 @@ export default function Input() {
 	const [alertMessage, setAlertMessage] = useState('');
 	const [currentStep, setCurrentStep] = useState(1);
 	const [isLoadingSubConcepts, setIsLoadingSubConcepts] = useState(false);
+	const [isRestoredAssessment, setIsRestoredAssessment] = useState(false);
 
 	const {
 		assessment,
@@ -90,7 +92,24 @@ export default function Input() {
 		setSubConcepts,
 		subConceptExplanations,
 		setSubConceptExplanation,
+		clearAssessment,
 	} = useAssessmentStore();
+
+	// Check if we're viewing a restored assessment
+	React.useEffect(() => {
+		if (
+			assessment &&
+			conceptTitle &&
+			gradeLevel &&
+			subConcepts.length > 0
+		) {
+			setIsRestoredAssessment(true);
+			// Skip to the final step to show the assessment
+			setCurrentStep(3 + subConcepts.length);
+		} else {
+			setIsRestoredAssessment(false);
+		}
+	}, [assessment, conceptTitle, gradeLevel, subConcepts.length]);
 
 	const {
 		object: partialAssessment,
@@ -446,7 +465,7 @@ export default function Input() {
 	};
 
 	return (
-		<div className='space-y-6'>
+		<div className='h-screen flex flex-col'>
 			<AlertDialog open={showAlert} onOpenChange={setShowAlert}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -461,11 +480,45 @@ export default function Input() {
 				</AlertDialogContent>
 			</AlertDialog>
 
-			<div className='max-w-2xl mx-auto'>
-				<div>{getStepContent()}</div>
-			</div>
+			<ScrollArea className='flex-1'>
+				<div className='p-4 sm:p-6 space-y-6 mb-48'>
+					<div className='w-full max-w-3xl mx-auto space-y-6'>
+						<div className='text-center space-y-2'>
+							<h1 className='text-2xl font-bold sm:text-3xl md:text-4xl'>
+								Feynman Technique
+							</h1>
+							<p className='text-muted-foreground text-xs sm:text-sm md:text-base max-w-2xl mx-auto'>
+								Explain a concept in simple terms to test your
+								understanding
+							</p>
+							{isRestoredAssessment && (
+								<div className='mt-2 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border-amber-200'>
+									Viewing previous assessment: {conceptTitle}
+									<button
+										onClick={() => {
+											clearAssessment();
+											setCurrentStep(1);
+											setIsRestoredAssessment(false);
+										}}
+										className='ml-2 text-amber-700 hover:text-amber-900'
+									>
+										Start New
+									</button>
+								</div>
+							)}
+						</div>
+						<div className='max-w-xl mx-auto'>
+							{getStepContent()}
+						</div>
+					</div>
 
-			{assessment && <AssessmentResults assessment={assessment} />}
+					{assessment && (
+						<div className='max-w-3xl mx-auto'>
+							<AssessmentResults assessment={assessment} />
+						</div>
+					)}
+				</div>
+			</ScrollArea>
 		</div>
 	);
 }

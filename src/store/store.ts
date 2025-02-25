@@ -59,6 +59,18 @@ export const useTitleStore = create<TitleStore>((set) => ({
 	resetTitle: () => set({ title: 'Feynman Learning' }),
 }));
 
+type PreviousConcept = {
+	title: string;
+	grade: number;
+	timestamp: number;
+	conceptTitle: string;
+	gradeLevel: string;
+	explanation: string;
+	subConcepts: string[];
+	subConceptExplanations: Record<string, string>;
+	assessment: z.infer<typeof assessmentSchema> | null;
+};
+
 type AssessmentState = {
 	assessment: z.infer<typeof assessmentSchema> | null;
 	conceptTitle: string;
@@ -66,6 +78,7 @@ type AssessmentState = {
 	explanation: string;
 	subConcepts: string[];
 	subConceptExplanations: Record<string, string>;
+	previousConcepts: PreviousConcept[];
 	setAssessment: (
 		assessment: z.infer<typeof assessmentSchema> | null
 	) => void;
@@ -74,7 +87,10 @@ type AssessmentState = {
 	setExplanation: (explanation: string) => void;
 	setSubConcepts: (concepts: string[]) => void;
 	setSubConceptExplanation: (concept: string, explanation: string) => void;
+	addPreviousConcept: (concept: PreviousConcept) => void;
 	clearAssessment: () => void;
+	restorePreviousAssessment: (timestamp: number) => void;
+	deletePreviousConcept: (timestamp: number) => void;
 };
 
 export const useAssessmentStore = create<AssessmentState>()(
@@ -86,7 +102,29 @@ export const useAssessmentStore = create<AssessmentState>()(
 			explanation: '',
 			subConcepts: [],
 			subConceptExplanations: {},
-			setAssessment: (assessment) => set({ assessment }),
+			previousConcepts: [],
+			setAssessment: (assessment) => {
+				set({ assessment });
+				if (assessment) {
+					set((state) => ({
+						previousConcepts: [
+							{
+								title: state.conceptTitle,
+								grade: assessment.grade,
+								timestamp: Date.now(),
+								conceptTitle: state.conceptTitle,
+								gradeLevel: state.gradeLevel,
+								explanation: state.explanation,
+								subConcepts: state.subConcepts,
+								subConceptExplanations:
+									state.subConceptExplanations,
+								assessment: assessment,
+							},
+							...state.previousConcepts,
+						].slice(0, 10), // Keep only the 10 most recent
+					}));
+				}
+			},
 			setConceptTitle: (conceptTitle) => set({ conceptTitle }),
 			setGradeLevel: (gradeLevel) => set({ gradeLevel }),
 			setExplanation: (explanation) => set({ explanation }),
@@ -98,6 +136,13 @@ export const useAssessmentStore = create<AssessmentState>()(
 						[concept]: explanation,
 					},
 				})),
+			addPreviousConcept: (concept) =>
+				set((state) => ({
+					previousConcepts: [
+						concept,
+						...state.previousConcepts,
+					].slice(0, 10),
+				})),
 			clearAssessment: () =>
 				set({
 					assessment: null,
@@ -107,6 +152,30 @@ export const useAssessmentStore = create<AssessmentState>()(
 					subConcepts: [],
 					subConceptExplanations: {},
 				}),
+			restorePreviousAssessment: (timestamp) =>
+				set((state) => {
+					const previousConcept = state.previousConcepts.find(
+						(concept) => concept.timestamp === timestamp
+					);
+
+					if (!previousConcept) return state;
+
+					return {
+						assessment: previousConcept.assessment,
+						conceptTitle: previousConcept.conceptTitle,
+						gradeLevel: previousConcept.gradeLevel,
+						explanation: previousConcept.explanation,
+						subConcepts: previousConcept.subConcepts,
+						subConceptExplanations:
+							previousConcept.subConceptExplanations,
+					};
+				}),
+			deletePreviousConcept: (timestamp) =>
+				set((state) => ({
+					previousConcepts: state.previousConcepts.filter(
+						(concept) => concept.timestamp !== timestamp
+					),
+				})),
 		}),
 		{
 			name: 'assessment-storage',
