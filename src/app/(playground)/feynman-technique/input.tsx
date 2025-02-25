@@ -115,7 +115,30 @@ export default function Input() {
 			setIsRestoredAssessment(true);
 			// Skip to the final step to show the assessment
 			setCurrentStep(3 + subConcepts.length);
+		} else if (
+			!assessment &&
+			!conceptTitle &&
+			!gradeLevel &&
+			subConcepts.length === 0
+		) {
+			// If all assessment data is cleared, reset to step 1
+			setIsRestoredAssessment(false);
+			setCurrentStep(1);
 		} else {
+			setIsRestoredAssessment(false);
+		}
+	}, [assessment, conceptTitle, gradeLevel, subConcepts.length]);
+
+	// Listen for URL query parameters to reset the component state
+	React.useEffect(() => {
+		// If we're on the assessment page and there's no assessment data, reset to step 1
+		if (
+			!assessment &&
+			!conceptTitle &&
+			!gradeLevel &&
+			subConcepts.length === 0
+		) {
+			setCurrentStep(1);
 			setIsRestoredAssessment(false);
 		}
 	}, [assessment, conceptTitle, gradeLevel, subConcepts.length]);
@@ -283,9 +306,14 @@ export default function Input() {
 	};
 
 	const handleStartOver = () => {
+		// Clear all assessment data in the store
 		clearAssessment();
+
+		// Reset component state
 		setCurrentStep(1);
 		setIsRestoredAssessment(false);
+
+		// Show toast notification
 		toast({
 			title: 'Started New Assessment',
 			description: 'You can now enter a new concept to assess.',

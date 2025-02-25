@@ -58,17 +58,22 @@ export function PreviousConcepts({
 	};
 
 	const handleStartNewConcept = () => {
+		// Clear all assessment data
 		clearAssessment();
+
+		// Show toast notification
 		toast({
 			title: 'Started New Assessment',
 			description: 'You can now enter a new concept to assess.',
 		});
+
 		// Call the callback if provided (for mobile view)
 		if (onConceptSelected) {
 			onConceptSelected();
 		}
-		// Ensure we're on the assessment page
-		router.push('/feynman-technique');
+
+		// Navigate to the assessment page with a query parameter to force a refresh
+		router.push('/feynman-technique?new=' + Date.now());
 	};
 
 	if (previousConcepts.length === 0) {
