@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense, useState, useRef } from 'react';
-import { experimental_useObject, } from 'ai/react';
+import { Suspense, useState, useRef, useEffect } from 'react';
+import { experimental_useObject } from 'ai/react';
 import { conceptsSchema } from '@/lib/schemas';
 import { z } from 'zod';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -11,6 +11,7 @@ import GeneratorCard from '../../components/molecules/GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
 import ConceptLoader from '../../components/atoms/ConceptLoader';
 import ConceptList from '@/components/molecules/ConceptList';
+import { FileUp, ChevronUp } from 'lucide-react';
 
 export default function ConceptsGenerator({
 	initialConcepts,
@@ -23,6 +24,7 @@ export default function ConceptsGenerator({
 	const [concepts, setConcepts] = useState<any>(initialConcepts);
 	const [isDragging, setIsDragging] = useState(false);
 	const conceptListRef = useRef<HTMLDivElement>(null);
+	const [showScrollTop, setShowScrollTop] = useState(false);
 
 	const {
 		submit,
@@ -47,7 +49,8 @@ export default function ConceptsGenerator({
 			if (object && !error) {
 				toast({
 					title: 'Concepts generated!',
-					description: 'You may need to refresh to see your new concepts.',
+					description:
+						'You may need to refresh to see your new concepts.',
 				});
 				conceptListRef.current?.scrollIntoView({ behavior: 'smooth' });
 			}
@@ -103,10 +106,34 @@ export default function ConceptsGenerator({
 
 	const progress = partialConcepts ? (partialConcepts.length / 5) * 100 : 0;
 
+	useEffect(() => {
+		const handleScroll = () => {
+			if (window.scrollY > 500) {
+				setShowScrollTop(true);
+			} else {
+				setShowScrollTop(false);
+			}
+		};
+
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, []);
+
+	const scrollToTop = () => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
+
 	return (
-		<div className='pb-48'>
+		<div className='py-48'>
+			<div className='text-center mb-12 mt-8'>
+				<h1 className='text-4xl font-bold mb-2'>Learning Concepts</h1>
+				<p className='text-muted-foreground max-w-2xl mx-auto'>
+					Create and manage your learning concepts. Upload PDFs to
+					automatically generate concepts or add them manually.
+				</p>
+			</div>
 			<div
-				className='min-h-[40dvh] w-full flex justify-center items-center gap-6 flex-wrap'
+				className='min-h-[40dvh] w-full flex justify-center items-center gap-8 flex-wrap px-4'
 				onDragOver={(e) => {
 					e.preventDefault();
 					setIsDragging(true);
@@ -131,9 +158,14 @@ export default function ConceptsGenerator({
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
 						>
-							<div>Drag and drop files here</div>
-							<div className='text-sm dark:text-zinc-400 text-zinc-500'>
-								{'(PDFs only)'}
+							<div className='bg-white p-8 rounded-xl shadow-lg flex flex-col items-center gap-4 border-2 border-dashed border-primary/50'>
+								<FileUp className='h-12 w-12 text-primary' />
+								<div className='text-xl font-semibold'>
+									Drop your PDF here
+								</div>
+								<div className='text-sm text-muted-foreground'>
+									PDF files up to 5MB are supported
+								</div>
 							</div>
 						</motion.div>
 					)}
@@ -154,13 +186,30 @@ export default function ConceptsGenerator({
 				/>
 			</div>
 			<div className='w-[90%] mx-auto' ref={conceptListRef}>
-				<h2 className='text-3xl font-bold text-center mb-8'>
-					Your Concepts
-				</h2>
+				<div className='flex items-center my-12'>
+					<div className='flex-grow h-px bg-muted'></div>
+					<h2 className='text-3xl font-bold text-center mx-4'>
+						Your Concepts
+					</h2>
+					<div className='flex-grow h-px bg-muted'></div>
+				</div>
 				<Suspense fallback={<ConceptLoader />}>
-					<ConceptList concepts={concepts} setConcepts={setConcepts} />
+					<ConceptList
+						concepts={concepts}
+						setConcepts={setConcepts}
+					/>
 				</Suspense>
 			</div>
+			{/* Scroll to top button */}
+			{showScrollTop && (
+				<button
+					onClick={scrollToTop}
+					className='fixed bottom-8 right-8 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:bg-primary/90 transition-all'
+					aria-label='Scroll to top'
+				>
+					<ChevronUp className='h-5 w-5' />
+				</button>
+			)}
 		</div>
 	);
 }

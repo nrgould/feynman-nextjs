@@ -128,7 +128,13 @@ const ManualConceptCard = ({
 							onChange={(e) => setDescription(e.target.value)}
 							required
 							className='min-h-[80px] resize-none'
+							maxLength={500}
 						/>
+						<div className='flex justify-end'>
+							<span className='text-xs text-muted-foreground'>
+								{description.length}/500 characters
+							</span>
+						</div>
 					</div>
 					<Button
 						type='submit'

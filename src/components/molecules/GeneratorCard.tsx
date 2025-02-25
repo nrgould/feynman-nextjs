@@ -31,7 +31,7 @@ const GeneratorCard = ({
 	clearPDF,
 }: GeneratorCardProps) => {
 	return (
-		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-12'>
+		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-6'>
 			<CardHeader className='text-center space-y-6'>
 				<div className='mx-auto flex items-center justify-center space-x-2 text-muted-foreground'>
 					<div className='rounded-full bg-gradient-to-b from-sky-400 from-50% to-sky-500 border border-sky-500 p-3'>
@@ -51,7 +51,7 @@ const GeneratorCard = ({
 			<CardContent>
 				<form onSubmit={onSubmit} className='space-y-4'>
 					<div
-						className={`relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 transition-colors hover:border-muted-foreground/50`}
+						className={`relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 transition-colors hover:border-muted-foreground/50 ${files.length > 0 ? 'bg-muted/10' : ''}`}
 					>
 						<input
 							type='file'
@@ -62,8 +62,28 @@ const GeneratorCard = ({
 						<FileUp className='h-8 w-8 mb-2 text-muted-foreground' />
 						<p className='text-sm text-muted-foreground text-center'>
 							{files.length > 0 ? (
-								<span className='font-medium text-foreground'>
+								<span className='font-medium text-foreground flex items-center gap-2'>
 									{files[0].name}
+									<Button
+										variant='ghost'
+										size='sm'
+										className='h-6 rounded-full'
+										onClick={(e) => {
+											e.stopPropagation();
+											e.preventDefault();
+											clearPDF();
+										}}
+									>
+										<span className='sr-only'>
+											Remove file
+										</span>
+										<span
+											aria-hidden='true'
+											className='text-muted-foreground'
+										>
+											×
+										</span>
+									</Button>
 								</span>
 							) : (
 								<span>
@@ -71,6 +91,11 @@ const GeneratorCard = ({
 								</span>
 							)}
 						</p>
+						{!files.length && (
+							<p className='text-xs text-muted-foreground mt-2'>
+								PDF files up to 5MB are supported
+							</p>
+						)}
 					</div>
 					<Button
 						type='submit'
@@ -97,21 +122,35 @@ const GeneratorCard = ({
 						</div>
 						<Progress value={progress} className='h-2' />
 					</div>
-					<div className='w-full space-y-2'>
-						<div className='grid grid-cols-6 sm:grid-cols-4 items-center space-x-2 text-sm'>
+					<div className='w-full space-y-2 bg-muted/20 p-3 rounded-md'>
+						<div className='flex items-center space-x-3 text-sm'>
 							<div
-								className={`h-2 w-2 rounded-full ${
+								className={`h-3 w-3 rounded-full ${
 									isLoading
-										? 'bg-yellow-500/50 animate-pulse'
+										? 'bg-yellow-500 animate-pulse'
 										: 'bg-muted'
 								}`}
 							/>
-							<span className='text-muted-foreground text-center col-span-4 sm:col-span-2'>
+							<span className='text-muted-foreground'>
 								{partialConcepts
 									? `Generating concept ${partialConcepts.length} of 5`
-									: 'Analyzing... this may take a moment'}
+									: 'Analyzing PDF... this may take a moment'}
 							</span>
 						</div>
+						{partialConcepts && partialConcepts.length > 0 && (
+							<div className='mt-2 text-xs text-muted-foreground'>
+								<div className='font-medium'>
+									Generated concepts:
+								</div>
+								<ul className='list-disc pl-4 mt-1 space-y-1'>
+									{partialConcepts.map((concept, index) => (
+										<li key={index} className='truncate'>
+											{concept.title}
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
 					</div>
 				</CardFooter>
 			)}
