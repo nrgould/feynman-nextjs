@@ -361,7 +361,7 @@ export default function Input() {
 							/>
 						</div>
 					</CardContent>
-					<CardFooter className='flex flex-col sm:flex-row gap-3 px-4 sm:px-6'>
+					<CardFooter className='flex flex-row gap-3 px-4 sm:px-6'>
 						<div className='w-full'>
 							<Button
 								onClick={handleNext}
@@ -427,10 +427,11 @@ export default function Input() {
 							</Select>
 						</div>
 					</CardContent>
-					<CardFooter className='flex flex-col sm:flex-row gap-3 px-4 sm:px-6'>
+					<CardFooter className='flex flex-row gap-3 px-4 sm:px-6'>
 						<Button
 							variant='outline'
 							onClick={handleBack}
+							size='lg'
 							className='gap-2 w-full'
 						>
 							<ArrowLeft className='h-4 w-4' />
@@ -518,10 +519,11 @@ export default function Input() {
 							/>
 						</div>
 					</CardContent>
-					<CardFooter className='flex flex-col sm:flex-row gap-3 px-4 sm:px-6'>
+					<CardFooter className='flex flex-row gap-3 px-4 sm:px-6'>
 						<Button
 							variant='outline'
 							onClick={handleBack}
+							size='lg'
 							className='gap-2 w-full'
 						>
 							<ArrowLeft className='h-4 w-4' />
@@ -583,11 +585,12 @@ export default function Input() {
 						/>
 					</div>
 				</CardContent>
-				<CardFooter className='flex flex-col gap-3 px-4 sm:px-6'>
-					<div className='flex flex-col sm:flex-row gap-3 w-full'>
+				<CardFooter className='flex flex-row gap-3 px-4 sm:px-6'>
+					<div className='flex flex-row gap-3 w-full'>
 						<Button
 							variant='outline'
 							onClick={handleBack}
+							size='lg'
 							className='gap-2 w-full'
 						>
 							<ArrowLeft className='h-4 w-4' />
