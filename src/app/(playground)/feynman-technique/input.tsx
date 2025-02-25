@@ -300,14 +300,25 @@ export default function Input() {
 		if (currentStep === 1) {
 			return (
 				<Card className='shadow-md w-full'>
-					<CardHeader className='px-4 sm:px-6'>
-						<CardTitle>
-							What concept would you like to learn?
-						</CardTitle>
-						<CardDescription>
-							Enter a high-level concept you want to understand
-							better
-						</CardDescription>
+					<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
+						<div>
+							<CardTitle>
+								What concept would you like to learn?
+							</CardTitle>
+							<CardDescription>
+								Enter a high-level concept you want to
+								understand better
+							</CardDescription>
+						</div>
+						<Button
+							variant='ghost'
+							size='sm'
+							onClick={handleStartOver}
+							className='gap-1 text-muted-foreground hover:text-foreground'
+						>
+							<RefreshCw className='h-3.5 w-3.5' />
+							<span className='text-xs'>Start Over</span>
+						</Button>
 					</CardHeader>
 					<CardContent className='px-4 sm:px-6'>
 						<div className='space-y-4'>
@@ -340,12 +351,23 @@ export default function Input() {
 		if (currentStep === 2) {
 			return (
 				<Card className='shadow-md w-full'>
-					<CardHeader className='px-4 sm:px-6'>
-						<CardTitle>What is your grade level?</CardTitle>
-						<CardDescription>
-							This helps us tailor the assessment to your
-							educational level
-						</CardDescription>
+					<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
+						<div>
+							<CardTitle>What is your grade level?</CardTitle>
+							<CardDescription>
+								This helps us tailor the assessment to your
+								educational level
+							</CardDescription>
+						</div>
+						<Button
+							variant='ghost'
+							size='sm'
+							onClick={handleStartOver}
+							className='gap-1 text-muted-foreground hover:text-foreground'
+						>
+							<RefreshCw className='h-3.5 w-3.5' />
+							<span className='text-xs'>Start Over</span>
+						</Button>
 					</CardHeader>
 					<CardContent className='px-4 sm:px-6'>
 						<div className='space-y-4'>
@@ -406,12 +428,23 @@ export default function Input() {
 
 			return (
 				<Card className='shadow-md w-full'>
-					<CardHeader className='px-4 sm:px-6'>
-						<CardTitle>Explain: {currentSubConcept}</CardTitle>
-						<CardDescription>
-							Subconcept {subConceptIndex + 1} of{' '}
-							{subConcepts.length}
-						</CardDescription>
+					<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
+						<div>
+							<CardTitle>Explain: {currentSubConcept}</CardTitle>
+							<CardDescription>
+								Subconcept {subConceptIndex + 1} of{' '}
+								{subConcepts.length}
+							</CardDescription>
+						</div>
+						<Button
+							variant='ghost'
+							size='sm'
+							onClick={handleStartOver}
+							className='gap-1 text-muted-foreground hover:text-foreground'
+						>
+							<RefreshCw className='h-3.5 w-3.5' />
+							<span className='text-xs'>Start Over</span>
+						</Button>
 					</CardHeader>
 					<CardContent className='px-4 sm:px-6'>
 						<div className='space-y-4'>
@@ -472,17 +505,15 @@ export default function Input() {
 							adjustments before submitting.
 						</CardDescription>
 					</div>
-					{isRestoredAssessment && (
-						<Button
-							variant='ghost'
-							size='sm'
-							onClick={handleStartOver}
-							className='gap-1 text-muted-foreground hover:text-foreground'
-						>
-							<RefreshCw className='h-3.5 w-3.5' />
-							<span className='text-xs'>Start Over</span>
-						</Button>
-					)}
+					<Button
+						variant='ghost'
+						size='sm'
+						onClick={handleStartOver}
+						className='gap-1 text-muted-foreground hover:text-foreground'
+					>
+						<RefreshCw className='h-3.5 w-3.5' />
+						<span className='text-xs'>Start Over</span>
+					</Button>
 				</CardHeader>
 				<CardContent className='px-4 sm:px-6'>
 					<div className='space-y-4'>

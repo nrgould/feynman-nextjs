@@ -13,7 +13,8 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { Trash2, RotateCcw } from 'lucide-react';
+import { Trash2, RotateCcw, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface PreviousConceptsProps {
 	isInMobileView?: boolean;
@@ -28,6 +29,7 @@ export function PreviousConcepts({
 		previousConcepts,
 		restorePreviousAssessment,
 		deletePreviousConcept,
+		clearAssessment,
 	} = useAssessmentStore();
 	const router = useRouter();
 
@@ -55,13 +57,35 @@ export function PreviousConcepts({
 		});
 	};
 
+	const handleStartNewConcept = () => {
+		clearAssessment();
+		toast({
+			title: 'Started New Assessment',
+			description: 'You can now enter a new concept to assess.',
+		});
+		// Call the callback if provided (for mobile view)
+		if (onConceptSelected) {
+			onConceptSelected();
+		}
+		// Ensure we're on the assessment page
+		router.push('/feynman-technique');
+	};
+
 	if (previousConcepts.length === 0) {
 		return (
 			<div className={isInMobileView ? 'p-4' : 'w-[250px] p-4 h-screen'}>
-				<p className='text-sm text-muted-foreground'>
+				<p className='text-sm text-muted-foreground mb-4'>
 					No concepts assessed yet. Complete your first assessment to
 					see it here!
 				</p>
+				<Button
+					onClick={handleStartNewConcept}
+					className='w-full gap-2'
+					size='sm'
+				>
+					<Plus className='h-4 w-4' />
+					Start New Concept
+				</Button>
 			</div>
 		);
 	}
@@ -141,6 +165,17 @@ export function PreviousConcepts({
 							</ContextMenuContent>
 						</ContextMenu>
 					))}
+					<div className='pt-4 border-t mt-4'>
+						<Button
+							onClick={handleStartNewConcept}
+							className='w-full gap-2'
+							size='sm'
+							variant='outline'
+						>
+							<Plus className='h-4 w-4' />
+							Start New Concept
+						</Button>
+					</div>
 				</div>
 			</ScrollArea>
 		</div>
