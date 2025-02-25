@@ -49,33 +49,56 @@ import { toast } from '@/hooks/use-toast';
 const ConceptCard = ({
 	concept,
 	conceptLimitReached,
+	isLoading = false,
+	onClick,
 }: {
 	concept: any;
 	conceptLimitReached: boolean;
+	isLoading?: boolean;
+	onClick?: () => void;
 }) => {
 	const [loading, setLoading] = useState(false);
 
 	const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-		setLoading(true);
-		if (concept.is_active) {
-			setLoading(false);
-			redirect(`/chat/${concept.chat_id}`);
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (onClick) {
+			onClick();
+			return;
 		}
 
-		console.log(concept);
+		// If no external click handler is provided, use the default behavior
+		setLoading(true);
+
+		if (concept.is_active && concept.chat_id) {
+			window.location.href = `/chat/${concept.chat_id}`;
+			return;
+		}
 
 		const chatId = generateUUID();
 
-		e.stopPropagation();
-		const { success, error } = await createChatFromConcept(concept, chatId);
-		if (error) {
+		try {
+			const { success, error } = await createChatFromConcept(
+				concept,
+				chatId
+			);
+			if (error) {
+				toast({
+					title: 'Failed to create chat',
+					description: 'Try reloading the page',
+					variant: 'destructive',
+				});
+			}
+		} catch (error) {
 			toast({
 				title: 'Failed to create chat',
-				description: 'Try reloading the page',
+				description: 'An unexpected error occurred',
 				variant: 'destructive',
 			});
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	};
 
 	const handleDelete = async (e: React.MouseEvent) => {};
@@ -166,9 +189,9 @@ const ConceptCard = ({
 					variant={active ? 'secondary' : 'outline'}
 					onClick={handleClick}
 					className='w-1/3'
-					disabled={isDisabled}
+					disabled={isDisabled || isLoading || loading}
 				>
-					{loading ? (
+					{isLoading || loading ? (
 						<span className='flex items-center space-x-2'>
 							<Loader2 className='h-4 w-4 animate-spin' />
 						</span>

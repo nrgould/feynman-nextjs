@@ -31,7 +31,7 @@ const GeneratorCard = ({
 	clearPDF,
 }: GeneratorCardProps) => {
 	return (
-		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-6'>
+		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-4 sm:my-6'>
 			<CardHeader className='text-center space-y-6'>
 				<div className='mx-auto flex items-center justify-center space-x-2 text-muted-foreground'>
 					<div className='rounded-full bg-gradient-to-b from-sky-400 from-50% to-sky-500 border border-sky-500 p-3'>

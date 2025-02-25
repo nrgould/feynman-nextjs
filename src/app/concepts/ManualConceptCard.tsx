@@ -78,7 +78,7 @@ const ManualConceptCard = ({
 	};
 
 	return (
-		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-12'>
+		<Card className='w-full max-w-md h-full border-0 sm:border sm:h-fit my-4 sm:my-6'>
 			<CardHeader className='text-center space-y-6'>
 				<div className='mx-auto flex items-center justify-center space-x-2 text-muted-foreground'>
 					<div className='rounded-full bg-gradient-to-b from-emerald-400 from-50% to-emerald-500 border border-emerald-500 p-3'>

@@ -21,23 +21,36 @@ import ConceptCard from '../../components/molecules/ConceptCard';
 import ConceptLoader from '../../components/atoms/ConceptLoader';
 import { ClerkLoaded } from '@clerk/nextjs';
 import { ClerkLoading } from '@clerk/nextjs';
-import { getUserConcepts } from '@/app/concepts/actions';
+import { getUserConcepts, createChatFromConcept } from '@/app/concepts/actions';
 import { Button } from '@/components/ui/button';
 import { Search, SortAsc, Filter } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
+import { generateUUID } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import LoadingOverlay from './LoadingOverlay';
+
+interface ConceptListProps {
+	concepts: any[];
+	setConcepts: React.Dispatch<React.SetStateAction<any[]>>;
+	variant?: 'sidebar' | 'main';
+}
 
 function ConceptList({
 	concepts,
 	setConcepts,
-}: {
-	concepts: any[];
-	setConcepts: React.Dispatch<React.SetStateAction<any[]>>;
-}) {
-	// const [concepts, setConcepts] = useState(initialConcepts);
+	variant = 'main',
+}: ConceptListProps) {
+	const router = useRouter();
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState('title');
 	const [statusFilter, setStatusFilter] = useState('all');
 	const [loading, setLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(concepts.length === 10);
+	const [loadingConceptId, setLoadingConceptId] = useState<string | null>(
+		null
+	);
+	const [isCreatingChat, setIsCreatingChat] = useState(false);
 
 	const conceptLimitReached = false;
 
@@ -89,170 +102,300 @@ function ConceptList({
 		}
 	};
 
+	const handleConceptClick = async (concept: any) => {
+		setLoadingConceptId(concept.id);
+
+		if (concept.chat_id) {
+			router.push(`/chat/${concept.chat_id}`);
+			return;
+		}
+
+		// Show full-page loading overlay
+		setIsCreatingChat(true);
+
+		// Create a new chat for this concept
+		const chatId = generateUUID();
+
+		try {
+			// The createChatFromConcept function will attempt to redirect on the server
+			// but we also handle it here in case the redirect doesn't work
+			const result = await createChatFromConcept(concept, chatId);
+
+			// If we get here, it means the redirect in createChatFromConcept didn't happen
+			// This is a fallback in case the redirect fails
+			if (result && result.error) {
+				toast({
+					title: 'Failed to create chat',
+					description: 'Try reloading the page',
+					variant: 'destructive',
+				});
+				setLoadingConceptId(null);
+				setIsCreatingChat(false);
+			} else {
+				// If no error, manually redirect
+				router.push(`/chat/${chatId}`);
+			}
+		} catch (error) {
+			// This catch block will likely not be reached since the server action handles errors
+			// But we keep it as a safety net
+			console.error('Error creating chat:', error);
+			toast({
+				title: 'Failed to create chat',
+				description: 'An unexpected error occurred',
+				variant: 'destructive',
+			});
+			setLoadingConceptId(null);
+			setIsCreatingChat(false);
+		}
+	};
+
 	return (
-		<div className='space-y-6'>
-			<div className='flex flex-col sm:flex-row gap-4 justify-center items-center bg-muted/20 p-4 rounded-lg'>
-				<div className='relative w-full sm:max-w-[300px]'>
-					<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-					<Input
-						placeholder='Search concepts...'
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className='pl-9 bg-white w-full'
-					/>
-				</div>
-				<div className='flex gap-2 w-full sm:w-auto'>
-					<div className='relative'>
-						<SortAsc className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Select value={sortBy} onValueChange={setSortBy}>
-							<SelectTrigger className='sm:w-[150px] pl-9 text-center bg-white'>
-								<SelectValue placeholder='Sort by' />
-							</SelectTrigger>
-							<SelectContent align='center'>
-								<SelectItem
-									value='title'
-									className='text-center'
-								>
-									Sort by Title
-								</SelectItem>
-								<SelectItem
-									value='topic'
-									className='text-center'
-								>
-									Sort by Topic
-								</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
+		<>
+			<LoadingOverlay
+				isLoading={isCreatingChat}
+				message='Creating learning path...'
+			/>
 
-					<div className='relative'>
-						<Filter className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
-						<Select
-							value={statusFilter}
-							onValueChange={setStatusFilter}
-						>
-							<SelectTrigger className='sm:w-[150px] pl-9 text-center bg-white'>
-								<SelectValue placeholder='Filter' />
-							</SelectTrigger>
-							<SelectContent align='center'>
-								<SelectItem value='all' className='text-center'>
-									All Concepts
-								</SelectItem>
-								<SelectItem
-									value='active'
-									className='text-center'
-								>
-									Active
-								</SelectItem>
-								<SelectItem
-									value='inactive'
-									className='text-center'
-								>
-									Not Started
-								</SelectItem>
-							</SelectContent>
-						</Select>
+			{variant === 'sidebar' ? (
+				<div className='space-y-4'>
+					<div className='relative w-full'>
+						<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search concepts...'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className='pl-9 bg-white w-full'
+						/>
+					</div>
+					<div className='space-y-2'>
+						{filteredAndSortedConcepts.map((concept) => (
+							<div
+								key={concept._id || concept.title}
+								className='group border-l-2 border-transparent hover:border-primary pl-3 py-2 transition-colors cursor-pointer'
+								onClick={() => handleConceptClick(concept)}
+							>
+								<p className='font-medium group-hover:text-primary transition-colors line-clamp-2'>
+									{concept.title}
+								</p>
+								<div className='flex items-center justify-between mt-2'>
+									<Badge
+										variant={
+											concept.is_active
+												? 'default'
+												: 'secondary'
+										}
+									>
+										{loadingConceptId === concept.id &&
+										!isCreatingChat ? (
+											<span className='flex items-center'>
+												<Loader2 className='h-3 w-3 mr-1 animate-spin' />
+												Loading...
+											</span>
+										) : concept.is_active ? (
+											'Active'
+										) : (
+											'Not Started'
+										)}
+									</Badge>
+									<p className='text-xs text-muted-foreground'>
+										{concept.subject}
+									</p>
+								</div>
+							</div>
+						))}
+						{filteredAndSortedConcepts.length === 0 && (
+							<p className='text-sm text-muted-foreground text-center py-4'>
+								No concepts found
+							</p>
+						)}
 					</div>
 				</div>
-			</div>
-
-			<ClerkLoading>
-				<ConceptLoader />
-			</ClerkLoading>
-
-			<ClerkLoaded>
-				<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-[100%] xl:max-w-[75%] mx-auto gap-6'>
-					{filteredAndSortedConcepts.map((concept) => (
-						<div
-							key={concept._id || concept.title}
-							className='flex justify-center w-full'
-						>
-							<ConceptCard
-								concept={concept}
-								conceptLimitReached={conceptLimitReached}
+			) : (
+				<div className='space-y-6'>
+					<div className='flex flex-col sm:flex-row gap-4 justify-center items-center bg-muted/20 p-4 rounded-lg'>
+						<div className='relative w-full sm:max-w-[300px]'>
+							<Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+							<Input
+								placeholder='Search concepts...'
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className='pl-9 bg-white w-full'
 							/>
 						</div>
-					))}
+						<div className='flex gap-2 w-full sm:w-auto'>
+							<div className='relative'>
+								<SortAsc className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+								<Select
+									value={sortBy}
+									onValueChange={setSortBy}
+								>
+									<SelectTrigger className='sm:w-[150px] pl-9 text-center bg-white'>
+										<SelectValue placeholder='Sort by' />
+									</SelectTrigger>
+									<SelectContent align='center'>
+										<SelectItem
+											value='title'
+											className='text-center'
+										>
+											Sort by Title
+										</SelectItem>
+										<SelectItem
+											value='topic'
+											className='text-center'
+										>
+											Sort by Topic
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
 
-					{filteredAndSortedConcepts.length > 0 && hasMore && (
-						<div className='col-span-1 md:col-span-2 lg:col-span-3 flex justify-center'>
-							<Button
-								variant='outline'
-								onClick={loadMoreConcepts}
-								disabled={loading}
-								className='w-full max-w-[120px]'
-							>
-								{loading ? (
-									<>
-										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-										Loading...
-									</>
-								) : (
-									'Load More'
-								)}
-							</Button>
+							<div className='relative'>
+								<Filter className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+								<Select
+									value={statusFilter}
+									onValueChange={setStatusFilter}
+								>
+									<SelectTrigger className='sm:w-[150px] pl-9 text-center bg-white'>
+										<SelectValue placeholder='Filter' />
+									</SelectTrigger>
+									<SelectContent align='center'>
+										<SelectItem
+											value='all'
+											className='text-center'
+										>
+											All Concepts
+										</SelectItem>
+										<SelectItem
+											value='active'
+											className='text-center'
+										>
+											Active
+										</SelectItem>
+										<SelectItem
+											value='inactive'
+											className='text-center'
+										>
+											Not Started
+										</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
 						</div>
-					)}
+					</div>
 
-					{filteredAndSortedConcepts.length === 0 && (
-						<div className='col-span-3 flex justify-center items-center'>
-							<Card className='w-full max-w-md'>
-								<CardHeader>
-									<div className='flex items-center justify-center gap-2'>
-										{searchQuery ? (
-											<CircleAlert className='w-6 h-6 text-amber-500' />
-										) : (
-											<Brain className='w-6 h-6 text-primary' />
-										)}
-										<CardTitle className='text-center text-xl'>
-											{searchQuery
-												? 'No matching concepts found'
-												: 'No concepts yet'}
-										</CardTitle>
+					<ClerkLoading>
+						<ConceptLoader />
+					</ClerkLoading>
+
+					<ClerkLoaded>
+						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-[100%] xl:max-w-[75%] mx-auto gap-6'>
+							{filteredAndSortedConcepts.map((concept) => (
+								<div
+									key={concept._id || concept.title}
+									className='flex justify-center w-full'
+								>
+									<ConceptCard
+										concept={concept}
+										conceptLimitReached={
+											conceptLimitReached
+										}
+										isLoading={
+											loadingConceptId === concept.id &&
+											!isCreatingChat
+										}
+										onClick={() =>
+											handleConceptClick(concept)
+										}
+									/>
+								</div>
+							))}
+
+							{filteredAndSortedConcepts.length > 0 &&
+								hasMore && (
+									<div className='col-span-1 md:col-span-2 lg:col-span-3 flex justify-center'>
+										<Button
+											variant='outline'
+											onClick={loadMoreConcepts}
+											disabled={loading}
+											className='w-full max-w-[120px]'
+										>
+											{loading ? (
+												<>
+													<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+													Loading...
+												</>
+											) : (
+												'Load More'
+											)}
+										</Button>
 									</div>
-								</CardHeader>
-								<CardContent className='text-center'>
-									<CardDescription className='text-muted-foreground text-md mb-4'>
-										{searchQuery
-											? 'Try adjusting your search query or filters'
-											: 'Start by adding a concept or uploading a PDF to generate concepts automatically.'}
-									</CardDescription>
-									{!searchQuery && (
-										<div className='flex flex-col sm:flex-row gap-4 justify-center mt-4'>
-											<Button
-												variant='outline'
-												onClick={() =>
-													window.scrollTo({
-														top: 0,
-														behavior: 'smooth',
-													})
-												}
-												className='flex items-center gap-2'
-											>
-												<FileUp className='h-4 w-4' />
-												<span>Upload PDF</span>
-											</Button>
-											<Button
-												onClick={() =>
-													window.scrollTo({
-														top: 0,
-														behavior: 'smooth',
-													})
-												}
-												className='flex items-center gap-2'
-											>
-												<Brain className='h-4 w-4' />
-												<span>Add Manually</span>
-											</Button>
-										</div>
-									)}
-								</CardContent>
-							</Card>
+								)}
+
+							{filteredAndSortedConcepts.length === 0 && (
+								<div className='col-span-3 flex justify-center items-center'>
+									<Card className='w-full max-w-md'>
+										<CardHeader>
+											<div className='flex items-center justify-center gap-2'>
+												{searchQuery ? (
+													<CircleAlert className='w-6 h-6 text-amber-500' />
+												) : (
+													<Brain className='w-6 h-6 text-primary' />
+												)}
+												<CardTitle className='text-center text-xl'>
+													{searchQuery
+														? 'No matching concepts found'
+														: 'No concepts yet'}
+												</CardTitle>
+											</div>
+										</CardHeader>
+										<CardContent className='text-center'>
+											<CardDescription className='text-muted-foreground text-md mb-4'>
+												{searchQuery
+													? 'Try adjusting your search query or filters'
+													: 'Start by adding a concept or uploading a PDF to generate concepts automatically.'}
+											</CardDescription>
+											{!searchQuery && (
+												<div className='flex flex-col sm:flex-row gap-4 justify-center mt-4'>
+													<Button
+														variant='outline'
+														onClick={() =>
+															window.scrollTo({
+																top: 0,
+																behavior:
+																	'smooth',
+															})
+														}
+														className='flex items-center gap-2'
+													>
+														<FileUp className='h-4 w-4' />
+														<span>Upload PDF</span>
+													</Button>
+													<Button
+														onClick={() =>
+															window.scrollTo({
+																top: 0,
+																behavior:
+																	'smooth',
+															})
+														}
+														className='flex items-center gap-2'
+													>
+														<Brain className='h-4 w-4' />
+														<span>
+															Add Manually
+														</span>
+													</Button>
+												</div>
+											)}
+										</CardContent>
+									</Card>
+								</div>
+							)}
 						</div>
-					)}
+					</ClerkLoaded>
 				</div>
-			</ClerkLoaded>
-		</div>
+			)}
+		</>
 	);
 }
 

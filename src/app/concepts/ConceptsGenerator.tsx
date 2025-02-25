@@ -13,13 +13,17 @@ import ConceptLoader from '../../components/atoms/ConceptLoader';
 import ConceptList from '@/components/molecules/ConceptList';
 import { FileUp, ChevronUp } from 'lucide-react';
 
+interface ConceptsGeneratorProps {
+	initialConcepts: z.infer<typeof conceptsSchema>[];
+	userId: string;
+	variant: 'sidebar' | 'main';
+}
+
 export default function ConceptsGenerator({
 	initialConcepts,
 	userId,
-}: {
-	initialConcepts: z.infer<typeof conceptsSchema>[];
-	userId: string;
-}) {
+	variant,
+}: ConceptsGeneratorProps) {
 	const [files, setFiles] = useState<File[]>([]);
 	const [concepts, setConcepts] = useState<any>(initialConcepts);
 	const [isDragging, setIsDragging] = useState(false);
@@ -119,21 +123,31 @@ export default function ConceptsGenerator({
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
 
-	const scrollToTop = () => {
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	};
+	if (variant === 'sidebar') {
+		return (
+			<div className='space-y-4'>
+				<ConceptList
+					concepts={concepts}
+					setConcepts={setConcepts}
+					variant='sidebar'
+				/>
+			</div>
+		);
+	}
 
 	return (
-		<div className='py-48'>
-			<div className='text-center mb-12 mt-8'>
-				<h1 className='text-4xl font-bold mb-2'>Learning Concepts</h1>
-				<p className='text-muted-foreground max-w-2xl mx-auto'>
+		<div className='pb-24'>
+			<div className='text-center mb-8 md:mb-12 md:block hidden'>
+				<h1 className='text-3xl md:text-4xl font-bold mb-2'>
+					Learning Concepts
+				</h1>
+				<p className='text-sm md:text-base text-muted-foreground max-w-2xl mx-auto'>
 					Create and manage your learning concepts. Upload PDFs to
 					automatically generate concepts or add them manually.
 				</p>
 			</div>
 			<div
-				className='min-h-[40dvh] w-full flex justify-center items-center gap-8 flex-wrap px-4'
+				className='min-h-[40dvh] w-full flex flex-col md:flex-row justify-center items-center gap-6 md:gap-8 px-2 md:px-4'
 				onDragOver={(e) => {
 					e.preventDefault();
 					setIsDragging(true);
@@ -144,7 +158,6 @@ export default function ConceptsGenerator({
 				onDrop={(e) => {
 					e.preventDefault();
 					setIsDragging(false);
-					console.log(e.dataTransfer.files);
 					handleFileChange({
 						target: { files: e.dataTransfer.files },
 					} as React.ChangeEvent<HTMLInputElement>);
@@ -185,25 +198,12 @@ export default function ConceptsGenerator({
 					concepts={concepts}
 				/>
 			</div>
-			<div className='w-[90%] mx-auto' ref={conceptListRef}>
-				<div className='flex items-center my-12'>
-					<div className='flex-grow h-px bg-muted'></div>
-					<h2 className='text-3xl font-bold text-center mx-4'>
-						Your Concepts
-					</h2>
-					<div className='flex-grow h-px bg-muted'></div>
-				</div>
-				<Suspense fallback={<ConceptLoader />}>
-					<ConceptList
-						concepts={concepts}
-						setConcepts={setConcepts}
-					/>
-				</Suspense>
-			</div>
-			{/* Scroll to top button */}
+
 			{showScrollTop && (
 				<button
-					onClick={scrollToTop}
+					onClick={() =>
+						window.scrollTo({ top: 0, behavior: 'smooth' })
+					}
 					className='fixed bottom-8 right-8 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:bg-primary/90 transition-all'
 					aria-label='Scroll to top'
 				>
