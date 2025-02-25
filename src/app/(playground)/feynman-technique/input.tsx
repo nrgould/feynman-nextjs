@@ -649,12 +649,12 @@ export default function Input() {
 										className='flex flex-col items-center'
 										layout
 									>
-										<motion.div
+										<motion.h1
 											className='uppercase tracking-wider origin-center'
 											initial={{
 												fontSize:
 													currentStep === 1
-														? '2rem'
+														? '1.75rem'
 														: '0.75rem',
 												fontWeight:
 													currentStep === 1
@@ -700,7 +700,7 @@ export default function Input() {
 											layout='position'
 										>
 											Feynman Technique
-										</motion.div>
+										</motion.h1>
 
 										{conceptTitle && currentStep > 1 ? (
 											<>
@@ -743,7 +743,7 @@ export default function Input() {
 											</>
 										) : (
 											<motion.p
-												className='text-muted-foreground text-xs sm:text-sm md:text-base max-w-2xl mx-auto'
+												className='text-muted-foreground text-sm sm:text-md md:text-base max-w-2xl mx-auto'
 												initial={{ opacity: 0, y: 10 }}
 												animate={{ opacity: 1, y: 0 }}
 												exit={{ opacity: 0, y: -10 }}
