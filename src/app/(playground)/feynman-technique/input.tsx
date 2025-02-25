@@ -481,7 +481,7 @@ export default function Input() {
 			</AlertDialog>
 
 			<ScrollArea className='flex-1'>
-				<div className='p-4 sm:p-6 space-y-6 mb-48'>
+				<div className='p-4 sm:p-6 space-y-6 mb-64'>
 					<div className='w-full max-w-3xl mx-auto space-y-6'>
 						<div className='text-center space-y-2'>
 							<h1 className='text-2xl font-bold sm:text-3xl md:text-4xl'>

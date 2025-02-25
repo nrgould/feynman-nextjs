@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getSubConcepts } from './actions';
 import { PreviousConcepts } from './PreviousConcepts';
 import { MobilePreviousConcepts } from './MobilePreviousConcepts';
+import { ClientSideStrengthsWeaknesses } from './ClientSideStrengthsWeaknesses';
+import { ClientSideMobileStrengthsWeaknesses } from './ClientSideMobileStrengthsWeaknesses';
 
 export default function FeynmanTechniquePage() {
 	return (
@@ -56,14 +58,18 @@ export default function FeynmanTechniquePage() {
 					<PreviousConcepts />
 				</div>
 
-				{/* Mobile previous concepts - visible only on mobile */}
-				<div className='block md:hidden'>
-					<MobilePreviousConcepts />
-				</div>
-
 				{/* Main content area */}
 				<div className='flex-1'>
 					<Input />
+				</div>
+
+				{/* Strengths/Weaknesses sidebar - hidden on mobile, only shown when assessment exists */}
+				<ClientSideStrengthsWeaknesses />
+
+				{/* Mobile components - visible only on mobile */}
+				<div className='block md:hidden'>
+					<MobilePreviousConcepts />
+					<ClientSideMobileStrengthsWeaknesses />
 				</div>
 			</div>
 		</>
