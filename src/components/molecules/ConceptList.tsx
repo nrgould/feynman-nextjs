@@ -16,9 +16,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import ConceptCard from '../../components/molecules/ConceptCard';
 import ConceptLoader from '../../components/atoms/ConceptLoader';
+import SidebarConceptLoader from '../../components/atoms/SidebarConceptLoader';
 import { ClerkLoaded } from '@clerk/nextjs';
 import { ClerkLoading } from '@clerk/nextjs';
 import { getUserConcepts, createChatFromConcept } from '@/app/concepts/actions';
@@ -37,7 +38,7 @@ interface ConceptListProps {
 }
 
 function ConceptList({
-	concepts,
+	concepts = [],
 	setConcepts,
 	variant = 'main',
 }: ConceptListProps) {
@@ -46,17 +47,28 @@ function ConceptList({
 	const [sortBy, setSortBy] = useState('title');
 	const [statusFilter, setStatusFilter] = useState('all');
 	const [loading, setLoading] = useState(false);
-	const [hasMore, setHasMore] = useState(concepts.length === 10);
+	const [hasMore, setHasMore] = useState(false);
 	const [loadingConceptId, setLoadingConceptId] = useState<string | null>(
 		null
 	);
 	const [isCreatingChat, setIsCreatingChat] = useState(false);
+	const [mounted, setMounted] = useState(false);
+
+	// Fix hydration issues by ensuring client-side rendering is consistent
+	useEffect(() => {
+		setMounted(true);
+		setHasMore(Array.isArray(concepts) && concepts.length === 10);
+	}, [concepts]);
 
 	const conceptLimitReached = false;
 
 	const filteredAndSortedConcepts = useMemo(() => {
+		if (!Array.isArray(concepts)) return [];
+
 		return concepts
 			.filter((concept) => {
+				if (!concept || !concept.title) return false;
+
 				const matchesSearch = concept.title
 					.toLowerCase()
 					.includes(searchQuery.toLowerCase());
@@ -72,7 +84,7 @@ function ConceptList({
 			})
 			.sort((a, b) => {
 				if (sortBy === 'title') {
-					return a.title.localeCompare(b.title);
+					return a.title.localeCompare(b.title) || 0;
 				}
 				if (sortBy === 'subject') {
 					const subjectA = a.subject || '';
@@ -149,6 +161,19 @@ function ConceptList({
 		}
 	};
 
+	// If not mounted yet, return a minimal placeholder to avoid hydration errors
+	if (!mounted) {
+		return (
+			<div className='w-full'>
+				{variant === 'sidebar' ? (
+					<SidebarConceptLoader />
+				) : (
+					<ConceptLoader />
+				)}
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<LoadingOverlay
@@ -168,45 +193,55 @@ function ConceptList({
 						/>
 					</div>
 					<div className='space-y-2'>
-						{filteredAndSortedConcepts.map((concept) => (
-							<div
-								key={concept._id || concept.title}
-								className='group border-l-2 border-transparent hover:border-primary pl-3 py-2 transition-colors cursor-pointer'
-								onClick={() => handleConceptClick(concept)}
-							>
-								<p className='font-medium group-hover:text-primary transition-colors line-clamp-2'>
-									{concept.title}
-								</p>
-								<div className='flex items-center justify-between mt-2'>
-									<Badge
-										variant={
-											concept.is_active
-												? 'default'
-												: 'secondary'
+						{loading && concepts.length === 0 ? (
+							<SidebarConceptLoader />
+						) : (
+							<>
+								{filteredAndSortedConcepts.map((concept) => (
+									<div
+										key={concept._id || concept.title}
+										className='group border-l-2 border-transparent hover:border-primary pl-3 py-2 transition-colors cursor-pointer'
+										onClick={() =>
+											handleConceptClick(concept)
 										}
 									>
-										{loadingConceptId === concept.id &&
-										!isCreatingChat ? (
-											<span className='flex items-center'>
-												<Loader2 className='h-3 w-3 mr-1 animate-spin' />
-												Loading...
-											</span>
-										) : concept.is_active ? (
-											'Active'
-										) : (
-											'Not Started'
-										)}
-									</Badge>
-									<p className='text-xs text-muted-foreground'>
-										{concept.subject}
-									</p>
-								</div>
-							</div>
-						))}
-						{filteredAndSortedConcepts.length === 0 && (
-							<p className='text-sm text-muted-foreground text-center py-4'>
-								No concepts found
-							</p>
+										<p className='font-medium group-hover:text-primary transition-colors line-clamp-2'>
+											{concept.title}
+										</p>
+										<div className='flex items-center justify-between mt-2'>
+											<Badge
+												variant={
+													concept.is_active
+														? 'default'
+														: 'secondary'
+												}
+											>
+												{loadingConceptId ===
+													concept.id &&
+												!isCreatingChat ? (
+													<span className='flex items-center'>
+														<Loader2 className='h-3 w-3 mr-1 animate-spin' />
+														Loading...
+													</span>
+												) : concept.is_active ? (
+													'Active'
+												) : (
+													'Not Started'
+												)}
+											</Badge>
+											<p className='text-xs text-muted-foreground'>
+												{concept.subject}
+											</p>
+										</div>
+									</div>
+								))}
+								{filteredAndSortedConcepts.length === 0 &&
+									!loading && (
+										<p className='text-sm text-muted-foreground text-center py-4'>
+											No concepts found
+										</p>
+									)}
+							</>
 						)}
 					</div>
 				</div>

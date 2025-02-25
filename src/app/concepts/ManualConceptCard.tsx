@@ -20,6 +20,7 @@ import { Brain, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { saveConcept } from './actions';
 import { generateUUID } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 const subjects = [
 	'Algebra',
@@ -40,15 +41,18 @@ const subjects = [
 const ManualConceptCard = ({
 	setConcepts,
 	concepts,
+	userId,
 }: {
 	userId: string;
 	setConcepts: (
-		concepts: {
-			title: string;
-			description: string;
-			subject: string;
-			id: string;
-		}[]
+		concepts:
+			| {
+					title: string;
+					description: string;
+					subject: string;
+					id: string;
+			  }[]
+			| ((prevConcepts: any[]) => any[])
 	) => void;
 	concepts: {
 		title: string;
@@ -67,12 +71,47 @@ const ManualConceptCard = ({
 		e.preventDefault();
 		if (title && description && subject) {
 			const id = generateUUID();
+			const newConcept = { title, description, subject, id };
 
-			await saveConcept({ title, description, subject, id });
-			setConcepts([{ title, description, subject, id }, ...concepts]);
-			setTitle('');
-			setDescription('');
-			setSubject('');
+			try {
+				await saveConcept(newConcept);
+
+				// Update the concepts state with the new concept
+				setConcepts((prevConcepts) => {
+					// Check if the concept already exists
+					const exists = prevConcepts.some((c) => c.id === id);
+					if (exists) return prevConcepts;
+
+					// Add the new concept to the beginning of the list
+					return [
+						{
+							...newConcept,
+							is_active: false,
+							progress: 0,
+							_id: id, // Ensure _id is set for consistency
+						},
+						...prevConcepts,
+					];
+				});
+
+				// Show success toast
+				toast({
+					title: 'Concept created!',
+					description: 'Your new concept has been added to the list.',
+				});
+
+				// Reset form
+				setTitle('');
+				setDescription('');
+				setSubject('');
+			} catch (error) {
+				console.error('Error saving concept:', error);
+				toast({
+					title: 'Failed to create concept',
+					description: 'Please try again.',
+					variant: 'destructive',
+				});
+			}
 		}
 		setLoading(false);
 	};

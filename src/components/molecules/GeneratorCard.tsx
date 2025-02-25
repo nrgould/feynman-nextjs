@@ -40,7 +40,7 @@ const GeneratorCard = ({
 				</div>
 				<div className='space-y-2'>
 					<CardTitle className='text-2xl font-bold'>
-						Get Concepts
+						Upload Materials
 					</CardTitle>
 					<CardDescription className='text-base'>
 						Upload a practice exam, homework, or any PDF and start

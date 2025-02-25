@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import GeneratorCard from '../../components/molecules/GeneratorCard';
 import ManualConceptCard from './ManualConceptCard';
 import ConceptLoader from '../../components/atoms/ConceptLoader';
+import SidebarConceptLoader from '../../components/atoms/SidebarConceptLoader';
 import ConceptList from '@/components/molecules/ConceptList';
 import { FileUp, ChevronUp } from 'lucide-react';
 
@@ -29,6 +30,15 @@ export default function ConceptsGenerator({
 	const [isDragging, setIsDragging] = useState(false);
 	const conceptListRef = useRef<HTMLDivElement>(null);
 	const [showScrollTop, setShowScrollTop] = useState(false);
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setConcepts(initialConcepts);
+	}, [initialConcepts]);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const {
 		submit,
@@ -45,19 +55,24 @@ export default function ConceptsGenerator({
 			);
 			setFiles([]);
 		},
-		onFinish: ({ object, error }) => {
-			console.log(object);
-			setConcepts([...concepts, ...(object ?? [])]);
-			setFiles([]);
-
+		onFinish: async ({ object, error }) => {
 			if (object && !error) {
+				const newConcepts = [...object];
+				setConcepts((prevConcepts) => {
+					const existingIds = new Set(prevConcepts.map((c) => c.id));
+					const uniqueNewConcepts = newConcepts.filter(
+						(c) => !existingIds.has(c.id)
+					);
+					return [...uniqueNewConcepts, ...prevConcepts];
+				});
+
 				toast({
 					title: 'Concepts generated!',
 					description:
-						'You may need to refresh to see your new concepts.',
+						'Your new concepts have been added to the list.',
 				});
-				conceptListRef.current?.scrollIntoView({ behavior: 'smooth' });
 			}
+			setFiles([]);
 		},
 	});
 
@@ -123,6 +138,15 @@ export default function ConceptsGenerator({
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
 
+	// Show loading state before client-side hydration
+	if (!mounted) {
+		return variant === 'sidebar' ? (
+			<SidebarConceptLoader />
+		) : (
+			<ConceptLoader />
+		);
+	}
+
 	if (variant === 'sidebar') {
 		return (
 			<div className='space-y-4'>
@@ -139,7 +163,7 @@ export default function ConceptsGenerator({
 		<div className='pb-24'>
 			<div className='text-center mb-8 md:mb-12 md:block hidden'>
 				<h1 className='text-3xl md:text-4xl font-bold mb-2'>
-					Learning Concepts
+					Concepts
 				</h1>
 				<p className='text-sm md:text-base text-muted-foreground max-w-2xl mx-auto'>
 					Create and manage your learning concepts. Upload PDFs to
