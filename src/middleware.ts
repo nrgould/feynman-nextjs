@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
 	'/api/assess',
 	'/api/subconcepts',
 	'/try-concepts',
+	'/chat/:id',
 ]);
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
