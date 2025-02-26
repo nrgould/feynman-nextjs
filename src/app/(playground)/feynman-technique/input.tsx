@@ -316,11 +316,10 @@ export default function Input() {
 					<CardHeader className='px-4 sm:px-6 flex flex-row justify-between items-start'>
 						<div>
 							<CardTitle>
-								What concept would you like to learn?
+								What concept would you like to practice?
 							</CardTitle>
 							<CardDescription>
-								Enter a high-level concept you want to
-								understand better
+								Enter a high-level concept you want to review
 							</CardDescription>
 						</div>
 						<Button

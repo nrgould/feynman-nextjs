@@ -4,6 +4,8 @@ import { PreviousConcepts } from './PreviousConcepts';
 import { MobilePreviousConcepts } from './MobilePreviousConcepts';
 import { ClientSideStrengthsWeaknesses } from './ClientSideStrengthsWeaknesses';
 import { ClientSideMobileStrengthsWeaknesses } from './ClientSideMobileStrengthsWeaknesses';
+import { ClientSideFeynmanGuide } from './ClientSideFeynmanGuide';
+import { ClientSideMobileFeynmanGuide } from './ClientSideMobileFeynmanGuide';
 
 export default function FeynmanTechniquePage() {
 	return (
@@ -63,10 +65,14 @@ export default function FeynmanTechniquePage() {
 				{/* Strengths/Weaknesses sidebar - hidden on mobile, only shown when assessment exists */}
 				<ClientSideStrengthsWeaknesses />
 
+				{/* Feynman Guide sidebar - hidden on mobile, only shown when no assessment exists */}
+				<ClientSideFeynmanGuide />
+
 				{/* Mobile components - visible only on mobile */}
 				<div className='block md:hidden'>
 					<MobilePreviousConcepts />
 					<ClientSideMobileStrengthsWeaknesses />
+					<ClientSideMobileFeynmanGuide />
 				</div>
 			</div>
 		</>
