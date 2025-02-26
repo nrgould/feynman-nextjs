@@ -10,6 +10,7 @@ const isPublicRoute = createRouteMatcher([
 	'/feynman-technique',
 	'/api/assess',
 	'/api/subconcepts',
+	'/try-concepts',
 ]);
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 

@@ -5,7 +5,7 @@ import Testimonials from '@/components/organisms/Testimonials';
 import LearnsYou from '@/components/organisms/Home/LearnsYou';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Shapes } from 'lucide-react';
+import { Shapes, FileUp } from 'lucide-react';
 import StartLearning from '@/components/organisms/StartLearning';
 import HomeSampleChat from '@/components/organisms/Home/HomeSampleChat';
 import FeaturesSection from '@/components/organisms/Home/Features';
@@ -16,6 +16,7 @@ import LinearPath from '@/components/organisms/Home/LinearPath';
 import Steps from '@/components/organisms/Home/Steps';
 import MicroLearning from '@/components/organisms/Home/MicroLearning';
 import HomeWaitlist from '@/components/organisms/Home/HomeWaitlist';
+import Image from 'next/image';
 
 export default async function Home() {
 	return (
@@ -54,6 +55,42 @@ export default async function Home() {
 						</Link>
 					</div>
 				</div>
+				<section className='py-16 bg-gradient-to-b from-white to-gray-50'>
+					<div className='container mx-auto px-4'>
+						<div className='flex flex-col md:flex-row items-center gap-8'>
+							<div className='md:w-1/2 space-y-4'>
+								<h2 className='text-3xl font-bold'>
+									Try Before You Sign Up
+								</h2>
+								<p className='text-lg text-muted-foreground'>
+									Upload any PDF and see how our AI can
+									extract key learning concepts. Experience
+									the power of our concept generator without
+									creating an account.
+								</p>
+								<div className='pt-4'>
+									<Link href='/try-concepts'>
+										<Button size='lg' className='gap-2'>
+											<FileUp className='h-4 w-4' />
+											Try Concept Generator
+										</Button>
+									</Link>
+								</div>
+							</div>
+							<div className='md:w-1/2'>
+								<div className='bg-white p-6 rounded-lg shadow-lg border'>
+									<Image
+										src='/images/concept-demo.png'
+										alt='Concept Generator Demo'
+										width={500}
+										height={300}
+										className='rounded-md'
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
 				{/* <Footer /> */}
 			</ScrollArea>
 		</div>
