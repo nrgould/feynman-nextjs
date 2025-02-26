@@ -107,7 +107,7 @@ export function PreviousPaths({
 		>
 			{!isInMobileView && (
 				<div className='p-4 border-b'>
-					<h2 className='font-semibold'>Previous Learning Paths</h2>
+					<h2 className='font-semibold'>Learning Paths</h2>
 				</div>
 			)}
 			<ScrollArea className='flex-1'>

@@ -3,19 +3,23 @@
 import { Handle, Position } from '@xyflow/react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, BookOpen } from 'lucide-react';
+import { BarChart, BookOpen, Play } from 'lucide-react';
 import { LearningPathNode } from '@/lib/learning-path-schemas';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 interface ConceptNodeProps {
 	data: {
 		node: LearningPathNode;
 		onProgressChange?: (id: string, progress: number) => void;
+		isDisabled?: boolean;
 	};
 	selected: boolean;
 }
 
 export function ConceptNode({ data, selected }: ConceptNodeProps) {
-	const { node, onProgressChange } = data;
+	const { node, onProgressChange, isDisabled } = data;
 
 	// Function to get color based on difficulty
 	const getDifficultyColor = (difficulty: number) => {
@@ -37,25 +41,44 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 		return { color: 'text-red-500', letter: 'F' };
 	};
 
+	const handleStartConcept = () => {
+		// For now, just show a toast. You can implement the actual start functionality later
+		toast({
+			title: 'Starting Concept',
+			description: `Beginning to learn about ${node.concept}`,
+		});
+	};
+
 	const difficultyClass = getDifficultyColor(node.difficulty);
 	const gradeInfo = getGradeInfo(node.grade);
+	const canStart = !isDisabled && node.grade === undefined;
 
 	return (
 		<div
-			className={`p-4 rounded-lg shadow-md bg-white border-2 ${selected ? 'border-primary' : 'border-gray-200'} w-[250px]`}
+			className={cn(
+				'p-4 rounded-lg shadow-md bg-white border-2 w-[250px] transition-opacity duration-200',
+				selected ? 'border-primary' : 'border-gray-200',
+				isDisabled && 'opacity-50 cursor-not-allowed'
+			)}
 		>
 			{/* Source handle */}
 			<Handle
 				type='source'
 				position={Position.Right}
-				className='w-3 h-3 bg-primary border-2 border-white'
+				className={cn(
+					'w-3 h-3 border-2 border-white',
+					isDisabled ? 'bg-gray-400' : 'bg-primary'
+				)}
 			/>
 
 			{/* Target handle */}
 			<Handle
 				type='target'
 				position={Position.Left}
-				className='w-3 h-3 bg-primary border-2 border-white'
+				className={cn(
+					'w-3 h-3 border-2 border-white',
+					isDisabled ? 'bg-gray-400' : 'bg-primary'
+				)}
 			/>
 
 			<div className='space-y-3'>
@@ -94,6 +117,18 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 					</div>
 					<Progress value={node.progress} className='h-2' />
 				</div>
+
+				{/* Start button - only show if node can be started */}
+				{canStart && (
+					<Button
+						className='w-full gap-2 mt-2'
+						onClick={handleStartConcept}
+						size='sm'
+					>
+						<Play className='w-4 h-4' />
+						Start Learning
+					</Button>
+				)}
 			</div>
 		</div>
 	);

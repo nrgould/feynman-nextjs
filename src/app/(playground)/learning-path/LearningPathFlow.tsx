@@ -77,19 +77,27 @@ export function LearningPathFlow() {
 	const createLinearEdges = (nodes: LearningPathNode[]) => {
 		if (!nodes || nodes.length <= 1) return [];
 
-		return nodes.slice(0, -1).map((node, index) => ({
-			id: `edge-${node.id}-${nodes[index + 1].id}`,
-			source: node.id,
-			target: nodes[index + 1].id,
-			animated: true,
-			type: 'default',
-			markerEnd: {
-				type: MarkerType.ArrowClosed,
-				width: 20,
-				height: 20,
-			},
-			style: { stroke: '#93c5fd' },
-		}));
+		return nodes.slice(0, -1).map((node, index) => {
+			const nextNode = nodes[index + 1];
+			const isDisabled = index > 0 && node.grade === undefined;
+
+			return {
+				id: `edge-${node.id}-${nextNode.id}`,
+				source: node.id,
+				target: nextNode.id,
+				animated: !isDisabled,
+				type: 'default',
+				markerEnd: {
+					type: MarkerType.ArrowClosed,
+					width: 20,
+					height: 20,
+				},
+				style: {
+					stroke: isDisabled ? '#e5e7eb' : '#93c5fd',
+					opacity: isDisabled ? 0.5 : 1,
+				},
+			};
+		});
 	};
 
 	// Update nodes and edges when currentPath changes
@@ -105,15 +113,30 @@ export function LearningPathFlow() {
 
 			// Convert learning path nodes to ReactFlow nodes
 			const flowNodes: Node<ConceptNodeData>[] = arrangedNodes.map(
-				(node, index) => ({
-					id: node.id,
-					type: 'concept',
-					position: node.position,
-					data: {
-						node,
-						onProgressChange: updateNodeProgress,
-					},
-				})
+				(node, index) => {
+					// Find the previous node (if it exists)
+					const previousNode =
+						index > 0 ? arrangedNodes[index - 1] : null;
+
+					// Node should be disabled if:
+					// 1. It's not the first node
+					// 2. The previous node exists and hasn't been started (no grade)
+					const isDisabled =
+						index > 0 &&
+						previousNode &&
+						previousNode.grade === undefined;
+
+					return {
+						id: node.id,
+						type: 'concept',
+						position: node.position,
+						data: {
+							node,
+							onProgressChange: updateNodeProgress,
+							isDisabled,
+						},
+					};
+				}
 			);
 
 			// Create linear edges (only connect to previous/next)
