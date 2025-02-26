@@ -91,6 +91,7 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "stripe": "^17.5.0",
+    "supabase": "2.15.8",
     "swr": "^2.3.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",

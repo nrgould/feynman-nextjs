@@ -45,6 +45,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 
 const ConceptCard = ({
 	concept,
@@ -103,7 +104,7 @@ const ConceptCard = ({
 
 	const handleDelete = async (e: React.MouseEvent) => {};
 
-	const progress = concept.progress * 100 || 0;
+	const progress = concept.progress || 0;
 	const active = concept.is_active || false;
 	const isDisabled = !active && conceptLimitReached;
 
@@ -183,8 +184,22 @@ const ConceptCard = ({
 						{concept.subject}
 					</p>
 				)}
+
+				{progress > 0 && (
+					<div className='mt-3 space-y-1'>
+						<div className='flex justify-between items-center'>
+							<span className='text-xs text-muted-foreground'>
+								Progress
+							</span>
+							<span className='text-xs font-medium'>
+								{progress}%
+							</span>
+						</div>
+						<Progress value={progress} className='h-1.5' />
+					</div>
+				)}
 			</CardContent>
-			<CardFooter className='flex justify-between items-end flex-1'>
+			<CardFooter className='flex justify-between items-end flex-1 pt-2'>
 				<Button
 					variant={active ? 'secondary' : 'outline'}
 					onClick={handleClick}
@@ -201,6 +216,11 @@ const ConceptCard = ({
 						'Start'
 					)}
 				</Button>
+				{active && (
+					<span className='text-xs text-muted-foreground bg-primary/5 px-2 py-1 rounded'>
+						Active
+					</span>
+				)}
 			</CardFooter>
 		</Card>
 	);

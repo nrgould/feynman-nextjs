@@ -30,6 +30,7 @@ import { useRouter } from 'next/navigation';
 import { generateUUID } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import LoadingOverlay from './LoadingOverlay';
+import { Progress } from '@/components/ui/progress';
 
 interface ConceptListProps {
 	concepts: any[];
@@ -205,16 +206,30 @@ function ConceptList({
 											handleConceptClick(concept)
 										}
 									>
-										<p className='font-medium group-hover:text-primary transition-colors line-clamp-2'>
-											{concept.title}
-										</p>
-										<div className='flex items-center justify-between mt-2'>
+										<div className='flex justify-between items-center mb-1'>
+											<p className='font-medium group-hover:text-primary transition-colors line-clamp-2'>
+												{concept.title}
+											</p>
+											{concept.progress > 0 && (
+												<span className='text-xs text-muted-foreground'>
+													{concept.progress}%
+												</span>
+											)}
+										</div>
+
+										{concept.progress > 0 && (
+											<div className='mb-2'>
+												<Progress
+													value={concept.progress}
+													className='h-1'
+												/>
+											</div>
+										)}
+
+										<div className='flex items-center justify-between mt-1'>
 											<Badge
-												variant={
-													concept.is_active
-														? 'default'
-														: 'secondary'
-												}
+												variant='outline'
+												className={`text-xs px-2 py-0.5 ${concept.is_active ? 'bg-primary/10 text-primary' : 'bg-muted/30 text-muted-foreground'}`}
 											>
 												{loadingConceptId ===
 													concept.id &&

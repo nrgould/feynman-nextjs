@@ -30,6 +30,7 @@ export async function createChatFromConcept(
 			description,
 			title,
 			created_at: new Date().toISOString(),
+			user_id: userId,
 		})
 		.select()
 		.single();

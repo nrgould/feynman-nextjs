@@ -47,6 +47,8 @@ export type Conversation = {
 	title: string;
 	description: string;
 	created_at: Date;
+	progress?: number;
+	concept_id?: string;
 };
 
 export type Concept = {

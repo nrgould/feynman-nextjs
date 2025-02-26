@@ -1,11 +1,9 @@
 import ChatWindow from './ChatWindow';
 import { notFound } from 'next/navigation';
-import { generateFirstMessage } from './actions';
 import { Suspense } from 'react';
 import Loading from '../ChatLoading';
 import { currentUser } from '@clerk/nextjs/server';
 import { createClient } from '@/utils/supabase/server';
-import { generateUUID } from '@/lib/utils';
 
 type Params = Promise<{ id: string }>;
 
@@ -19,14 +17,29 @@ export default async function ChatPage(props: { params: Params }) {
 	const chatId = params.id;
 	const userId = user!.id;
 
+	// Fetch chat data with concept_id and progress
 	const { data: chat, error: chatError } = await supabase
 		.from('Chat')
-		.select('*')
+		.select('*, concept_id, progress')
 		.eq('id', chatId)
 		.single();
 
 	if (!chat) {
 		notFound();
+	}
+
+	// If chat has a concept_id, fetch the concept data to ensure we have the latest progress
+	if (chat.concept_id) {
+		const { data: concept } = await supabase
+			.from('Concept')
+			.select('progress')
+			.eq('id', chat.concept_id)
+			.single();
+
+		if (concept) {
+			// Use the concept's progress if available
+			chat.progress = concept.progress;
+		}
 	}
 
 	const { data: messages, error: messagesError } = await supabase
