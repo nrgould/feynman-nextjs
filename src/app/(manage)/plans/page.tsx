@@ -49,16 +49,15 @@ export default function PricingPage() {
 				'3 Free Concepts',
 				'Basic Learning Models',
 				'Core Learning Features',
-				'Basic Progress Tracking',
 			],
 			href: '/concepts',
 			billingCycle: '',
 			paymentLink: '',
 		},
 		{
-			title: 'Pro',
+			title: 'Plus',
 			recommended: true,
-			price: billingCycle === 'monthly' ? 8 : 72,
+			price: billingCycle === 'monthly' ? 15 : 120,
 			description: 'For dedicated learners',
 			buttonText:
 				billingCycle === 'monthly'
@@ -79,10 +78,10 @@ export default function PricingPage() {
 			billingCycle: billingCycle === 'monthly' ? '/month' : '/year',
 		},
 		{
-			title: 'Admin',
+			title: 'Pro',
 			recommended: false,
-			price: 10,
-			description: 'For school administrators',
+			price: 50,
+			description: 'For parents and educators',
 			buttonText: 'Contact Sales',
 			benefitList: [
 				'Everything in Pro, plus:',
@@ -94,7 +93,7 @@ export default function PricingPage() {
 				'24/7 Priority Support',
 			],
 			href: '/contact-sales',
-			billingCycle: '/student/month',
+			billingCycle: '/month',
 			paymentLink: '',
 		},
 	];
