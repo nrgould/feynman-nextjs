@@ -11,8 +11,12 @@ const isPublicRoute = createRouteMatcher([
 	'/api/assess',
 	'/api/subconcepts',
 	'/try-concepts',
-	'/chat/:id',
 ]);
+
+const isAuthRoute = createRouteMatcher([
+	'/chat/:id', // This will be handled separately
+]);
+
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -23,19 +27,33 @@ export default clerkMiddleware(async (auth, req) => {
 		return NextResponse.next();
 	}
 
+	// Special handling for chat routes
+	if (isAuthRoute(req)) {
+		if (!userId) {
+			// Store the chat URL to redirect back after sign in
+			return redirectToSignIn({
+				returnBackUrl: req.url,
+			});
+		}
+		return NextResponse.next();
+	}
+
 	// If the user isn't signed in and the route is private, redirect to sign-in
-	if (!userId && !isPublicRoute(req))
+	if (!userId && !isPublicRoute(req)) {
 		return redirectToSignIn({ returnBackUrl: req.url });
+	}
 
 	// Catch users who do not have `onboardingComplete: true` in their publicMetadata
-	// Redirect them to the /onboading route to complete onboarding
 	if (userId && !sessionClaims?.metadata?.onboardingComplete) {
 		const onboardingUrl = new URL('/onboarding', req.url);
 		return NextResponse.redirect(onboardingUrl);
 	}
 
-	// If the user is logged in and the route is protected, let them view.
+	// If the user is logged in and the route is protected, let them view
 	if (userId && !isPublicRoute(req)) return NextResponse.next();
+
+	// Allow public routes
+	return NextResponse.next();
 });
 
 export const config = {
