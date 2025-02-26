@@ -35,11 +35,11 @@ const signedInItems = [
 		url: '/concepts',
 		icon: Brain,
 	},
-	// {
-	// 	title: 'Learn',
-	// 	url: '/learn',
-	// 	icon: Blocks,
-	// },
+	{
+		title: 'Learn',
+		url: '/learning-path',
+		icon: Blocks,
+	},
 	{
 		title: 'Settings',
 		url: '/settings',

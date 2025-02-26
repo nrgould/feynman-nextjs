@@ -3,7 +3,7 @@
 import { Handle, Position } from '@xyflow/react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Clock, BookOpen, BarChart } from 'lucide-react';
+import { BarChart, BookOpen } from 'lucide-react';
 import { LearningPathNode } from '@/lib/learning-path-schemas';
 
 interface ConceptNodeProps {
@@ -29,7 +29,7 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 	// Function to get grade color and letter
 	const getGradeInfo = (grade: number | undefined) => {
 		if (grade === undefined)
-			return { color: 'text-gray-400', letter: 'N/A' };
+			return { color: 'text-gray-400', letter: 'Not Started' };
 		if (grade >= 90) return { color: 'text-emerald-500', letter: 'A' };
 		if (grade >= 80) return { color: 'text-emerald-400', letter: 'B' };
 		if (grade >= 70) return { color: 'text-yellow-500', letter: 'C' };
@@ -39,14 +39,6 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 
 	const difficultyClass = getDifficultyColor(node.difficulty);
 	const gradeInfo = getGradeInfo(node.grade);
-
-	// Function to handle progress change
-	const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newProgress = parseInt(e.target.value, 10);
-		if (onProgressChange) {
-			onProgressChange(node.id, newProgress);
-		}
-	};
 
 	return (
 		<div
@@ -84,26 +76,14 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 
 					<Badge
 						variant='outline'
-						className='bg-blue-50 text-blue-700 border-blue-200'
+						className='bg-violet-50 text-violet-700 border-violet-200'
 					>
-						<Clock className='w-3 h-3 mr-1' />
-						{node.estimatedHours}h
+						<BookOpen className='w-3 h-3 mr-1' />
+						Grade:{' '}
+						<span className={`ml-1 font-bold ${gradeInfo.color}`}>
+							{gradeInfo.letter}
+						</span>
 					</Badge>
-
-					{node.grade !== undefined && (
-						<Badge
-							variant='outline'
-							className='bg-violet-50 text-violet-700 border-violet-200'
-						>
-							<BookOpen className='w-3 h-3 mr-1' />
-							Grade:{' '}
-							<span
-								className={`ml-1 font-bold ${gradeInfo.color}`}
-							>
-								{gradeInfo.letter}
-							</span>
-						</Badge>
-					)}
 				</div>
 
 				{/* Progress section */}
@@ -113,16 +93,6 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 						<span>{node.progress}%</span>
 					</div>
 					<Progress value={node.progress} className='h-2' />
-
-					{/* Progress input slider */}
-					<input
-						type='range'
-						min='0'
-						max='100'
-						value={node.progress}
-						onChange={handleProgressChange}
-						className='w-full h-1 mt-2'
-					/>
 				</div>
 			</div>
 		</div>

@@ -81,7 +81,6 @@ export function LearningPathFlow() {
 			id: `edge-${node.id}-${nodes[index + 1].id}`,
 			source: node.id,
 			target: nodes[index + 1].id,
-			label: `Step ${index + 1} → ${index + 2}`,
 			animated: true,
 			type: 'default',
 			markerEnd: {
