@@ -24,11 +24,11 @@ export async function POST(req: Request) {
 
 	const result = streamObject({
 		model,
-		prompt: `You are a teacher teaching ${concept} at a ${gradeLevel} level. Identify the 5 most important subconcepts that a student needs to understand to master ${concept}. For each subconcept, also provide a thought-provoking prompt that will help students start thinking about the concept.
+		prompt: `You are a teacher teaching ${concept} at a ${gradeLevel} level. Identify the 5 most important subconcepts that a student needs to understand to master ${concept}. For each subconcept, also provide a thought-provoking prompt that will help clarify to students how to provide a clear and concise explanation of the subconcept. Make it as easy to understand as possible.
 
 Your response should be formatted as a JSON object with a single key "subconcepts" that contains an array of 5 subconcept objects. Each subconcept object should have:
 - "concept": the name of the subconcept
-- "prompt": a question or scenario that helps students think about this subconcept
+- "prompt": a question or scenario that helps clarify to students how to explain each subconcept
 
 Make each prompt engaging and relatable to ${gradeLevel} level students.
 

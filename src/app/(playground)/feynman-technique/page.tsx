@@ -1,8 +1,5 @@
 import Head from 'next/head';
 import Input from './input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getSubConcepts } from './actions';
 import { PreviousConcepts } from './PreviousConcepts';
 import { MobilePreviousConcepts } from './MobilePreviousConcepts';
 import { ClientSideStrengthsWeaknesses } from './ClientSideStrengthsWeaknesses';
@@ -25,7 +22,7 @@ export default function FeynmanTechniquePage() {
 				<meta
 					name='keywords'
 					content='Feynman Technique, learning method, concept explanation, teaching to learn, understanding assessment, 
-							 educational tool, learning feedback, AI assessment, student learning, concept mastery'
+							 educational tool, learning feedback, AI assessment, student learning, concept mastery, math, science, history, language, social studies, calculus, algebra, geometry, trigonometry, physics, chemistry, biology, computer science, economics, psychology, sociology, philosophy, literature, art'
 				/>
 
 				{/* Open Graph / Facebook */}
