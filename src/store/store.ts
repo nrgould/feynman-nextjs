@@ -59,6 +59,95 @@ export const useTitleStore = create<TitleStore>((set) => ({
 	resetTitle: () => set({ title: 'Feynman Learning' }),
 }));
 
+// Gamification types
+type Achievement = {
+	id: string;
+	title: string;
+	description: string;
+	icon: string;
+	unlockedAt: number | null;
+};
+
+type GamificationState = {
+	points: number;
+	level: number;
+	achievements: Achievement[];
+	// Track which assessments have already awarded points
+	awardedAssessments: Record<string, boolean>;
+	addPoints: (points: number, assessmentId: string) => void;
+	unlockAchievement: (id: string) => void;
+	hasAwardedPoints: (assessmentId: string) => boolean;
+};
+
+// Gamification store
+export const useGamificationStore = create<GamificationState>()(
+	persist(
+		(set, get) => ({
+			points: 0,
+			level: 1,
+			achievements: [
+				{
+					id: 'first_concept',
+					title: 'First Concept',
+					description: 'Complete your first concept explanation',
+					icon: '🎓',
+					unlockedAt: null,
+				},
+				{
+					id: 'expert_explainer',
+					title: 'Expert Explainer',
+					description: 'Score above 90% on a concept',
+					icon: '🏆',
+					unlockedAt: null,
+				},
+				{
+					id: 'consistent_learner',
+					title: 'Consistent Learner',
+					description: 'Complete 5 concept explanations',
+					icon: '📚',
+					unlockedAt: null,
+				},
+			],
+			awardedAssessments: {},
+			addPoints: (newPoints, assessmentId) => {
+				// Check if we've already awarded points for this assessment
+				if (get().awardedAssessments[assessmentId]) {
+					return; // Already awarded points for this assessment
+				}
+
+				set((state) => {
+					const totalPoints = state.points + newPoints;
+					// Calculate level (1 level per 100 points)
+					const newLevel = Math.floor(totalPoints / 100) + 1;
+
+					return {
+						points: totalPoints,
+						level: newLevel,
+						awardedAssessments: {
+							...state.awardedAssessments,
+							[assessmentId]: true,
+						},
+					};
+				});
+			},
+			unlockAchievement: (id) =>
+				set((state) => ({
+					achievements: state.achievements.map((achievement) =>
+						achievement.id === id && !achievement.unlockedAt
+							? { ...achievement, unlockedAt: Date.now() }
+							: achievement
+					),
+				})),
+			hasAwardedPoints: (assessmentId) => {
+				return !!get().awardedAssessments[assessmentId];
+			},
+		}),
+		{
+			name: 'gamification-storage',
+		}
+	)
+);
+
 type PreviousConcept = {
 	title: string;
 	grade: number;

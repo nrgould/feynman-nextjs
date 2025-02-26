@@ -46,6 +46,8 @@ import { z } from 'zod';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { GamificationDisplay } from './GamificationDisplay';
+import { useGamificationStore } from '@/store/store';
 
 const GRADE_LEVELS = [
 	'Elementary School',
@@ -731,17 +733,47 @@ export default function Input() {
 												></motion.div>
 											</>
 										) : (
-											<motion.p
-												className='text-muted-foreground text-sm sm:text-md md:text-base max-w-2xl mx-auto'
-												initial={{ opacity: 0, y: 10 }}
-												animate={{ opacity: 1, y: 0 }}
-												exit={{ opacity: 0, y: -10 }}
-												transition={{ duration: 0.5 }}
-												layout='position'
-											>
-												Explain a concept in simple
-												terms to test your understanding
-											</motion.p>
+											<motion.div className='flex flex-col items-center gap-4'>
+												<motion.p
+													className='text-muted-foreground text-sm sm:text-md md:text-base max-w-2xl mx-auto'
+													initial={{
+														opacity: 0,
+														y: 10,
+													}}
+													animate={{
+														opacity: 1,
+														y: 0,
+													}}
+													exit={{
+														opacity: 0,
+														y: -10,
+													}}
+													transition={{
+														duration: 0.5,
+													}}
+													layout='position'
+												>
+													Explain a concept in simple
+													terms to test your
+													understanding
+												</motion.p>
+												<motion.div
+													initial={{
+														opacity: 0,
+														y: 10,
+													}}
+													animate={{
+														opacity: 1,
+														y: 0,
+													}}
+													transition={{
+														delay: 0.3,
+														duration: 0.5,
+													}}
+												>
+													<GamificationDisplay />
+												</motion.div>
+											</motion.div>
 										)}
 									</motion.div>
 								</AnimatePresence>

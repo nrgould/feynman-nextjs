@@ -23,7 +23,7 @@ export function MobileStrengthsWeaknesses({
 	const [open, setOpen] = useState(false);
 
 	return (
-		<div className='fixed bottom-10 left-4 z-50'>
+		<div className='fixed bottom-6 left-4 z-50'>
 			<Drawer open={open} onOpenChange={setOpen}>
 				<DrawerTrigger asChild>
 					<Button
