@@ -6,7 +6,6 @@ export const nodeSchema = z.object({
 	concept: z.string(),
 	description: z.string(),
 	difficulty: z.number().min(1).max(10),
-	estimatedHours: z.number().min(0.5),
 	position: z.object({
 		x: z.number(),
 		y: z.number(),
@@ -20,7 +19,6 @@ export const edgeSchema = z.object({
 	id: z.string(),
 	source: z.string(),
 	target: z.string(),
-	label: z.string(),
 	type: z.string().default('smoothstep'),
 });
 

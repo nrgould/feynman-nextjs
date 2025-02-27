@@ -12,8 +12,14 @@ import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 export default function LearningPathPage() {
-	const { currentPath, clearCurrentPath, isLoading, setCurrentPath } =
-		useLearningPathStore();
+	const {
+		currentPath,
+		clearCurrentPath,
+		isLoading,
+		setCurrentPath,
+		setConcept,
+		setGradeLevel,
+	} = useLearningPathStore();
 	const [isTransitioning, setIsTransitioning] = useState(false);
 	const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -47,18 +53,43 @@ export default function LearningPathPage() {
 								new Date(a.created_at).getTime()
 						)[0];
 
-						// Load the details of the most recent path
-						const pathDetails = await getLearningPathDetails(
-							mostRecent.id
-						);
-						if (pathDetails.success && pathDetails.learningPath) {
-							setCurrentPath({
-								title: pathDetails.learningPath.title,
-								description:
-									pathDetails.learningPath.description,
-								nodes: pathDetails.learningPath.nodes,
-								edges: pathDetails.learningPath.edges,
-							});
+						// Check if this path is already in the client-side store
+						// by comparing the concept name
+						const existingClientPath = useLearningPathStore
+							.getState()
+							.previousPaths.find(
+								(path) =>
+									path.concept.toLowerCase() ===
+									mostRecent.concept.toLowerCase()
+							);
+
+						// If it's not already in the client store, load it from Supabase
+						if (!existingClientPath) {
+							// Load the details of the most recent path
+							const pathDetails = await getLearningPathDetails(
+								mostRecent.id
+							);
+							if (
+								pathDetails.success &&
+								pathDetails.learningPath
+							) {
+								setCurrentPath({
+									title: pathDetails.learningPath.title,
+									description:
+										pathDetails.learningPath.description,
+									nodes: pathDetails.learningPath.nodes,
+									edges: pathDetails.learningPath.edges,
+								});
+
+								// Also set the concept and grade level
+								setConcept(mostRecent.concept);
+								setGradeLevel(mostRecent.grade_level);
+							}
+						} else {
+							// If it exists in client store, load from there
+							useLearningPathStore
+								.getState()
+								.loadPreviousPath(existingClientPath.id);
 						}
 					}
 				} catch (error) {
@@ -75,7 +106,7 @@ export default function LearningPathPage() {
 		};
 
 		loadMostRecentPath();
-	}, [currentPath, setCurrentPath]);
+	}, [currentPath, setConcept, setCurrentPath, setGradeLevel]);
 
 	// Listen for changes in currentPath to handle transitions
 	useEffect(() => {

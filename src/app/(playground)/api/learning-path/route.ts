@@ -10,7 +10,6 @@ const nodeSchema = z.object({
 	concept: z.string(),
 	description: z.string(),
 	difficulty: z.number().min(1).max(10),
-	estimatedHours: z.number().min(0.5),
 	position: z.object({
 		x: z.number(),
 		y: z.number(),
@@ -24,7 +23,6 @@ const edgeSchema = z.object({
 	id: z.string(),
 	source: z.string(),
 	target: z.string(),
-	label: z.string(),
 	type: z.string().default('smoothstep'),
 });
 
@@ -50,7 +48,7 @@ export async function POST(req: Request) {
 
 Create a comprehensive learning path that shows the optimal sequence for learning this subject. The learning path should include:
 
-1. A clear title and concise description
+1. A brief title and concise description i.e. "Calculus Fundamentals"
 2. 5-8 key concepts/topics that need to be learned (as nodes)
 3. The connections between these concepts showing prerequisites and relationships (as edges)
 
@@ -58,7 +56,6 @@ For each concept node, include:
 - A descriptive name (concept)
 - A brief description explaining what this concept covers
 - A difficulty rating from 1-10
-- Estimated hours to learn this concept
 - Position coordinates for visualization (arrange them in a logical flow)
 
 For each connection (edge), include:
@@ -76,7 +73,6 @@ Your response should be formatted as a JSON object with the following structure:
       "concept": "Concept Name",
       "description": "Description of the concept",
       "difficulty": 5,
-      "estimatedHours": 3,
       "position": { "x": 100, "y": 100 },
       "progress": 0,
       "grade": null
@@ -88,7 +84,6 @@ Your response should be formatted as a JSON object with the following structure:
       "id": "1-2",
       "source": "1",
       "target": "2",
-      "label": "Relationship description",
       "type": "smoothstep"
     },
     ...more edges

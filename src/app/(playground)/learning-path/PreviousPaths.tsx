@@ -23,6 +23,7 @@ import {
 	deleteLearningPath,
 	saveLearningPathToSupabase,
 } from './actions';
+import { NewPathOptions } from './NewPathOptions';
 
 interface PreviousPathsProps {
 	isInMobileView?: boolean;
@@ -170,51 +171,7 @@ export function PreviousPaths({
 		});
 	};
 
-	const handleSaveToSupabase = async (path: any, e: React.MouseEvent) => {
-		console.log(path);
-		e.stopPropagation();
-		try {
-			setSavingPathId(path.id);
-			await saveLearningPathToSupabase(
-				path.pathData,
-				path.concept,
-				path.gradeLevel
-			);
-			toast({
-				title: 'Learning path saved',
-				description: 'The learning path has been saved to Supabase.',
-			});
-		} catch (error) {
-			console.error('Error saving to Supabase:', error);
-			toast({
-				title: 'Error saving learning path',
-				description:
-					'There was an error saving the learning path to Supabase.',
-				variant: 'destructive',
-			});
-		} finally {
-			setSavingPathId(null);
-		}
-	};
 
-	const handleCreateNewPath = () => {
-		// Clear all learning path data
-		clearCurrentPath();
-
-		// Show toast notification
-		toast({
-			title: 'Create New Learning Path',
-			description: 'You can now enter a new concept to learn about.',
-		});
-
-		// Call the callback if provided (for mobile view)
-		if (onPathSelected) {
-			onPathSelected();
-		}
-
-		// Navigate to the learning path page with a query parameter to force a refresh
-		router.push('/learning-path?new=' + Date.now());
-	};
 
 	// Combine client-side paths and Supabase paths
 	const allPaths = [
@@ -226,16 +183,26 @@ export function PreviousPaths({
 			timestamp: path.timestamp,
 			overallProgress: path.overallProgress,
 			isFromSupabase: false,
+			pathData: path.pathData,
 		})),
-		...supabasePaths.map((path) => ({
-			id: path.id,
-			title: path.title,
-			concept: path.concept,
-			gradeLevel: path.grade_level,
-			timestamp: new Date(path.created_at).getTime(),
-			overallProgress: path.overall_progress,
-			isFromSupabase: true,
-		})),
+		...supabasePaths
+			.filter((supabasePath) => {
+				// Filter out Supabase paths that already exist in client-side paths
+				return !previousPaths.some(
+					(clientPath) =>
+						clientPath.concept.toLowerCase() ===
+						supabasePath.concept.toLowerCase()
+				);
+			})
+			.map((path) => ({
+				id: path.id,
+				title: path.title,
+				concept: path.concept,
+				gradeLevel: path.grade_level,
+				timestamp: new Date(path.created_at).getTime(),
+				overallProgress: path.overall_progress,
+				isFromSupabase: true,
+			})),
 	].sort((a, b) => b.timestamp - a.timestamp);
 
 	if (isLoading) {
@@ -258,14 +225,7 @@ export function PreviousPaths({
 					No learning paths created yet. Create your first learning
 					path to see it here!
 				</p>
-				<Button
-					onClick={handleCreateNewPath}
-					className='w-full gap-2'
-					size='sm'
-				>
-					<Plus className='h-4 w-4' />
-					Create New Path
-				</Button>
+				<NewPathOptions />
 			</div>
 		);
 	}
@@ -278,7 +238,12 @@ export function PreviousPaths({
 		>
 			{!isInMobileView && (
 				<div className='p-4 border-b'>
-					<h2 className='font-semibold'>Learning Paths</h2>
+					<h2 className='font-semibold text-lg mb-4'>
+						Learning Paths
+					</h2>
+					<div className='space-y-2'>
+						<NewPathOptions />
+					</div>
 				</div>
 			)}
 			<ScrollArea className='flex-1'>
@@ -336,22 +301,7 @@ export function PreviousPaths({
 									<RotateCcw className='mr-2 h-4 w-4' />
 									Load Learning Path
 								</ContextMenuItem>
-								<ContextMenuItem
-									onClick={(e) =>
-										handleSaveToSupabase(path, e)
-									}
-									className='cursor-pointer'
-									disabled={savingPathId === path.id}
-								>
-									{savingPathId === path.id ? (
-										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-									) : (
-										<Save className='mr-2 h-4 w-4' />
-									)}
-									{savingPathId === path.id
-										? 'Saving...'
-										: 'Save to Supabase'}
-								</ContextMenuItem>
+								
 								<ContextMenuSeparator />
 								<ContextMenuItem
 									onClick={(e) =>
@@ -366,15 +316,7 @@ export function PreviousPaths({
 						</ContextMenu>
 					))}
 					<div className='pt-4 border-t mt-4'>
-						<Button
-							onClick={handleCreateNewPath}
-							className='w-full gap-2'
-							size='sm'
-							variant='outline'
-						>
-							<Plus className='h-4 w-4' />
-							Create New Path
-						</Button>
+						<NewPathOptions />
 					</div>
 				</div>
 			</ScrollArea>

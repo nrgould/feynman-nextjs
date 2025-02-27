@@ -56,11 +56,9 @@ export async function saveLearningPathToSupabase(
 		const nodesData = learningPath.nodes.map((node) => ({
 			id: node.id,
 			learning_path_id: learningPathId,
-			// user_id: userId,
 			concept: node.concept,
 			description: node.description,
 			difficulty: node.difficulty,
-			estimated_hours: node.estimatedHours,
 			position_x: node.position.x,
 			position_y: node.position.y,
 			progress: node.progress || 0,
@@ -81,10 +79,8 @@ export async function saveLearningPathToSupabase(
 		const edgesData = learningPath.edges.map((edge) => ({
 			id: edge.id,
 			learning_path_id: learningPathId,
-			// user_id: userId,
 			source: edge.source,
 			target: edge.target,
-			label: edge.label,
 			type: edge.type,
 		}));
 
@@ -150,61 +146,66 @@ export async function getLearningPathDetails(learningPathId: string) {
 	try {
 		const { userId } = await auth();
 		if (!userId) {
-			throw new Error('User not authenticated');
+			return {
+				success: false,
+				error: 'User not authenticated',
+			};
 		}
 
 		const supabase = await createClient();
 
-		// Get the learning path
-		const { data: learningPath, error: pathError } = await supabase
+		// 1. Get the learning path
+		const { data: learningPath, error: learningPathError } = await supabase
 			.from('LearningPath')
 			.select('*')
 			.eq('id', learningPathId)
 			.eq('user_id', userId)
 			.single();
 
-		if (pathError) {
-			throw new Error(
-				`Error fetching learning path: ${pathError.message}`
-			);
+		if (learningPathError) {
+			return {
+				success: false,
+				error: `Error fetching learning path: ${learningPathError.message}`,
+			};
 		}
 
-		// Get the nodes
+		// 2. Get the nodes
 		const { data: nodes, error: nodesError } = await supabase
 			.from('LearningPathNode')
 			.select('*')
 			.eq('learning_path_id', learningPathId);
 
 		if (nodesError) {
-			throw new Error(
-				`Error fetching learning path nodes: ${nodesError.message}`
-			);
+			return {
+				success: false,
+				error: `Error fetching learning path nodes: ${nodesError.message}`,
+			};
 		}
 
-		// Get the edges
+		// 3. Get the edges
 		const { data: edges, error: edgesError } = await supabase
 			.from('LearningPathEdge')
 			.select('*')
 			.eq('learning_path_id', learningPathId);
 
 		if (edgesError) {
-			throw new Error(
-				`Error fetching learning path edges: ${edgesError.message}`
-			);
+			return {
+				success: false,
+				error: `Error fetching learning path edges: ${edgesError.message}`,
+			};
 		}
 
-		// Format the data to match the LearningPath type
+		// 4. Format the data
 		const formattedNodes = nodes.map((node) => ({
 			id: node.id,
 			concept: node.concept,
 			description: node.description,
 			difficulty: node.difficulty,
-			estimatedHours: node.estimated_hours,
 			position: {
 				x: node.position_x,
 				y: node.position_y,
 			},
-			progress: node.progress,
+			progress: node.progress || 0,
 			grade: node.grade,
 		}));
 
@@ -212,23 +213,29 @@ export async function getLearningPathDetails(learningPathId: string) {
 			id: edge.id,
 			source: edge.source,
 			target: edge.target,
-			label: edge.label,
 			type: edge.type,
 		}));
 
 		return {
 			success: true,
 			learningPath: {
-				...learningPath,
+				id: learningPath.id,
+				title: learningPath.title,
+				description: learningPath.description,
+				concept: learningPath.concept,
+				grade_level: learningPath.grade_level,
+				created_at: learningPath.created_at,
+				updated_at: learningPath.updated_at,
+				overall_progress: learningPath.overall_progress,
 				nodes: formattedNodes,
 				edges: formattedEdges,
 			},
 		};
 	} catch (error) {
-		console.error('Error fetching learning path details:', error);
+		console.error('Error in getLearningPathDetails:', error);
 		return {
 			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
+			error: 'An unexpected error occurred',
 		};
 	}
 }

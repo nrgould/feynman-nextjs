@@ -273,9 +273,9 @@ export function LearningPathFlow() {
 							maxZoom={1.5}
 						>
 							<Background color='#f8fafc' gap={16} />
-							<Controls />
+							<Controls position='top-right' />
 
-							<Panel
+							{/* <Panel
 								position='top-right'
 								className='bg-white p-4 rounded-md shadow-md'
 							>
@@ -298,7 +298,7 @@ export function LearningPathFlow() {
 										progress with the sliders.
 									</p>
 								</div>
-							</Panel>
+							</Panel> */}
 						</ReactFlow>
 					</motion.div>
 				)}
