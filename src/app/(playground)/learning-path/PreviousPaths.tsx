@@ -171,8 +171,6 @@ export function PreviousPaths({
 		});
 	};
 
-
-
 	// Combine client-side paths and Supabase paths
 	const allPaths = [
 		...previousPaths.map((path) => ({
@@ -301,7 +299,7 @@ export function PreviousPaths({
 									<RotateCcw className='mr-2 h-4 w-4' />
 									Load Learning Path
 								</ContextMenuItem>
-								
+
 								<ContextMenuSeparator />
 								<ContextMenuItem
 									onClick={(e) =>

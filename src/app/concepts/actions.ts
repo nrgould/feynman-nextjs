@@ -21,12 +21,13 @@ export async function createChatFromConcept(
 	const { title, description, id: conceptId, subject } = concept;
 	const supabase = await createClient();
 
+	console.log('CREATING CHAT FROM CONCEPT', concept);
 	// Create the chat
 	const { error: chatError } = await supabase
 		.from('Chat')
 		.insert({
 			id: chatId,
-			concept_id: conceptId,
+			concept_id: conceptId,	
 			description,
 			title,
 			created_at: new Date().toISOString(),
@@ -34,6 +35,8 @@ export async function createChatFromConcept(
 		})
 		.select()
 		.single();
+
+	console.log('CHAT ERROR', chatError);
 
 	// Update the concept
 	const { error: updateError } = await supabase
@@ -44,6 +47,8 @@ export async function createChatFromConcept(
 		})
 		.eq('id', conceptId)
 		.eq('user_id', userId);
+
+	console.log('UPDATE ERROR', updateError);
 
 	if (chatError || updateError) {
 		return {

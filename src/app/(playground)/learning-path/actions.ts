@@ -5,6 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { LearningPath } from '@/lib/learning-path-schemas';
 import { v4 as uuidv4 } from 'uuid';
+import { redirect } from 'next/navigation';
 
 export async function saveLearningPathToSupabase(
 	learningPath: LearningPath,
@@ -352,6 +353,153 @@ export async function deleteLearningPath(learningPathId: string) {
 		};
 	} catch (error) {
 		console.error('Error deleting learning path:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function createChatFromLearningPathNode(
+	node: {
+		id: string;
+		concept: string;
+		description: string;
+		learningPathId?: string; // Optional learning path ID
+	},
+	chatId: string,
+	shouldRedirect: boolean = false
+) {
+	try {
+		const { userId } = await auth();
+		if (!userId) {
+			throw new Error('User not authenticated');
+		}
+
+		const supabase = await createClient();
+
+		// First, check if a concept with this ID already exists and has a chat
+		const { data: existingConcept, error: conceptFetchError } =
+			await supabase
+				.from('Concept')
+				.select('id, chat_id')
+				.eq('id', node.id)
+				.eq('user_id', userId)
+				.single();
+
+		// If the concept exists and has a chat, redirect to that chat
+		if (existingConcept && existingConcept.chat_id) {
+			if (shouldRedirect) {
+				redirect(`/chat/${existingConcept.chat_id}`);
+			}
+			return {
+				success: true,
+				chatId: existingConcept.chat_id,
+				message: 'Using existing chat for this concept',
+			};
+		}
+
+		// First, create a Concept entry without the chat_id (we'll update it later)
+		const conceptId = node.id; // Using the node ID as the concept ID
+		const { error: conceptError } = await supabase
+			.from('Concept')
+			.insert({
+				id: conceptId,
+				title: node.concept,
+				description: node.description,
+				subject: 'Learning Path', // Default subject for learning path nodes
+				user_id: userId,
+				progress: 0,
+				is_active: true,
+				// Omit chat_id initially to avoid foreign key constraint
+			})
+			.select()
+			.single();
+
+		// Handle potential duplicate concept
+		if (conceptError) {
+			// If it's not a duplicate error, throw it
+			if (conceptError.code !== '23505') {
+				// Postgres unique violation code
+				throw new Error(
+					`Error creating concept: ${conceptError.message}`
+				);
+			}
+			// For duplicates, we'll continue with the existing concept
+		}
+
+		// Get the learning path ID for this node if not provided
+		let learningPathId = node.learningPathId;
+		if (!learningPathId) {
+			// Try to find the learning path ID from the node ID
+			const { data: nodeData, error: nodeError } = await supabase
+				.from('LearningPathNode')
+				.select('learning_path_id')
+				.eq('id', node.id)
+				.single();
+
+			if (!nodeError && nodeData) {
+				learningPathId = nodeData.learning_path_id;
+			}
+		}
+
+		// Then, create a Chat entry that references the concept
+		const { error: chatError } = await supabase
+			.from('Chat')
+			.insert({
+				id: chatId,
+				concept_id: conceptId,
+				description: node.description,
+				title: node.concept,
+				created_at: new Date().toISOString(),
+				user_id: userId,
+				// Add learning path references if available
+				learning_path_id: learningPathId || null,
+				learning_path_node_id: node.id,
+			})
+			.select()
+			.single();
+
+		if (chatError) {
+			throw new Error(`Error creating chat: ${chatError.message}`);
+		}
+
+		// Now update the Concept with the chat_id
+		const { error: updateError } = await supabase
+			.from('Concept')
+			.update({
+				chat_id: chatId,
+				is_active: true,
+			})
+			.eq('id', conceptId)
+			.eq('user_id', userId);
+
+		if (updateError) {
+			throw new Error(`Error updating concept: ${updateError.message}`);
+		}
+
+		// Generate the first message for the chat
+		const { generateFirstMessage } = await import(
+			'@/app/chat/[id]/actions'
+		);
+		await generateFirstMessage(
+			node.concept,
+			node.description,
+			chatId,
+			'Learning Path'
+		);
+
+		// Redirect to the chat page if requested
+		if (shouldRedirect) {
+			redirect(`/chat/${chatId}`);
+		}
+
+		return {
+			success: true,
+			chatId,
+		};
+	} catch (error) {
+		console.error('Error creating chat from learning path node:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',

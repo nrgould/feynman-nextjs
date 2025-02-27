@@ -8,6 +8,10 @@ import { LearningPathNode } from '@/lib/learning-path-schemas';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
+import { createChatFromConcept } from '@/app/concepts/actions';
+import { generateUUID } from '@/lib/utils';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ConceptNodeProps {
 	data: {
@@ -20,6 +24,8 @@ interface ConceptNodeProps {
 
 export function ConceptNode({ data, selected }: ConceptNodeProps) {
 	const { node, onProgressChange, isDisabled } = data;
+	const [isLoading, setIsLoading] = useState(false);
+	const router = useRouter();
 
 	// Function to get color based on difficulty
 	const getDifficultyColor = (difficulty: number) => {
@@ -41,12 +47,43 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 		return { color: 'text-red-500', letter: 'F' };
 	};
 
-	const handleStartConcept = () => {
-		// For now, just show a toast. You can implement the actual start functionality later
-		toast({
-			title: 'Starting Concept',
-			description: `Beginning to learn about ${node.concept}`,
-		});
+	const handleStartConcept = async () => {
+		try {
+			setIsLoading(true);
+
+			// Create a concept object with the required properties
+			const concept = {
+				title: node.concept,
+				description: node.description,
+				id: node.id,
+				subject: 'Learning Path', // Default subject
+			};
+
+			// Generate a unique ID for the chat
+			const chatId = generateUUID();
+
+			// Show a toast to indicate the process has started
+			toast({
+				title: 'Starting Concept',
+				description: `Creating a chat for ${node.concept}...`,
+			});
+
+			// Call the server action to create a chat from this concept
+			await createChatFromConcept(concept, chatId);
+
+			// Note: The server action includes a redirect, so we don't need to manually navigate
+			// If we reach this point, it means the redirect didn't happen
+			router.push(`/chat/${chatId}`);
+		} catch (error) {
+			console.error('Error starting concept:', error);
+			toast({
+				title: 'Error',
+				description:
+					'Failed to start learning this concept. Please try again.',
+				variant: 'destructive',
+			});
+			setIsLoading(false);
+		}
 	};
 
 	const difficultyClass = getDifficultyColor(node.difficulty);
@@ -124,9 +161,19 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 						className='w-full gap-2 mt-2'
 						onClick={handleStartConcept}
 						size='sm'
+						disabled={isLoading}
 					>
-						<Play className='w-4 h-4' />
-						Start Learning
+						{isLoading ? (
+							<>
+								<span className='animate-spin mr-2'>⏳</span>
+								Creating...
+							</>
+						) : (
+							<>
+								<Play className='w-4 h-4' />
+								Start Learning
+							</>
+						)}
 					</Button>
 				)}
 			</div>

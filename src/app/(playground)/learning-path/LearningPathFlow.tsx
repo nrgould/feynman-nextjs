@@ -14,6 +14,10 @@ import {
 	Node,
 	Edge,
 	ReactFlowProvider,
+	MiniMap,
+	NodeResizer,
+	NodeToolbar,
+	BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useLearningPathStore } from '@/store/learning-path-store';
@@ -273,8 +277,15 @@ export function LearningPathFlow() {
 							maxZoom={1.5}
 						>
 							<Background color='#f8fafc' gap={16} />
-							<Controls position='top-right' />
+							<Background
+								id='1'
+								gap={10}
+								color='#f1f1f1'
+								variant={BackgroundVariant.Lines}
+							/>
 
+							<Controls position='top-right' />
+							{/* <MiniMap position='top-left' /> */}
 							{/* <Panel
 								position='top-right'
 								className='bg-white p-4 rounded-md shadow-md'
