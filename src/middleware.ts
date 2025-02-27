@@ -15,6 +15,7 @@ const isPublicRoute = createRouteMatcher([
 
 const isAuthRoute = createRouteMatcher([
 	'/chat/:id', // This will be handled separately
+	'/learning-path',
 ]);
 
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
