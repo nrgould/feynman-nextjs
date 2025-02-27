@@ -3,6 +3,7 @@ import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
 import { anthropic } from '@ai-sdk/anthropic';
 import { saveLearningPathToSupabase } from '../../learning-path/actions';
+import { generateUUID } from '@/lib/utils';
 
 // Define the schema for a single node in the learning path
 const nodeSchema = z.object({
@@ -40,7 +41,8 @@ export async function POST(req: Request) {
 	const { concept, gradeLevel } = await req.json();
 
 	// Choose the model based on availability
-	const model = anthropic('claude-3-5-sonnet-20240620');
+	const model = google('gemini-1.5-pro-latest');
+	// const model = anthropic('claude-3-5-sonnet-20240620');
 
 	const result = streamObject({
 		model,
@@ -98,10 +100,40 @@ Make sure the learning path is appropriate for ${gradeLevel} level students and 
 				const res = learningPathSchema.safeParse(object);
 
 				if (res.success) {
-					// Save the learning path to Supabase
 					try {
+						// Create a mapping of original node IDs to new UUIDs
+						const nodeIdMap = new Map();
+
+						// Generate new UUIDs for each node and update the mapping
+						const nodesWithUUIDs = object.nodes.map((node) => {
+							const newId = generateUUID();
+							nodeIdMap.set(node.id, newId);
+							return {
+								...node,
+								id: newId,
+							};
+						});
+
+						// Update edges with the new node UUIDs
+						const edgesWithUUIDs = object.edges.map((edge) => {
+							return {
+								id: generateUUID(),
+								source: nodeIdMap.get(edge.source),
+								target: nodeIdMap.get(edge.target),
+								type: edge.type,
+							};
+						});
+
+						// Create the updated learning path object
+						const updatedLearningPath = {
+							...object,
+							nodes: nodesWithUUIDs,
+							edges: edgesWithUUIDs,
+						};
+
+						// Save the learning path to Supabase
 						const saveResult = await saveLearningPathToSupabase(
-							object,
+							updatedLearningPath,
 							concept,
 							gradeLevel
 						);
