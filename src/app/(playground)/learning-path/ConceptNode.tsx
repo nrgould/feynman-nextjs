@@ -3,15 +3,15 @@
 import { Handle, Position } from '@xyflow/react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, BookOpen, Play } from 'lucide-react';
+import { BarChart, BookOpen, Play, ArrowRight, Loader2 } from 'lucide-react';
 import { LearningPathNode } from '@/lib/learning-path-schemas';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { createChatFromConcept } from '@/app/concepts/actions';
 import { generateUUID } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { checkConceptActive, createChatFromLearningPathNode } from './actions';
 
 interface ConceptNodeProps {
 	data: {
@@ -25,7 +25,30 @@ interface ConceptNodeProps {
 export function ConceptNode({ data, selected }: ConceptNodeProps) {
 	const { node, onProgressChange, isDisabled } = data;
 	const [isLoading, setIsLoading] = useState(false);
+	const [isActive, setIsActive] = useState(false);
+	const [chatId, setChatId] = useState<string | null>(null);
+	const [isChecking, setIsChecking] = useState(true);
 	const router = useRouter();
+
+	// Check if the concept is active on component mount
+	useEffect(() => {
+		const checkActive = async () => {
+			setIsChecking(true);
+			try {
+				const result = await checkConceptActive(node.id);
+				if (result.success) {
+					setIsActive(result.isActive);
+					setChatId(result.chatId);
+				}
+			} catch (error) {
+				console.error('Error checking if concept is active:', error);
+			} finally {
+				setIsChecking(false);
+			}
+		};
+
+		checkActive();
+	}, [node.id]);
 
 	// Function to get color based on difficulty
 	const getDifficultyColor = (difficulty: number) => {
@@ -51,14 +74,6 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 		try {
 			setIsLoading(true);
 
-			// Create a concept object with the required properties
-			const concept = {
-				title: node.concept,
-				description: node.description,
-				id: node.id,
-				subject: 'Learning Path', // Default subject
-			};
-
 			// Generate a unique ID for the chat
 			const chatId = generateUUID();
 
@@ -68,12 +83,24 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 				description: `Creating a chat for ${node.concept}...`,
 			});
 
-			// Call the server action to create a chat from this concept
-			await createChatFromConcept(concept, chatId);
+			// Call the server action to create a chat from this node
+			const result = await createChatFromLearningPathNode(
+				{
+					id: node.id,
+					concept: node.concept,
+					description: node.description,
+				},
+				chatId,
+				true // Enable redirect
+			);
 
-			// Note: The server action includes a redirect, so we don't need to manually navigate
 			// If we reach this point, it means the redirect didn't happen
-			router.push(`/chat/${chatId}`);
+			// This is a fallback in case the redirect fails
+			if (!result.success) {
+				throw new Error(result.error);
+			}
+
+			router.push(`/chat/${result.chatId || chatId}`);
 		} catch (error) {
 			console.error('Error starting concept:', error);
 			toast({
@@ -86,6 +113,20 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 		}
 	};
 
+	const handleContinueConcept = () => {
+		if (!chatId) return;
+
+		setIsLoading(true);
+
+		// Show a toast to indicate that we're continuing the concept
+		toast({
+			title: 'Continuing Learning',
+			description: `Resuming your chat for ${node.concept}...`,
+		});
+
+		router.push(`/chat/${chatId}`);
+	};
+
 	const difficultyClass = getDifficultyColor(node.difficulty);
 	const gradeInfo = getGradeInfo(node.grade);
 	const canStart = !isDisabled && node.grade === undefined;
@@ -95,6 +136,7 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 			className={cn(
 				'p-4 rounded-lg shadow-md bg-white border-2 w-[250px] transition-opacity duration-200',
 				selected ? 'border-primary' : 'border-gray-200',
+				isActive && !isDisabled ? 'border-l-4 border-l-blue-500' : '',
 				isDisabled && 'opacity-50 cursor-not-allowed'
 			)}
 		>
@@ -119,8 +161,20 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 			/>
 
 			<div className='space-y-3'>
-				{/* Concept title */}
-				<h3 className='font-semibold text-gray-800'>{node.concept}</h3>
+				{/* Concept title with active indicator */}
+				<div className='flex items-center justify-between'>
+					<h3 className='font-semibold text-gray-800'>
+						{node.concept}
+					</h3>
+					{isActive && !isDisabled && !isChecking && (
+						<Badge
+							variant='outline'
+							className='bg-blue-50 text-blue-600 border-blue-200 text-xs px-2'
+						>
+							Active
+						</Badge>
+					)}
+				</div>
 
 				{/* Description */}
 				<p className='text-sm text-gray-600 line-clamp-2'>
@@ -155,26 +209,59 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 					<Progress value={node.progress} className='h-2' />
 				</div>
 
-				{/* Start button - only show if node can be started */}
-				{canStart && (
-					<Button
-						className='w-full gap-2 mt-2'
-						onClick={handleStartConcept}
-						size='sm'
-						disabled={isLoading}
-					>
-						{isLoading ? (
-							<>
-								<span className='animate-spin mr-2'>⏳</span>
-								Creating...
-							</>
-						) : (
-							<>
-								<Play className='w-4 h-4' />
-								Start Learning
-							</>
-						)}
-					</Button>
+				{/* Button section - show different buttons based on state */}
+				{canStart &&
+					!isChecking &&
+					(isActive && chatId ? (
+						// Continue button for active concepts
+						<Button
+							className='w-full gap-2 mt-2'
+							onClick={handleContinueConcept}
+							size='sm'
+							variant='outline'
+							disabled={isLoading}
+						>
+							{isLoading ? (
+								<>
+									<Loader2 className='h-4 w-4 animate-spin' />
+									Loading...
+								</>
+							) : (
+								<>
+									<ArrowRight className='w-4 h-4' />
+									Continue Learning
+								</>
+							)}
+						</Button>
+					) : (
+						// Start button for inactive concepts
+						<Button
+							className='w-full gap-2 mt-2'
+							onClick={handleStartConcept}
+							size='sm'
+							disabled={isLoading}
+						>
+							{isLoading ? (
+								<>
+									<Loader2 className='h-4 w-4 animate-spin' />
+									Creating...
+								</>
+							) : (
+								<>
+									<Play className='w-4 h-4' />
+									Start Learning
+								</>
+							)}
+						</Button>
+					))}
+
+				{/* Loading state while checking if concept is active */}
+				{canStart && isChecking && (
+					<div className='w-full flex justify-center mt-2'>
+						<span className='text-xs text-gray-500 animate-pulse'>
+							Checking status...
+						</span>
+					</div>
 				)}
 			</div>
 		</div>

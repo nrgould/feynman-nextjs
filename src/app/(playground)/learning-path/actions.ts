@@ -360,6 +360,52 @@ export async function deleteLearningPath(learningPathId: string) {
 	}
 }
 
+export async function checkConceptActive(conceptId: string) {
+	try {
+		const { userId } = await auth();
+		if (!userId) {
+			throw new Error('User not authenticated');
+		}
+
+		const supabase = await createClient();
+
+		// Check if the concept exists and has a chat_id
+		const { data, error } = await supabase
+			.from('Concept')
+			.select('id, chat_id, is_active')
+			.eq('id', conceptId)
+			.eq('user_id', userId)
+			.single();
+
+		if (error) {
+			// If the concept doesn't exist, it's not active
+			if (error.code === 'PGRST116') {
+				// PostgreSQL not found error
+				return {
+					success: true,
+					isActive: false,
+					chatId: null,
+				};
+			}
+			throw new Error(`Error checking concept: ${error.message}`);
+		}
+
+		return {
+			success: true,
+			isActive: data.is_active && data.chat_id !== null,
+			chatId: data.chat_id,
+		};
+	} catch (error) {
+		console.error('Error checking if concept is active:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+			isActive: false,
+			chatId: null,
+		};
+	}
+}
+
 export async function createChatFromLearningPathNode(
 	node: {
 		id: string;
