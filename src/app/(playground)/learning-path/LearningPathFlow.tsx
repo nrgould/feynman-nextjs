@@ -6,6 +6,7 @@ import {
 	useEffect,
 	Dispatch,
 	SetStateAction,
+	useMemo,
 } from 'react';
 import {
 	ReactFlow,
@@ -37,7 +38,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, BarChart2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateLearningPathNodeProgress } from './actions';
+import { useLearningPathStore } from '@/store/learning-path-store';
 import { toast } from '@/hooks/use-toast';
 
 // Define the type for our custom node
@@ -48,7 +49,7 @@ type ConceptNodeData = {
 
 interface LearningPathFlowProps {
 	currentPath: LearningPath;
-	setCurrentPath: Dispatch<SetStateAction<LearningPath | null>>;
+	setCurrentPath: (path: LearningPath | null, pathId?: string | null) => void;
 }
 
 // Export the component directly without wrapping it with ReactFlowProvider
@@ -58,9 +59,8 @@ export function LearningPathFlow({
 	setCurrentPath,
 }: LearningPathFlowProps) {
 	// Define node types
-	const nodeTypes: NodeTypes = {
-		concept: ConceptNode,
-	};
+	const nodeTypes = useMemo(() => ({ concept: ConceptNode }), []);
+	const { updateNodeProgress } = useLearningPathStore();
 
 	// State for nodes and edges with proper typing
 	const [nodes, setNodes] = useState<Node<ConceptNodeData>[]>([]);
@@ -121,40 +121,9 @@ export function LearningPathFlow({
 
 	// Handle progress changes and sync with Supabase
 	const handleProgressChange = async (nodeId: string, progress: number) => {
-		// Update local state first for immediate feedback
-		if (currentPath) {
-			const updatedNodes = currentPath.nodes.map((node) =>
-				node.id === nodeId ? { ...node, progress } : node
-			);
-
-			setCurrentPath({
-				...currentPath,
-				nodes: updatedNodes,
-			});
-		}
-
-		// Then update in Supabase
-		try {
-			const result = await updateLearningPathNodeProgress(
-				nodeId,
-				progress
-			);
-			if (!result.success) {
-				toast({
-					title: 'Error Updating Progress',
-					description: 'Failed to save progress to your account.',
-					variant: 'destructive',
-				});
-			}
-		} catch (error) {
-			console.error('Error updating node progress:', error);
-			toast({
-				title: 'Error',
-				description:
-					'An unexpected error occurred while saving progress.',
-				variant: 'destructive',
-			});
-		}
+		// Use the Zustand store's updateNodeProgress function
+		// This will update the UI state and sync with Supabase
+		await updateNodeProgress(nodeId, progress);
 	};
 
 	// Update nodes and edges when currentPath changes

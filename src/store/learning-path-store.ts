@@ -1,180 +1,196 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import {
 	LearningPath,
 	LearningPathNode,
 	LearningPathEdge,
 } from '@/lib/learning-path-schemas';
+import {
+	getLearningPathDetails,
+	getUserLearningPaths,
+	updateLearningPathNodeProgress,
+} from '@/app/(playground)/learning-path/actions';
 
-interface SavedLearningPath {
+// Define the types for our store
+interface LearningPathInfo {
 	id: string;
 	title: string;
 	concept: string;
 	gradeLevel: string;
 	timestamp: number;
 	overallProgress: number;
-	pathData: LearningPath; // Store the full path data
 }
 
 interface LearningPathState {
-	// Current learning path
+	// Paths list
+	paths: LearningPathInfo[];
+
+	// Current active path
 	currentPath: LearningPath | null;
-	concept: string;
-	gradeLevel: string;
+	activePathId: string | null;
+
+	// UI state
 	isLoading: boolean;
+	isPathsLoading: boolean;
 	error: string | null;
 
-	// Previous learning paths
-	previousPaths: SavedLearningPath[];
-
 	// Actions
-	setCurrentPath: (path: LearningPath) => void;
-	setConcept: (concept: string) => void;
-	setGradeLevel: (gradeLevel: string) => void;
-	setIsLoading: (isLoading: boolean) => void;
-	setError: (error: string | null) => void;
-	updateNodeProgress: (nodeId: string, progress: number) => void;
-	updateNodeGrade: (nodeId: string, grade: number) => void;
-	savePath: () => void;
+	loadPaths: () => Promise<void>;
+	selectPath: (pathId: string) => Promise<void>;
+	setCurrentPath: (path: LearningPath | null, pathId?: string | null) => void;
 	clearCurrentPath: () => void;
-	loadPreviousPath: (id: string) => void;
-	deletePreviousPath: (id: string) => void;
+	updateNodeProgress: (nodeId: string, progress: number) => Promise<void>;
+	calculateOverallProgress: () => number;
 }
 
-export const useLearningPathStore = create<LearningPathState>()(
-	persist(
-		(set, get) => ({
-			// Initial state
-			currentPath: null,
-			concept: '',
-			gradeLevel: '',
-			isLoading: false,
-			error: null,
-			previousPaths: [],
+export const useLearningPathStore = create<LearningPathState>((set, get) => ({
+	// Initial state
+	paths: [],
+	currentPath: null,
+	activePathId: null,
+	isLoading: false,
+	isPathsLoading: false,
+	error: null,
 
-			// Actions
-			setCurrentPath: (path) =>
-				set({ currentPath: path, isLoading: false }),
-			setConcept: (concept) => set({ concept }),
-			setGradeLevel: (gradeLevel) => set({ gradeLevel }),
-			setIsLoading: (isLoading) => set({ isLoading }),
-			setError: (error) => set({ error }),
-
-			updateNodeProgress: (nodeId, progress) => {
-				const { currentPath } = get();
-				if (!currentPath) return;
-
-				const updatedNodes = currentPath.nodes.map((node) =>
-					node.id === nodeId ? { ...node, progress } : node
-				);
+	// Load all paths from the database
+	loadPaths: async () => {
+		set({ isPathsLoading: true });
+		try {
+			const result = await getUserLearningPaths();
+			if (result.success && result.learningPaths) {
+				const formattedPaths = result.learningPaths.map((path) => ({
+					id: path.id,
+					title: path.title,
+					concept: path.concept,
+					gradeLevel: path.grade_level,
+					timestamp: new Date(path.created_at).getTime(),
+					overallProgress: path.overall_progress || 0,
+				}));
 
 				set({
-					currentPath: {
-						...currentPath,
-						nodes: updatedNodes,
-					},
+					paths: formattedPaths,
+					isPathsLoading: false,
 				});
-			},
-
-			updateNodeGrade: (nodeId, grade) => {
-				const { currentPath } = get();
-				if (!currentPath) return;
-
-				const updatedNodes = currentPath.nodes.map((node) =>
-					node.id === nodeId ? { ...node, grade } : node
-				);
-
+			} else {
 				set({
-					currentPath: {
-						...currentPath,
-						nodes: updatedNodes,
-					},
+					error: result.error || 'Failed to load learning paths',
+					isPathsLoading: false,
 				});
-			},
-
-			savePath: () => {
-				const { currentPath, concept, gradeLevel, previousPaths } =
-					get();
-				if (!currentPath) return;
-
-				// Calculate overall progress
-				const totalNodes = currentPath.nodes.length;
-				const totalProgress = currentPath.nodes.reduce(
-					(sum, node) => sum + (node.progress || 0),
-					0
-				);
-				const overallProgress =
-					totalNodes > 0 ? Math.round(totalProgress / totalNodes) : 0;
-
-				// Create a unique ID for this path
-				const id = `${concept}-${Date.now()}`;
-
-				// Check if we already have this path saved (by concept)
-				const existingPathIndex = previousPaths.findIndex(
-					(path) =>
-						path.concept.toLowerCase() === concept.toLowerCase()
-				);
-
-				// Create the new path entry
-				const newPath: SavedLearningPath = {
-					id,
-					title: currentPath.title,
-					concept,
-					gradeLevel,
-					timestamp: Date.now(),
-					overallProgress,
-					pathData: currentPath, // Store the full path data
-				};
-
-				// Update the previous paths array
-				if (existingPathIndex >= 0) {
-					// Replace the existing path
-					const updatedPaths = [...previousPaths];
-					updatedPaths[existingPathIndex] = newPath;
-					set({ previousPaths: updatedPaths });
-				} else {
-					// Add as a new path
-					set({
-						previousPaths: [newPath, ...previousPaths],
-					});
-				}
-			},
-
-			clearCurrentPath: () =>
-				set({
-					currentPath: null,
-					concept: '',
-					gradeLevel: '',
-					error: null,
-					isLoading: false,
-				}),
-
-			loadPreviousPath: (id) => {
-				const { previousPaths } = get();
-				const pathToLoad = previousPaths.find((path) => path.id === id);
-
-				if (pathToLoad) {
-					// Load the full path data that we stored
-					set({
-						currentPath: pathToLoad.pathData,
-						concept: pathToLoad.concept,
-						gradeLevel: pathToLoad.gradeLevel,
-						isLoading: false,
-					});
-				}
-			},
-
-			deletePreviousPath: (id) => {
-				const { previousPaths } = get();
-				set({
-					previousPaths: previousPaths.filter(
-						(path) => path.id !== id
-					),
-				});
-			},
-		}),
-		{
-			name: 'learning-path-storage',
+			}
+		} catch (error) {
+			console.error('Error loading learning paths:', error);
+			set({
+				error: error instanceof Error ? error.message : 'Unknown error',
+				isPathsLoading: false,
+			});
 		}
-	)
-);
+	},
+
+	// Select and load a specific path
+	selectPath: async (pathId: string) => {
+		const { activePathId } = get();
+
+		// Skip if already the active path
+		if (pathId === activePathId) return;
+
+		set({ isLoading: true, activePathId: pathId });
+
+		try {
+			const pathDetails = await getLearningPathDetails(pathId);
+			if (pathDetails.success && pathDetails.learningPath) {
+				set({
+					currentPath: {
+						title: pathDetails.learningPath.title,
+						description: pathDetails.learningPath.description,
+						nodes: pathDetails.learningPath.nodes,
+						edges: pathDetails.learningPath.edges,
+					},
+					isLoading: false,
+				});
+			} else {
+				set({
+					error: pathDetails.error || 'Failed to load learning path',
+					isLoading: false,
+				});
+			}
+		} catch (error) {
+			console.error('Error loading learning path:', error);
+			set({
+				error: error instanceof Error ? error.message : 'Unknown error',
+				isLoading: false,
+			});
+		}
+	},
+
+	// Set the current path directly
+	setCurrentPath: (path, pathId = null) => {
+		set({
+			currentPath: path,
+			activePathId: pathId,
+			isLoading: false,
+		});
+	},
+
+	// Clear the current path
+	clearCurrentPath: () => {
+		set({
+			currentPath: null,
+			activePathId: null,
+			error: null,
+			isLoading: false,
+		});
+	},
+
+	// Calculate the overall progress of the current path
+	calculateOverallProgress: () => {
+		const { currentPath } = get();
+		if (
+			!currentPath ||
+			!currentPath.nodes ||
+			currentPath.nodes.length === 0
+		) {
+			return 0;
+		}
+
+		const totalProgress = currentPath.nodes.reduce(
+			(sum, node) => sum + (node.progress || 0),
+			0
+		);
+
+		return Math.round(totalProgress / currentPath.nodes.length);
+	},
+
+	// Update a node's progress
+	updateNodeProgress: async (nodeId, progress) => {
+		const { currentPath, activePathId, calculateOverallProgress } = get();
+		if (!currentPath || !activePathId) return;
+
+		// Update the node progress in the UI immediately
+		const updatedNodes = currentPath.nodes.map((node) =>
+			node.id === nodeId ? { ...node, progress } : node
+		);
+
+		set({
+			currentPath: {
+				...currentPath,
+				nodes: updatedNodes,
+			},
+		});
+
+		// Calculate the new overall progress
+		const overallProgress = calculateOverallProgress();
+
+		// Update the paths list with the new progress
+		set((state) => ({
+			paths: state.paths.map((path) =>
+				path.id === activePathId ? { ...path, overallProgress } : path
+			),
+		}));
+
+		// Update the progress in the database
+		try {
+			await updateLearningPathNodeProgress(nodeId, progress);
+		} catch (error) {
+			console.error('Error updating node progress:', error);
+		}
+	},
+}));

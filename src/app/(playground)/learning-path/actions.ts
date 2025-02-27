@@ -10,7 +10,8 @@ import { redirect } from 'next/navigation';
 export async function saveLearningPathToSupabase(
 	learningPath: LearningPath,
 	concept: string,
-	gradeLevel: string
+	gradeLevel: string,
+	providedLearningPathId?: string
 ) {
 	try {
 		const { userId } = await auth();
@@ -20,8 +21,8 @@ export async function saveLearningPathToSupabase(
 
 		const supabase = await createClient();
 
-		// Generate a UUID for the learning path
-		const learningPathId = uuidv4();
+		// Generate a UUID for the learning path or use the provided one
+		const learningPathId = providedLearningPathId || uuidv4();
 
 		// Calculate overall progress
 		const totalNodes = learningPath.nodes.length;

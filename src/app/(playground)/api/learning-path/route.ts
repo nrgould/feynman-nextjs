@@ -4,6 +4,7 @@ import { google } from '@ai-sdk/google';
 import { anthropic } from '@ai-sdk/anthropic';
 import { saveLearningPathToSupabase } from '../../learning-path/actions';
 import { generateUUID } from '@/lib/utils';
+import { NextResponse } from 'next/server';
 
 // Define the schema for a single node in the learning path
 const nodeSchema = z.object({
@@ -40,11 +41,15 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
 	const { concept, gradeLevel } = await req.json();
 
+	// Generate a UUID for the learning path that we'll use consistently
+	// This ensures we can return it to the client
+	const learningPathId = generateUUID();
+
 	// Choose the model based on availability
 	const model = google('gemini-1.5-pro-latest');
 	// const model = anthropic('claude-3-5-sonnet-20240620');
 
-	const result = streamObject({
+	const objectStream = streamObject({
 		model,
 		prompt: `You are an expert educational curriculum designer creating a learning path for students at a ${gradeLevel} level who want to learn about ${concept}.
 
@@ -131,11 +136,12 @@ Make sure the learning path is appropriate for ${gradeLevel} level students and 
 							edges: edgesWithUUIDs,
 						};
 
-						// Save the learning path to Supabase
+						// Save the learning path to Supabase using our pre-generated ID
 						const saveResult = await saveLearningPathToSupabase(
 							updatedLearningPath,
 							concept,
-							gradeLevel
+							gradeLevel,
+							learningPathId // Pass the pre-generated ID
 						);
 
 						if (!saveResult.success) {
@@ -162,5 +168,15 @@ Make sure the learning path is appropriate for ${gradeLevel} level students and 
 		},
 	});
 
-	return result.toTextStreamResponse();
+	// Create a response with the learning path ID in the headers
+	const responseStream = objectStream.toTextStreamResponse();
+	const headers = new Headers(responseStream.headers);
+	headers.set('X-Learning-Path-Id', learningPathId);
+
+	// Return a response with the learning path ID in the headers
+	return new NextResponse(responseStream.body, {
+		status: responseStream.status,
+		statusText: responseStream.statusText,
+		headers,
+	});
 }

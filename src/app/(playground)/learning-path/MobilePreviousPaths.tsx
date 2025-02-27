@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
-import { History, BookOpen } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import {
 	Sheet,
 	SheetContent,
@@ -11,22 +11,35 @@ import {
 	SheetTrigger,
 	SheetDescription,
 } from '@/components/ui/sheet';
-import { PreviousPaths } from './PreviousPaths';
+import { PreviousPaths, PreviousPathsRef } from './PreviousPaths';
+import { useLearningPathStore } from '@/store/learning-path-store';
 
 interface MobilePreviousPathsProps {
-	onPathSelect: (pathId: string) => void;
 	onNewPath: () => void;
 }
 
-export function MobilePreviousPaths({
-	onPathSelect,
-	onNewPath,
-}: MobilePreviousPathsProps) {
+export interface MobilePreviousPathsRef {
+	refreshPaths: () => Promise<void>;
+}
+
+export const MobilePreviousPaths = forwardRef<
+	MobilePreviousPathsRef,
+	MobilePreviousPathsProps
+>(function MobilePreviousPaths({ onNewPath }: MobilePreviousPathsProps, ref) {
 	const [open, setOpen] = useState(false);
+	const previousPathsRef = useRef<PreviousPathsRef>(null);
+	const { loadPaths } = useLearningPathStore();
 
 	const handlePathSelected = () => {
 		setOpen(false);
 	};
+
+	// Expose the refreshPaths method via ref
+	useImperativeHandle(ref, () => ({
+		refreshPaths: async () => {
+			await loadPaths();
+		},
+	}));
 
 	return (
 		<Sheet open={open} onOpenChange={setOpen}>
@@ -48,13 +61,13 @@ export function MobilePreviousPaths({
 				</SheetHeader>
 				<div className='py-4'>
 					<PreviousPaths
+						ref={previousPathsRef}
 						isInMobileView={true}
 						onPathSelected={handlePathSelected}
-						onPathSelect={onPathSelect}
 						onNewPath={onNewPath}
 					/>
 				</div>
 			</SheetContent>
 		</Sheet>
 	);
-}
+});

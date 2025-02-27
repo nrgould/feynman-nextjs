@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { experimental_useObject as useObject } from 'ai/react';
-import { useLearningPathStore } from '@/store/learning-path-store';
 import { learningPathSchema } from '@/lib/learning-path-schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,29 +23,22 @@ import {
 } from '@/components/ui/card';
 import { Loader2, BookOpen, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { getUserLearningPaths } from './actions';
 
 interface LearningPathInputProps {
-	onPathCreated: (path: any, concept: string, gradeLevel: string) => void;
+	onPathCreated: (
+		path: any,
+		concept: string,
+		gradeLevel: string,
+		pathId?: string
+	) => void;
 }
 
 export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
-	const {
-		concept,
-		setConcept,
-		gradeLevel,
-		setGradeLevel,
-		setCurrentPath,
-		isLoading,
-		setIsLoading,
-		error,
-		setError,
-		savePath,
-	} = useLearningPathStore();
-
-	const [localConcept, setLocalConcept] = useState(concept);
-	const [localGradeLevel, setLocalGradeLevel] = useState(
-		gradeLevel || 'high school'
-	);
+	const [concept, setConcept] = useState('');
+	const [gradeLevel, setGradeLevel] = useState('high school');
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	// Use the useObject hook to generate the learning path
 	const {
@@ -56,10 +48,46 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 	} = useObject({
 		api: '/api/learning-path',
 		schema: learningPathSchema,
-		onFinish: ({ object }) => {
+		onFinish: async ({ object }) => {
 			if (object) {
-				// Call the onPathCreated prop instead of using Zustand
-				onPathCreated(object, concept, gradeLevel);
+				// After generating the path, we need to get the latest learning path ID
+				// We'll do this by fetching the user's learning paths and getting the most recent one
+				try {
+					// Small delay to ensure the path is saved before we fetch it
+					await new Promise((resolve) => setTimeout(resolve, 500));
+
+					const result = await getUserLearningPaths();
+					if (
+						result.success &&
+						result.learningPaths &&
+						result.learningPaths.length > 0
+					) {
+						// Sort by created_at and get the most recent one
+						// (which should be the one we just created)
+						const paths = result.learningPaths.sort(
+							(a, b) =>
+								new Date(b.created_at).getTime() -
+								new Date(a.created_at).getTime()
+						);
+
+						const mostRecent = paths[0];
+
+						// Call onPathCreated with the path ID
+						onPathCreated(
+							object,
+							concept,
+							gradeLevel,
+							mostRecent.id
+						);
+					} else {
+						// Fallback if we couldn't get the ID
+						onPathCreated(object, concept, gradeLevel);
+					}
+				} catch (error) {
+					console.error('Error fetching learning path ID:', error);
+					// Still call onPathCreated without the ID
+					onPathCreated(object, concept, gradeLevel);
+				}
 
 				toast({
 					title: 'Learning Path Created',
@@ -87,7 +115,7 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!localConcept.trim()) {
+		if (!concept.trim()) {
 			toast({
 				title: 'Please enter a concept',
 				description:
@@ -99,15 +127,13 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 
 		setIsLoading(true);
 		setError(null);
-		setConcept(localConcept);
-		setGradeLevel(localGradeLevel);
 
 		try {
 			// Generate the learning path
 			// The API will save to Supabase and the onFinish callback will update the client state
 			generate({
-				concept: localConcept,
-				gradeLevel: localGradeLevel,
+				concept,
+				gradeLevel,
 			});
 		} catch (err) {
 			// This catch block will handle any synchronous errors
@@ -155,8 +181,8 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 						<Input
 							id='concept'
 							placeholder='e.g., Quantum Physics, Web Development, French Language'
-							value={localConcept}
-							onChange={(e) => setLocalConcept(e.target.value)}
+							value={concept}
+							onChange={(e) => setConcept(e.target.value)}
 							disabled={isLoading || isGenerating}
 						/>
 					</div>
@@ -164,8 +190,8 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 					<div className='space-y-2'>
 						<Label htmlFor='gradeLevel'>Education Level</Label>
 						<Select
-							value={localGradeLevel}
-							onValueChange={setLocalGradeLevel}
+							value={gradeLevel}
+							onValueChange={setGradeLevel}
 							disabled={isLoading || isGenerating}
 						>
 							<SelectTrigger id='gradeLevel'>

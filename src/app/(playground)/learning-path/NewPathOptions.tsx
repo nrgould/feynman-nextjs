@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/popover';
 import { toast } from '@/hooks/use-toast';
 import { BookOpen, FileText, Plus, Loader2, Sparkles } from 'lucide-react';
+import { getUserLearningPaths } from './actions';
 
 interface NewPathOptionsProps {
 	onNewPath: () => void;
@@ -39,19 +40,17 @@ export function NewPathOptions({ onNewPath }: NewPathOptionsProps) {
 	const router = useRouter();
 	const {
 		clearCurrentPath,
-		setConcept,
-		setGradeLevel,
 		setCurrentPath,
-		setIsLoading,
-		setError,
-		savePath,
-		isLoading,
+		loadPaths,
+		isLoading: storeIsLoading,
 	} = useLearningPathStore();
 
 	const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [localConcept, setLocalConcept] = useState('');
 	const [localGradeLevel, setLocalGradeLevel] = useState('high school');
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	// Use the useObject hook to generate the learning path
 	const {
@@ -61,20 +60,48 @@ export function NewPathOptions({ onNewPath }: NewPathOptionsProps) {
 	} = useObject({
 		api: '/api/learning-path',
 		schema: learningPathSchema,
-		onFinish: ({ object }) => {
+		onFinish: async ({ object }) => {
 			if (object) {
-				// Only set the current path if object is not null
-				setCurrentPath(object);
-				// Save to client-side history after setting the path
-				savePath();
+				try {
+					// Small delay to ensure the path is saved before we fetch it
+					await new Promise((resolve) => setTimeout(resolve, 500));
 
-				toast({
-					title: 'Learning Path Created',
-					description: `Your personalized learning path for ${localConcept} has been created and saved to your account.`,
-				});
+					const result = await getUserLearningPaths();
+					if (
+						result.success &&
+						result.learningPaths &&
+						result.learningPaths.length > 0
+					) {
+						// Sort by created_at and get the most recent one
+						const paths = result.learningPaths.sort(
+							(a, b) =>
+								new Date(b.created_at).getTime() -
+								new Date(a.created_at).getTime()
+						);
 
-				// Close the dialog
-				setIsDialogOpen(false);
+						const mostRecent = paths[0];
+
+						// Set the current path with the path ID
+						setCurrentPath(object, mostRecent.id);
+					} else {
+						// Fallback if we couldn't get the ID
+						setCurrentPath(object, null);
+					}
+
+					// Refresh the paths list
+					await loadPaths();
+
+					toast({
+						title: 'Learning Path Created',
+						description: `Your personalized learning path for ${localConcept} has been created.`,
+					});
+
+					// Close the dialog
+					setIsDialogOpen(false);
+				} catch (error) {
+					console.error('Error fetching learning path ID:', error);
+					setCurrentPath(object, null);
+				}
 			}
 			setIsLoading(false);
 		},
@@ -131,10 +158,6 @@ export function NewPathOptions({ onNewPath }: NewPathOptionsProps) {
 		// Set loading state and clear any previous errors
 		setIsLoading(true);
 		setError(null);
-
-		// Update the store with the new concept and grade level
-		setConcept(localConcept);
-		setGradeLevel(localGradeLevel);
 
 		try {
 			// Generate the learning path using the AI
@@ -255,7 +278,7 @@ export function NewPathOptions({ onNewPath }: NewPathOptionsProps) {
 								{isLoading || isGenerating ? (
 									<>
 										<Loader2 className='h-4 w-4 animate-spin' />
-										Generating Learning Path...
+										Generating...
 									</>
 								) : (
 									<>
