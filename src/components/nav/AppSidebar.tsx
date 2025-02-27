@@ -125,7 +125,7 @@ export async function AppSidebar({
 						</SignedOut>
 					</SidebarGroupContent>
 				</SidebarGroup>
-{/* 
+				{/* 
 				<SidebarGroup>
 					<SidebarGroupLabel>Resources</SidebarGroupLabel>
 					<SidebarGroupContent>

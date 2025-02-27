@@ -56,12 +56,12 @@ export function LearningPathInput() {
 			if (object) {
 				// Only set the current path if object is not null
 				setCurrentPath(object);
-				// Save to history after setting the path
+				// Save to client-side history after setting the path
 				savePath();
 
 				toast({
 					title: 'Learning Path Created',
-					description: `Your personalized learning path for ${localConcept} has been created.`,
+					description: `Your personalized learning path for ${localConcept} has been created and saved to your account.`,
 				});
 			}
 			setIsLoading(false);
@@ -102,13 +102,11 @@ export function LearningPathInput() {
 
 		try {
 			// Generate the learning path
+			// The API will save to Supabase and the onFinish callback will update the client state
 			generate({
 				concept: localConcept,
 				gradeLevel: localGradeLevel,
 			});
-
-			// Note: We don't need to set the current path here anymore
-			// as it's handled in the onFinish callback
 		} catch (err) {
 			// This catch block will handle any synchronous errors
 			// Async errors are handled by onError callback

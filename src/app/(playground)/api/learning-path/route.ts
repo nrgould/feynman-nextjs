@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
 import { anthropic } from '@ai-sdk/anthropic';
+import { saveLearningPathToSupabase } from '../../learning-path/actions';
 
 // Define the schema for a single node in the learning path
 const nodeSchema = z.object({
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
 
 Create a comprehensive learning path that shows the optimal sequence for learning this subject. The learning path should include:
 
-1. A clear title and description for the overall learning path
+1. A clear title and concise description
 2. 5-8 key concepts/topics that need to be learned (as nodes)
 3. The connections between these concepts showing prerequisites and relationships (as edges)
 
@@ -61,7 +62,6 @@ For each concept node, include:
 - Position coordinates for visualization (arrange them in a logical flow)
 
 For each connection (edge), include:
-- A descriptive label explaining the relationship between the concepts
 - The source and target node IDs
 
 The nodes should be arranged in a way that makes sense for learning progression, with foundational concepts appearing earlier in the path.
@@ -98,8 +98,40 @@ Your response should be formatted as a JSON object with the following structure:
 Make sure the learning path is appropriate for ${gradeLevel} level students and focuses specifically on ${concept}.`,
 		schema: learningPathSchema,
 		onFinish: async ({ object }) => {
-			const res = learningPathSchema.safeParse(object);
-			console.log(res);
+			if (object) {
+				// Validate the object with Zod
+				const res = learningPathSchema.safeParse(object);
+
+				if (res.success) {
+					// Save the learning path to Supabase
+					try {
+						const saveResult = await saveLearningPathToSupabase(
+							object,
+							concept,
+							gradeLevel
+						);
+
+						if (!saveResult.success) {
+							console.error(
+								'Failed to save learning path to Supabase:',
+								saveResult.error
+							);
+						} else {
+							console.log(
+								'Learning path saved to Supabase with ID:',
+								saveResult.learningPathId
+							);
+						}
+					} catch (error) {
+						console.error(
+							'Error saving learning path to Supabase:',
+							error
+						);
+					}
+				} else {
+					console.error('Invalid learning path object:', res.error);
+				}
+			}
 		},
 	});
 

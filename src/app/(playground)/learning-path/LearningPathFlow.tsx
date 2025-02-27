@@ -13,7 +13,7 @@ import {
 	MarkerType,
 	Node,
 	Edge,
-	useReactFlow,
+	ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useLearningPathStore } from '@/store/learning-path-store';
@@ -27,6 +27,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, BarChart2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { updateLearningPathNodeProgress } from './actions';
+import { toast } from '@/hooks/use-toast';
 
 // Define the type for our custom node
 type ConceptNodeData = {
@@ -34,6 +36,8 @@ type ConceptNodeData = {
 	onProgressChange: (id: string, progress: number) => void;
 };
 
+// Export the component directly without wrapping it with ReactFlowProvider
+// since the parent component now provides the context
 export function LearningPathFlow() {
 	const { currentPath, updateNodeProgress, updateNodeGrade } =
 		useLearningPathStore();
@@ -100,6 +104,35 @@ export function LearningPathFlow() {
 		});
 	};
 
+	// Handle progress changes and sync with Supabase
+	const handleProgressChange = async (nodeId: string, progress: number) => {
+		// Update local state first for immediate feedback
+		updateNodeProgress(nodeId, progress);
+
+		// Then update in Supabase
+		try {
+			const result = await updateLearningPathNodeProgress(
+				nodeId,
+				progress
+			);
+			if (!result.success) {
+				toast({
+					title: 'Error Updating Progress',
+					description: 'Failed to save progress to your account.',
+					variant: 'destructive',
+				});
+			}
+		} catch (error) {
+			console.error('Error updating node progress:', error);
+			toast({
+				title: 'Error',
+				description:
+					'An unexpected error occurred while saving progress.',
+				variant: 'destructive',
+			});
+		}
+	};
+
 	// Update nodes and edges when currentPath changes
 	useEffect(() => {
 		if (!currentPath) return;
@@ -132,7 +165,7 @@ export function LearningPathFlow() {
 						position: node.position,
 						data: {
 							node,
-							onProgressChange: updateNodeProgress,
+							onProgressChange: handleProgressChange,
 							isDisabled,
 						},
 					};
@@ -154,7 +187,8 @@ export function LearningPathFlow() {
 			setNodes([]);
 			setEdges([]);
 		}
-	}, [currentPath, updateNodeProgress]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentPath]);
 
 	// Handle node changes
 	const onNodesChange = useCallback(

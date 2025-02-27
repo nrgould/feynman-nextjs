@@ -6,10 +6,16 @@ import { LearningPathInput } from './LearningPathInput';
 import { LearningPathFlow } from './LearningPathFlow';
 import { PreviousPaths } from './PreviousPaths';
 import { MobilePreviousPaths } from './MobilePreviousPaths';
+import { getUserLearningPaths, getLearningPathDetails } from './actions';
+import { Loader2 } from 'lucide-react';
+import { ReactFlowProvider } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 
 export default function LearningPathPage() {
-	const { currentPath, clearCurrentPath, isLoading } = useLearningPathStore();
+	const { currentPath, clearCurrentPath, isLoading, setCurrentPath } =
+		useLearningPathStore();
 	const [isTransitioning, setIsTransitioning] = useState(false);
+	const [isInitialLoading, setIsInitialLoading] = useState(true);
 
 	// Clear current path when query parameter 'new' is present
 	useEffect(() => {
@@ -20,6 +26,57 @@ export default function LearningPathPage() {
 		}
 	}, [clearCurrentPath]);
 
+	// Load the most recent learning path from Supabase on initial load
+	useEffect(() => {
+		const loadMostRecentPath = async () => {
+			// Only load if there's no current path already
+			if (!currentPath) {
+				setIsInitialLoading(true);
+				try {
+					// Get all learning paths
+					const result = await getUserLearningPaths();
+					if (
+						result.success &&
+						result.learningPaths &&
+						result.learningPaths.length > 0
+					) {
+						// Sort by created_at and get the most recent one
+						const mostRecent = result.learningPaths.sort(
+							(a, b) =>
+								new Date(b.created_at).getTime() -
+								new Date(a.created_at).getTime()
+						)[0];
+
+						// Load the details of the most recent path
+						const pathDetails = await getLearningPathDetails(
+							mostRecent.id
+						);
+						if (pathDetails.success && pathDetails.learningPath) {
+							setCurrentPath({
+								title: pathDetails.learningPath.title,
+								description:
+									pathDetails.learningPath.description,
+								nodes: pathDetails.learningPath.nodes,
+								edges: pathDetails.learningPath.edges,
+							});
+						}
+					}
+				} catch (error) {
+					console.error(
+						'Error loading most recent learning path:',
+						error
+					);
+				} finally {
+					setIsInitialLoading(false);
+				}
+			} else {
+				setIsInitialLoading(false);
+			}
+		};
+
+		loadMostRecentPath();
+	}, [currentPath, setCurrentPath]);
+
 	// Listen for changes in currentPath to handle transitions
 	useEffect(() => {
 		if (currentPath) {
@@ -27,30 +84,50 @@ export default function LearningPathPage() {
 		}
 	}, [currentPath]);
 
-	return (
-		<div className='flex flex-col md:flex-row min-h-screen'>
-			{/* Previous paths sidebar - hidden on mobile */}
-			<div className='hidden md:block border-r'>
-				<PreviousPaths />
-			</div>
-
-			{/* Main content area */}
-			<div className='flex-1'>
-				{currentPath &&
-				currentPath.nodes &&
-				currentPath.nodes.length > 0 ? (
-					<LearningPathFlow />
-				) : (
-					<div className='flex items-center justify-center h-screen'>
-						<LearningPathInput />
+	// Show loading state while initially loading
+	if (isInitialLoading) {
+		return (
+			<ReactFlowProvider>
+				<div className='flex items-center justify-center h-screen'>
+					<div className='text-center space-y-4'>
+						<div className='inline-block p-4 bg-primary/10 rounded-full'>
+							<Loader2 className='w-8 h-8 text-primary animate-spin' />
+						</div>
+						<p className='text-muted-foreground'>
+							Loading your learning paths...
+						</p>
 					</div>
-				)}
-			</div>
+				</div>
+			</ReactFlowProvider>
+		);
+	}
 
-			{/* Mobile components - visible only on mobile */}
-			<div className='block md:hidden'>
-				<MobilePreviousPaths />
+	return (
+		<ReactFlowProvider>
+			<div className='flex flex-col md:flex-row min-h-screen'>
+				{/* Previous paths sidebar - hidden on mobile */}
+				<div className='hidden md:block border-r'>
+					<PreviousPaths />
+				</div>
+
+				{/* Main content area */}
+				<div className='flex-1'>
+					{currentPath &&
+					currentPath.nodes &&
+					currentPath.nodes.length > 0 ? (
+						<LearningPathFlow />
+					) : (
+						<div className='flex items-center justify-center h-screen'>
+							<LearningPathInput />
+						</div>
+					)}
+				</div>
+
+				{/* Mobile components - visible only on mobile */}
+				<div className='block md:hidden'>
+					<MobilePreviousPaths />
+				</div>
 			</div>
-		</div>
+		</ReactFlowProvider>
 	);
 }
