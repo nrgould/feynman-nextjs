@@ -31,7 +31,11 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { BookOpen, FileText, Plus, Loader2, Sparkles } from 'lucide-react';
 
-export function NewPathOptions() {
+interface NewPathOptionsProps {
+	onNewPath: () => void;
+}
+
+export function NewPathOptions({ onNewPath }: NewPathOptionsProps) {
 	const router = useRouter();
 	const {
 		clearCurrentPath,
@@ -90,8 +94,8 @@ export function NewPathOptions() {
 	});
 
 	const handleCreateFromMaterials = () => {
-		// Clear all learning path data
-		clearCurrentPath();
+		// Call the onNewPath prop instead of using Zustand
+		onNewPath();
 
 		// Show toast notification
 		toast({

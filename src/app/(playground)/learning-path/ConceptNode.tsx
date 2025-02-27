@@ -91,15 +91,14 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 					description: node.description,
 				},
 				chatId,
-				true // Enable redirect
+				false // Disable server-side redirect
 			);
 
-			// If we reach this point, it means the redirect didn't happen
-			// This is a fallback in case the redirect fails
 			if (!result.success) {
 				throw new Error(result.error);
 			}
 
+			// Navigate to the chat page using the returned chat ID
 			router.push(`/chat/${result.chatId || chatId}`);
 		} catch (error) {
 			console.error('Error starting concept:', error);
@@ -113,18 +112,30 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 		}
 	};
 
-	const handleContinueConcept = () => {
+	const handleContinueConcept = async () => {
 		if (!chatId) return;
 
-		setIsLoading(true);
+		try {
+			setIsLoading(true);
 
-		// Show a toast to indicate that we're continuing the concept
-		toast({
-			title: 'Continuing Learning',
-			description: `Resuming your chat for ${node.concept}...`,
-		});
+			// Show a toast notification
+			toast({
+				title: 'Continuing Learning',
+				description: `Resuming your chat for ${node.concept}...`,
+			});
 
-		router.push(`/chat/${chatId}`);
+			// Navigate to the chat page
+			await router.push(`/chat/${chatId}`);
+		} catch (error) {
+			console.error('Error continuing concept:', error);
+			toast({
+				title: 'Error',
+				description:
+					'Failed to continue learning this concept. Please try again.',
+				variant: 'destructive',
+			});
+			setIsLoading(false);
+		}
 	};
 
 	const difficultyClass = getDifficultyColor(node.difficulty);
@@ -188,7 +199,7 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 						Difficulty: {node.difficulty}/10
 					</Badge>
 
-					<Badge
+					{/* <Badge
 						variant='outline'
 						className='bg-violet-50 text-violet-700 border-violet-200'
 					>
@@ -197,7 +208,7 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 						<span className={`ml-1 font-bold ${gradeInfo.color}`}>
 							{gradeInfo.letter}
 						</span>
-					</Badge>
+					</Badge> */}
 				</div>
 
 				{/* Progress section */}
@@ -210,53 +221,55 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 				</div>
 
 				{/* Button section - show different buttons based on state */}
-				{canStart &&
-					!isChecking &&
-					(isActive && chatId ? (
-						// Continue button for active concepts
-						<Button
-							className='w-full gap-2 mt-2'
-							onClick={handleContinueConcept}
-							size='sm'
-							variant='outline'
-							disabled={isLoading}
-						>
-							{isLoading ? (
-								<>
-									<Loader2 className='h-4 w-4 animate-spin' />
-									Loading...
-								</>
-							) : (
-								<>
-									<ArrowRight className='w-4 h-4' />
-									Continue Learning
-								</>
-							)}
-						</Button>
-					) : (
-						// Start button for inactive concepts
-						<Button
-							className='w-full gap-2 mt-2'
-							onClick={handleStartConcept}
-							size='sm'
-							disabled={isLoading}
-						>
-							{isLoading ? (
-								<>
-									<Loader2 className='h-4 w-4 animate-spin' />
-									Creating...
-								</>
-							) : (
-								<>
-									<Play className='w-4 h-4' />
-									Start Learning
-								</>
-							)}
-						</Button>
-					))}
+				{!isDisabled && !isChecking && (
+					<>
+						{isActive && chatId ? (
+							// Continue button for active concepts
+							<Button
+								className='w-full gap-2 mt-2'
+								onClick={handleContinueConcept}
+								size='sm'
+								variant='outline'
+								disabled={isLoading}
+							>
+								{isLoading ? (
+									<>
+										<Loader2 className='h-4 w-4 animate-spin' />
+										Loading...
+									</>
+								) : (
+									<>
+										<ArrowRight className='w-4 h-4' />
+										Continue Learning
+									</>
+								)}
+							</Button>
+						) : (
+							// Start button for inactive concepts
+							<Button
+								className='w-full gap-2 mt-2'
+								onClick={handleStartConcept}
+								size='sm'
+								disabled={isLoading}
+							>
+								{isLoading ? (
+									<>
+										<Loader2 className='h-4 w-4 animate-spin' />
+										Creating...
+									</>
+								) : (
+									<>
+										<Play className='w-4 h-4' />
+										Start Learning
+									</>
+								)}
+							</Button>
+						)}
+					</>
+				)}
 
 				{/* Loading state while checking if concept is active */}
-				{canStart && isChecking && (
+				{!isDisabled && isChecking && (
 					<div className='w-full flex justify-center mt-2'>
 						<span className='text-xs text-gray-500 animate-pulse'>
 							Checking status...

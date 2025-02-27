@@ -25,7 +25,11 @@ import {
 import { Loader2, BookOpen, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-export function LearningPathInput() {
+interface LearningPathInputProps {
+	onPathCreated: (path: any, concept: string, gradeLevel: string) => void;
+}
+
+export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 	const {
 		concept,
 		setConcept,
@@ -54,14 +58,12 @@ export function LearningPathInput() {
 		schema: learningPathSchema,
 		onFinish: ({ object }) => {
 			if (object) {
-				// Only set the current path if object is not null
-				setCurrentPath(object);
-				// Save to client-side history after setting the path
-				savePath();
+				// Call the onPathCreated prop instead of using Zustand
+				onPathCreated(object, concept, gradeLevel);
 
 				toast({
 					title: 'Learning Path Created',
-					description: `Your personalized learning path for ${localConcept} has been created and saved to your account.`,
+					description: `Your personalized learning path for ${concept} has been created.`,
 				});
 			}
 			setIsLoading(false);

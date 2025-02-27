@@ -28,11 +28,15 @@ import { NewPathOptions } from './NewPathOptions';
 interface PreviousPathsProps {
 	isInMobileView?: boolean;
 	onPathSelected?: () => void;
+	onPathSelect: (pathId: string) => void;
+	onNewPath: () => void;
 }
 
 export function PreviousPaths({
 	isInMobileView = false,
 	onPathSelected,
+	onPathSelect,
+	onNewPath,
 }: PreviousPathsProps) {
 	const {
 		previousPaths,
@@ -71,52 +75,8 @@ export function PreviousPaths({
 	}, []);
 
 	const handlePathClick = async (id: string) => {
-		// First check if the path exists in client-side state
-		const clientPath = previousPaths.find((path) => path.id === id);
-
-		if (clientPath) {
-			loadPreviousPath(id);
-			toast({
-				title: 'Learning Path Loaded',
-				description: 'Previous learning path has been loaded.',
-			});
-		} else {
-			// If not in client state, load from Supabase
-			setIsLoading(true);
-			try {
-				const result = await getLearningPathDetails(id);
-				if (result.success && result.learningPath) {
-					// Format the data to match the expected structure
-					setCurrentPath({
-						title: result.learningPath.title,
-						description: result.learningPath.description,
-						nodes: result.learningPath.nodes,
-						edges: result.learningPath.edges,
-					});
-
-					toast({
-						title: 'Learning Path Loaded',
-						description:
-							'Learning path has been loaded from your account.',
-					});
-				} else {
-					toast({
-						title: 'Error Loading Path',
-						description: 'Failed to load the learning path.',
-						variant: 'destructive',
-					});
-				}
-			} catch (error) {
-				console.error('Error loading learning path:', error);
-				toast({
-					title: 'Error',
-					description: 'An unexpected error occurred.',
-					variant: 'destructive',
-				});
-			} finally {
-				setIsLoading(false);
-			}
-		}
+		// Call the onPathSelect prop to handle loading the path
+		onPathSelect(id);
 
 		// Call the callback if provided (for mobile view)
 		if (onPathSelected) {
@@ -223,7 +183,7 @@ export function PreviousPaths({
 					No learning paths created yet. Create your first learning
 					path to see it here!
 				</p>
-				<NewPathOptions />
+				<NewPathOptions onNewPath={onNewPath} />
 			</div>
 		);
 	}
@@ -236,12 +196,7 @@ export function PreviousPaths({
 		>
 			{!isInMobileView && (
 				<div className='p-4 border-b'>
-					<h2 className='font-semibold text-lg mb-4'>
-						Learning Paths
-					</h2>
-					<div className='space-y-2'>
-						<NewPathOptions />
-					</div>
+					<h2 className='font-semibold text-lg'>Learning Paths</h2>
 				</div>
 			)}
 			<ScrollArea className='flex-1'>
@@ -314,7 +269,7 @@ export function PreviousPaths({
 						</ContextMenu>
 					))}
 					<div className='pt-4 border-t mt-4'>
-						<NewPathOptions />
+						<NewPathOptions onNewPath={onNewPath} />
 					</div>
 				</div>
 			</ScrollArea>

@@ -265,15 +265,46 @@ export async function updateLearningPathNodeProgress(
 			);
 		}
 
-		// Get the learning path ID for this node
+		// Get the learning path ID and other node data for this node
 		const { data: node, error: fetchError } = await supabase
 			.from('LearningPathNode')
-			.select('learning_path_id')
+			.select('learning_path_id, concept')
 			.eq('id', nodeId)
 			.single();
 
 		if (fetchError) {
 			throw new Error(`Error fetching node: ${fetchError.message}`);
+		}
+
+		// Check if this node is linked to a chat and concept
+		const { data: chatData, error: chatError } = await supabase
+			.from('Chat')
+			.select('id, concept_id')
+			.eq('learning_path_node_id', nodeId)
+			.maybeSingle();
+
+		// If this node is linked to a concept via a chat, update the concept progress too
+		if (chatData?.concept_id) {
+			const { error: conceptError } = await supabase
+				.from('Concept')
+				.update({ progress })
+				.eq('id', chatData.concept_id);
+
+			if (conceptError) {
+				console.error('Error updating concept progress:', conceptError);
+				// Don't fail the whole operation if this part fails
+			}
+
+			// Also update the chat progress
+			const { error: chatUpdateError } = await supabase
+				.from('Chat')
+				.update({ progress })
+				.eq('id', chatData.id);
+
+			if (chatUpdateError) {
+				console.error('Error updating chat progress:', chatUpdateError);
+				// Don't fail the whole operation if this part fails
+			}
 		}
 
 		// Update the overall progress of the learning path
@@ -433,11 +464,8 @@ export async function createChatFromLearningPathNode(
 				.eq('user_id', userId)
 				.single();
 
-		// If the concept exists and has a chat, redirect to that chat
+		// If the concept exists and has a chat, return that chat ID
 		if (existingConcept && existingConcept.chat_id) {
-			if (shouldRedirect) {
-				redirect(`/chat/${existingConcept.chat_id}`);
-			}
 			return {
 				success: true,
 				chatId: existingConcept.chat_id,
@@ -535,11 +563,7 @@ export async function createChatFromLearningPathNode(
 			'Learning Path'
 		);
 
-		// Redirect to the chat page if requested
-		if (shouldRedirect) {
-			redirect(`/chat/${chatId}`);
-		}
-
+		// Return success with the chat ID
 		return {
 			success: true,
 			chatId,

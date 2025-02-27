@@ -1,6 +1,12 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import {
+	useState,
+	useCallback,
+	useEffect,
+	Dispatch,
+	SetStateAction,
+} from 'react';
 import {
 	ReactFlow,
 	Controls,
@@ -20,11 +26,11 @@ import {
 	BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useLearningPathStore } from '@/store/learning-path-store';
 import { ConceptNode } from './ConceptNode';
 import {
 	LearningPathNode,
 	LearningPathEdge,
+	LearningPath,
 } from '@/lib/learning-path-schemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -40,12 +46,17 @@ type ConceptNodeData = {
 	onProgressChange: (id: string, progress: number) => void;
 };
 
+interface LearningPathFlowProps {
+	currentPath: LearningPath;
+	setCurrentPath: Dispatch<SetStateAction<LearningPath | null>>;
+}
+
 // Export the component directly without wrapping it with ReactFlowProvider
 // since the parent component now provides the context
-export function LearningPathFlow() {
-	const { currentPath, updateNodeProgress, updateNodeGrade } =
-		useLearningPathStore();
-
+export function LearningPathFlow({
+	currentPath,
+	setCurrentPath,
+}: LearningPathFlowProps) {
 	// Define node types
 	const nodeTypes: NodeTypes = {
 		concept: ConceptNode,
@@ -111,7 +122,16 @@ export function LearningPathFlow() {
 	// Handle progress changes and sync with Supabase
 	const handleProgressChange = async (nodeId: string, progress: number) => {
 		// Update local state first for immediate feedback
-		updateNodeProgress(nodeId, progress);
+		if (currentPath) {
+			const updatedNodes = currentPath.nodes.map((node) =>
+				node.id === nodeId ? { ...node, progress } : node
+			);
+
+			setCurrentPath({
+				...currentPath,
+				nodes: updatedNodes,
+			});
+		}
 
 		// Then update in Supabase
 		try {

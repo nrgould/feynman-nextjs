@@ -126,6 +126,17 @@ export async function updateConceptProgress({
 	try {
 		const supabase = await createClient();
 
+		// First, get the chat to check if it's linked to a learning path node
+		const { data: chatData, error: chatFetchError } = await supabase
+			.from('Chat')
+			.select('id, learning_path_node_id, learning_path_id')
+			.eq('concept_id', conceptId)
+			.single();
+
+		if (chatFetchError) {
+			console.error('Error fetching chat data:', chatFetchError);
+		}
+
 		// Update concept progress
 		const { error: conceptError } = await supabase
 			.from('Concept')
@@ -142,6 +153,28 @@ export async function updateConceptProgress({
 			.from('Chat')
 			.update({ progress })
 			.eq('concept_id', conceptId);
+
+		// If this chat is linked to a learning path node, update the node progress too
+		if (chatData?.learning_path_node_id) {
+			try {
+				// Import the function dynamically to avoid circular dependencies
+				const { updateLearningPathNodeProgress } = await import(
+					'@/app/(playground)/learning-path/actions'
+				);
+
+				// Update the learning path node progress
+				await updateLearningPathNodeProgress(
+					chatData.learning_path_node_id,
+					progress
+				);
+			} catch (error) {
+				console.error(
+					'Error updating learning path node progress:',
+					error
+				);
+				// Don't fail the whole operation if this part fails
+			}
+		}
 
 		// Check for achievements
 		const { data: userData, error: userError } = await supabase

@@ -76,9 +76,19 @@ function ChatWindow({
 
 							if (result.success) {
 								setCurrentProgress(newProgress);
+
+								// Check if this is linked to a learning path
+								const isLearningPathNode =
+									chat.learning_path_node_id !== undefined &&
+									chat.learning_path_node_id !== null;
+
 								toast({
 									title: 'Progress updated!',
-									description: `Great job! Your progress has increased to ${newProgress}%`,
+									description: `Great job! Your progress has increased to ${newProgress}%${
+										isLearningPathNode
+											? '. Your learning path has also been updated.'
+											: ''
+									}`,
 								});
 							}
 						} catch (error) {

@@ -20,7 +20,9 @@ export default async function ChatPage(props: { params: Params }) {
 	// Fetch chat data with concept_id and progress
 	const { data: chat, error: chatError } = await supabase
 		.from('Chat')
-		.select('*, concept_id, progress')
+		.select(
+			'*, concept_id, progress, learning_path_id, learning_path_node_id'
+		)
 		.eq('id', chatId)
 		.single();
 

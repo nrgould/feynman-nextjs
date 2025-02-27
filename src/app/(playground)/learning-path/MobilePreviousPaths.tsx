@@ -2,48 +2,59 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { History } from 'lucide-react';
+import { History, BookOpen } from 'lucide-react';
 import {
 	Sheet,
 	SheetContent,
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
+	SheetDescription,
 } from '@/components/ui/sheet';
 import { PreviousPaths } from './PreviousPaths';
 
-export function MobilePreviousPaths() {
+interface MobilePreviousPathsProps {
+	onPathSelect: (pathId: string) => void;
+	onNewPath: () => void;
+}
+
+export function MobilePreviousPaths({
+	onPathSelect,
+	onNewPath,
+}: MobilePreviousPathsProps) {
 	const [open, setOpen] = useState(false);
 
+	const handlePathSelected = () => {
+		setOpen(false);
+	};
+
 	return (
-		<div className='fixed bottom-6 right-4 z-50'>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetTrigger asChild>
-					<Button
-						size='icon'
-						className='rounded-full shadow-lg bg-primary h-12 w-12 flex items-center justify-center'
-						aria-label='View previous learning paths'
-					>
-						<History className='h-7 w-7 text-white' />
-					</Button>
-				</SheetTrigger>
-				<SheetContent
-					side='left'
-					className='p-0 w-full max-w-[300px] sm:max-w-[350px]'
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger asChild>
+				<Button
+					variant='outline'
+					size='icon'
+					className='fixed bottom-4 left-4 z-50 rounded-full h-12 w-12 shadow-lg'
 				>
-					<SheetHeader className='p-4 border-b'>
-						<SheetTitle className='text-zinc-800'>
-							Previous Learning Paths
-						</SheetTitle>
-					</SheetHeader>
-					<div className='h-[calc(100vh-65px)] overflow-hidden'>
-						<PreviousPaths
-							isInMobileView={true}
-							onPathSelected={() => setOpen(false)}
-						/>
-					</div>
-				</SheetContent>
-			</Sheet>
-		</div>
+					<BookOpen className='h-6 w-6' />
+				</Button>
+			</SheetTrigger>
+			<SheetContent side='left' className='w-[300px] sm:w-[400px]'>
+				<SheetHeader>
+					<SheetTitle>Learning Paths</SheetTitle>
+					<SheetDescription>
+						View and manage your learning paths
+					</SheetDescription>
+				</SheetHeader>
+				<div className='py-4'>
+					<PreviousPaths
+						isInMobileView={true}
+						onPathSelected={handlePathSelected}
+						onPathSelect={onPathSelect}
+						onNewPath={onNewPath}
+					/>
+				</div>
+			</SheetContent>
+		</Sheet>
 	);
 }

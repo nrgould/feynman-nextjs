@@ -49,6 +49,8 @@ export type Conversation = {
 	created_at: Date;
 	progress?: number;
 	concept_id?: string;
+	learning_path_id?: string;
+	learning_path_node_id?: string;
 };
 
 export type Concept = {
