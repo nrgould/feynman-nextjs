@@ -54,6 +54,7 @@ export function LearningPathSidebar() {
 	// Load learning paths from Supabase on component mount
 	useEffect(() => {
 		refreshPaths();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handlePathClick = async (id: string) => {
@@ -144,7 +145,9 @@ export function LearningPathSidebar() {
 				<div className='p-4 space-y-4'>
 					{paths.length === 0 ? (
 						<div className='text-sm text-muted-foreground p-2'>
-							<p>You haven't created any learning paths yet.</p>
+							<p>
+								You haven&apos;t created any learning paths yet.
+							</p>
 							<Button
 								variant='link'
 								className='p-0 h-auto text-sm'
