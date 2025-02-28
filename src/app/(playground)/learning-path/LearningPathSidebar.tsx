@@ -169,12 +169,6 @@ export function LearningPathSidebar() {
 											<h4 className='font-medium text-sm'>
 												{path.title}
 											</h4>
-											<Badge
-												variant='outline'
-												className='text-xs'
-											>
-												{path.gradeLevel}
-											</Badge>
 										</div>
 										<p className='text-xs text-muted-foreground mt-1'>
 											{path.concept}

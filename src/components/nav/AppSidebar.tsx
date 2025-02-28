@@ -125,38 +125,6 @@ export async function AppSidebar({
 						</SignedOut>
 					</SidebarGroupContent>
 				</SidebarGroup>
-				{/* 
-				<SidebarGroup>
-					<SidebarGroupLabel>Resources</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{resourceItems.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild>
-										<a
-											href={item.url}
-											target={
-												item.external
-													? '_blank'
-													: undefined
-											}
-											rel={
-												item.external
-													? 'noopener noreferrer'
-													: undefined
-											}
-										>
-											<item.icon size={18} />
-											<span className='font-semibold'>
-												{item.title}
-											</span>
-										</a>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup> */}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />
