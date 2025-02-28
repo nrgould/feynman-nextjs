@@ -173,11 +173,11 @@ function ChatWindow({
 			<div className='flex-grow flex flex-col'>
 				<div className='absolute top-4 left-4 z-10'>
 					<Link
-						href='/concepts'
+						href={`/learning-path/${chat.learning_path_id}`}
 						className='flex items-center gap-1 text-md font-medium hover:opacity-80 transition-opacity'
 					>
 						<ChevronLeft size={20} />
-						Concepts
+						Learning Path
 					</Link>
 				</div>
 				{/* <div className='absolute top-4 right-8 z-10'>
