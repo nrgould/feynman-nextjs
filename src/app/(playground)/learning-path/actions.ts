@@ -55,7 +55,7 @@ export async function saveLearningPathToSupabase(
 		}
 
 		// 2. Insert the nodes
-		const nodesData = learningPath.nodes.map((node) => ({
+		const nodesData = learningPath.nodes.map((node, index) => ({
 			id: node.id,
 			learning_path_id: learningPathId,
 			concept: node.concept,
@@ -209,6 +209,7 @@ export async function getLearningPathDetails(learningPathId: string) {
 			},
 			progress: node.progress || 0,
 			grade: node.grade,
+			isActive: node.is_active || false,
 		}));
 
 		const formattedEdges = edges.map((edge) => ({
@@ -254,70 +255,56 @@ export async function updateLearningPathNodeProgress(
 
 		const supabase = await createClient();
 
-		// Update the node progress
-		const { error: nodeError } = await supabase
+		// First, get the node to find its learning path ID
+		const { data: node, error: nodeError } = await supabase
+			.from('LearningPathNode')
+			.select('learning_path_id')
+			.eq('id', nodeId)
+			.single();
+
+		if (nodeError) {
+			throw new Error(`Error fetching node: ${nodeError.message}`);
+		}
+
+		const learningPathId = node.learning_path_id;
+
+		// Update the node's progress
+		const { error: updateError } = await supabase
 			.from('LearningPathNode')
 			.update({ progress })
 			.eq('id', nodeId);
 
-		if (nodeError) {
+		if (updateError) {
 			throw new Error(
-				`Error updating node progress: ${nodeError.message}`
+				`Error updating node progress: ${updateError.message}`
 			);
 		}
 
-		// Get the learning path ID and other node data for this node
-		const { data: node, error: fetchError } = await supabase
-			.from('LearningPathNode')
-			.select('learning_path_id, concept')
-			.eq('id', nodeId)
-			.single();
-
-		if (fetchError) {
-			throw new Error(`Error fetching node: ${fetchError.message}`);
-		}
-
-		// Check if this node is linked to a chat and concept
-		const { data: chatData, error: chatError } = await supabase
-			.from('Chat')
-			.select('id, concept_id')
-			.eq('learning_path_node_id', nodeId)
-			.maybeSingle();
-
-		// If this node is linked to a concept via a chat, update the concept progress too
-		if (chatData?.concept_id) {
-			const { error: conceptError } = await supabase
-				.from('Concept')
-				.update({ progress })
-				.eq('id', chatData.concept_id);
-
-			if (conceptError) {
-				console.error('Error updating concept progress:', conceptError);
-				// Don't fail the whole operation if this part fails
-			}
-
-			// Also update the chat progress
-			const { error: chatUpdateError } = await supabase
-				.from('Chat')
-				.update({ progress })
-				.eq('id', chatData.id);
-
-			if (chatUpdateError) {
-				console.error('Error updating chat progress:', chatUpdateError);
-				// Don't fail the whole operation if this part fails
-			}
-		}
-
-		// Update the overall progress of the learning path
+		// Get all nodes for this learning path to update active status
 		const { data: nodes, error: nodesError } = await supabase
 			.from('LearningPathNode')
-			.select('progress')
-			.eq('learning_path_id', node.learning_path_id);
+			.select('*')
+			.eq('learning_path_id', learningPathId)
+			.order('id');
 
 		if (nodesError) {
 			throw new Error(`Error fetching nodes: ${nodesError.message}`);
 		}
 
+		// Update active status for all nodes
+		// First node is always active
+		// Other nodes are active only if the previous node has progress >= 75%
+		for (let i = 0; i < nodes.length; i++) {
+			const isActive =
+				i === 0 || (i > 0 && (nodes[i - 1].progress || 0) >= 75);
+
+			await supabase
+				.from('LearningPathNode')
+				.update({ is_active: isActive })
+				.eq('id', nodes[i].id);
+		}
+
+		// Calculate overall progress
 		const totalNodes = nodes.length;
 		const totalProgress = nodes.reduce(
 			(sum, node) => sum + (node.progress || 0),
@@ -326,27 +313,23 @@ export async function updateLearningPathNodeProgress(
 		const overallProgress =
 			totalNodes > 0 ? Math.round(totalProgress / totalNodes) : 0;
 
-		const { error: pathError } = await supabase
+		// Update the learning path's overall progress and updated_at timestamp
+		const { error: pathUpdateError } = await supabase
 			.from('LearningPath')
 			.update({
 				overall_progress: overallProgress,
 				updated_at: new Date().toISOString(),
 			})
-			.eq('id', node.learning_path_id)
-			.eq('user_id', userId);
+			.eq('id', learningPathId);
 
-		if (pathError) {
+		if (pathUpdateError) {
 			throw new Error(
-				`Error updating learning path: ${pathError.message}`
+				`Error updating learning path: ${pathUpdateError.message}`
 			);
 		}
 
-		// Revalidate the learning path page
-		revalidatePath('/learning-path');
-
 		return {
 			success: true,
-			overallProgress,
 		};
 	} catch (error) {
 		console.error('Error updating node progress:', error);
@@ -551,6 +534,21 @@ export async function createChatFromLearningPathNode(
 
 		if (updateError) {
 			throw new Error(`Error updating concept: ${updateError.message}`);
+		}
+
+		// Also update the LearningPathNode to set is_active to true
+		const { error: nodeUpdateError } = await supabase
+			.from('LearningPathNode')
+			.update({
+				is_active: true,
+			})
+			.eq('id', node.id);
+
+		if (nodeUpdateError) {
+			console.error(
+				`Warning: Failed to update node active status: ${nodeUpdateError.message}`
+			);
+			// Continue execution even if this fails
 		}
 
 		// Generate the first message for the chat

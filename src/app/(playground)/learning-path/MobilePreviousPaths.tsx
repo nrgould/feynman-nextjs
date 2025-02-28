@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/sheet';
 import { PreviousPaths, PreviousPathsRef } from './PreviousPaths';
 import { useLearningPathStore } from '@/store/learning-path-store';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface MobilePreviousPathsProps {
 	onNewPath: () => void;

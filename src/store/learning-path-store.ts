@@ -17,6 +17,7 @@ interface LearningPathInfo {
 	concept: string;
 	gradeLevel: string;
 	timestamp: number;
+	lastUpdated: number;
 	overallProgress: number;
 }
 
@@ -63,6 +64,7 @@ export const useLearningPathStore = create<LearningPathState>((set, get) => ({
 					concept: path.concept,
 					gradeLevel: path.grade_level,
 					timestamp: new Date(path.created_at).getTime(),
+					lastUpdated: new Date(path.updated_at).getTime(),
 					overallProgress: path.overall_progress || 0,
 				}));
 
@@ -89,9 +91,7 @@ export const useLearningPathStore = create<LearningPathState>((set, get) => ({
 	selectPath: async (pathId: string) => {
 		const { activePathId } = get();
 
-		// Skip if already the active path
-		if (pathId === activePathId) return;
-
+		// Always set loading state when selecting a path
 		set({ isLoading: true, activePathId: pathId });
 
 		try {

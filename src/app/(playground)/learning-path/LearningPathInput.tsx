@@ -79,14 +79,21 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 							gradeLevel,
 							mostRecent.id
 						);
+
+						// Force a page refresh to ensure we have the latest data with proper UUIDs
+						window.location.href = `/learning-path?id=${mostRecent.id}`;
 					} else {
 						// Fallback if we couldn't get the ID
 						onPathCreated(object, concept, gradeLevel);
+						// Force a refresh anyway
+						window.location.reload();
 					}
 				} catch (error) {
 					console.error('Error fetching learning path ID:', error);
 					// Still call onPathCreated without the ID
 					onPathCreated(object, concept, gradeLevel);
+					// Force a refresh anyway
+					window.location.reload();
 				}
 
 				toast({

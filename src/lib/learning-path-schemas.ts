@@ -12,6 +12,7 @@ export const nodeSchema = z.object({
 	}),
 	progress: z.number().min(0).max(100).default(0),
 	grade: z.number().min(0).max(100).optional(),
+	isActive: z.boolean().default(false).optional(),
 });
 
 // Define the schema for a single edge (connection) in the learning path

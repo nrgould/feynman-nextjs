@@ -25,19 +25,17 @@ interface ConceptNodeProps {
 export function ConceptNode({ data, selected }: ConceptNodeProps) {
 	const { node, onProgressChange, isDisabled } = data;
 	const [isLoading, setIsLoading] = useState(false);
-	const [isActive, setIsActive] = useState(false);
 	const [chatId, setChatId] = useState<string | null>(null);
 	const [isChecking, setIsChecking] = useState(true);
 	const router = useRouter();
 
-	// Check if the concept is active on component mount
+	// Check if the concept has an associated chat on component mount
 	useEffect(() => {
 		const checkActive = async () => {
 			setIsChecking(true);
 			try {
 				const result = await checkConceptActive(node.id);
 				if (result.success) {
-					setIsActive(result.isActive);
 					setChatId(result.chatId);
 				}
 			} catch (error) {
@@ -140,14 +138,23 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 
 	const difficultyClass = getDifficultyColor(node.difficulty);
 	const gradeInfo = getGradeInfo(node.grade);
-	const canStart = !isDisabled && node.grade === undefined;
+
+	// isActive means the node has a chat associated with it
+	const isActive = node.isActive !== undefined ? node.isActive : false;
+
+	// canStart means the node is unlocked and can be started
+	// A node can be started if it's not disabled (based on previous node progress)
+	const canStart = !isDisabled;
 
 	return (
 		<div
 			className={cn(
 				'p-4 rounded-lg shadow-md bg-white border-2 w-[250px] transition-opacity duration-200',
 				selected ? 'border-primary' : 'border-gray-200',
-				isActive && !isDisabled ? 'border-l-4 border-l-blue-500' : '',
+				isActive && node.progress < 100
+					? 'border-l-4 border-l-blue-500'
+					: '',
+				node.progress === 100 ? 'border-l-4 border-l-green-500' : '',
 				isDisabled && 'opacity-50 cursor-not-allowed'
 			)}
 		>
@@ -177,12 +184,36 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 					<h3 className='font-semibold text-gray-800'>
 						{node.concept}
 					</h3>
-					{isActive && !isDisabled && !isChecking && (
+					{node.progress === 100 && !isChecking && (
+						<Badge
+							variant='outline'
+							className='bg-green-50 text-green-600 border-green-200 text-xs px-2'
+						>
+							Completed
+						</Badge>
+					)}
+					{isActive && node.progress < 100 && !isChecking && (
 						<Badge
 							variant='outline'
 							className='bg-blue-50 text-blue-600 border-blue-200 text-xs px-2'
 						>
 							Active
+						</Badge>
+					)}
+					{!isActive && !isDisabled && !isChecking && (
+						<Badge
+							variant='outline'
+							className='bg-amber-50 text-amber-600 border-amber-200 text-xs px-2'
+						>
+							Ready
+						</Badge>
+					)}
+					{isDisabled && !isChecking && (
+						<Badge
+							variant='outline'
+							className='bg-gray-50 text-gray-600 border-gray-200 text-xs px-2'
+						>
+							Locked
 						</Badge>
 					)}
 				</div>
@@ -221,10 +252,10 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 				</div>
 
 				{/* Button section - show different buttons based on state */}
-				{!isDisabled && !isChecking && (
+				{!isChecking && (
 					<>
-						{isActive && chatId ? (
-							// Continue button for active concepts
+						{canStart && chatId ? (
+							// Continue button for active concepts with existing chat
 							<Button
 								className='w-full gap-2 mt-2'
 								onClick={handleContinueConcept}
@@ -244,8 +275,8 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 									</>
 								)}
 							</Button>
-						) : (
-							// Start button for inactive concepts
+						) : canStart ? (
+							// Start button for active concepts without existing chat
 							<Button
 								className='w-full gap-2 mt-2'
 								onClick={handleStartConcept}
@@ -255,7 +286,7 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 								{isLoading ? (
 									<>
 										<Loader2 className='h-4 w-4 animate-spin' />
-										Creating...
+										Starting...
 									</>
 								) : (
 									<>
@@ -264,7 +295,7 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 									</>
 								)}
 							</Button>
-						)}
+						) : null}
 					</>
 				)}
 

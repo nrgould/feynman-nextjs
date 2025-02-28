@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { deleteLearningPath } from './actions';
 import { NewPathOptions } from './NewPathOptions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface PreviousPathsProps {
 	isInMobileView?: boolean;
@@ -124,15 +125,42 @@ export const PreviousPaths = forwardRef<PreviousPathsRef, PreviousPathsProps>(
 			return (
 				<div
 					className={
-						isInMobileView ? 'p-4' : 'w-[250px] p-4 h-screen'
+						isInMobileView
+							? 'p-4'
+							: 'w-[250px] h-screen flex flex-col'
 					}
 				>
-					<div className='flex items-center justify-center py-8'>
-						<Loader2 className='h-6 w-6 animate-spin text-primary' />
-						<span className='ml-2 text-sm text-muted-foreground'>
-							Loading learning paths...
-						</span>
-					</div>
+					{!isInMobileView && (
+						<div className='p-4 border-b'>
+							<h2 className='font-semibold text-lg'>
+								Learning Paths
+							</h2>
+						</div>
+					)}
+					<ScrollArea className='flex-1'>
+						<div className='p-2 space-y-2'>
+							{Array.from({ length: 5 }).map((_, i) => (
+								<div key={i} className='px-3 py-2 rounded-xl'>
+									<div className='space-y-2'>
+										<div className='flex items-center justify-between'>
+											<Skeleton className='h-4 w-3/4' />
+										</div>
+										<Skeleton className='h-3 w-1/2' />
+										<div className='mt-2 space-y-1'>
+											<div className='flex justify-between items-center'>
+												<Skeleton className='h-3 w-16' />
+												<Skeleton className='h-3 w-8' />
+											</div>
+											<Skeleton className='h-1.5 w-full' />
+										</div>
+										<div className='flex items-center justify-between'>
+											<Skeleton className='h-3 w-24' />
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					</ScrollArea>
 				</div>
 			);
 		}
@@ -169,17 +197,17 @@ export const PreviousPaths = forwardRef<PreviousPathsRef, PreviousPathsProps>(
 					</div>
 				)}
 				<ScrollArea className='flex-1'>
-					<div className='p-4 space-y-4'>
+					<div className='p-2 space-y-4'>
 						{paths.map((path) => {
 							const isActive = path.id === activePathId;
 							return (
 								<ContextMenu key={path.id}>
 									<ContextMenuTrigger>
 										<div
-											className={`group pl-3 py-2 transition-colors cursor-pointer ${
+											className={`group px-3 py-2 mb-2 transition-colors cursor-pointer rounded-xl ${
 												isActive
-													? 'border-l-2 border-l-primary bg-primary/5'
-													: 'border-l-2 border-transparent hover:border-primary'
+													? 'bg-zinc-100'
+													: 'hover:bg-zinc-100'
 											}`}
 											onClick={() =>
 												handlePathClick(path.id)
@@ -215,18 +243,15 @@ export const PreviousPaths = forwardRef<PreviousPathsRef, PreviousPathsProps>(
 											<div className='flex items-center justify-between mt-2'>
 												<p className='text-xs text-muted-foreground'>
 													{formatDistanceToNow(
-														path.timestamp,
+														new Date(
+															path.lastUpdated ||
+																path.timestamp
+														),
 														{
 															addSuffix: true,
 														}
 													)}
 												</p>
-												<Badge
-													variant='outline'
-													className='ml-2 text-xs'
-												>
-													{path.gradeLevel}
-												</Badge>
 											</div>
 										</div>
 									</ContextMenuTrigger>

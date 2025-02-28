@@ -40,6 +40,7 @@ import { BookOpen, BarChart2, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearningPathStore } from '@/store/learning-path-store';
 import { toast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Define the type for our custom node
 type ConceptNodeData = {
@@ -98,7 +99,9 @@ export function LearningPathFlow({
 
 		return nodes.slice(0, -1).map((node, index) => {
 			const nextNode = nodes[index + 1];
-			const isDisabled = index > 0 && node.grade === undefined;
+			// An edge should be disabled if the next node is not unlocked
+			// Next node is unlocked if current node has progress >= 75%
+			const isDisabled = node.progress < 75;
 
 			return {
 				id: `edge-${node.id}-${nextNode.id}`,
@@ -140,17 +143,14 @@ export function LearningPathFlow({
 			// Convert learning path nodes to ReactFlow nodes
 			const flowNodes: Node<ConceptNodeData>[] = arrangedNodes.map(
 				(node, index) => {
-					// Find the previous node (if it exists)
-					const previousNode =
-						index > 0 ? arrangedNodes[index - 1] : null;
+					// First node is always unlocked
+					// Other nodes are unlocked if the previous node has progress >= 75%
+					const isUnlocked =
+						index === 0 ||
+						(index > 0 && arrangedNodes[index - 1].progress >= 75);
 
-					// Node should be disabled if:
-					// 1. It's not the first node
-					// 2. The previous node exists and hasn't been started (no grade)
-					const isDisabled =
-						index > 0 &&
-						previousNode &&
-						previousNode.grade === undefined;
+					// A node is disabled if it's not unlocked
+					const isDisabled = !isUnlocked;
 
 					return {
 						id: node.id,
@@ -197,6 +197,60 @@ export function LearningPathFlow({
 
 	if (!currentPath) return null;
 
+	if (isLoading) {
+		return (
+			<div className='flex-1 flex flex-col'>
+				<div className='border-b p-4 flex items-center justify-between'>
+					<div className='space-y-2'>
+						<Skeleton className='h-6 w-48' />
+						<Skeleton className='h-4 w-96' />
+					</div>
+					<div className='flex items-center gap-2'>
+						<Skeleton className='h-9 w-24' />
+						<Skeleton className='h-9 w-24' />
+					</div>
+				</div>
+				<div className='flex-1 flex'>
+					<div className='flex-1 relative'>
+						<div className='absolute inset-0 bg-grid-pattern opacity-5' />
+						<div className='absolute inset-0 flex items-center justify-center'>
+							<Skeleton className='h-48 w-48 rounded-xl' />
+						</div>
+					</div>
+					<div className='w-[300px] border-l'>
+						<div className='p-4 border-b'>
+							<Skeleton className='h-5 w-32' />
+						</div>
+						<div className='p-4 space-y-4'>
+							<div className='space-y-2'>
+								<Skeleton className='h-4 w-24' />
+								<div className='flex gap-2'>
+									{Array.from({ length: 3 }).map((_, i) => (
+										<Skeleton
+											key={i}
+											className='h-6 w-16'
+										/>
+									))}
+								</div>
+							</div>
+							<div className='space-y-2'>
+								<Skeleton className='h-4 w-24' />
+								<div className='flex gap-2'>
+									{Array.from({ length: 3 }).map((_, i) => (
+										<Skeleton
+											key={i}
+											className='h-6 w-16'
+										/>
+									))}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className='w-full h-[calc(100vh-64px)]'>
 			<div className='p-4 border-b bg-white sticky top-0 z-10'>
@@ -210,7 +264,7 @@ export function LearningPathFlow({
 						</p>
 					</div>
 
-					<div className='flex items-center gap-3'>
+					<div className='flex flex-col items-evenly justify-evenly gap-3'>
 						<Badge
 							variant='outline'
 							className='bg-blue-50 text-blue-700 border-blue-200 px-3 py-1'
@@ -233,17 +287,17 @@ export function LearningPathFlow({
 			<AnimatePresence>
 				{isLoading ? (
 					<motion.div
-						className='flex items-center justify-center h-[calc(100vh-150px)]'
+						className='flex items-center justify-center h-[200px] mt-8'
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
 					>
-						<div className='text-center space-y-4'>
-							<div className='inline-block p-4 bg-primary/10 rounded-full'>
-								<div className='w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin'></div>
+						<div className='text-center'>
+							<div className='inline-block p-2 bg-primary/10 rounded-full'>
+								<div className='w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin'></div>
 							</div>
-							<p className='text-muted-foreground'>
-								Arranging your learning path...
+							<p className='text-sm text-muted-foreground mt-2'>
+								Loading...
 							</p>
 						</div>
 					</motion.div>
@@ -275,30 +329,44 @@ export function LearningPathFlow({
 
 							<Controls position='top-right' />
 							{/* <MiniMap position='top-left' /> */}
-							{/* <Panel
-								position='top-right'
+							<Panel
+								position='top-left'
 								className='bg-white p-4 rounded-md shadow-md'
 							>
 								<div className='space-y-3'>
 									<h3 className='font-medium text-gray-700'>
-										Overall Progress
+										Learning Path Legend
 									</h3>
-									<div className='space-y-1'>
-										<div className='flex justify-between text-sm text-gray-600'>
-											<span>Completion</span>
-											<span>{overallProgress}%</span>
+									<div className='space-y-2 text-sm'>
+										<div className='flex items-center'>
+											<div className='w-3 h-3 bg-blue-500 rounded-full mr-2'></div>
+											<span>
+												Active - Currently learning
+											</span>
 										</div>
-										<Progress
-											value={overallProgress}
-											className='h-2'
-										/>
+										<div className='flex items-center'>
+											<div className='w-3 h-3 bg-amber-500 rounded-full mr-2'></div>
+											<span>
+												Ready - Available to start
+											</span>
+										</div>
+										<div className='flex items-center'>
+											<div className='w-3 h-3 bg-gray-400 rounded-full mr-2'></div>
+											<span>
+												Locked - Complete previous
+												concept first (75% progress
+												needed)
+											</span>
+										</div>
+										<div className='flex items-center'>
+											<div className='w-3 h-3 bg-green-500 rounded-full mr-2'></div>
+											<span>
+												Completed - 100% progress
+											</span>
+										</div>
 									</div>
-									<p className='text-xs text-gray-500'>
-										Drag nodes to rearrange concepts. Adjust
-										progress with the sliders.
-									</p>
 								</div>
-							</Panel> */}
+							</Panel>
 						</ReactFlow>
 					</motion.div>
 				)}

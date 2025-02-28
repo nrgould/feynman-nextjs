@@ -14,6 +14,7 @@ import '@xyflow/react/dist/style.css';
 import { useSearchParams } from 'next/navigation';
 import { useLearningPathStore } from '@/store/learning-path-store';
 import { LearningPath } from '@/lib/learning-path-schemas';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function LearningPathPage() {
 	// Use the Zustand store instead of React state
@@ -24,6 +25,7 @@ export default function LearningPathPage() {
 		clearCurrentPath,
 		selectPath,
 		setCurrentPath,
+		activePathId,
 	} = useLearningPathStore();
 
 	const previousPathsRef = useRef<PreviousPathsRef>(null);
@@ -31,6 +33,7 @@ export default function LearningPathPage() {
 
 	const searchParams = useSearchParams();
 	const isNewPath = searchParams.has('new');
+	const pathId = searchParams.get('id');
 
 	// Clear current path when query parameter 'new' is present
 	useEffect(() => {
@@ -39,10 +42,33 @@ export default function LearningPathPage() {
 		}
 	}, [isNewPath, clearCurrentPath]);
 
-	// Load paths on initial load
+	// Load paths on initial load and select the specified path or most recent path if none is selected
 	useEffect(() => {
-		loadPaths();
-	}, [loadPaths]);
+		const initializePaths = async () => {
+			await loadPaths();
+
+			// If there's a specific path ID in the URL, select that path
+			if (pathId) {
+				selectPath(pathId);
+			}
+			// If no path is currently selected and we're not creating a new path,
+			// select the most recent path
+			else if (!currentPath && !isNewPath) {
+				const { paths } = useLearningPathStore.getState();
+				if (paths.length > 0) {
+					// Sort by lastUpdated and get the most recent one
+					const sortedPaths = [...paths].sort(
+						(a, b) => b.lastUpdated - a.lastUpdated
+					);
+					if (sortedPaths.length > 0) {
+						selectPath(sortedPaths[0].id);
+					}
+				}
+			}
+		};
+
+		initializePaths();
+	}, [loadPaths, currentPath, isNewPath, selectPath, pathId]);
 
 	// Function to handle when a new path is created
 	const handlePathCreated = (
@@ -62,23 +88,52 @@ export default function LearningPathPage() {
 		loadPaths();
 	};
 
-	// Show loading state while initially loading
-	if (isLoading) {
-		return (
-			<ReactFlowProvider>
-				<div className='flex items-center justify-center h-screen'>
-					<div className='text-center space-y-4'>
-						<div className='inline-block p-4 bg-primary/10 rounded-full'>
-							<Loader2 className='w-8 h-8 text-primary animate-spin' />
+	// Always refresh the data when the component mounts
+	useEffect(() => {
+		// Force a refresh of the paths data
+		loadPaths();
+
+		// If we have an active path, refresh it too
+		if (activePathId) {
+			selectPath(activePathId);
+		}
+	}, [loadPaths, selectPath, activePathId]);
+
+	// Render the main content area with loading state
+	const renderMainContent = () => {
+		if (isLoading) {
+			return (
+				<div className='flex items-center justify-center h-[calc(100vh-64px)]'>
+					<div className='space-y-8 w-[80%] max-w-[800px]'>
+						<Skeleton className='h-8 w-3/4' />
+						<Skeleton className='h-4 w-1/2' />
+						<div className='space-y-4'>
+							{Array.from({ length: 5 }).map((_, i) => (
+								<div key={i} className='space-y-2'>
+									<Skeleton className='h-20 w-full' />
+								</div>
+							))}
 						</div>
-						<p className='text-muted-foreground'>
-							Loading your learning paths...
-						</p>
 					</div>
 				</div>
-			</ReactFlowProvider>
+			);
+		}
+
+		if (currentPath && currentPath.nodes && currentPath.nodes.length > 0) {
+			return (
+				<LearningPathFlow
+					currentPath={currentPath}
+					setCurrentPath={setCurrentPath}
+				/>
+			);
+		}
+
+		return (
+			<div className='flex items-center justify-center h-screen'>
+				<LearningPathInput onPathCreated={handlePathCreated} />
+			</div>
 		);
-	}
+	};
 
 	return (
 		<ReactFlowProvider>
@@ -94,22 +149,7 @@ export default function LearningPathPage() {
 				</div>
 
 				{/* Main content area */}
-				<div className='flex-1'>
-					{currentPath &&
-					currentPath.nodes &&
-					currentPath.nodes.length > 0 ? (
-						<LearningPathFlow
-							currentPath={currentPath}
-							setCurrentPath={setCurrentPath}
-						/>
-					) : (
-						<div className='flex items-center justify-center h-screen'>
-							<LearningPathInput
-								onPathCreated={handlePathCreated}
-							/>
-						</div>
-					)}
-				</div>
+				<div className='flex-1'>{renderMainContent()}</div>
 
 				{/* Mobile components - visible only on mobile */}
 				<div className='block md:hidden'>
