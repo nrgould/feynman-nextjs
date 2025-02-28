@@ -87,3 +87,21 @@ export const tools = {
 	getYoutubeVideo: youtubeSearchTool,
 	getLessonPlan: lessonPlanTool,
 };
+
+const visualizationSchema = z.object({
+	code: z.string().describe('The p5.js code to visualize the concept'),
+});
+
+//p5 visualization tool
+export const generateVisualizationTool = createTool({
+	description: 'Generate a p5.js visualization of the concept',
+	parameters: z.object({
+		concept: z.string().describe('The concept or topic to visualize'),
+	}),
+	execute: async function ({ concept }) {
+		const result = await generateObject({
+			model: openai('gpt-4o-mini-2024-07-18'),
+			schema: visualizationSchema,
+		});
+	},
+});
