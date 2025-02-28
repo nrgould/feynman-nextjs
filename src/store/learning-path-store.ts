@@ -89,9 +89,12 @@ export const useLearningPathStore = create<LearningPathState>((set, get) => ({
 
 	// Select and load a specific path
 	selectPath: async (pathId: string) => {
-		const { activePathId } = get();
+		const { activePathId, currentPath } = get();
 
-		// Always set loading state when selecting a path
+		// Skip if already the active path and we have data
+		if (pathId === activePathId && currentPath) return;
+
+		// Set loading state when selecting a path
 		set({ isLoading: true, activePathId: pathId });
 
 		try {

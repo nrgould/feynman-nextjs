@@ -68,7 +68,8 @@ export default function LearningPathPage() {
 		};
 
 		initializePaths();
-	}, [loadPaths, currentPath, isNewPath, selectPath, pathId]);
+		// Only run this effect on mount and when these specific dependencies change
+	}, [loadPaths, isNewPath, selectPath, pathId]);
 
 	// Function to handle when a new path is created
 	const handlePathCreated = (
@@ -87,17 +88,6 @@ export default function LearningPathPage() {
 		// Refresh the paths list in the sidebars
 		loadPaths();
 	};
-
-	// Always refresh the data when the component mounts
-	useEffect(() => {
-		// Force a refresh of the paths data
-		loadPaths();
-
-		// If we have an active path, refresh it too
-		if (activePathId) {
-			selectPath(activePathId);
-		}
-	}, [loadPaths, selectPath, activePathId]);
 
 	// Render the main content area with loading state
 	const renderMainContent = () => {

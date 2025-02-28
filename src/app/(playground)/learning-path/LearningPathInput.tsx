@@ -24,6 +24,7 @@ import {
 import { Loader2, BookOpen, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { getUserLearningPaths } from './actions';
+import { useRouter } from 'next/navigation';
 
 interface LearningPathInputProps {
 	onPathCreated: (
@@ -39,6 +40,7 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 	const [gradeLevel, setGradeLevel] = useState('high school');
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const router = useRouter();
 
 	// Use the useObject hook to generate the learning path
 	const {
@@ -80,20 +82,16 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 							mostRecent.id
 						);
 
-						// Force a page refresh to ensure we have the latest data with proper UUIDs
-						window.location.href = `/learning-path?id=${mostRecent.id}`;
+						// Use router.push instead of window.location.href to avoid a full page refresh
+						router.push(`/learning-path?id=${mostRecent.id}`);
 					} else {
 						// Fallback if we couldn't get the ID
 						onPathCreated(object, concept, gradeLevel);
-						// Force a refresh anyway
-						window.location.reload();
 					}
 				} catch (error) {
 					console.error('Error fetching learning path ID:', error);
 					// Still call onPathCreated without the ID
 					onPathCreated(object, concept, gradeLevel);
-					// Force a refresh anyway
-					window.location.reload();
 				}
 
 				toast({
