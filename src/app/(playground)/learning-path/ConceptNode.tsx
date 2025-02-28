@@ -70,6 +70,18 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 
 	const handleStartConcept = async () => {
 		try {
+			// Check if the node ID is a simple number (like "1", "2", etc.)
+			// This indicates we're using temporary IDs and need to refresh
+			if (/^\d+$/.test(node.id)) {
+				toast({
+					title: 'Please refresh the page',
+					description:
+						'Please refresh the page before starting this concept.',
+					variant: 'destructive',
+				});
+				return;
+			}
+
 			setIsLoading(true);
 
 			// Generate a unique ID for the chat

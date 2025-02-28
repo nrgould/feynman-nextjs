@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LearningPathInput } from './LearningPathInput';
 import { LearningPathFlow } from './LearningPathFlow';
 import { PreviousPaths, PreviousPathsRef } from './PreviousPaths';
@@ -30,6 +30,7 @@ export default function LearningPathPage() {
 
 	const previousPathsRef = useRef<PreviousPathsRef>(null);
 	const mobilePreviousPathsRef = useRef<MobilePreviousPathsRef>(null);
+	const initializedRef = useRef(false);
 
 	const searchParams = useSearchParams();
 	const isNewPath = searchParams.has('new');
@@ -44,12 +45,15 @@ export default function LearningPathPage() {
 
 	// Load paths on initial load and select the specified path or most recent path if none is selected
 	useEffect(() => {
+		// Skip if we've already initialized
+		if (initializedRef.current) return;
+
 		const initializePaths = async () => {
 			await loadPaths();
 
 			// If there's a specific path ID in the URL, select that path
 			if (pathId) {
-				selectPath(pathId);
+				await selectPath(pathId);
 			}
 			// If no path is currently selected and we're not creating a new path,
 			// select the most recent path
@@ -61,15 +65,24 @@ export default function LearningPathPage() {
 						(a, b) => b.lastUpdated - a.lastUpdated
 					);
 					if (sortedPaths.length > 0) {
-						selectPath(sortedPaths[0].id);
+						await selectPath(sortedPaths[0].id);
 					}
 				}
 			}
+
+			// Mark as initialized
+			initializedRef.current = true;
 		};
 
 		initializePaths();
-		// Only run this effect on mount and when these specific dependencies change
-	}, [loadPaths, isNewPath, selectPath, pathId]);
+	}, [loadPaths, isNewPath, selectPath, pathId, currentPath]);
+
+	// Reset initialization flag when pathId changes
+	useEffect(() => {
+		if (pathId) {
+			initializedRef.current = false;
+		}
+	}, [pathId]);
 
 	// Function to handle when a new path is created
 	const handlePathCreated = (

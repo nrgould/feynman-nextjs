@@ -82,16 +82,21 @@ export function LearningPathInput({ onPathCreated }: LearningPathInputProps) {
 							mostRecent.id
 						);
 
-						// Use router.push instead of window.location.href to avoid a full page refresh
-						router.push(`/learning-path?id=${mostRecent.id}`);
+						// For new learning paths, we need a full page refresh to ensure
+						// we get the correct UUIDs from the database
+						window.location.href = `/learning-path?id=${mostRecent.id}`;
 					} else {
 						// Fallback if we couldn't get the ID
 						onPathCreated(object, concept, gradeLevel);
+						// Force a refresh anyway to ensure we get the correct data
+						window.location.reload();
 					}
 				} catch (error) {
 					console.error('Error fetching learning path ID:', error);
 					// Still call onPathCreated without the ID
 					onPathCreated(object, concept, gradeLevel);
+					// Force a refresh anyway to ensure we get the correct data
+					window.location.reload();
 				}
 
 				toast({
