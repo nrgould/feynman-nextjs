@@ -6,12 +6,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import LearningPathClient from '../LearningPathClient';
 import { LearningPath } from '@/lib/learning-path-schemas';
 
-export default async function LearningPathPage({
-	params,
-}: {
-	params: { id: string };
-}) {
-	const { id } = params;
+type Props = {
+	params: Promise<{ id: string }>;
+};
+
+export default async function LearningPathPage({ params }: Props) {
+	const { id } = await params;
 
 	// Handle new path creation
 	if (id === 'new') {
