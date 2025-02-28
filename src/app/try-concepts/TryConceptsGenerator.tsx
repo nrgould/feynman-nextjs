@@ -149,13 +149,13 @@ export default function TryConceptsGenerator() {
 								unlock all features.
 							</p>
 							<div className='flex flex-col gap-3 mt-6'>
-								<SignUpButton>
+								<SignUpButton forceRedirectUrl='/learning-path'>
 									<Button className='w-full'>
 										Sign Up Free
 									</Button>
 								</SignUpButton>
 
-								<SignInButton>
+								<SignInButton forceRedirectUrl='/learning-path'>
 									<Button
 										variant='outline'
 										className='w-full'
