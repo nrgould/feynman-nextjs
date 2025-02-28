@@ -4,7 +4,7 @@ import TryConceptsGenerator from './TryConceptsGenerator';
 export const metadata = {
 	title: 'Try Concept Generator | Feynman Learning',
 	description:
-		'Upload a PDF and see how our AI can generate learning concepts for you. Sign up to unlock the full experience.',
+		'Upload a PDF and see how our AI can generate learning concepts for you.',
 };
 
 export default function TryConceptsPage() {

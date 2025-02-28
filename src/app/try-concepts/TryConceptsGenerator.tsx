@@ -82,14 +82,6 @@ export default function TryConceptsGenerator() {
 		setFiles([]);
 	};
 
-	const handleSignUp = () => {
-		router.push('/sign-up');
-	};
-
-	const handleLogin = () => {
-		router.push('/sign-in');
-	};
-
 	return (
 		<div className='w-full max-w-3xl'>
 			<div
@@ -151,7 +143,7 @@ export default function TryConceptsGenerator() {
 							<div className='flex flex-col gap-3 mt-6'>
 								<SignUpButton forceRedirectUrl='/learning-path'>
 									<Button className='w-full'>
-										Sign Up Free
+										Sign Up
 									</Button>
 								</SignUpButton>
 
