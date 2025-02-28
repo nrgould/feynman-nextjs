@@ -168,9 +168,14 @@ export const useLearningPathStore = create<LearningPathState>((set, get) => ({
 		if (!currentPath || !activePathId) return;
 
 		// Update the node progress in the UI immediately
-		const updatedNodes = currentPath.nodes.map((node) =>
-			node.id === nodeId ? { ...node, progress } : node
+		// Important: Use indexOf to find the node's original position and preserve order
+		const nodeIndex = currentPath.nodes.findIndex(
+			(node) => node.id === nodeId
 		);
+		if (nodeIndex === -1) return;
+
+		const updatedNodes = [...currentPath.nodes];
+		updatedNodes[nodeIndex] = { ...updatedNodes[nodeIndex], progress };
 
 		set({
 			currentPath: {

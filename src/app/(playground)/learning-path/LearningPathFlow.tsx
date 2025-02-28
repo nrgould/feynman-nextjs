@@ -328,45 +328,6 @@ export function LearningPathFlow({
 							/>
 
 							<Controls position='top-right' />
-							{/* <MiniMap position='top-left' /> */}
-							<Panel
-								position='top-left'
-								className='bg-white p-4 rounded-md shadow-md'
-							>
-								<div className='space-y-3'>
-									<h3 className='font-medium text-gray-700'>
-										Learning Path Legend
-									</h3>
-									<div className='space-y-2 text-sm'>
-										<div className='flex items-center'>
-											<div className='w-3 h-3 bg-blue-500 rounded-full mr-2'></div>
-											<span>
-												Active - Currently learning
-											</span>
-										</div>
-										<div className='flex items-center'>
-											<div className='w-3 h-3 bg-amber-500 rounded-full mr-2'></div>
-											<span>
-												Ready - Available to start
-											</span>
-										</div>
-										<div className='flex items-center'>
-											<div className='w-3 h-3 bg-gray-400 rounded-full mr-2'></div>
-											<span>
-												Locked - Complete previous
-												concept first (75% progress
-												needed)
-											</span>
-										</div>
-										<div className='flex items-center'>
-											<div className='w-3 h-3 bg-green-500 rounded-full mr-2'></div>
-											<span>
-												Completed - 100% progress
-											</span>
-										</div>
-									</div>
-								</div>
-							</Panel>
 						</ReactFlow>
 					</motion.div>
 				)}

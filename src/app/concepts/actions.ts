@@ -27,7 +27,7 @@ export async function createChatFromConcept(
 		.from('Chat')
 		.insert({
 			id: chatId,
-			concept_id: conceptId,	
+			concept_id: conceptId,
 			description,
 			title,
 			created_at: new Date().toISOString(),

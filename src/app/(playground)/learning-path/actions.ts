@@ -175,7 +175,8 @@ export async function getLearningPathDetails(learningPathId: string) {
 		const { data: nodes, error: nodesError } = await supabase
 			.from('LearningPathNode')
 			.select('*')
-			.eq('learning_path_id', learningPathId);
+			.eq('learning_path_id', learningPathId)
+			.order('id');
 
 		if (nodesError) {
 			return {
@@ -348,6 +349,51 @@ export async function deleteLearningPath(learningPathId: string) {
 		}
 
 		const supabase = await createClient();
+
+		// First, get all chats associated with this learning path
+		const { data: chats, error: chatsError } = await supabase
+			.from('Chat')
+			.select('id')
+			.eq('learning_path_id', learningPathId)
+			.eq('user_id', userId);
+
+		if (chatsError) {
+			console.error('Error finding associated chats:', chatsError);
+		} else if (chats && chats.length > 0) {
+			// Delete all messages for these chats
+			const chatIds = chats.map((chat) => chat.id);
+
+			// Delete chat messages
+			const { error: messagesError } = await supabase
+				.from('ChatMessage')
+				.delete()
+				.in('chat_id', chatIds);
+
+			if (messagesError) {
+				console.error('Error deleting chat messages:', messagesError);
+			}
+
+			// Delete the chats
+			const { error: chatsDeletionError } = await supabase
+				.from('Chat')
+				.delete()
+				.in('id', chatIds);
+
+			if (chatsDeletionError) {
+				console.error('Error deleting chats:', chatsDeletionError);
+			}
+		}
+
+		// Now update the Concept table to clear chat_id for any concepts linked to this learning path
+		const { error: conceptUpdateError } = await supabase
+			.from('Concept')
+			.update({ chat_id: null })
+			.eq('user_id', userId)
+			.eq('learning_path_id', learningPathId);
+
+		if (conceptUpdateError) {
+			console.error('Error updating concepts:', conceptUpdateError);
+		}
 
 		// Delete the learning path (cascade will delete nodes and edges)
 		const { error } = await supabase
