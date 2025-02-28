@@ -1,29 +1,15 @@
 'use client';
 
-import {
-	useState,
-	useCallback,
-	useEffect,
-	Dispatch,
-	SetStateAction,
-	useMemo,
-} from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
 	ReactFlow,
 	Controls,
 	Background,
 	applyNodeChanges,
 	applyEdgeChanges,
-	Panel,
-	NodeTypes,
-	EdgeTypes,
 	MarkerType,
 	Node,
 	Edge,
-	ReactFlowProvider,
-	MiniMap,
-	NodeResizer,
-	NodeToolbar,
 	BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -33,13 +19,10 @@ import {
 	LearningPathEdge,
 	LearningPath,
 } from '@/lib/learning-path-schemas';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, BarChart2, Clock } from 'lucide-react';
+import { BookOpen, BarChart2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearningPathStore } from '@/store/learning-path-store';
-import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Define the type for our custom node

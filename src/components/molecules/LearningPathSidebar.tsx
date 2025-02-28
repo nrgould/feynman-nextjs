@@ -143,7 +143,7 @@ export function LearningPathSidebar({
 							</div>
 							<Progress value={currentProgress} className='h-2' />
 						</div>
-						<div className='flex gap-2 mt-4'>
+						{/* <div className='flex gap-2 mt-4'>
 							<Button
 								size='sm'
 								variant='outline'
@@ -172,10 +172,10 @@ export function LearningPathSidebar({
 								<CheckCircle2 className='w-4 h-4 mr-1' />
 								Mark Complete
 							</Button>
-						</div>
+						</div> */}
 					</div>
 
-					<div className='p-4 border-l-4 border-amber-400 bg-amber-50 rounded-r-lg'>
+					{/* <div className='p-4 border-l-4 border-amber-400 bg-amber-50 rounded-r-lg'>
 						<h2 className='font-semibold text-zinc-800 mb-4 flex items-center'>
 							<Trophy className='w-5 h-5 mr-2 text-amber-500' />
 							Your Stats
@@ -201,9 +201,9 @@ export function LearningPathSidebar({
 								</span>
 							</li>
 						</ul>
-					</div>
+					</div> */}
 
-					<div className='p-4 border-l-4 border-emerald-400 bg-emerald-50 rounded-r-lg'>
+					{/* <div className='p-4 border-l-4 border-emerald-400 bg-emerald-50 rounded-r-lg'>
 						<h2 className='font-semibold text-zinc-800 mb-4 flex items-center'>
 							<Award className='w-5 h-5 mr-2 text-emerald-500' />
 							Achievements
@@ -264,7 +264,7 @@ export function LearningPathSidebar({
 								</span>
 							</li>
 						</ul>
-					</div>
+					</div> */}
 
 					<div className='p-4 border-l-4 border-violet-400 bg-violet-50 rounded-r-lg'>
 						<h2 className='font-semibold text-zinc-800 mb-4 flex items-center'>

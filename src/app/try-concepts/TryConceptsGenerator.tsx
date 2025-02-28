@@ -142,9 +142,7 @@ export default function TryConceptsGenerator() {
 							</p>
 							<div className='flex flex-col gap-3 mt-6'>
 								<SignUpButton forceRedirectUrl='/learning-path'>
-									<Button className='w-full'>
-										Sign Up
-									</Button>
+									<Button className='w-full'>Sign Up</Button>
 								</SignUpButton>
 
 								<SignInButton forceRedirectUrl='/learning-path'>
