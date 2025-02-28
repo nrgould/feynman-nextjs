@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 import { createClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getUserLearningPaths } from './actions';
 import { LearningPathInput } from './LearningPathInput';
+import ClientRedirect from './ClientRedirect';
 
 export default async function LearningPathPage() {
 	// Get all user learning paths
@@ -21,33 +21,15 @@ export default async function LearningPathPage() {
 						new Date(a.updated_at).getTime()
 				);
 
-				// Redirect to the most recent path
-				redirect(`/learning-path/${sortedPaths[0].id}`);
-			} else {
-				// No paths exist, show the creation page
-				return (
-					<Suspense fallback={<LoadingSkeleton />}>
-						<div className='flex-1 flex items-center justify-center'>
-							<LearningPathInput
-								onPathCreated={(
-									path,
-									concept,
-									gradeLevel,
-									pathId
-								) => {
-									// This will be handled client-side
-								}}
-							/>
-						</div>
-					</Suspense>
-				);
+				// Use client-side redirect instead
+				return <ClientRedirect pathId={sortedPaths[0].id} />;
 			}
 		}
 	} catch (error) {
 		console.error('Error fetching learning paths:', error);
 	}
 
-	// Fallback if something went wrong
+	// Either no paths exist or there was an error, show the creation page
 	return (
 		<Suspense fallback={<LoadingSkeleton />}>
 			<div className='flex-1 flex items-center justify-center'>
