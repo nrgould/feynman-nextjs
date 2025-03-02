@@ -27,7 +27,7 @@ export default function WaitlistPage() {
 	];
 
 	return (
-		<ScrollArea className='w-full mx-auto h-screen max-w-screen mb-20'>
+		<ScrollArea className='w-full mx-auto h-screen max-w-screen'>
 			<div className='text-center py-8 container mx-auto px-4 mt-20 max-w-2xl'>
 				<motion.h1
 					className='text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-6'
@@ -35,9 +35,7 @@ export default function WaitlistPage() {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5 }}
 				>
-					Learn with Your Brain,
-					<br />
-					Not Against It
+					Hello! You caught us before launch
 				</motion.h1>
 				<motion.p
 					className='text-xl text-gray-600 max-w-2xl mx-auto font-medium'
@@ -45,14 +43,14 @@ export default function WaitlistPage() {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.1 }}
 				>
-					We're building a revolutionary math learning platform
+					We&apos;re building a revolutionary math learning platform
 					specifically designed for students with ADHD and learning
 					differences. Join our waitlist to be among the first to
 					experience a new way of learning that works with your brain.
 				</motion.p>
 			</div>
 
-			<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-12 px-4 mx-auto'>
+			<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-12 px-4 mx-auto pb-48'>
 				<div className='flex-1 max-w-md space-y-8'>
 					<ColoredIcon
 						icon={UserRoundCheck}
@@ -114,7 +112,6 @@ export default function WaitlistPage() {
 						initial={{ opacity: 0, scale: 0.95 }}
 						animate={{ opacity: 1, scale: 1 }}
 						transition={{ duration: 0.5, delay: 0.2 }}
-						className='bg-white p-6 rounded-xl shadow-lg border border-zinc-200'
 					>
 						<Waitlist />
 					</motion.div>
