@@ -11,6 +11,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { PostHogProvider } from './providers';
 import Banner from './banner';
+
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
 	variable: '--font-jakarta-sans',

@@ -5,10 +5,11 @@ import { Button } from '../../ui/button';
 import Link from 'next/link';
 import * as motion from 'motion/react-client';
 import ColoredIcon from '../../atoms/ColoredIcon';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 function LinearPath() {
 	return (
-		<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-12 px-4 mx-auto'>
+		<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-12 px-4 mx-auto mt-20'>
 			<div className='flex-1 max-w-md space-y-6'>
 				<ColoredIcon icon={ArrowUpRight} color='emerald' size='sm' />
 
@@ -64,13 +65,15 @@ function LinearPath() {
 				</Button>
 			</div>
 
-			<div className='flex-1 relative h-[450px] max-w-lg'>
-				<Image
-					src='/images/studying.svg'
-					alt='Student following a personalized learning path'
-					fill
-					className='object-contain'
-				/>
+			<div className='flex-1 relative max-w-lg border-2 border-zinc-200 rounded-xl overflow-hidden'>
+				<AspectRatio ratio={1}>
+					<Image
+						src='/images/linear-path.png'
+						alt='Student following a personalized learning path'
+						fill
+						className='object-contain'
+					/>
+				</AspectRatio>
 			</div>
 		</section>
 	);
