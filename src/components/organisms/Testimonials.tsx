@@ -117,7 +117,7 @@ export default function TestimonialsSection() {
 								</CardHeader>
 								<CardContent className='pt-4'>
 									<p className='text-gray-700'>
-										"{testimonial.content}"
+										&quot;{testimonial.content}&quot;
 									</p>
 								</CardContent>
 							</Card>

@@ -1,29 +1,62 @@
 import { Waitlist } from '@clerk/nextjs';
-import { UserRoundCheck } from 'lucide-react';
+import { UserRoundCheck, Brain, Clock, Sparkles } from 'lucide-react';
 import ColoredIcon from '@/components/atoms/ColoredIcon';
 import * as motion from 'motion/react-client';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function WaitlistPage() {
+	const benefits = [
+		{
+			icon: <Brain className='h-5 w-5 text-emerald-500' />,
+			title: 'Personalized Learning',
+			description:
+				'AI-powered system that adapts to your unique learning style',
+		},
+		{
+			icon: <Clock className='h-5 w-5 text-sky-500' />,
+			title: '15 Minutes a Day',
+			description: 'Make progress with short, focused learning sessions',
+		},
+		{
+			icon: <Sparkles className='h-5 w-5 text-violet-500' />,
+			title: 'Proven Results',
+			description:
+				"Join students who've improved their grades and confidence",
+		},
+	];
+
 	return (
 		<ScrollArea className='w-full mx-auto h-screen max-w-screen mb-20'>
-			<div className='text-center py-8 container mx-auto px-4 mt-20 max-w-xl'>
-				<h1 className='text-4xl font-bold tracking-tight text-gray-900 mb-4'>
-					Hello! You caught us before we&apos;re ready
-				</h1>
-				<p className='text-xl text-gray-600 max-w-2xl mx-auto font-medium'>
-					We&apos;re working hard to put the finishing touches. Things
-					are going well and it should be ready to help you master
-					your learning very soon. If you&apos;d like us to send you a
-					reminder when we&apos;re ready, just follow the steps below!
-				</p>
+			<div className='text-center py-8 container mx-auto px-4 mt-20 max-w-2xl'>
+				<motion.h1
+					className='text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-6'
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5 }}
+				>
+					Learn with Your Brain,
+					<br />
+					Not Against It
+				</motion.h1>
+				<motion.p
+					className='text-xl text-gray-600 max-w-2xl mx-auto font-medium'
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.1 }}
+				>
+					We're building a revolutionary math learning platform
+					specifically designed for students with ADHD and learning
+					differences. Join our waitlist to be among the first to
+					experience a new way of learning that works with your brain.
+				</motion.p>
 			</div>
 
-			<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-24 px-4 mx-auto'>
-				<div className='flex-1 max-w-md space-y-6'>
+			<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-12 px-4 mx-auto'>
+				<div className='flex-1 max-w-md space-y-8'>
 					<ColoredIcon
 						icon={UserRoundCheck}
-						color='violet'
+						color='emerald'
 						size='sm'
 					/>
 
@@ -33,25 +66,58 @@ export default function WaitlistPage() {
 						transition={{ duration: 0.8, ease: 'easeOut' }}
 						className='space-y-6'
 					>
-						<h1 className='text-3xl md:text-4xl font-bold tracking-tighter'>
+						<h2 className='text-3xl md:text-4xl font-bold tracking-tighter'>
 							Join the Waitlist for Early Access
-						</h1>
-						<div className='space-y-4 text-gray-600 font-medium'>
-							<p>
-								Be among the first to experience a new way of
-								learning mathematics. Sign up now to:
+						</h2>
+						<div className='space-y-6'>
+							<div className='grid gap-4'>
+								{benefits.map((benefit, index) => (
+									<Card
+										key={index}
+										className='border-zinc-200'
+									>
+										<CardContent className='p-4'>
+											<div className='flex items-start gap-4'>
+												<div className='p-2 rounded-full bg-zinc-100'>
+													{benefit.icon}
+												</div>
+												<div>
+													<h3 className='font-semibold'>
+														{benefit.title}
+													</h3>
+													<p className='text-sm text-zinc-600'>
+														{benefit.description}
+													</p>
+												</div>
+											</div>
+										</CardContent>
+									</Card>
+								))}
+							</div>
+							<p className='text-zinc-600'>
+								<span className='font-semibold'>
+									Early access members receive:
+								</span>
+								<ul className='list-disc pl-5 mt-2 space-y-1'>
+									<li>Priority access when we launch</li>
+									<li>Exclusive founding member benefits</li>
+									<li>Special early-bird pricing</li>
+									<li>Direct input on feature development</li>
+								</ul>
 							</p>
-							<ul className='space-y-2 list-disc pl-4'>
-								<li>Get priority access when we launch</li>
-								<li>Receive exclusive early-bird benefits</li>
-								<li>Shape the future of math education</li>
-							</ul>
 						</div>
 					</motion.div>
 				</div>
 
-				<div className='flex-1 max-w-lg flex items-center justify-center'>
-					<Waitlist />
+				<div className='flex-1 max-w-lg'>
+					<motion.div
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ duration: 0.5, delay: 0.2 }}
+						className='bg-white p-6 rounded-xl shadow-lg border border-zinc-200'
+					>
+						<Waitlist />
+					</motion.div>
 				</div>
 			</section>
 		</ScrollArea>
