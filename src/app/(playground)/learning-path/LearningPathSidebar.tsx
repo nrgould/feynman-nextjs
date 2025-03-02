@@ -161,7 +161,7 @@ export function LearningPathSidebar() {
 							<ContextMenu key={path.id}>
 								<ContextMenuTrigger>
 									<div
-										className={`border rounded-md p-3 transition-colors cursor-pointer hover:bg-muted ${
+										className={`border rounded-md p-3 transition-colors cursor-pointer hover:bg-muted mb-2 ${
 											activePathId === path.id
 												? 'border-primary'
 												: ''
@@ -202,7 +202,6 @@ export function LearningPathSidebar() {
 										onClick={() => handlePathClick(path.id)}
 										className='flex items-center'
 									>
-										<BookOpen className='mr-2 h-4 w-4' />
 										Open
 									</ContextMenuItem>
 									<ContextMenuSeparator />
