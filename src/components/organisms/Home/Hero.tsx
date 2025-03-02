@@ -66,7 +66,7 @@ const Hero = () => {
 					transition={{ duration: 0.5 }}
 					className='text-sm font-medium text-zinc-600 tracking-widest'
 				>
-					FEYNMAN LEARNING
+					FOR STUDENTS WITH ADHD & LEARNING DIFFERENCES
 				</motion.div>
 
 				<motion.div
@@ -74,9 +74,8 @@ const Hero = () => {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.1 }}
 				>
-					<Title className='max-w-xl'>
+					<Title className='max-w-2xl'>
 						Learn with{' '}
-						<br />
 						<span className='text-emerald-400'>Your Brain</span>
 						,
 						<br />
