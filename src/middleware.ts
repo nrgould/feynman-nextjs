@@ -13,10 +13,7 @@ const isPublicRoute = createRouteMatcher([
 	'/try-concepts',
 ]);
 
-const isAuthRoute = createRouteMatcher([
-	'/chat/:id', // This will be handled separately
-	'/learning-path',
-]);
+const isAuthRoute = createRouteMatcher(['/chat/:id', '/learning-path/:id']);
 
 const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
