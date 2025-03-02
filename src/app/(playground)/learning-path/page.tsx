@@ -3,8 +3,8 @@ import { createClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getUserLearningPaths } from './actions';
-import { LearningPathInput } from './LearningPathInput';
 import ClientRedirect from './ClientRedirect';
+import LearningPathInputWrapper from './LearningPathInputWrapper';
 
 export default async function LearningPathPage() {
 	// Get all user learning paths
@@ -33,11 +33,7 @@ export default async function LearningPathPage() {
 	return (
 		<Suspense fallback={<LoadingSkeleton />}>
 			<div className='flex-1 flex items-center justify-center'>
-				<LearningPathInput
-					onPathCreated={(path, concept, gradeLevel, pathId) => {
-						// This will be handled client-side
-					}}
-				/>
+				<LearningPathInputWrapper />
 			</div>
 		</Suspense>
 	);
