@@ -1,3 +1,5 @@
+import { Node, Edge, MarkerType } from '@xyflow/react';
+
 export interface MathStep {
 	id: string;
 	content: string;
@@ -14,29 +16,41 @@ export interface MathSolution {
 	updatedAt?: string;
 }
 
-export interface MathNode {
-	id: string;
-	type: 'mathStep';
-	position: { x: number; y: number };
+export interface MathNode extends Node {
 	data: {
 		step: MathStep;
 		isCorrect?: boolean;
 		showOrder?: boolean;
+		isMobile?: boolean;
 	};
 }
 
-export interface MathEdge {
-	id: string;
-	source: string;
-	target: string;
-	type: 'custom' | 'smoothstep' | 'step' | 'straight' | 'bezier';
-	animated?: boolean;
+export interface MathEdge extends Edge {
+	data?: {
+		isCorrect?: boolean;
+	};
 	style?: {
 		strokeWidth?: number;
 		stroke?: string;
 	};
-	data?: {
-		isCorrect?: boolean;
+	type?: 'smoothstep' | 'step' | 'straight' | 'bezier';
+	markerEnd?: {
+		type: MarkerType;
+		width: number;
+		height: number;
+		color: string;
+	};
+	label?: string;
+	labelBgPadding?: [number, number];
+	labelBgBorderRadius?: number;
+	labelBgStyle?: {
+		fill?: string;
+		fillOpacity?: number;
+	};
+	labelStyle?: {
+		fill?: string;
+		fontSize?: number;
+		fontWeight?: number;
 	};
 }
 

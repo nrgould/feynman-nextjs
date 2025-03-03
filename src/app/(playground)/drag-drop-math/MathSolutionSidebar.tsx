@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MathSolution } from './types';
+import { MathSolution, MathEdge } from './types';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -15,6 +15,7 @@ import {
 	EyeOff,
 	ChevronLeft,
 	ChevronRight,
+	ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -25,11 +26,13 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 interface MathSolutionSidebarProps {
 	mathSolution: MathSolution;
 	className?: string;
+	edges?: MathEdge[];
 }
 
 export function MathSolutionSidebar({
 	mathSolution,
 	className = 'w-[350px]',
+	edges = [],
 }: MathSolutionSidebarProps) {
 	// Check if device is mobile
 	const isMobile = useMediaQuery('(max-width: 768px)');
@@ -37,10 +40,36 @@ export function MathSolutionSidebar({
 	// State for showing step order
 	const [showStepOrder, setShowStepOrder] = useState(false);
 
-	// Sort steps by order number
-	const sortedSteps = [...mathSolution.steps].sort(
-		(a, b) => a.order - b.order
-	);
+	// State for randomized steps
+	const [randomizedSteps, setRandomizedSteps] = useState([
+		...mathSolution.steps,
+	]);
+
+	// Randomize steps on initial load
+	useEffect(() => {
+		setRandomizedSteps(
+			[...mathSolution.steps].sort(() => Math.random() - 0.5)
+		);
+	}, [mathSolution.steps]);
+
+	// Create a map of connections based on edges
+	const connectionMap = new Map();
+	edges.forEach((edge) => {
+		connectionMap.set(edge.source, edge.target);
+	});
+
+	// Function to determine if a step is connected
+	const isStepConnected = (stepId: string) => {
+		return (
+			connectionMap.has(stepId) ||
+			Array.from(connectionMap.values()).includes(stepId)
+		);
+	};
+
+	// Function to find the next step in the connection chain
+	const getNextStep = (stepId: string) => {
+		return connectionMap.get(stepId);
+	};
 
 	// The actual sidebar content
 	const SidebarContent = () => (
@@ -75,7 +104,7 @@ export function MathSolutionSidebar({
 						variant='outline'
 						className={`${isMobile ? 'text-sm' : 'text-base'} px-2 py-0.5`}
 					>
-						{sortedSteps.length} steps
+						{randomizedSteps.length} steps
 					</Badge>
 				</div>
 				<p
@@ -119,47 +148,70 @@ export function MathSolutionSidebar({
 				<div
 					className={`${isMobile ? 'p-4 space-y-3' : 'p-5 space-y-4'}`}
 				>
-					{sortedSteps.map((step) => (
-						<Card key={step.id} className='shadow-md border-2'>
-							<CardHeader
-								className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
-							>
-								<CardTitle
-									className={`${isMobile ? 'text-sm' : 'text-base'} font-bold flex items-center`}
+					{randomizedSteps.map((step) => {
+						const isConnected = isStepConnected(step.id);
+						const nextStepId = getNextStep(step.id);
+						const nextStep = nextStepId
+							? mathSolution.steps.find(
+									(s) => s.id === nextStepId
+								)
+							: null;
+
+						return (
+							<div key={step.id} className='space-y-2'>
+								<Card
+									className={`shadow-md border-2 ${isConnected ? 'border-blue-500' : ''}`}
 								>
-									{showStepOrder ? (
-										<>
-											<BookOpen
-												className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-blue-500`}
-											/>
-											Step {step.order}
-										</>
-									) : (
-										<>
-											<HelpCircle
-												className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-muted-foreground`}
-											/>
-											<span>Step</span>
-										</>
-									)}
-								</CardTitle>
-							</CardHeader>
-							<CardContent
-								className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
-							>
-								<p
-									className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold leading-relaxed`}
-								>
-									{step.content}
-								</p>
-								<p
-									className={`${isMobile ? 'text-xs' : 'text-base'} text-muted-foreground mt-2`}
-								>
-									{step.explanation}
-								</p>
-							</CardContent>
-						</Card>
-					))}
+									<CardHeader
+										className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
+									>
+										<CardTitle
+											className={`${isMobile ? 'text-sm' : 'text-base'} font-bold flex items-center`}
+										>
+											{showStepOrder ? (
+												<>
+													<BookOpen
+														className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-blue-500`}
+													/>
+													Step {step.order}
+												</>
+											) : (
+												<>
+													<HelpCircle
+														className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-muted-foreground`}
+													/>
+													<span>Step</span>
+												</>
+											)}
+										</CardTitle>
+									</CardHeader>
+									<CardContent
+										className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
+									>
+										<p
+											className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold leading-relaxed`}
+										>
+											{step.content}
+										</p>
+										<p
+											className={`${isMobile ? 'text-xs' : 'text-base'} text-muted-foreground mt-2`}
+										>
+											{step.explanation}
+										</p>
+									</CardContent>
+								</Card>
+
+								{nextStep && (
+									<div className='flex items-center justify-center py-1'>
+										<ArrowRight className='h-5 w-5 text-blue-500' />
+										<span className='text-sm text-blue-500 ml-1'>
+											Connected to next step
+										</span>
+									</div>
+								)}
+							</div>
+						);
+					})}
 				</div>
 			</ScrollArea>
 

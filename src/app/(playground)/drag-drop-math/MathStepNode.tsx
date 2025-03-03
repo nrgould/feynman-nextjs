@@ -38,14 +38,31 @@ export const MathStepNode = memo(
 		const sourcePosition = isMobile ? Position.Bottom : Position.Right;
 		const targetPosition = isMobile ? Position.Top : Position.Left;
 
+		// Common handle styles
+		const handleStyles = `${isMobile ? 'w-8 h-8' : 'w-6 h-6'} bg-zinc-400 border-2 border-white shadow-md hover:w-10 hover:h-10 hover:bg-zinc-300 transition-all duration-200 cursor-crosshair`;
+
 		return (
-			<div className='math-step-node'>
-				<Handle
-					type='target'
-					position={targetPosition}
-					isConnectable={isConnectable}
-					className={`${isMobile ? 'w-5 h-5' : 'w-4 h-4'} bg-blue-500`}
-				/>
+			<div className='math-step-node group'>
+				{/* Target handle with tooltip */}
+				<div className='absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2'>
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Handle
+									type='target'
+									position={targetPosition}
+									isConnectable={isConnectable}
+									className={handleStyles}
+								/>
+							</TooltipTrigger>
+							<TooltipContent side='left'>
+								<p className='text-sm'>
+									Connect from previous step
+								</p>
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				</div>
 
 				<Card
 					className={cn(
@@ -109,12 +126,24 @@ export const MathStepNode = memo(
 					</CardContent>
 				</Card>
 
-				<Handle
-					type='source'
-					position={sourcePosition}
-					isConnectable={isConnectable}
-					className={`${isMobile ? 'w-5 h-5' : 'w-4 h-4'} bg-blue-500`}
-				/>
+				{/* Source handle with tooltip */}
+				<div className='absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2'>
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Handle
+									type='source'
+									position={sourcePosition}
+									isConnectable={isConnectable}
+									className={handleStyles}
+								/>
+							</TooltipTrigger>
+							<TooltipContent side='right'>
+								<p className='text-sm'>Connect to next step</p>
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				</div>
 			</div>
 		);
 	}

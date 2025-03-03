@@ -17,6 +17,7 @@ import {
 	Panel,
 	EdgeChange,
 	useReactFlow,
+	MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { MathStepNode } from './MathStepNode';
@@ -41,17 +42,24 @@ import {
 	ZoomOut,
 	Move,
 	Smartphone,
+	Maximize,
+	Wand2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { cn } from '@/lib/utils';
 
 interface MathSolutionFlowProps {
 	mathSolution: MathSolution;
+	onEdgesUpdate?: (edges: MathEdge[]) => void;
 }
 
-export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
+export function MathSolutionFlow({
+	mathSolution,
+	onEdgesUpdate,
+}: MathSolutionFlowProps) {
 	// Check if device is mobile
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -120,12 +128,25 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 		);
 	}, [isMobile, setNodes]);
 
+	// Update parent component when edges change
+	useEffect(() => {
+		if (onEdgesUpdate) {
+			onEdgesUpdate(edges);
+		}
+	}, [edges, onEdgesUpdate]);
+
 	// Handle edge connections
 	const onConnect = useCallback(
 		(connection: Connection) => {
 			// Reset verification when connections change
 			setVerificationResult(null);
 			setGrade(null);
+
+			// Find the source node to get its explanation
+			const sourceNode = nodes.find(
+				(node) => node.id === connection.source
+			);
+			const sourceExplanation = sourceNode?.data.step.explanation || '';
 
 			// Apply the new edge with a smoother edge type for horizontal flow
 			setEdges((edges) =>
@@ -134,7 +155,28 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 						...connection,
 						type: 'smoothstep',
 						animated: true,
-						style: { strokeWidth: isMobile ? 4 : 3 }, // Thicker lines on mobile
+						style: {
+							strokeWidth: isMobile ? 4 : 3,
+							stroke: '#6366f1', // Indigo color to match handles
+						},
+						markerEnd: {
+							type: MarkerType.ArrowClosed,
+							width: isMobile ? 20 : 12,
+							height: isMobile ? 20 : 12,
+							color: '#6366f1',
+						},
+						label: sourceExplanation,
+						labelBgPadding: [8, 4],
+						labelBgBorderRadius: 4,
+						labelBgStyle: {
+							fill: '#fff',
+							fillOpacity: 0.8,
+						},
+						labelStyle: {
+							fill: '#27272a',
+							fontSize: isMobile ? 12 : 14,
+							fontWeight: 500,
+						},
 						data: {},
 					},
 					edges
@@ -148,7 +190,7 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 				duration: 3000,
 			});
 		},
-		[setEdges, isMobile]
+		[setEdges, isMobile, nodes]
 	);
 
 	// Handle edge selection
@@ -179,7 +221,7 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 				toast({
 					title: 'Connection Removed',
 					description:
-						'The connection between steps has been deleted.',
+						'The connection between steps has been deleted. You can now reconnect the nodes.',
 					duration: 2000,
 				});
 			}
@@ -195,7 +237,8 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 
 			toast({
 				title: 'Connection Removed',
-				description: 'The connection between steps has been deleted.',
+				description:
+					'The connection between steps has been deleted. You can now reconnect the nodes.',
 				duration: 2000,
 			});
 		} else {
@@ -209,6 +252,64 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 			});
 		}
 	}, [selectedEdge, setEdges, isMobile]);
+
+	// Function to check if a node already has a connection
+	const hasConnection = useCallback(
+		(nodeId: string, isSource: boolean = true) => {
+			return edges.some((edge) =>
+				isSource ? edge.source === nodeId : edge.target === nodeId
+			);
+		},
+		[edges]
+	);
+
+	// Handle edge validation - prevent multiple connections from the same source
+	const isValidConnection = useCallback(
+		(connection: Connection | MathEdge) => {
+			const source = connection.source;
+			const target = connection.target;
+
+			// Don't allow connections to self
+			if (source === target) {
+				toast({
+					title: 'Invalid Connection',
+					description: 'You cannot connect a step to itself.',
+					variant: 'destructive',
+					duration: 2000,
+				});
+				return false;
+			}
+
+			// Check if source already has an outgoing connection
+			const sourceHasConnection = hasConnection(source, true);
+			if (sourceHasConnection) {
+				toast({
+					title: 'Connection Already Exists',
+					description:
+						'This step already has an outgoing connection. Delete it first before creating a new one.',
+					variant: 'destructive',
+					duration: 3000,
+				});
+				return false;
+			}
+
+			// Check if target already has an incoming connection
+			const targetHasConnection = hasConnection(target, false);
+			if (targetHasConnection) {
+				toast({
+					title: 'Connection Already Exists',
+					description:
+						'This step already has an incoming connection. Delete it first before creating a new one.',
+					variant: 'destructive',
+					duration: 3000,
+				});
+				return false;
+			}
+
+			return true;
+		},
+		[hasConnection]
+	);
 
 	// Reset the flow to initial state
 	const handleReset = useCallback(() => {
@@ -420,6 +521,76 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 		reactFlowInstance,
 	]);
 
+	// Function to automatically connect nodes based on proximity
+	const autoConnectNodes = useCallback(() => {
+		// Create a copy of nodes sorted by x position (left to right)
+		const sortedNodes = [...nodes].sort(
+			(a, b) => a.position.x - b.position.x
+		);
+
+		// Clear existing edges
+		setEdges([]);
+
+		// Connect each node to the next one in the sorted array
+		const newEdges: MathEdge[] = [];
+
+		for (let i = 0; i < sortedNodes.length - 1; i++) {
+			const sourceNode = sortedNodes[i];
+			const targetNode = sortedNodes[i + 1];
+
+			// Find the source node to get its explanation
+			const sourceExplanation = sourceNode.data.step.explanation || '';
+
+			// Create a new edge
+			const newEdge: MathEdge = {
+				id: `e-${sourceNode.id}-${targetNode.id}`,
+				source: sourceNode.id,
+				target: targetNode.id,
+				type: 'smoothstep',
+				animated: true,
+				style: {
+					strokeWidth: isMobile ? 4 : 3,
+					stroke: '#a1a1aa',
+				},
+				markerEnd: {
+					type: MarkerType.ArrowClosed,
+					width: isMobile ? 20 : 16,
+					height: isMobile ? 20 : 16,
+					color: '#a1a1aa',
+				},
+				label: sourceExplanation,
+				labelBgPadding: [8, 4],
+				labelBgBorderRadius: 4,
+				labelBgStyle: {
+					fill: '#fff',
+					fillOpacity: 0.8,
+				},
+				labelStyle: {
+					fill: '#27272a',
+					fontSize: isMobile ? 12 : 14,
+					fontWeight: 500,
+				},
+				data: {},
+			};
+
+			newEdges.push(newEdge);
+		}
+
+		// Set the new edges
+		setEdges(newEdges);
+
+		// Reset verification when connections change
+		setVerificationResult(null);
+		setGrade(null);
+
+		toast({
+			title: 'Auto-Connected Nodes',
+			description:
+				'Nodes have been automatically connected from left to right.',
+			duration: 3000,
+		});
+	}, [nodes, setEdges, isMobile]);
+
 	return (
 		<div
 			className='w-full h-full flex flex-col'
@@ -434,19 +605,40 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 					onEdgesChange={onEdgesChange}
 					onConnect={onConnect}
 					onEdgeClick={onEdgeClick}
+					isValidConnection={isValidConnection}
 					nodeTypes={nodeTypes}
 					fitView
 					className='h-full touch-manipulation'
 					defaultEdgeOptions={{
 						type: 'smoothstep',
 						animated: true,
-						style: { strokeWidth: isMobile ? 4 : 3 },
+						style: {
+							strokeWidth: isMobile ? 4 : 3,
+							stroke: '#6366f1',
+						},
+						markerEnd: {
+							type: MarkerType.ArrowClosed,
+							width: isMobile ? 20 : 16,
+							height: isMobile ? 20 : 16,
+							color: '#6366f1',
+						},
+						labelBgPadding: [8, 4],
+						labelBgBorderRadius: 4,
+						labelBgStyle: {
+							fill: '#fff',
+							fillOpacity: 0.8,
+						},
+						labelStyle: {
+							fill: '#6366f1',
+							fontSize: isMobile ? 12 : 14,
+							fontWeight: 500,
+						},
 					}}
 					minZoom={0.2}
 					maxZoom={2}
-					zoomOnScroll={!isMobile} // Disable zoom on scroll for mobile
-					zoomOnPinch={true} // Enable pinch zoom for mobile
-					panOnScroll={!isMobile} // Disable pan on scroll for mobile
+					zoomOnScroll={!isMobile}
+					zoomOnPinch={true}
+					panOnScroll={!isMobile}
 					panOnDrag={true}
 					selectionOnDrag={false}
 					snapToGrid={isMobile}
@@ -458,6 +650,85 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 						size={1}
 					/>
 					<Controls showInteractive={!isMobile} />
+
+					{/* Control Panel */}
+					<Panel
+						position='top-right'
+						className='bg-background border rounded-lg shadow-md p-2 flex flex-col gap-2 z-50'
+					>
+						{/* Auto-Connect Button */}
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={autoConnectNodes}
+							className='flex items-center gap-1'
+							title='Auto-Connect Nodes'
+						>
+							<Wand2 className='h-4 w-4' />
+							{!isMobile && <span>Connect</span>}
+						</Button>
+
+						{/* Reset button */}
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={handleReset}
+							className='flex items-center gap-1'
+							title='Reset Nodes'
+						>
+							<RotateCcw className='h-4 w-4' />
+							{!isMobile && <span>Reset</span>}
+						</Button>
+
+						{/* Fit view button */}
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={handleFitView}
+							className='flex items-center gap-1'
+							title='Fit View'
+						>
+							<Maximize className='h-4 w-4' />
+							{!isMobile && <span>Fit</span>}
+						</Button>
+
+						{/* Mobile-only zoom controls */}
+						{isMobile && (
+							<>
+								<Button
+									variant='outline'
+									size='sm'
+									onClick={handleZoomIn}
+									className='flex items-center justify-center'
+									title='Zoom In'
+								>
+									<ZoomIn className='h-4 w-4' />
+								</Button>
+								<Button
+									variant='outline'
+									size='sm'
+									onClick={handleZoomOut}
+									className='flex items-center justify-center'
+									title='Zoom Out'
+								>
+									<ZoomOut className='h-4 w-4' />
+								</Button>
+							</>
+						)}
+
+						{/* Delete edge button */}
+						<Button
+							variant={selectedEdge ? 'destructive' : 'outline'}
+							size='sm'
+							onClick={handleDeleteSelectedEdge}
+							disabled={!selectedEdge}
+							className='flex items-center gap-1'
+							title='Delete Selected Connection'
+						>
+							<Trash2 className='h-4 w-4' />
+							{!isMobile && <span>Delete</span>}
+						</Button>
+					</Panel>
 
 					{/* Mobile-specific controls */}
 					{isMobile && (
@@ -494,7 +765,7 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 
 					{/* Responsive panel for arrange and delete buttons */}
 					<Panel
-						position={isMobile ? 'bottom-center' : 'top-right'}
+						position={isMobile ? 'bottom-center' : 'top-left'}
 						className={`bg-background rounded-md shadow-md border flex ${
 							isMobile
 								? 'p-2 mb-16 gap-1 flex-row justify-center'
@@ -530,14 +801,6 @@ export function MathSolutionFlow({ mathSolution }: MathSolutionFlowProps) {
 							{isMobile ? 'Delete' : 'Delete Connection'}
 						</Button>
 					</Panel>
-
-					{/* Mobile device indicator for debugging */}
-					{/* <Panel position="bottom-left" className="bg-background p-2 rounded-md shadow-md border">
-						<div className="flex items-center text-xs">
-							<Smartphone className="h-3 w-3 mr-1" />
-							{isMobile ? 'Mobile View' : 'Desktop View'}
-						</div>
-					</Panel> */}
 
 					{/* Selected edge notification */}
 					{selectedEdge && !isMobile && (
