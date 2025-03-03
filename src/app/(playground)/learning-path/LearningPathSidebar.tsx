@@ -28,6 +28,8 @@ import { Progress } from '@/components/ui/progress';
 import { deleteLearningPath } from './actions';
 import { NewPathOptions } from './NewPathOptions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CreateLearningPathDialog } from './CreateLearningPathDialog';
+import { LearningPath } from '@/lib/learning-path-schemas';
 
 export interface LearningPathSidebarRef {
 	refreshPaths: () => Promise<void>;
@@ -41,6 +43,7 @@ export function LearningPathSidebar() {
 		loadPaths,
 		selectPath,
 		clearCurrentPath,
+		setCurrentPath,
 	} = useLearningPathStore();
 
 	const router = useRouter();
@@ -68,6 +71,24 @@ export function LearningPathSidebar() {
 	const handleNewPath = () => {
 		clearCurrentPath();
 		router.push('/learning-path/new');
+	};
+
+	const handlePathCreated = (
+		path: LearningPath,
+		concept: string,
+		gradeLevel: string,
+		pathId?: string
+	) => {
+		// Set the current path in the store
+		setCurrentPath(path, pathId);
+
+		// Refresh the paths list
+		refreshPaths();
+
+		// Navigate to the new path if we have an ID
+		if (pathId) {
+			router.push(`/learning-path/${pathId}`);
+		}
 	};
 
 	const handleDeletePath = async (id: string) => {
@@ -132,14 +153,7 @@ export function LearningPathSidebar() {
 		<div className='w-[250px]'>
 			<div className='p-4 border-b flex justify-between items-center'>
 				<h3 className='font-semibold text-sm'>Your Learning Paths</h3>
-				<Button
-					size='sm'
-					variant='ghost'
-					className='h-8 w-8 p-0'
-					onClick={handleNewPath}
-				>
-					<Plus className='h-4 w-4' />
-				</Button>
+				<CreateLearningPathDialog onPathCreated={handlePathCreated} />
 			</div>
 			<ScrollArea className='h-[calc(100vh-56px)]'>
 				<div className='p-4 space-y-4'>
@@ -148,13 +162,14 @@ export function LearningPathSidebar() {
 							<p>
 								You haven&apos;t created any learning paths yet.
 							</p>
-							<Button
-								variant='link'
-								className='p-0 h-auto text-sm'
-								onClick={handleNewPath}
-							>
-								Create your first learning path
-							</Button>
+							<div className='mt-2'>
+								<CreateLearningPathDialog
+									onPathCreated={handlePathCreated}
+								/>
+								<span className='ml-2 text-sm'>
+									Create your first learning path
+								</span>
+							</div>
 						</div>
 					) : (
 						paths.map((path) => (

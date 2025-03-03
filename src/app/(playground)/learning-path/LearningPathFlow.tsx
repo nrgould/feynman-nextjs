@@ -300,38 +300,9 @@ export function LearningPathFlow({
 				<div className='flex-1 flex'>
 					<div className='flex-1 relative'>
 						<div className='absolute inset-0 bg-grid-pattern opacity-5' />
-						<div className='absolute inset-0 flex items-center justify-center'>
+						{/* <div className='absolute inset-0 flex items-center justify-center'>
 							<Skeleton className='h-48 w-48 rounded-xl' />
-						</div>
-					</div>
-					<div className='w-[300px] border-l'>
-						<div className='p-4 border-b'>
-							<Skeleton className='h-5 w-32' />
-						</div>
-						<div className='p-4 space-y-4'>
-							<div className='space-y-2'>
-								<Skeleton className='h-4 w-24' />
-								<div className='flex gap-2'>
-									{Array.from({ length: 3 }).map((_, i) => (
-										<Skeleton
-											key={i}
-											className='h-6 w-16'
-										/>
-									))}
-								</div>
-							</div>
-							<div className='space-y-2'>
-								<Skeleton className='h-4 w-24' />
-								<div className='flex gap-2'>
-									{Array.from({ length: 3 }).map((_, i) => (
-										<Skeleton
-											key={i}
-											className='h-6 w-16'
-										/>
-									))}
-								</div>
-							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</div>
