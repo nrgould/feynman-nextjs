@@ -61,13 +61,114 @@ export function LearningPathFlow({
 			)
 		: 0;
 
-	// Arrange nodes in a linear path
-	const arrangeNodesInLinearPath = (nodes: LearningPathNode[]) => {
+	// Arrange nodes in a logical path based on dependencies while preserving original order
+	const arrangeNodesInLogicalPath = (
+		nodes: LearningPathNode[],
+		edges: LearningPathEdge[]
+	) => {
 		const HORIZONTAL_SPACING = 350; // Space between nodes horizontally
 		const START_X = 50; // Starting X position
 		const START_Y = 100; // Starting Y position
 
-		return nodes.map((node, index) => ({
+		if (!nodes.length) return [];
+
+		// If no edges, just maintain the original order
+		if (!edges.length) {
+			return nodes.map((node, index) => ({
+				...node,
+				position: {
+					x: START_X + index * HORIZONTAL_SPACING,
+					y: START_Y,
+				},
+			}));
+		}
+
+		// Create a map of node IDs to their original indices to preserve order
+		const nodeIndexMap = new Map<string, number>();
+		nodes.forEach((node, index) => {
+			nodeIndexMap.set(node.id, index);
+		});
+
+		// Create a dependency graph
+		const graph: Record<string, string[]> = {};
+		const inDegree: Record<string, number> = {};
+
+		// Initialize graph and inDegree
+		nodes.forEach((node) => {
+			graph[node.id] = [];
+			inDegree[node.id] = 0;
+		});
+
+		// Build the graph
+		edges.forEach((edge) => {
+			graph[edge.source].push(edge.target);
+			inDegree[edge.target] = (inDegree[edge.target] || 0) + 1;
+		});
+
+		// Find nodes with no dependencies (roots)
+		const rootIds = nodes
+			.filter((node) => inDegree[node.id] === 0)
+			// Sort roots by their original index to maintain order
+			.sort(
+				(a, b) =>
+					(nodeIndexMap.get(a.id) || 0) -
+					(nodeIndexMap.get(b.id) || 0)
+			)
+			.map((node) => node.id);
+
+		if (!rootIds.length) {
+			// If there are no clear roots (circular dependencies),
+			// use the first node as root
+			const firstNode = nodes[0];
+			rootIds.push(firstNode.id);
+			// Reset its inDegree to avoid cycles
+			inDegree[firstNode.id] = 0;
+		}
+
+		// Perform a topological sort with BFS
+		const queue = [...rootIds];
+		const visited = new Set<string>();
+		const orderedNodes: LearningPathNode[] = [];
+
+		while (queue.length) {
+			const nodeId = queue.shift()!;
+			const node = nodes.find((n) => n.id === nodeId);
+
+			if (!node || visited.has(nodeId)) continue;
+
+			visited.add(nodeId);
+			orderedNodes.push(node);
+
+			// Add neighbors to queue, sorted by their original index
+			const neighborIds = graph[nodeId];
+			const neighbors = neighborIds
+				.map((id) => {
+					const node = nodes.find((n) => n.id === id);
+					return { id, originalIndex: nodeIndexMap.get(id) || 0 };
+				})
+				.sort((a, b) => a.originalIndex - b.originalIndex);
+
+			neighbors.forEach(({ id }) => {
+				inDegree[id]--;
+				if (inDegree[id] === 0) {
+					queue.push(id);
+				}
+			});
+		}
+
+		// If we haven't visited all nodes (due to cycles), add remaining nodes in their original order
+		const remainingNodes = nodes
+			.filter((node) => !visited.has(node.id))
+			.sort(
+				(a, b) =>
+					(nodeIndexMap.get(a.id) || 0) -
+					(nodeIndexMap.get(b.id) || 0)
+			);
+
+		orderedNodes.push(...remainingNodes);
+
+		// Assign positions
+		return orderedNodes.map((node, index) => ({
 			...node,
 			position: {
 				x: START_X + index * HORIZONTAL_SPACING,
@@ -76,7 +177,7 @@ export function LearningPathFlow({
 		}));
 	};
 
-	// Create linear connections between nodes (only connect to previous/next)
+	// Create linear connections between nodes based on their order
 	const createLinearEdges = (nodes: LearningPathNode[]) => {
 		if (!nodes || nodes.length <= 1) return [];
 
@@ -120,8 +221,11 @@ export function LearningPathFlow({
 		if (currentPath.nodes && currentPath.nodes.length > 0) {
 			setIsLoading(true);
 
-			// Arrange nodes in a linear path
-			const arrangedNodes = arrangeNodesInLinearPath(currentPath.nodes);
+			// Arrange nodes in a logical path based on dependencies and progress
+			const arrangedNodes = arrangeNodesInLogicalPath(
+				currentPath.nodes,
+				currentPath.edges
+			);
 
 			// Convert learning path nodes to ReactFlow nodes
 			const flowNodes: Node<ConceptNodeData>[] = arrangedNodes.map(
