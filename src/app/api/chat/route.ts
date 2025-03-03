@@ -13,10 +13,20 @@ import {
 	createDataStreamResponse,
 	appendResponseMessages,
 	streamText,
+	generateObject,
+	generateText,
 } from 'ai';
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
 
 export const maxDuration = 30;
+
+function mergeObjectsToString(objects, key) {
+	return objects
+		.map((obj) => obj[key])
+		.filter(Boolean)
+		.join(' ');
+}
 
 export async function POST(req: NextRequest) {
 	const { chatId, messages, title, description } = await req.json();
@@ -49,6 +59,63 @@ export async function POST(req: NextRequest) {
 		})
 		.throwOnError();
 
+	//check for learning objectives in supabase
+	const { data: objectives, error: learningObjectivesError } = await supabase
+		.from('learningobjectives')
+		.select('objectives')
+		.eq('chat_id', chatId)
+		.single();
+
+	// Define the schema as an object with an array property, not directly as an array
+	const LearningObjectivesSchema = z.object({
+		objectives: z.array(z.string().min(1, 'Objective cannot be empty')),
+	});
+
+	let newObjectives;
+
+	if (!objectives) {
+		newObjectives = await generateObject({
+			model: openai('gpt-4o-mini'),
+			schema: LearningObjectivesSchema,
+			prompt: `You are an expert educational curriculum designer creating a comprehensive list of learning objectives for teaching the concept of "${title}".
+Please provide a list of specific, measurable learning objectives that cover all aspects of understanding ${title}.
+Each objective should start with an action verb and describe what the learner will be able to do after mastering this concept.
+Include objectives that cover different levels of understanding, from basic recall to application and analysis.`,
+		});
+
+		const parsedObjectives = LearningObjectivesSchema.safeParse(
+			newObjectives.object.objectives
+		);
+
+		console.log(parsedObjectives);
+
+		await supabase
+			.from('learningobjectives')
+			.insert({
+				chat_id: chatId,
+				objectives: newObjectives.object.objectives,
+			})
+			.throwOnError();
+	}
+
+	const messagesString = mergeObjectsToString(coreMessages, 'content');
+
+	//analyze which learning objectives have been met, and which haven't. use generateText to analyze the message history and compare to learing objectives
+	const objectivesNotMet = await generateObject({
+		model: openai('gpt-4o-mini'),
+		schema: LearningObjectivesSchema,
+		// messages: coreMessages.slice(0, -1),
+		prompt: `You are a helpful assistant that analyzes the current message context (the messages supplied to you) and compare it to the following learning objectives: ${objectives || newObjectives || 'No learning objectives found'}.
+		You will need to analyze the message history and determine which learning objectives have been met, and which have not. Here is the message history: ${messagesString}.
+		You will then need to return a list of the learning objectives that have not been met. Do not include any other text in your response, unless all objectives have been met.`,
+	});
+
+	const parsedObjectivesNotMet = LearningObjectivesSchema.safeParse(
+		objectivesNotMet.object.objectives
+	);
+
+	console.log('OBJECTIVES NOT MET: ', objectivesNotMet.object.objectives);
+
 	return createDataStreamResponse({
 		execute: (dataStream) => {
 			dataStream.writeData('initialized call');
@@ -56,7 +123,7 @@ export async function POST(req: NextRequest) {
 			const result = streamText({
 				model: openai('gpt-4o-mini'),
 				messages: coreMessages,
-				system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. Rules: ${rules}`,
+				system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. Rules: ${rules}. Learning Objectives Not Met: ${objectivesNotMet.object.objectives}`,
 				tools: tools,
 				maxSteps: 2,
 				onFinish: async ({ response }) => {

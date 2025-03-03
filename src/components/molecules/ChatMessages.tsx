@@ -117,7 +117,7 @@ const PureMessages = ({
 											key={toolCallId}
 											className='flex items-center justify-center'
 										>
-											<MoonLoader size={20} />
+											<MoonLoader size={18} />
 											<p>Thinking...</p>
 										</div>
 									);
@@ -128,6 +128,12 @@ const PureMessages = ({
 				{messages.length === 0 && (
 					<div className='flex flex-col items-center justify-center'>
 						<p>Send a message to start learning</p>
+					</div>
+				)}
+				{isLoading && (
+					<div className='flex items-center justify-left gap-2'>
+						<MoonLoader size={20} />
+						<p>Thinking...</p>
 					</div>
 				)}
 				<div
