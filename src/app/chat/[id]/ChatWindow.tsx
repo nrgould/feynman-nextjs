@@ -3,7 +3,7 @@
 import ChatBar from '@/components/molecules/ChatBar';
 import ChatMessages from '@/components/molecules/ChatMessages';
 import { Conversation, Message } from '@/lib/types';
-import { useTitleStore } from '@/store/store';
+import { useTitleStore, useProgressStore } from '@/store/store';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
@@ -31,6 +31,7 @@ function ChatWindow({
 	const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 	const { mutate } = useSWRConfig();
 	const { setTitle } = useTitleStore();
+	const { conceptProgress, setConceptProgress } = useProgressStore();
 	const sessionStartTime = useRef(Date.now());
 	const [currentProgress, setCurrentProgress] = useState(chat.progress || 0);
 
@@ -76,6 +77,7 @@ function ChatWindow({
 
 							if (result.success) {
 								setCurrentProgress(newProgress);
+								setConceptProgress(concept_id, newProgress);
 
 								// Check if this is linked to a learning path
 								const isLearningPathNode =
@@ -90,6 +92,9 @@ function ChatWindow({
 											: ''
 									}`,
 								});
+
+								// Refresh the concept data
+								mutate(`/api/concepts/${concept_id}`);
 							}
 						} catch (error) {
 							console.error('Error updating progress:', error);
@@ -144,10 +149,18 @@ function ChatWindow({
 		};
 	}, [title, setTitle]);
 
-	// Update local progress state when chat progress changes
+	// Initialize progress in store if not already set
 	useEffect(() => {
-		setCurrentProgress(progress);
-	}, [progress]);
+		if (concept_id && progress !== undefined) {
+			// Only update store if the value is different
+			if (conceptProgress[concept_id] !== progress) {
+				setConceptProgress(concept_id, progress);
+			}
+
+			// Update local state
+			setCurrentProgress(progress);
+		}
+	}, [concept_id, progress, conceptProgress, setConceptProgress]);
 
 	// Track session time and update when user leaves
 	useEffect(() => {
@@ -167,6 +180,78 @@ function ChatWindow({
 			}
 		};
 	}, [userId]);
+
+	// Update the updateProgress function to also update the store
+	const updateProgress = async (newProgress: number) => {
+		if (concept_id && userId) {
+			try {
+				const result = await updateConceptProgress({
+					conceptId: concept_id,
+					userId,
+					progress: newProgress,
+				});
+
+				if (result.success) {
+					setCurrentProgress(newProgress);
+					setConceptProgress(concept_id, newProgress);
+
+					// Check if this is linked to a learning path
+					const isLearningPathNode =
+						chat.learning_path_node_id !== undefined &&
+						chat.learning_path_node_id !== null;
+
+					toast({
+						title: 'Progress updated!',
+						description: `Great job! Your progress has increased to ${newProgress}%${
+							isLearningPathNode
+								? '. Your learning path has also been updated.'
+								: ''
+						}`,
+					});
+
+					// Refresh the concept data
+					mutate(`/api/concepts/${concept_id}`);
+				}
+			} catch (error) {
+				console.error('Error updating progress:', error);
+				toast({
+					title: 'Error updating progress',
+					description: 'There was an issue updating your progress.',
+					variant: 'destructive',
+				});
+			}
+		}
+	};
+
+	// Update the detectPositiveFeedback function to use the new updateProgress function
+	const detectPositiveFeedback = (content: string) => {
+		const positivePatterns = [
+			/great explanation/i,
+			/well explained/i,
+			/good job/i,
+			/excellent/i,
+			/perfect/i,
+			/thank you/i,
+			/thanks/i,
+			/helpful/i,
+			/appreciate/i,
+			/understood/i,
+			/makes sense/i,
+			/clear/i,
+		];
+
+		const isPositive = positivePatterns.some((pattern) =>
+			pattern.test(content)
+		);
+
+		if (isPositive && concept_id) {
+			const newProgress = Math.min(
+				currentProgress + PROGRESS_INCREMENT,
+				100
+			);
+			updateProgress(newProgress);
+		}
+	};
 
 	return (
 		<div className='relative flex flex-row min-w-0 max-h-[97vh] bg-background'>
@@ -190,6 +275,9 @@ function ChatWindow({
 					setMessages={setMessages}
 					isLoading={isLoading}
 					reload={reload}
+					userId={userId}
+					conceptId={concept_id}
+					currentProgress={currentProgress}
 				/>
 
 				<div className='fixed bottom-0 left-0 right-0 flex mx-auto px-2 bg-background pb-3 pt-1 md:pb-6 w-full md:w-[calc(100%-300px)]'>

@@ -1,30 +1,8 @@
 import { tool as createTool, generateObject } from 'ai';
 import { z } from 'zod';
 import { lessonPlanSchema } from './learningPlanSchema';
+import { questionSchema } from './questionSchema';
 import { openai } from '@ai-sdk/openai';
-
-//create a tool that assesses the current learning stage the user is in.
-export const learningStageTool = createTool({
-	description: `Assess the current learning stage the user is in. There are 7 stages of learning in this system: Initial explanation, Analogy, Easy practice, Formal definitions, Guided Practice, Hard Practice, Understanding, Mastery. A user must go through all 7 stages to fully understand the concept, and cannot skip any stages. Start by default at the first stage`,
-	parameters: z.object({
-		stage: z.enum([
-			'Initial explanation',
-			'Analogy',
-			'Easy practice',
-			'Formal definitions',
-			'Guided Practice',
-			'Hard Practice',
-			'Understanding',
-			'Mastery',
-		]),
-	}),
-	execute: async function ({ stage }) {
-		return { stage };
-	},
-});
-
-//tool for retireiving context from a data store (RAG)
-//for now, could simply access wikipedia or another source for context about concepts
 
 //tool for mathematical inputs, access wolfram alpha api
 export const lessonPlanTool = createTool({
@@ -44,7 +22,7 @@ export const lessonPlanTool = createTool({
 			prompt: `Generate a learning plan for me to learn the concept ${title} with a description of ${description}. Using my initial explantion of ${initialExplanation}, assess my gaps in understanding and help me fill those gaps.`,
 		});
 
-		return { result };
+		return result;
 	},
 });
 
@@ -82,26 +60,49 @@ export const youtubeSearchTool = createTool({
 	},
 });
 
-export const tools = {
-	// getLearningStage: learningStageTool,
-	getYoutubeVideo: youtubeSearchTool,
-	getLessonPlan: lessonPlanTool,
-};
-
-const visualizationSchema = z.object({
-	code: z.string().describe('The p5.js code to visualize the concept'),
-});
-
-//p5 visualization tool
-export const generateVisualizationTool = createTool({
-	description: 'Generate a p5.js visualization of the concept',
+// Tool for generating multiple choice questions
+export const questionGeneratorTool = createTool({
+	description: 'Generate a multiple choice question based on a concept.',
 	parameters: z.object({
-		concept: z.string().describe('The concept or topic to visualize'),
+		concept: z
+			.string()
+			.describe('The concept to generate a question about'),
+		description: z.string().describe('Description of the concept'),
 	}),
-	execute: async function ({ concept }) {
+	execute: async function ({ concept, description }) {
 		const result = await generateObject({
 			model: openai('gpt-4o-mini-2024-07-18'),
-			schema: visualizationSchema,
+			schema: questionSchema,
+			prompt: `Generate a multiple choice question about the concept "${concept}" with the following description: "${description}". 
+			Create 4 options where only one is correct. Make sure the incorrect options are plausible but clearly wrong upon careful consideration.`,
 		});
+
+		console.log('result', result.object);
+
+		return result.object;
 	},
 });
+
+export const tools = {
+	getYoutubeVideo: youtubeSearchTool,
+	generateLessonPlan: lessonPlanTool,
+	generateQuestion: questionGeneratorTool,
+};
+
+// const visualizationSchema = z.object({
+// 	code: z.string().describe('The p5.js code to visualize the concept'),
+// });
+
+// //p5 visualization tool
+// export const generateVisualizationTool = createTool({
+// 	description: 'Generate a p5.js visualization of the concept',
+// 	parameters: z.object({
+// 		concept: z.string().describe('The concept or topic to visualize'),
+// 	}),
+// 	execute: async function ({ concept }) {
+// 		const result = await generateObject({
+// 			model: openai('gpt-4o-mini-2024-07-18'),
+// 			schema: visualizationSchema,
+// 		});
+// 	},
+// });

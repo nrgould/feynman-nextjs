@@ -2,7 +2,7 @@
 
 import { generateObject, generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { systemPrompt } from '@/lib/ai/prompts';
+import { systemPrompt2 } from '@/lib/ai/prompts';
 import { createClient } from '@/utils/supabase/server';
 import { generateUUID } from '@/lib/utils';
 
@@ -59,7 +59,7 @@ export async function generateFirstMessage(
 
 	const result = await generateText({
 		model: openai('gpt-4o'),
-		system: systemPrompt,
+		system: systemPrompt2,
 		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} in the subject of ${subject} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. Do not act like you are responding to a previous message. I may have ADHD or Dyscalculia, so keep your response concise, only asking one question to not overwhelm me.`,
 	});
 
