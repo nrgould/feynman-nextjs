@@ -71,6 +71,8 @@ export async function POST(req: NextRequest) {
 		objectives: z.array(z.string().min(1, 'Objective cannot be empty')),
 	});
 
+	console.log('OBJECTIVES: ', objectives);
+
 	let newObjectives;
 
 	if (!objectives) {
@@ -105,14 +107,14 @@ Include objectives that cover different levels of understanding, from basic reca
 		model: openai('gpt-4o-mini'),
 		schema: LearningObjectivesSchema,
 		// messages: coreMessages.slice(0, -1),
-		prompt: `You are a helpful assistant that analyzes the current message context (the messages supplied to you) and compare it to the following learning objectives: ${objectives || newObjectives || 'No learning objectives found'}.
-		You will need to analyze the message history and determine which learning objectives have been met, and which have not. Here is the message history: ${messagesString}.
-		You will then need to return a list of the learning objectives that have not been met. Do not include any other text in your response, unless all objectives have been met.`,
+		prompt: `You are a helpful assistant that analyzes the current message history and compare it to the following learning objectives: ${objectives || newObjectives}.
+		You will need to analyze the message history and determine which learning objectives have not been covered by the conversation. Here is the message history: ${messagesString}.
+		You will then need to return a list of the learning objectives that have NOT been met.`,
 	});
 
-	const parsedObjectivesNotMet = LearningObjectivesSchema.safeParse(
-		objectivesNotMet.object.objectives
-	);
+	// const parsedObjectivesNotMet = LearningObjectivesSchema.safeParse(
+	// 	objectivesNotMet.object.objectives
+	// );
 
 	console.log('OBJECTIVES NOT MET: ', objectivesNotMet.object.objectives);
 
@@ -123,7 +125,7 @@ Include objectives that cover different levels of understanding, from basic reca
 			const result = streamText({
 				model: openai('gpt-4o-mini'),
 				messages: coreMessages,
-				system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. Rules: ${rules}. Learning Objectives Not Met: ${objectivesNotMet.object.objectives}`,
+				system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. Rules: ${rules}. Learning Objectives you still need to teach me: ${objectivesNotMet.object.objectives}`,
 				tools: tools,
 				maxSteps: 2,
 				onFinish: async ({ response }) => {

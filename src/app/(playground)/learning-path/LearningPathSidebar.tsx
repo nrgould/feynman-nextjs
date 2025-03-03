@@ -161,9 +161,9 @@ export function LearningPathSidebar() {
 							<ContextMenu key={path.id}>
 								<ContextMenuTrigger>
 									<div
-										className={`border rounded-md p-3 transition-colors cursor-pointer hover:bg-muted mb-2 ${
+										className={`border rounded-md p-3 transition-colors cursor-pointer hover:bg-muted mb-2 bg-background ${
 											activePathId === path.id
-												? 'border-primary'
+												? 'border-zinc-400 border-2'
 												: ''
 										}`}
 										onClick={() => handlePathClick(path.id)}
