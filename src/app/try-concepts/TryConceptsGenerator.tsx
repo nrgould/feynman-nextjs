@@ -17,6 +17,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { useRouter } from 'next/navigation';
 import { SignInButton, SignUpButton } from '@clerk/nextjs';
+import { usePdfStore } from '@/store/pdf-store';
 
 export default function TryConceptsGenerator() {
 	const [files, setFiles] = useState<File[]>([]);
@@ -24,9 +25,11 @@ export default function TryConceptsGenerator() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [progress, setProgress] = useState(0);
 	const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+	const [redirectUrl, setRedirectUrl] = useState('/learning-path');
 	const router = useRouter();
+	const { setPdf } = usePdfStore();
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const isSafari = /^((?!chrome|android).)*safari/i.test(
 			navigator.userAgent
 		);
@@ -54,6 +57,53 @@ export default function TryConceptsGenerator() {
 		}
 
 		setFiles(validFiles);
+
+		// Store the PDF in localStorage and Zustand if there's a valid file
+		if (validFiles.length > 0) {
+			try {
+				const fileData = await encodeFileAsBase64(validFiles[0]);
+				const pdfInfo = {
+					name: validFiles[0].name,
+					type: validFiles[0].type,
+					size: validFiles[0].size,
+					lastModified: validFiles[0].lastModified,
+					data: fileData,
+				};
+
+				// Store PDF info in localStorage for backup
+				localStorage.setItem(
+					'feynman_pdf_info',
+					JSON.stringify({
+						name: pdfInfo.name,
+						type: pdfInfo.type,
+						size: pdfInfo.size,
+						lastModified: pdfInfo.lastModified,
+						timestamp: Date.now(),
+					})
+				);
+
+				// Store the actual PDF data separately to avoid localStorage size limits
+				localStorage.setItem('feynman_pdf_data', fileData);
+
+				// Generate a unique ID for the PDF
+				const pdfId = Date.now().toString();
+				localStorage.setItem('feynman_pdf_id', pdfId);
+
+				// Store the PDF in Zustand
+				setPdf(validFiles[0], pdfId);
+
+				// Update redirect URL with a reference to the stored PDF
+				setRedirectUrl(`/learning-path?pdfId=${pdfId}`);
+			} catch (error) {
+				console.error('Error storing PDF:', error);
+				toast({
+					title: 'Error processing PDF',
+					description:
+						'There was an error processing your PDF. Please try again.',
+					variant: 'destructive',
+				});
+			}
+		}
 	};
 
 	const handleSubmitWithFiles = async (
@@ -80,6 +130,12 @@ export default function TryConceptsGenerator() {
 
 	const clearPDF = () => {
 		setFiles([]);
+		// Clear PDF from localStorage
+		localStorage.removeItem('feynman_pdf_info');
+		localStorage.removeItem('feynman_pdf_data');
+		localStorage.removeItem('feynman_pdf_id');
+		// Reset redirect URL
+		setRedirectUrl('/learning-path');
 	};
 
 	return (
@@ -141,11 +197,11 @@ export default function TryConceptsGenerator() {
 								unlock all features.
 							</p>
 							<div className='flex flex-col gap-3 mt-6'>
-								<SignUpButton forceRedirectUrl='/learning-path'>
+								<SignUpButton forceRedirectUrl={redirectUrl}>
 									<Button className='w-full'>Sign Up</Button>
 								</SignUpButton>
 
-								<SignInButton forceRedirectUrl='/learning-path'>
+								<SignInButton forceRedirectUrl={redirectUrl}>
 									<Button
 										variant='outline'
 										className='w-full'

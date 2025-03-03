@@ -5,13 +5,31 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getUserLearningPaths } from './actions';
 import ClientRedirect from './ClientRedirect';
 import LearningPathInputWrapper from './LearningPathInputWrapper';
+import { PdfLearningPathCreator } from './PdfLearningPathCreator';
 
-export default async function LearningPathPage() {
+type Props = {
+	searchParams?: { pdfId?: string };
+};
+
+export default async function LearningPathPage({ searchParams }: Props) {
+	const pdfId = searchParams?.pdfId;
+
 	// Get all user learning paths
 	try {
 		const pathsResponse = await getUserLearningPaths();
 		if (pathsResponse.success && pathsResponse.learningPaths) {
 			const paths = pathsResponse.learningPaths;
+
+			// If we have a pdfId, we want to show the dialog regardless of existing paths
+			if (pdfId) {
+				return (
+					<Suspense fallback={<LoadingSkeleton />}>
+						<div className='flex-1 flex items-center justify-center'>
+							<PdfLearningPathCreator pdfId={pdfId} />
+						</div>
+					</Suspense>
+				);
+			}
 
 			if (paths.length > 0) {
 				// Sort by lastUpdated and get the most recent one
@@ -30,6 +48,18 @@ export default async function LearningPathPage() {
 	}
 
 	// Either no paths exist or there was an error, show the creation page
+	// If we have a pdfId, show the PDF learning path creator
+	if (pdfId) {
+		return (
+			<Suspense fallback={<LoadingSkeleton />}>
+				<div className='flex-1 flex items-center justify-center'>
+					<PdfLearningPathCreator pdfId={pdfId} />
+				</div>
+			</Suspense>
+		);
+	}
+
+	// Otherwise show the regular input wrapper
 	return (
 		<Suspense fallback={<LoadingSkeleton />}>
 			<div className='flex-1 flex items-center justify-center'>

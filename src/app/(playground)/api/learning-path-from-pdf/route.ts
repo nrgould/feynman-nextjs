@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 		const base64 = buffer.toString('base64');
 
 		// Choose the model
-		const model = anthropic('claude-3-5-sonnet-20240620');
+		const model = google('gemini-1.5-pro-latest');
 
 		// Stream the response
 		const objectStream = streamObject({

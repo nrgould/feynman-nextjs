@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button';
+
 import TryConceptsGenerator from '@/app/try-concepts/TryConceptsGenerator';
-import Link from 'next/link';
 import { FileUp } from 'lucide-react';
 import ColoredIcon from '@/components/atoms/ColoredIcon';
 import * as motion from 'motion/react-client';

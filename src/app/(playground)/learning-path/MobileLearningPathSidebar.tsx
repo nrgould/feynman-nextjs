@@ -21,24 +21,10 @@ export function MobileLearningPathSidebar() {
 				</Button>
 			</SheetTrigger>
 			<SheetContent side='left' className='p-0 w-80'>
-				<div className='h-full flex flex-col'>
-					<div className='p-4 border-b flex justify-between items-center'>
-						<h3 className='font-semibold text-sm'>
-							Your Learning Paths
-						</h3>
-						<Button
-							variant='ghost'
-							size='icon'
-							onClick={() => setOpen(false)}
-							className='h-8 w-8'
-						>
-							<X className='h-4 w-4' />
-						</Button>
-					</div>
-					<div className='flex-1 overflow-auto'>
-						<LearningPathSidebar />
-					</div>
-				</div>
+				<LearningPathSidebar
+					className='w-full h-full'
+					containerClassName='h-[calc(100vh-56px)]'
+				/>
 			</SheetContent>
 		</Sheet>
 	);

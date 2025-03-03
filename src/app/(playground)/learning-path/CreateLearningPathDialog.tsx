@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
 	Dialog,
@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Plus, FileText, Upload, X, Loader2 } from 'lucide-react';
 import { LearningPath } from '@/lib/learning-path-schemas';
+import { usePdfStore } from '@/store/pdf-store';
 
 interface CreateLearningPathDialogProps {
 	onPathCreated: (
@@ -27,15 +28,25 @@ interface CreateLearningPathDialogProps {
 		gradeLevel: string,
 		pathId?: string
 	) => void;
+	pdfId?: string;
+	autoOpen?: boolean;
+	triggerButton?: React.ReactNode;
+	initialConcept?: string;
+	initialGradeLevel?: string;
 }
 
 export function CreateLearningPathDialog({
 	onPathCreated,
+	pdfId,
+	autoOpen = false,
+	triggerButton,
+	initialConcept = '',
+	initialGradeLevel = '',
 }: CreateLearningPathDialogProps) {
-	const [open, setOpen] = useState(false);
-	const [activeTab, setActiveTab] = useState('description');
-	const [concept, setConcept] = useState('');
-	const [gradeLevel, setGradeLevel] = useState('');
+	const [open, setOpen] = useState(autoOpen);
+	const [activeTab, setActiveTab] = useState(pdfId ? 'pdf' : 'description');
+	const [concept, setConcept] = useState(initialConcept);
+	const [gradeLevel, setGradeLevel] = useState(initialGradeLevel);
 	const [description, setDescription] = useState('');
 	const [files, setFiles] = useState<File[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +54,28 @@ export function CreateLearningPathDialog({
 	const [error, setError] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const router = useRouter();
+
+	// Get PDF from store
+	const { pdfFile, clearPdf } = usePdfStore();
+
+	// Set the PDF from the store if available
+	useEffect(() => {
+		if (pdfFile) {
+			setFiles([pdfFile]);
+			// Automatically switch to the PDF tab if we have a PDF
+			setActiveTab('pdf');
+		}
+	}, [pdfFile]);
+
+	// Set initial values from props
+	useEffect(() => {
+		if (initialConcept) {
+			setConcept(initialConcept);
+		}
+		if (initialGradeLevel) {
+			setGradeLevel(initialGradeLevel);
+		}
+	}, [initialConcept, initialGradeLevel]);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
@@ -137,6 +170,9 @@ export function CreateLearningPathDialog({
 				if (learningPathId) {
 					router.push(`/learning-path/${learningPathId}`);
 				}
+
+				// Clear the PDF from store
+				clearPdf();
 			}, 500);
 		} catch (error) {
 			console.error('Error creating learning path:', error);
@@ -148,8 +184,8 @@ export function CreateLearningPathDialog({
 
 	const handleCreateFromPDF = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!concept || !gradeLevel || files.length === 0) {
-			setError('Please fill in all fields and upload a PDF');
+		if (files.length === 0) {
+			setError('Please upload a PDF');
 			return;
 		}
 
@@ -159,8 +195,8 @@ export function CreateLearningPathDialog({
 		try {
 			// Create FormData to send files
 			const formData = new FormData();
-			formData.append('concept', concept);
-			formData.append('gradeLevel', gradeLevel);
+			formData.append('concept', concept || 'Auto-detected');
+			formData.append('gradeLevel', gradeLevel || 'Auto-detected');
 
 			// Append all files
 			files.forEach((file) => {
@@ -225,6 +261,9 @@ export function CreateLearningPathDialog({
 				if (learningPathId) {
 					router.push(`/learning-path/${learningPathId}`);
 				}
+
+				// Clear the PDF from store
+				clearPdf();
 			}, 500);
 		} catch (error) {
 			console.error('Error creating learning path from PDF:', error);
@@ -239,23 +278,26 @@ export function CreateLearningPathDialog({
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant='outline' size='icon'>
-					<Plus className='h-4 w-4' />
-				</Button>
+				{triggerButton || (
+					<Button variant='outline' size='sm'>
+						<Plus className='h-4 w-4 mr-2' />
+						New Path
+					</Button>
+				)}
 			</DialogTrigger>
-			<DialogContent className='sm:max-w-[600px]'>
+			<DialogContent className='sm:max-w-[500px]'>
 				<DialogHeader>
-					<DialogTitle>Create New Learning Path</DialogTitle>
+					<DialogTitle>Create Learning Path</DialogTitle>
 					<DialogDescription>
-						Create a learning path from a description or by
-						uploading a PDF.
+						Create a new learning path to organize your learning
+						journey.
 					</DialogDescription>
 				</DialogHeader>
 
 				<Tabs
+					defaultValue='description'
 					value={activeTab}
 					onValueChange={setActiveTab}
-					className='mt-4'
 				>
 					<TabsList className='grid w-full grid-cols-2'>
 						<TabsTrigger value='description'>
@@ -264,33 +306,41 @@ export function CreateLearningPathDialog({
 						<TabsTrigger value='pdf'>From PDF</TabsTrigger>
 					</TabsList>
 
-					{/* Common fields for both tabs */}
-					<div className='space-y-4 mt-4'>
-						<div className='grid grid-cols-2 gap-4'>
-							<div className='space-y-2'>
-								<Label htmlFor='concept'>Main Concept</Label>
-								<Input
-									id='concept'
-									placeholder='e.g., Calculus, Machine Learning'
-									value={concept}
-									onChange={(e) => setConcept(e.target.value)}
-									disabled={isLoading}
-								/>
-							</div>
-							<div className='space-y-2'>
-								<Label htmlFor='gradeLevel'>Grade Level</Label>
-								<Input
-									id='gradeLevel'
-									placeholder='e.g., High School, College'
-									value={gradeLevel}
-									onChange={(e) =>
-										setGradeLevel(e.target.value)
-									}
-									disabled={isLoading}
-								/>
+					{/* Common fields for description tab only */}
+					{activeTab === 'description' && (
+						<div className='space-y-4 mt-4'>
+							<div className='grid grid-cols-2 gap-4'>
+								<div className='space-y-2'>
+									<Label htmlFor='concept'>
+										Main Concept
+									</Label>
+									<Input
+										id='concept'
+										placeholder='e.g., Calculus, Machine Learning'
+										value={concept}
+										onChange={(e) =>
+											setConcept(e.target.value)
+										}
+										disabled={isLoading}
+									/>
+								</div>
+								<div className='space-y-2'>
+									<Label htmlFor='gradeLevel'>
+										Grade Level
+									</Label>
+									<Input
+										id='gradeLevel'
+										placeholder='e.g., High School, College'
+										value={gradeLevel}
+										onChange={(e) =>
+											setGradeLevel(e.target.value)
+										}
+										disabled={isLoading}
+									/>
+								</div>
 							</div>
 						</div>
-					</div>
+					)}
 
 					<TabsContent value='description' className='space-y-4'>
 						<div className='space-y-2'>
@@ -326,7 +376,21 @@ export function CreateLearningPathDialog({
 						</Button>
 					</TabsContent>
 
-					<TabsContent value='pdf' className='space-y-4'>
+					<TabsContent value='pdf' className='space-y-4 mt-4'>
+						{/* Hidden concept and grade level fields for PDF tab */}
+						<div className='hidden'>
+							<Input
+								id='concept-pdf'
+								value={concept}
+								onChange={(e) => setConcept(e.target.value)}
+							/>
+							<Input
+								id='gradeLevel-pdf'
+								value={gradeLevel}
+								onChange={(e) => setGradeLevel(e.target.value)}
+							/>
+						</div>
+
 						<div className='space-y-2'>
 							<Label>Upload PDF</Label>
 							<div className='border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center'>
@@ -386,12 +450,7 @@ export function CreateLearningPathDialog({
 
 						<Button
 							onClick={handleCreateFromPDF}
-							disabled={
-								isLoading ||
-								!concept ||
-								!gradeLevel ||
-								files.length === 0
-							}
+							disabled={isLoading || files.length === 0}
 							className='w-full'
 						>
 							{isLoading ? (

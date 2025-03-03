@@ -35,7 +35,15 @@ export interface LearningPathSidebarRef {
 	refreshPaths: () => Promise<void>;
 }
 
-export function LearningPathSidebar() {
+export interface LearningPathSidebarProps {
+	className?: string;
+	containerClassName?: string;
+}
+
+export function LearningPathSidebar({
+	className = 'w-[250px]',
+	containerClassName = 'h-[calc(100vh-56px)]',
+}: LearningPathSidebarProps) {
 	const {
 		paths,
 		activePathId,
@@ -129,33 +137,35 @@ export function LearningPathSidebar() {
 
 	if (isPathsLoading) {
 		return (
-			<div className='w-[250px]'>
+			<div className={className}>
 				<div className='p-4 border-b flex justify-between items-center'>
 					<h3 className='font-semibold text-sm'>
 						Your Learning Paths
 					</h3>
 					<Skeleton className='h-8 w-8' />
 				</div>
-				<div className='p-4 space-y-4'>
-					{Array.from({ length: 3 }).map((_, i) => (
-						<div key={i} className='space-y-2'>
-							<Skeleton className='h-4 w-3/4' />
-							<Skeleton className='h-3 w-1/2' />
-							<Skeleton className='h-2 w-full' />
-						</div>
-					))}
-				</div>
+				<ScrollArea className={containerClassName}>
+					<div className='p-4 space-y-4'>
+						{Array.from({ length: 3 }).map((_, i) => (
+							<div key={i} className='space-y-2'>
+								<Skeleton className='h-4 w-3/4' />
+								<Skeleton className='h-3 w-1/2' />
+								<Skeleton className='h-2 w-full' />
+							</div>
+						))}
+					</div>
+				</ScrollArea>
 			</div>
 		);
 	}
 
 	return (
-		<div className='w-[250px]'>
-			<div className='p-4 border-b flex justify-between items-center'>
+		<div className={className}>
+			<div className='p-4 border-b flex justify-between items-center sticky top-0 bg-background z-10'>
 				<h3 className='font-semibold text-sm'>Your Learning Paths</h3>
 				<CreateLearningPathDialog onPathCreated={handlePathCreated} />
 			</div>
-			<ScrollArea className='h-[calc(100vh-56px)]'>
+			<ScrollArea className={containerClassName}>
 				<div className='p-4 space-y-4'>
 					{paths.length === 0 ? (
 						<div className='text-sm text-muted-foreground p-2'>
@@ -178,17 +188,17 @@ export function LearningPathSidebar() {
 									<div
 										className={`border rounded-md p-3 transition-colors cursor-pointer hover:bg-muted mb-2 bg-background ${
 											activePathId === path.id
-												? 'border-zinc-400 border-2'
+												? 'border-primary border-2'
 												: ''
 										}`}
 										onClick={() => handlePathClick(path.id)}
 									>
 										<div className='flex justify-between items-start'>
-											<h4 className='font-medium text-sm'>
+											<h4 className='font-medium text-sm line-clamp-1'>
 												{path.title}
 											</h4>
 										</div>
-										<p className='text-xs text-muted-foreground mt-1'>
+										<p className='text-xs text-muted-foreground mt-1 line-clamp-1'>
 											{path.concept}
 										</p>
 										<div className='mt-2'>
@@ -206,9 +216,15 @@ export function LearningPathSidebar() {
 													}
 												)}
 											</p>
-											<p className='text-xs font-medium'>
-												{path.overallProgress}%
-											</p>
+											<Badge
+												variant='outline'
+												className='text-xs font-medium'
+											>
+												{Math.round(
+													path.overallProgress
+												)}
+												%
+											</Badge>
 										</div>
 									</div>
 								</ContextMenuTrigger>
@@ -217,6 +233,7 @@ export function LearningPathSidebar() {
 										onClick={() => handlePathClick(path.id)}
 										className='flex items-center'
 									>
+										<BookOpen className='mr-2 h-4 w-4' />
 										Open
 									</ContextMenuItem>
 									<ContextMenuSeparator />
