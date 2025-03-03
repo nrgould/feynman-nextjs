@@ -317,3 +317,27 @@ export const useAssessmentStore = create<AssessmentState>()(
 		}
 	)
 );
+
+// Progress store for tracking concept progress
+type ProgressState = {
+	conceptProgress: Record<string, number>;
+	setConceptProgress: (conceptId: string, progress: number) => void;
+};
+
+export const useProgressStore = create<ProgressState>()(
+	persist(
+		(set) => ({
+			conceptProgress: {},
+			setConceptProgress: (conceptId, progress) =>
+				set((state) => ({
+					conceptProgress: {
+						...state.conceptProgress,
+						[conceptId]: progress,
+					},
+				})),
+		}),
+		{
+			name: 'concept-progress-storage',
+		}
+	)
+);
