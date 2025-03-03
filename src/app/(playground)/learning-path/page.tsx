@@ -8,11 +8,12 @@ import LearningPathInputWrapper from './LearningPathInputWrapper';
 import { PdfLearningPathCreator } from './PdfLearningPathCreator';
 
 type Props = {
-	searchParams?: { pdfId?: string };
+	searchParams?: Promise<{ pdfId?: string }>;
 };
 
 export default async function LearningPathPage({ searchParams }: Props) {
-	const pdfId = searchParams?.pdfId;
+	const params = await searchParams;
+	const pdfId = params?.pdfId;
 
 	// Get all user learning paths
 	try {
