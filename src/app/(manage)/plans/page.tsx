@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Star, School, Zap } from 'lucide-react';
+import { Check, Star, School, Zap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -46,9 +46,10 @@ export default function PricingPage() {
 			description: 'Perfect for trying out the platform',
 			buttonText: 'Get Started',
 			benefitList: [
-				'3 Free Concepts',
-				'Basic Learning Models',
-				'Core Learning Features',
+				'1 Learning Path',
+				'3 Concepts per path',
+				'1 PDF upload',
+				'Basic Learning Features',
 			],
 			href: '/concepts',
 			billingCycle: '',
@@ -61,11 +62,12 @@ export default function PricingPage() {
 			description: 'For dedicated learners',
 			buttonText:
 				billingCycle === 'monthly'
-					? 'Upgrade to Pro'
-					: 'Upgrade to Pro (Save 25%)',
+					? 'Upgrade to Plus'
+					: 'Upgrade to Plus (Save 25%)',
 			benefitList: [
-				'Unlimited Concepts',
-				'Custom Learning Paths',
+				'5 Learning Paths',
+				'Unlimited Concepts per path',
+				'PDF uploads & analysis',
 				'Advanced Learning Models',
 				'Interactive Quizzes',
 				'Progress Analytics',
@@ -81,20 +83,20 @@ export default function PricingPage() {
 			title: 'Pro',
 			recommended: false,
 			price: 50,
-			description: 'For parents and educators',
-			buttonText: 'Contact Sales',
+			description: 'For power users and educators',
+			buttonText: 'Upgrade to Pro',
 			benefitList: [
-				'Everything in Pro, plus:',
-				'Student Management Dashboard',
-				'Progress Monitoring Tools',
-				'Detailed Analytics & Reports',
-				'Bulk Student Import',
-				'Custom School Branding',
-				'24/7 Priority Support',
+				'Unlimited Learning Paths',
+				'Unlimited Concepts per path',
+				'Unlimited PDF uploads & analysis',
+				'Priority Support',
+				'Advanced Analytics & Reports',
+				'Custom Learning Paths',
+				'All Premium Features',
 			],
-			href: '/contact-sales',
+			href: '/upgrade-pro',
 			billingCycle: '/month',
-			paymentLink: '',
+			paymentLink: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_LINK || '',
 		},
 	];
 
@@ -132,13 +134,13 @@ export default function PricingPage() {
 						key={plan.title}
 						className={`flex flex-col ${
 							plan.recommended
-								? 'relative border-emerald-400 border-2'
+								? 'relative border-primary border-2'
 								: ''
 						}`}
 					>
 						{plan.recommended && (
-							<div className='absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-400 text-primary-foreground text-sm rounded-full flex items-center gap-1'>
-								<Star className='h-4 w-4' />
+							<div className='absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-sm rounded-full flex items-center gap-1'>
+								<Sparkles className='h-4 w-4' />
 								Recommended
 							</div>
 						)}
@@ -179,7 +181,9 @@ export default function PricingPage() {
 								}
 								asChild
 							>
-								<Link href={plan.paymentLink || '#'}>
+								<Link
+									href={plan.paymentLink || plan.href || '#'}
+								>
 									{plan.buttonText}
 								</Link>
 							</Button>
