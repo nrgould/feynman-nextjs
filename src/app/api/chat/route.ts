@@ -60,63 +60,63 @@ export async function POST(req: NextRequest) {
 		.throwOnError();
 
 	//check for learning objectives in supabase
-	const { data: objectives, error: learningObjectivesError } = await supabase
-		.from('learningobjectives')
-		.select('objectives')
-		.eq('chat_id', chatId)
-		.single();
+	// 	const { data: objectives, error: learningObjectivesError } = await supabase
+	// 		.from('learningobjectives')
+	// 		.select('objectives')
+	// 		.eq('chat_id', chatId)
+	// 		.single();
 
-	// Define the schema as an object with an array property, not directly as an array
-	const LearningObjectivesSchema = z.object({
-		objectives: z.array(z.string().min(1, 'Objective cannot be empty')),
-	});
+	// 	// Define the schema as an object with an array property, not directly as an array
+	// 	const LearningObjectivesSchema = z.object({
+	// 		objectives: z.array(z.string().min(1, 'Objective cannot be empty')),
+	// 	});
 
-	console.log('OBJECTIVES: ', objectives);
+	// 	console.log('OBJECTIVES: ', objectives);
 
-	let newObjectives;
+	// 	let newObjectives;
 
-	if (!objectives) {
-		newObjectives = await generateObject({
-			model: openai('gpt-4o-mini'),
-			schema: LearningObjectivesSchema,
-			prompt: `You are an expert educational curriculum designer creating a comprehensive list of learning objectives for teaching the concept of "${title}".
-Please provide a list of specific, measurable learning objectives that cover all aspects of understanding ${title}.
-Each objective should start with an action verb and describe what the learner will be able to do after mastering this concept.
-Include objectives that cover different levels of understanding, from basic recall to application and analysis.`,
-		});
+	// 	if (!objectives) {
+	// 		newObjectives = await generateObject({
+	// 			model: openai('gpt-4o-mini'),
+	// 			schema: LearningObjectivesSchema,
+	// 			prompt: `You are an expert educational curriculum designer creating a comprehensive list of learning objectives for teaching the concept of "${title}".
+	// Please provide a list of specific, measurable learning objectives that cover all aspects of understanding ${title}.
+	// Each objective should start with an action verb and describe what the learner will be able to do after mastering this concept.
+	// Include objectives that cover different levels of understanding, from basic recall to application and analysis.`,
+	// 		});
 
-		const parsedObjectives = LearningObjectivesSchema.safeParse(
-			newObjectives.object.objectives
-		);
+	// 		const parsedObjectives = LearningObjectivesSchema.safeParse(
+	// 			newObjectives.object.objectives
+	// 		);
 
-		console.log(parsedObjectives);
+	// 		console.log(parsedObjectives);
 
-		await supabase
-			.from('learningobjectives')
-			.insert({
-				chat_id: chatId,
-				objectives: newObjectives.object.objectives,
-			})
-			.throwOnError();
-	}
+	// 		await supabase
+	// 			.from('learningobjectives')
+	// 			.insert({
+	// 				chat_id: chatId,
+	// 				objectives: newObjectives.object.objectives,
+	// 			})
+	// 			.throwOnError();
+	// 	}
 
-	const messagesString = mergeObjectsToString(coreMessages, 'content');
+	// 	const messagesString = mergeObjectsToString(coreMessages, 'content');
 
-	//analyze which learning objectives have been met, and which haven't. use generateText to analyze the message history and compare to learing objectives
-	const objectivesNotMet = await generateObject({
-		model: openai('gpt-4o-mini'),
-		schema: LearningObjectivesSchema,
-		// messages: coreMessages.slice(0, -1),
-		prompt: `You are a helpful assistant that analyzes the current message history and compare it to the following learning objectives: ${objectives || newObjectives}.
-		You will need to analyze the message history and determine which learning objectives have not been covered by the conversation. Here is the message history: ${messagesString}.
-		You will then need to return a list of the learning objectives that have NOT been met.`,
-	});
+	// 	//analyze which learning objectives have been met, and which haven't. use generateText to analyze the message history and compare to learing objectives
+	// 	const objectivesNotMet = await generateObject({
+	// 		model: openai('gpt-4o-mini'),
+	// 		schema: LearningObjectivesSchema,
+	// 		// messages: coreMessages.slice(0, -1),
+	// 		prompt: `You are a helpful assistant that analyzes the current message history and compare it to the following learning objectives: ${objectives || newObjectives}.
+	// 		You will need to analyze the message history and determine which learning objectives have not been covered by the conversation. Here is the message history: ${messagesString}.
+	// 		You will then need to return a list of the learning objectives that have NOT been met.`,
+	// 	});
 
 	// const parsedObjectivesNotMet = LearningObjectivesSchema.safeParse(
 	// 	objectivesNotMet.object.objectives
 	// );
 
-	console.log('OBJECTIVES NOT MET: ', objectivesNotMet.object.objectives);
+	// console.log('OBJECTIVES NOT MET: ', objectivesNotMet.object.objectives);
 
 	return createDataStreamResponse({
 		execute: (dataStream) => {
@@ -125,9 +125,9 @@ Include objectives that cover different levels of understanding, from basic reca
 			const result = streamText({
 				model: openai('gpt-4o-mini'),
 				messages: coreMessages,
-				system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. Rules: ${rules}. Learning Objectives you still need to teach me: ${objectivesNotMet.object.objectives}`,
+				system: `${systemPrompt2} + ${delimiter} + ${title} + ${description} + ${delimiter}. Rules: ${rules}.`,
 				tools: tools,
-				maxSteps: 2,
+				maxSteps: 1,
 				onFinish: async ({ response }) => {
 					const newMessages = appendResponseMessages({
 						messages,

@@ -2,13 +2,14 @@
 
 import React, { memo, useState, useRef } from 'react';
 import MessageBubble from './MessageBubble';
-import { MoonLoader } from 'react-spinners';
+import { MoonLoader, PulseLoader } from 'react-spinners';
 import { ChatRequestOptions, Message } from 'ai';
 import { fetchMoreMessages } from '@/app/chat/[id]/actions';
 import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 import DateLabel from '../atoms/DateLabel';
 import YouTubeVideoTool from '../atoms/YouTubeVideoTool';
+import Question from '../tool-ui/question';
 interface Props {
 	messages: Message[];
 	chatId: string;
@@ -20,6 +21,9 @@ interface Props {
 	) => Promise<string | null | undefined>;
 	isLoading: boolean;
 	createdAt: Date;
+	userId?: string;
+	conceptId?: string;
+	currentProgress?: number;
 }
 
 const NUMBER_OF_MESSAGES_TO_FETCH = 10;
@@ -31,6 +35,9 @@ const PureMessages = ({
 	reload,
 	isLoading,
 	createdAt,
+	userId,
+	conceptId,
+	currentProgress = 0,
 }: Props) => {
 	const [offset, setOffset] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
@@ -89,10 +96,10 @@ const PureMessages = ({
 				)}
 				{messages &&
 					messages.map((msg) => (
-						<div key={msg.id}>
+						<div key={`message-${msg.id}`}>
 							{msg.content && (
 								<MessageBubble
-									key={msg.id}
+									key={`bubble-${msg.id}`}
 									message={msg.content}
 									role={msg.role}
 								/>
@@ -106,22 +113,42 @@ const PureMessages = ({
 										const { result } = toolInvocation;
 										return (
 											<YouTubeVideoTool
-												key={toolCallId}
+												key={`tool-${toolCallId}`}
 												{...result}
 											/>
 										);
+									} else if (
+										toolName === 'generateQuestion'
+									) {
+										const { result } = toolInvocation;
+										if (
+											result?.question &&
+											result?.options &&
+											result?.explanation
+										) {
+											return (
+												<div
+													className='w-full max-w-2xl my-4'
+													key={`question-container-${toolCallId}`}
+												>
+													<Question
+														key={`question-${toolCallId}`}
+														question={
+															result.question
+														}
+														options={result.options}
+														explanation={
+															result.explanation
+														}
+														userId={userId}
+														conceptId={conceptId}
+													/>
+												</div>
+											);
+										}
 									}
-								} else {
-									return (
-										<div
-											key={toolCallId}
-											className='flex items-center justify-center'
-										>
-											<MoonLoader size={18} />
-											<p>Thinking...</p>
-										</div>
-									);
 								}
+								return null;
 							})}
 						</div>
 					))}
