@@ -17,6 +17,7 @@ import {
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { ViewVerticalIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -282,7 +283,7 @@ const SidebarTrigger = React.forwardRef<
 	return (
 		<div className='flex items-center justify-between w-full px-2'>
 			{state === 'expanded' && (
-				<img src='/images/logo.png' alt='Logo' className='h-6 w-auto' />
+				<Image src='/images/logo.png' alt='Logo' className='h-6 w-auto' />
 			)}
 			<Button
 				ref={ref}
