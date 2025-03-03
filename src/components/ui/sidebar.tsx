@@ -283,7 +283,7 @@ const SidebarTrigger = React.forwardRef<
 	return (
 		<div className='flex items-center justify-between w-full px-2'>
 			{state === 'expanded' && (
-				<Image src='/images/logo.png' alt='Logo' className='h-6 w-auto' />
+				<Image src='/images/logo.png' alt='Logo' width={24} height={24} />
 			)}
 			<Button
 				ref={ref}
