@@ -35,13 +35,6 @@ export function MathClient() {
 									step-by-step solution that you can interact
 									with.
 								</p>
-								<div className='flex items-center text-sm text-muted-foreground mb-6'>
-									<ArrowRight className='h-4 w-4 mr-1 text-primary' />
-									<span>
-										You'll be able to drag and connect the
-										steps in the correct order.
-									</span>
-								</div>
 							</CardContent>
 						</Card>
 
