@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
 import { streamObject } from 'ai';
 import { google } from '@ai-sdk/google';
-import { anthropic } from '@ai-sdk/anthropic';
 import { saveLearningPathToSupabase } from '../../learning-path/actions';
 import { generateUUID } from '@/lib/utils';
 import { NextResponse } from 'next/server';

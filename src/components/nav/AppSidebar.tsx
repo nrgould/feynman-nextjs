@@ -46,7 +46,7 @@ const signedInItems = [
 		icon: Settings2,
 	},
 	{
-		title: 'Assess',
+		title: 'Feynman Technique',
 		url: '/feynman-technique',
 		icon: Gauge,
 	},
