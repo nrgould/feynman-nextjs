@@ -1,6 +1,4 @@
 import { Suspense } from 'react';
-import { createClient } from '@/utils/supabase/server';
-import { auth } from '@clerk/nextjs/server';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getUserLearningPaths } from './actions';
 import ClientRedirect from './ClientRedirect';

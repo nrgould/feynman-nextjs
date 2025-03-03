@@ -6,7 +6,7 @@ import { generateUUID } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 import { learningPathSchema } from '@/lib/learning-path-schemas';
 
-export const maxDuration = 120; // 2 minutes for PDF processing
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
 	try {
