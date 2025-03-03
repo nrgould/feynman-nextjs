@@ -328,8 +328,13 @@ export async function updateLearningPathNodeProgress(
 			);
 		}
 
+		// Revalidate the learning path pages to refresh data
+		revalidatePath('/learning-path');
+		revalidatePath(`/learning-path/${learningPathId}`);
+
 		return {
 			success: true,
+			learningPathId,
 		};
 	} catch (error) {
 		console.error('Error updating node progress:', error);

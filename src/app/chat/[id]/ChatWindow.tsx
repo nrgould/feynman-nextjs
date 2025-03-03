@@ -197,8 +197,35 @@ function ChatWindow({
 
 					// Check if this is linked to a learning path
 					const isLearningPathNode =
-						chat.learning_path_node_id !== undefined &&
-						chat.learning_path_node_id !== null;
+						result.learningPathNodeUpdated || false;
+					const learningPathId = result.learningPathId as
+						| string
+						| undefined;
+
+					// If a learning path node was updated, try to refresh the learning path data
+					if (isLearningPathNode && learningPathId) {
+						try {
+							// Import and use the learning path store to refresh data
+							const { useLearningPathStore } = await import(
+								'@/store/learning-path-store'
+							);
+
+							// Get the store methods (this won't trigger a re-render)
+							const loadPaths =
+								useLearningPathStore.getState().loadPaths;
+							const selectPath =
+								useLearningPathStore.getState().selectPath;
+
+							// Refresh both the paths list and the current path data if available
+							await loadPaths();
+							await selectPath(learningPathId);
+						} catch (error) {
+							console.error(
+								'Error refreshing learning path data:',
+								error
+							);
+						}
+					}
 
 					toast({
 						title: 'Progress updated!',
@@ -208,15 +235,12 @@ function ChatWindow({
 								: ''
 						}`,
 					});
-
-					// Refresh the concept data
-					mutate(`/api/concepts/${concept_id}`);
 				}
 			} catch (error) {
 				console.error('Error updating progress:', error);
 				toast({
-					title: 'Error updating progress',
-					description: 'There was an issue updating your progress.',
+					title: 'Error',
+					description: 'Failed to update progress. Please try again.',
 					variant: 'destructive',
 				});
 			}

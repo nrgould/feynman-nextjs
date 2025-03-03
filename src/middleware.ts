@@ -11,6 +11,8 @@ const isPublicRoute = createRouteMatcher([
 	'/api/assess',
 	'/api/subconcepts',
 	'/try-concepts',
+	'/api/math-solution',
+	'/drag-drop-math',
 ]);
 
 const isAuthRoute = createRouteMatcher(['/chat/:id', '/learning-path/:id']);

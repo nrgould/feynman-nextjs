@@ -114,6 +114,15 @@ export async function updateUserSessionTime({
 	}
 }
 
+// Define the return type for updateConceptProgress
+interface UpdateConceptProgressResult {
+	success: boolean;
+	error?: any;
+	learningPathNodeUpdated?: boolean;
+	learningPathNodeId?: string | null;
+	learningPathId?: string | null;
+}
+
 export async function updateConceptProgress({
 	conceptId,
 	userId,
@@ -122,7 +131,7 @@ export async function updateConceptProgress({
 	conceptId: string;
 	userId: string;
 	progress: number;
-}) {
+}): Promise<UpdateConceptProgressResult> {
 	try {
 		const supabase = await createClient();
 
@@ -154,6 +163,10 @@ export async function updateConceptProgress({
 			.update({ progress })
 			.eq('concept_id', conceptId);
 
+		let learningPathNodeUpdated = false;
+		let learningPathNodeId = null;
+		let learningPathId = null;
+
 		// If this chat is linked to a learning path node, update the node progress too
 		if (chatData?.learning_path_node_id) {
 			try {
@@ -163,10 +176,16 @@ export async function updateConceptProgress({
 				);
 
 				// Update the learning path node progress
-				await updateLearningPathNodeProgress(
+				const result = await updateLearningPathNodeProgress(
 					chatData.learning_path_node_id,
 					progress
 				);
+
+				if (result.success) {
+					learningPathNodeUpdated = true;
+					learningPathNodeId = chatData.learning_path_node_id;
+					learningPathId = chatData.learning_path_id;
+				}
 			} catch (error) {
 				console.error(
 					'Error updating learning path node progress:',
@@ -208,9 +227,18 @@ export async function updateConceptProgress({
 			}
 		}
 
-		return { success: true, progress };
+		// Return success along with learning path update info
+		return {
+			success: true,
+			learningPathNodeUpdated,
+			learningPathNodeId,
+			learningPathId,
+		};
 	} catch (error) {
-		console.error('Error in updateConceptProgress:', error);
-		return { success: false, error };
+		console.error('Error updating concept progress:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : String(error),
+		};
 	}
 }
