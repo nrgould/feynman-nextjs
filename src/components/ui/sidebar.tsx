@@ -281,7 +281,7 @@ const SidebarTrigger = React.forwardRef<
 	const { toggleSidebar, state } = useSidebar();
 
 	return (
-		<div className='flex items-center justify-between w-full px-2'>
+		<div className='flex items-center justify-between md:w-full px-2'>
 			{state === 'expanded' && (
 				<Image src='/images/logo.png' alt='Logo' width={24} height={24} />
 			)}

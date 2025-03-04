@@ -21,12 +21,12 @@ function Header() {
 	const { title } = useTitleStore();
 
 	return (
-		<header className='sticky top-0 flex shrink-0 items-center justify-between gap-2 border-b bg-background p-4 bg-white z-50 h-[3rem]'>
-			<div className='flex flex-row items-center justify-between'>
-				{isMobile && <SidebarTrigger className='-ml-1 mr-2' />}
-				<div className='w-full flex flex-row items-center justify-between'>
-					<h1 className='font-extrabold text-xl'>{title}</h1>
-				</div>
+		<header className='sticky top-0 flex shrink-0 items-center justify-between gap-2 border-b bg-background p-2 sm:p-4 bg-white z-50 min-h-[3rem]'>
+			<div className='flex items-center gap-2'>
+				{isMobile && <SidebarTrigger className='flex-shrink-0' />}
+				<h1 className='font-extrabold text-base sm:text-xl truncate'>
+					{title}
+				</h1>
 			</div>
 			<div className='flex flex-row items-center justify-end gap-2 flex-shrink-0'>
 				<ClerkLoaded>
@@ -41,13 +41,13 @@ function Header() {
 								</Button>
 							</SignInButton> */}
 						</SignedOut>
-						<SignedIn>
+						{/* <SignedIn>
 							<SignOutButton>
 								<Button variant='outline' size='sm'>
 									Sign Out
 								</Button>
 							</SignOutButton>
-						</SignedIn>
+						</SignedIn> */}
 					</div>
 				</ClerkLoaded>
 				<ClerkLoading>
