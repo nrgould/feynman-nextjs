@@ -54,11 +54,6 @@ const signedOutItems = [
 		url: '/',
 		icon: Home,
 	},
-	{
-		title: 'Feynman Technique',
-		url: '/feynman-technique',
-		icon: Gauge,
-	},
 ];
 
 const resourceItems = [

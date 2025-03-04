@@ -28,9 +28,9 @@ function Header() {
 					<h1 className='font-extrabold text-xl'>{title}</h1>
 				</div>
 			</div>
-			<div className='flex flex-row items-center justify-between gap-2'>
+			<div className='flex flex-row items-center justify-end gap-2 flex-shrink-0'>
 				<ClerkLoaded>
-					<div className='flex flex-row items-center justify-between gap-2'>
+					<div className='flex flex-row items-center justify-end gap-2'>
 						<SignedOut>
 							<GradientButton>
 								<Link href='/waitlist'>Try Free</Link>
@@ -51,7 +51,7 @@ function Header() {
 					</div>
 				</ClerkLoaded>
 				<ClerkLoading>
-					<div className='flex flex-row items-center justify-between gap-2'>
+					<div className='flex flex-row items-center justify-end gap-2'>
 						<Skeleton className='h-8 w-18' />
 					</div>
 				</ClerkLoading>
