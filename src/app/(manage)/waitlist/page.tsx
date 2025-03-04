@@ -61,11 +61,12 @@ export default function WaitlistPage() {
 								<Quote className='h-8 w-8 text-violet-500 flex-shrink-0' />
 								<div className='space-y-2'>
 									<p className='text-lg text-gray-700 italic'>
-										"This is pretty cool. I tried it out and
-										it actually helped me understand some
-										math concepts better than my textbook.
-										The AI asks good questions that make you
-										think about what you're learning."
+										&ldquo;This is pretty cool. I tried it
+										out and it actually helped me understand
+										some math concepts better than my
+										textbook. The AI asks good questions
+										that make you think about what you&apos;re
+										learning.&ldquo;
 									</p>
 									<p className='text-sm text-gray-600 font-medium'>
 										— Early Beta Tester

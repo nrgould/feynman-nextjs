@@ -256,6 +256,7 @@ export function MathSolutionFlow({
 				description: 'You connected two steps successfully!',
 			});
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[edges, nodes, onEdgesUpdate, isMobile]
 	);
 
@@ -272,6 +273,7 @@ export function MathSolutionFlow({
 				duration: 3000,
 			});
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[isMobile]
 	);
 
@@ -559,6 +561,7 @@ export function MathSolutionFlow({
 		setTimeout(() => {
 			reactFlowInstance?.fitView({ padding: 0.2 });
 		}, 50);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		edges,
 		nodes,
