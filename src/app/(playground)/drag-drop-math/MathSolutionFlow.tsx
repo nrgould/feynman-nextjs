@@ -668,6 +668,16 @@ export function MathSolutionFlow({
 							{!isMobile && <span>Connect</span>}
 						</Button>
 
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={handleArrangeNodes}
+							className='flex items-center gap-1'
+						>
+							<ArrowRightLeft className='h-4 w-4' />
+							{!isMobile && <span>Arrange</span>}
+						</Button>
+
 						{/* Reset button */}
 						<Button
 							variant='outline'
@@ -763,45 +773,6 @@ export function MathSolutionFlow({
 						</Panel>
 					)}
 
-					{/* Responsive panel for arrange and delete buttons */}
-					<Panel
-						position={isMobile ? 'bottom-center' : 'top-left'}
-						className={`bg-background rounded-md shadow-md border flex ${
-							isMobile
-								? 'p-2 mb-16 gap-1 flex-row justify-center'
-								: 'p-2 flex-col gap-2'
-						}`}
-					>
-						<Button
-							variant='outline'
-							size={isMobile ? 'sm' : 'sm'}
-							onClick={handleArrangeNodes}
-							className={`flex items-center ${isMobile ? 'px-2 py-1 text-xs' : ''}`}
-						>
-							<ArrowRightLeft
-								className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`}
-							/>
-							{isMobile ? 'Arrange' : 'Arrange Steps'}
-						</Button>
-
-						<Button
-							variant='outline'
-							size={isMobile ? 'sm' : 'sm'}
-							onClick={handleDeleteSelectedEdge}
-							disabled={!selectedEdge}
-							className={`flex items-center ${
-								selectedEdge
-									? 'border-red-500 hover:bg-red-100 text-red-500'
-									: ''
-							} ${isMobile ? 'px-2 py-1 text-xs' : ''}`}
-						>
-							<Trash2
-								className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`}
-							/>
-							{isMobile ? 'Delete' : 'Delete Connection'}
-						</Button>
-					</Panel>
-
 					{/* Selected edge notification */}
 					{selectedEdge && !isMobile && (
 						<Panel
@@ -842,7 +813,7 @@ export function MathSolutionFlow({
 								Reset
 							</Button>
 
-							<Button
+							{/* <Button
 								variant='outline'
 								size={isMobile ? 'sm' : 'sm'}
 								onClick={handleToggleStepOrder}
@@ -860,7 +831,7 @@ export function MathSolutionFlow({
 									: showStepOrder
 										? 'Hide Step Order'
 										: 'Reveal Step Order'}
-							</Button>
+							</Button> */}
 
 							<Button
 								variant='default'
