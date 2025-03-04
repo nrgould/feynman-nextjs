@@ -7,6 +7,7 @@ import {
 	BookOpen,
 	Gauge,
 	Shapes,
+	Sparkles,
 } from 'lucide-react';
 import {
 	Sidebar,
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/sidebar';
 import { NavUser } from './NavUser';
 import { SignedIn, SignedOut } from '@clerk/nextjs';
+import { Button } from '../ui/button';
 
 const signedInItems = [
 	{
