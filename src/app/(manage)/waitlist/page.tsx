@@ -1,5 +1,5 @@
 import { Waitlist } from '@clerk/nextjs';
-import { UserRoundCheck, Brain, Clock, Sparkles } from 'lucide-react';
+import { UserRoundCheck, Brain, Clock, Sparkles, Quote } from 'lucide-react';
 import ColoredIcon from '@/components/atoms/ColoredIcon';
 import * as motion from 'motion/react-client';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -48,10 +48,37 @@ export default function WaitlistPage() {
 					differences. Join our waitlist to be among the first to
 					experience a new way of learning that works with your brain.
 				</motion.p>
+
+				<motion.div
+					className='mt-12'
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.2 }}
+				>
+					<Card className='bg-gradient-to-br from-violet-50 to-sky-50 border-zinc-200'>
+						<CardContent className='p-6'>
+							<div className='flex gap-4'>
+								<Quote className='h-8 w-8 text-violet-500 flex-shrink-0' />
+								<div className='space-y-2'>
+									<p className='text-lg text-gray-700 italic'>
+										"This is pretty cool. I tried it out and
+										it actually helped me understand some
+										math concepts better than my textbook.
+										The AI asks good questions that make you
+										think about what you're learning."
+									</p>
+									<p className='text-sm text-gray-600 font-medium'>
+										— Early Beta Tester
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				</motion.div>
 			</div>
 
 			<section className='container flex flex-col md:flex-row items-center justify-evenly gap-12 py-12 px-4 mx-auto pb-48'>
-				<div className='flex-1 max-w-md space-y-8'>
+				<div className='flex-1 max-w-md space-y-4'>
 					<ColoredIcon
 						icon={UserRoundCheck}
 						color='emerald'
@@ -92,7 +119,7 @@ export default function WaitlistPage() {
 									</Card>
 								))}
 							</div>
-							<p className='text-zinc-600'>
+							{/* <p className='text-zinc-600'>
 								<span className='font-semibold'>
 									Early access members receive:
 								</span>
@@ -102,7 +129,7 @@ export default function WaitlistPage() {
 									<li>Special early-bird pricing</li>
 									<li>Direct input on feature development</li>
 								</ul>
-							</p>
+							</p> */}
 						</div>
 					</motion.div>
 				</div>
