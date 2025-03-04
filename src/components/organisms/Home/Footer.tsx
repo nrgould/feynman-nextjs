@@ -197,37 +197,37 @@ export default function Footer() {
 					</div>
 					<div className='flex space-x-4'>
 						<Link
-							href='https://facebook.com'
+							href='https://www.facebook.com/feynmanlearning'
 							target='_blank'
 							rel='noopener noreferrer'
 							className='hover:text-emerald-400 transition-colors'
 						>
 							<Facebook className='h-5 w-5' />
 						</Link>
-						<Link
-							href='https://twitter.com'
+						{/* <Link
+							href='https://threads.com/feynmanlearning'
 							target='_blank'
 							rel='noopener noreferrer'
 							className='hover:text-emerald-400 transition-colors'
 						>
 							<Twitter className='h-5 w-5' />
-						</Link>
+						</Link> */}
 						<Link
-							href='https://instagram.com'
+							href='https://instagram.com/feynmanlearning'
 							target='_blank'
 							rel='noopener noreferrer'
 							className='hover:text-emerald-400 transition-colors'
 						>
 							<Instagram className='h-5 w-5' />
 						</Link>
-						<Link
+						{/* <Link
 							href='https://linkedin.com'
 							target='_blank'
 							rel='noopener noreferrer'
 							className='hover:text-emerald-400 transition-colors'
 						>
 							<Linkedin className='h-5 w-5' />
-						</Link>
+						</Link> */}
 					</div>
 				</div>
 			</div>

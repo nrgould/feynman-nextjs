@@ -16,6 +16,8 @@ import LinearPath from '@/components/organisms/Home/LinearPath';
 import Steps from '@/components/organisms/Home/Steps';
 import MicroLearning from '@/components/organisms/Home/MicroLearning';
 import TryConcepts from '@/components/organisms/Home/TryConcepts';
+import KinestheticLearning from '@/components/organisms/Home/KinestheticLearning';
+
 export default async function Home() {
 	return (
 		<div className='bg-gradient-to-br from-white to-gray-50'>
@@ -27,6 +29,7 @@ export default async function Home() {
 				<div className='space-y-24'>
 					{/* Core benefits */}
 					<LinearPath />
+					<KinestheticLearning />
 					<MicroLearning />
 					<TryConcepts />
 					<FeaturesSection />
@@ -36,7 +39,7 @@ export default async function Home() {
 					<Steps />
 
 					{/* Demonstration */}
-					<HomeSampleChat />
+					{/* <HomeSampleChat /> */}
 
 					{/* Social proof */}
 					{/* <Testimonials /> */}
