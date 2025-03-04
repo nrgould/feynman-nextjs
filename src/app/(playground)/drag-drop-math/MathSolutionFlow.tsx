@@ -54,11 +54,13 @@ import { cn } from '@/lib/utils';
 interface MathSolutionFlowProps {
 	mathSolution: MathSolution;
 	onEdgesUpdate?: (edges: MathEdge[]) => void;
+	onVerificationUpdate?: (result: VerificationResult, grade: number) => void;
 }
 
 export function MathSolutionFlow({
 	mathSolution,
 	onEdgesUpdate,
+	onVerificationUpdate,
 }: MathSolutionFlowProps) {
 	// Check if device is mobile
 	const isMobile = useMediaQuery('(max-width: 768px)');
@@ -135,62 +137,126 @@ export function MathSolutionFlow({
 		}
 	}, [edges, onEdgesUpdate]);
 
-	// Handle edge connections
+	// Add these utility functions for solution verification
+	const verifySolution = (
+		edges: MathEdge[],
+		mathSolution: MathSolution
+	): VerificationResult => {
+		// Sort steps by order
+		const sortedSteps = [...mathSolution.steps].sort(
+			(a, b) => a.order - b.order
+		);
+
+		// Create a map of correct connections
+		const correctConnectionsMap = new Map<string, string>();
+		for (let i = 0; i < sortedSteps.length - 1; i++) {
+			correctConnectionsMap.set(sortedSteps[i].id, sortedSteps[i + 1].id);
+		}
+
+		// Check connections
+		const incorrectConnections: string[] = [];
+		const incorrectNodes: string[] = [];
+
+		edges.forEach((edge) => {
+			const correctTarget = correctConnectionsMap.get(edge.source);
+			const isCorrect = correctTarget === edge.target;
+
+			if (!isCorrect) {
+				incorrectConnections.push(edge.id);
+				if (!incorrectNodes.includes(edge.source)) {
+					incorrectNodes.push(edge.source);
+				}
+				if (!incorrectNodes.includes(edge.target)) {
+					incorrectNodes.push(edge.target);
+				}
+			}
+		});
+
+		// Set verification result
+		const allCorrect = incorrectConnections.length === 0;
+		return {
+			isCorrect: allCorrect,
+			incorrectConnections,
+			incorrectNodes,
+			feedback: allCorrect
+				? 'Great job! All steps are in the correct order.'
+				: `There are ${incorrectConnections.length} incorrect connections. Try rearranging the steps.`,
+		};
+	};
+
+	const calculateGrade = (
+		result: VerificationResult,
+		mathSolution: MathSolution
+	): number => {
+		// Calculate grade as percentage of correct connections
+		const totalConnections = mathSolution.steps.length - 1; // Total possible correct connections
+		const incorrectCount = result.incorrectConnections.length;
+		const correctConnections = Math.max(
+			0,
+			totalConnections - incorrectCount
+		);
+
+		return Math.round((correctConnections / totalConnections) * 100);
+	};
+
+	// Update the onConnect function to use target node explanation for edge labels with better styling
 	const onConnect = useCallback(
-		(connection: Connection) => {
-			// Reset verification when connections change
-			setVerificationResult(null);
-			setGrade(null);
+		(params: Connection) => {
+			// Check if the connection is valid
+			if (!isValidConnection(params)) {
+				return;
+			}
 
-			// Find the source node to get its explanation
-			const sourceNode = nodes.find(
-				(node) => node.id === connection.source
-			);
-			const sourceExplanation = sourceNode?.data.step.explanation || '';
+			// Find the source and target nodes to get their data
+			const sourceNode = nodes.find((node) => node.id === params.source);
+			const targetNode = nodes.find((node) => node.id === params.target);
 
-			// Apply the new edge with a smoother edge type for horizontal flow
-			setEdges((edges) =>
-				addEdge(
-					{
-						...connection,
-						type: 'smoothstep',
-						animated: true,
-						style: {
-							strokeWidth: isMobile ? 4 : 3,
-							stroke: '#6366f1', // Indigo color to match handles
-						},
-						markerEnd: {
-							type: MarkerType.ArrowClosed,
-							width: isMobile ? 20 : 12,
-							height: isMobile ? 20 : 12,
-							color: '#6366f1',
-						},
-						label: sourceExplanation,
-						labelBgPadding: [8, 4],
-						labelBgBorderRadius: 4,
-						labelBgStyle: {
-							fill: '#fff',
-							fillOpacity: 0.8,
-						},
-						labelStyle: {
-							fill: '#27272a',
-							fontSize: isMobile ? 12 : 14,
-							fontWeight: 500,
-						},
-						data: {},
-					},
-					edges
-				)
-			);
+			if (!sourceNode || !targetNode) {
+				return;
+			}
 
+			// Use the target node's explanation for the edge label
+			const edgeLabel = targetNode.data.step.explanation || '';
+
+			// Create a new edge with the target node's explanation as the label
+			const newEdge: MathEdge = {
+				...params,
+				id: `${params.source}-${params.target}`,
+				type: 'smoothstep',
+				animated: true,
+				label: edgeLabel,
+				labelBgPadding: [8, 4],
+				labelBgBorderRadius: 4,
+				labelBgStyle: {
+					fill: '#fff',
+					fillOpacity: 0.8,
+				},
+				labelStyle: {
+					fill: '#333',
+					fontWeight: 500,
+					fontSize: isMobile ? 12 : 14,
+				},
+				style: {
+					stroke: '#6366f1',
+					strokeWidth: isMobile ? 3 : 2,
+				},
+			};
+
+			// Add the new edge
+			setEdges((eds) => addEdge(newEdge, eds));
+
+			// Notify parent component of edges update
+			if (onEdgesUpdate) {
+				onEdgesUpdate([...edges, newEdge]);
+			}
+
+			// Show success toast
 			toast({
-				title: 'Steps Connected',
-				description:
-					'Tap on a connection and use the Delete button to remove it if needed.',
-				duration: 3000,
+				title: 'Connection created',
+				description: 'You connected two steps successfully!',
 			});
 		},
-		[setEdges, isMobile, nodes]
+		[edges, nodes, onEdgesUpdate, isMobile]
 	);
 
 	// Handle edge selection
@@ -405,118 +471,99 @@ export function MathSolutionFlow({
 		reactFlowInstance.fitView({ padding: 0.2 });
 	}, [reactFlowInstance]);
 
-	// Verify the solution
+	// Update the handleVerify function to update edge styles based on verification results
 	const handleVerify = useCallback(() => {
-		// Check if all steps are connected
-		if (edges.length < nodes.length - 1) {
+		// Check if there are any edges
+		if (edges.length === 0) {
 			toast({
-				title: 'Incomplete Solution',
-				description: 'Please connect all the steps in a sequence.',
+				title: 'No connections',
+				description: 'Please connect the steps before verifying.',
 				variant: 'destructive',
 			});
 			return;
 		}
 
-		// Sort steps by order
-		const sortedSteps = [...mathSolution.steps].sort(
-			(a, b) => a.order - b.order
-		);
+		// Check if all nodes are connected
+		const connectedNodeIds = new Set<string>();
+		edges.forEach((edge) => {
+			connectedNodeIds.add(edge.source);
+			connectedNodeIds.add(edge.target);
+		});
 
-		// Create a map of correct connections
-		const correctConnectionsMap = new Map<string, string>();
-		for (let i = 0; i < sortedSteps.length - 1; i++) {
-			correctConnectionsMap.set(sortedSteps[i].id, sortedSteps[i + 1].id);
+		if (connectedNodeIds.size < nodes.length) {
+			toast({
+				title: 'Incomplete solution',
+				description:
+					'Not all steps are connected. Please connect all steps.',
+				variant: 'destructive',
+			});
+			return;
 		}
 
-		// Check connections
-		const incorrectConnections: string[] = [];
-		const incorrectNodes: string[] = [];
-
-		edges.forEach((edge) => {
-			const correctTarget = correctConnectionsMap.get(edge.source);
-			const isCorrect = correctTarget === edge.target;
-
-			if (!isCorrect) {
-				incorrectConnections.push(edge.id);
-				if (!incorrectNodes.includes(edge.source)) {
-					incorrectNodes.push(edge.source);
-				}
-				if (!incorrectNodes.includes(edge.target)) {
-					incorrectNodes.push(edge.target);
-				}
-			}
-		});
+		// Verify the solution
+		const result = verifySolution(edges, mathSolution);
+		const grade = calculateGrade(result, mathSolution);
 
 		// Update edges with verification results
-		const updatedEdges = edges.map((edge) => ({
-			...edge,
-			style: {
-				...edge.style,
-				stroke: incorrectConnections.includes(edge.id)
-					? '#ef4444'
-					: '#22c55e',
-				strokeWidth: isMobile ? 4 : 3,
-			},
-			data: {
-				...edge.data,
-				isCorrect: !incorrectConnections.includes(edge.id),
-			},
-		}));
+		setEdges((eds) =>
+			eds.map((edge) => ({
+				...edge,
+				style: {
+					...edge.style,
+					stroke: result.incorrectConnections.includes(edge.id)
+						? '#ef4444'
+						: '#22c55e',
+					strokeWidth: isMobile ? 4 : 3,
+				},
+			}))
+		);
 
 		// Update nodes with verification results
-		const updatedNodes = nodes.map((node) => ({
-			...node,
-			data: {
-				...node.data,
-				isCorrect: !incorrectNodes.includes(node.id),
-				showOrder: true, // Always show order after verification
-			},
-		}));
-
-		setEdges(updatedEdges);
-		setNodes(updatedNodes);
-		setShowStepOrder(true);
-		setSelectedEdge(null);
-
-		// Calculate grade as percentage of correct connections
-		const totalConnections = edges.length;
-		const correctConnections =
-			totalConnections - incorrectConnections.length;
-		const calculatedGrade = Math.round(
-			(correctConnections / totalConnections) * 100
+		setNodes((nds) =>
+			nds.map((node) => ({
+				...node,
+				data: {
+					...node.data,
+					isCorrect: !result.incorrectNodes.includes(node.id),
+					showOrder: result.isCorrect, // Only show order if solution is correct
+				},
+			}))
 		);
-		setGrade(calculatedGrade);
 
-		// Set verification result
-		const allCorrect = incorrectConnections.length === 0;
-		setVerificationResult({
-			isCorrect: allCorrect,
-			incorrectConnections,
-			incorrectNodes,
-			feedback: allCorrect
-				? 'Great job! All steps are in the correct order.'
-				: `There are ${incorrectConnections.length} incorrect connections. Try rearranging the steps.`,
-		});
+		// Only show step order if the solution is correct
+		setShowStepOrder(result.isCorrect);
 
-		// Show toast notification
-		toast({
-			title: allCorrect ? 'Correct Solution!' : 'Incorrect Solution',
-			description: allCorrect
-				? 'Well done! You arranged the steps in the correct order.'
-				: `Your grade: ${calculatedGrade}%. Try again to improve your score.`,
-			variant: allCorrect ? 'default' : 'destructive',
-		});
+		// Update verification result
+		setVerificationResult(result);
+
+		// Notify parent component of verification result
+		if (onVerificationUpdate) {
+			onVerificationUpdate(result, grade);
+		}
+
+		// Show toast with verification result
+		if (result.isCorrect) {
+			toast({
+				title: 'Solution correct!',
+				description: `Great job! Your solution is correct. Your grade is ${grade}%.`,
+			});
+		} else {
+			toast({
+				title: 'Solution incorrect',
+				description: `Your solution has ${result.incorrectConnections.length} incorrect connections. Your grade is ${grade}%.`,
+				variant: 'destructive',
+			});
+		}
 
 		// Fit view to show all nodes after verification
 		setTimeout(() => {
-			reactFlowInstance.fitView({ padding: 0.2 });
+			reactFlowInstance?.fitView({ padding: 0.2 });
 		}, 50);
 	}, [
 		edges,
 		nodes,
-		mathSolution.steps,
-		setNodes,
-		setEdges,
+		mathSolution,
+		onVerificationUpdate,
 		isMobile,
 		reactFlowInstance,
 	]);

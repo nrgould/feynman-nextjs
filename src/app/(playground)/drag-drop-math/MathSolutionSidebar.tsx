@@ -203,9 +203,8 @@ export function MathSolutionSidebar({
 
 								{nextStep && (
 									<div className='flex items-center justify-center py-1'>
-										<ArrowRight className='h-5 w-5 text-blue-500' />
 										<span className='text-sm text-blue-500 ml-1'>
-											Connected to next step
+											Connected
 										</span>
 									</div>
 								)}
