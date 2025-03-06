@@ -3,23 +3,11 @@
 import { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MathSolution, MathEdge, VerificationResult } from './types';
+import { MathSolution, MathEdge, VerificationResult, MathStep } from './types';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import {
-	Calculator,
-	Lightbulb,
-	BookOpen,
-	HelpCircle,
-	Eye,
-	EyeOff,
-	ChevronLeft,
-	ChevronRight,
-	ArrowRight,
-} from 'lucide-react';
+import { Calculator, ChevronRight, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -31,6 +19,12 @@ interface MathSolutionSidebarProps {
 	grade?: number | null;
 	solutionCorrect?: boolean;
 	onVerifyRequest?: () => void;
+	onDragStart?: (
+		event: React.DragEvent<HTMLDivElement>,
+		step: MathStep
+	) => void;
+	placedSteps?: string[]; // IDs of steps that have been placed on the canvas
+	onResetSteps?: () => void; // Function to reset all steps back to the sidebar
 }
 
 export function MathSolutionSidebar({
@@ -41,199 +35,182 @@ export function MathSolutionSidebar({
 	grade = null,
 	solutionCorrect = false,
 	onVerifyRequest,
+	onDragStart,
+	placedSteps = [],
+	onResetSteps,
 }: MathSolutionSidebarProps) {
 	// Check if device is mobile
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
-	// State for showing step order
-	const [showStepOrder, setShowStepOrder] = useState(false);
-
-	// State for randomized steps
-	const [randomizedSteps, setRandomizedSteps] = useState([
-		...mathSolution.steps,
-	]);
-
-	// Randomize steps on initial load
-	useEffect(() => {
-		setRandomizedSteps(
-			[...mathSolution.steps].sort(() => Math.random() - 0.5)
-		);
-	}, [mathSolution.steps]);
-
-	// Create a map of connections based on edges
-	const connectionMap = new Map();
-	edges.forEach((edge) => {
-		connectionMap.set(edge.source, edge.target);
-	});
-
-	// Function to determine if a step is connected
-	const isStepConnected = (stepId: string) => {
-		return (
-			connectionMap.has(stepId) ||
-			Array.from(connectionMap.values()).includes(stepId)
-		);
-	};
-
-	// Function to find the next step in the connection chain
-	const getNextStep = (stepId: string) => {
-		return connectionMap.get(stepId);
-	};
-
 	// The actual sidebar content
-	const SidebarContent = () => (
-		<div className='h-full flex flex-col'>
-			<div className={`${isMobile ? 'p-4' : 'p-5'} border-b`}>
-				<h2
-					className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold flex items-center`}
-				>
-					<Calculator
-						className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} mr-2 text-primary`}
-					/>
-					Math Problem
-				</h2>
-				<p
-					className={`mt-3 ${isMobile ? 'text-sm' : 'text-base'} leading-relaxed`}
-				>
-					{mathSolution.problem}
-				</p>
-			</div>
+	const SidebarContent = () => {
+		// Calculate the number of steps that are not placed on the canvas
+		const remainingStepsCount = mathSolution.steps.filter(
+			(step) => !placedSteps.includes(step.id)
+		).length;
 
-			<div className={`${isMobile ? 'p-4' : 'p-5'} border-b`}>
-				<div className='flex items-center justify-between'>
-					<h3
-						className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold flex items-center`}
+		return (
+			<div className='h-screen flex flex-col'>
+				{/* Math Problem Section - Fixed height */}
+				<div
+					className={`${isMobile ? 'p-4' : 'p-5'} border-b flex-shrink-0`}
+					style={{ minHeight: isMobile ? '120px' : '150px' }}
+				>
+					<h2
+						className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold flex items-center`}
 					>
-						<Lightbulb
-							className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} mr-2 text-yellow-500`}
+						<Calculator
+							className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} mr-2 text-primary`}
 						/>
-						Solution Steps
-					</h3>
-					<Badge
-						variant='outline'
-						className={`${isMobile ? 'text-sm' : 'text-base'} px-2 py-0.5`}
+						Math Problem
+					</h2>
+					<p
+						className={`mt-3 ${isMobile ? 'text-sm' : 'text-base'} leading-relaxed`}
 					>
-						{randomizedSteps.length} steps
-					</Badge>
+						{mathSolution.problem}
+					</p>
 				</div>
-				<p
-					className={`mt-2 ${isMobile ? 'text-sm' : 'text-base'} text-muted-foreground`}
-				>
-					Drag and connect the steps in the correct order
-				</p>
 
+				{/* Steps Section - Fixed height with scrollable content */}
 				<div
-					className={`flex items-center space-x-3 mt-3 p-2 bg-muted rounded-md ${isMobile ? 'text-sm' : ''}`}
+					className={`${isMobile ? 'p-4' : 'p-5'} border-b`}
+					style={{ height: isMobile ? '300px' : '100%' }}
 				>
-					<Switch
-						id='show-order'
-						checked={showStepOrder}
-						onCheckedChange={setShowStepOrder}
-					/>
-					<Label
-						htmlFor='show-order'
-						className={`${isMobile ? 'text-sm' : 'text-base'} flex items-center cursor-pointer`}
-					>
-						{showStepOrder ? (
-							<>
-								<Eye
-									className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`}
-								/>
-								Showing step order
-							</>
-						) : (
-							<>
-								<EyeOff
-									className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'}`}
-								/>
-								Hiding step order
-							</>
+					<div className='flex items-center justify-between mb-3'>
+						<h3
+							className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}
+						>
+							Steps
+						</h3>
+						{placedSteps.length > 0 && (
+							<Button
+								variant='outline'
+								size='sm'
+								onClick={onResetSteps}
+								type='button'
+							>
+								Reset Steps
+							</Button>
 						)}
-					</Label>
-				</div>
-			</div>
+					</div>
+					<p
+						className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground mb-4`}
+					>
+						Drag steps onto the canvas and connect them in the
+						correct order.
+					</p>
 
-			<ScrollArea className='flex-1'>
-				<div
-					className={`${isMobile ? 'p-4 space-y-3' : 'p-5 space-y-4'}`}
-				>
-					{randomizedSteps.map((step) => {
-						const isConnected = isStepConnected(step.id);
-						const nextStepId = getNextStep(step.id);
-						const nextStep = nextStepId
-							? mathSolution.steps.find(
-									(s) => s.id === nextStepId
-								)
-							: null;
-
-						return (
-							<div key={step.id} className='space-y-2'>
-								<Card
-									className={`shadow-md border-2 ${isConnected ? 'border-blue-500' : ''}`}
-								>
-									<CardHeader
-										className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
-									>
-										<CardTitle
-											className={`${isMobile ? 'text-sm' : 'text-base'} font-bold flex items-center`}
+					{remainingStepsCount === 0 ? (
+						<div className='p-3 border rounded-md bg-muted/50 text-center'>
+							<p className='text-sm text-muted-foreground'>
+								All steps have been placed on the canvas.
+							</p>
+							<p className='text-xs mt-1'>
+								Connect them in the correct order and verify
+								your solution.
+							</p>
+						</div>
+					) : (
+						<ScrollArea className='min-h-[calc(100%-100px)] pr-4'>
+							<div className='space-y-3'>
+								{mathSolution.steps
+									.filter(
+										(step) => !placedSteps.includes(step.id)
+									)
+									.map((step) => (
+										<div
+											key={step.id}
+											className='border rounded-md p-3 bg-card shadow-sm cursor-move hover:shadow-md transition-shadow'
+											draggable
+											onDragStart={(e) =>
+												onDragStart &&
+												onDragStart(e, step)
+											}
 										>
-											{showStepOrder ? (
-												<>
-													<BookOpen
-														className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-blue-500`}
-													/>
-													Step {step.order}
-												</>
-											) : (
-												<>
-													<HelpCircle
-														className={`${isMobile ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-muted-foreground`}
-													/>
-													<span>Step</span>
-												</>
-											)}
-										</CardTitle>
-									</CardHeader>
-									<CardContent
-										className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
-									>
-										<p
-											className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold leading-relaxed`}
-										>
-											{step.content}
-										</p>
-										<p
-											className={`${isMobile ? 'text-xs' : 'text-base'} text-muted-foreground mt-2`}
-										>
-											{step.explanation}
-										</p>
-									</CardContent>
-								</Card>
-
-								{nextStep && (
-									<div className='flex items-center justify-center py-1'>
-										<span className='text-sm text-blue-500 ml-1'>
-											Connected
-										</span>
-									</div>
-								)}
+											<div className='flex items-start gap-2'>
+												<GripVertical className='h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0' />
+												<div>
+													<p className='font-medium'>
+														{step.content}
+													</p>
+													<p className='text-xs text-muted-foreground mt-1'>
+														{step.explanation}
+													</p>
+												</div>
+											</div>
+										</div>
+									))}
 							</div>
-						);
-					})}
+						</ScrollArea>
+					)}
 				</div>
-			</ScrollArea>
 
-			{mathSolution.createdAt && (
+				{/* Verification Section - Fixed at the bottom */}
 				<div
-					className={`p-3 ${isMobile ? 'text-xs' : 'text-sm'} text-center text-muted-foreground border-t`}
+					className={`${isMobile ? 'p-4' : 'p-5'} relative border-t mt-auto flex-shrink-0`}
+					style={{ minHeight: '200px' }}
 				>
-					Created{' '}
-					{formatDistanceToNow(new Date(mathSolution.createdAt), {
-						addSuffix: true,
-					})}
+					<div className='flex items-center justify-between mb-3'>
+						<h3
+							className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}
+						>
+							Verification
+						</h3>
+						<Badge
+							variant={
+								grade !== null
+									? grade >= 80
+										? 'default'
+										: 'outline'
+									: 'outline'
+							}
+						>
+							{grade !== null ? `${grade}%` : 'Not verified'}
+						</Badge>
+					</div>
+
+					<Button
+						className='w-full'
+						onClick={onVerifyRequest}
+						disabled={placedSteps.length < 2 || edges.length === 0}
+						type='button'
+					>
+						Verify Solution
+					</Button>
+
+					{verificationResult && (
+						<div
+							className={`mt-4 p-3 rounded-md absolute -top-24 ${verificationResult.isCorrect ? 'bg-green-50 border-green-200 border' : 'bg-amber-50 border-amber-200 border'}`}
+						>
+							<p
+								className={`${isMobile ? 'text-sm' : 'text-base'} font-medium ${verificationResult.isCorrect ? 'text-green-700' : 'text-amber-700'}`}
+							>
+								{verificationResult.isCorrect
+									? 'Correct Solution!'
+									: 'Needs Improvement'}
+							</p>
+							<p
+								className={`${isMobile ? 'text-xs' : 'text-sm'} mt-1 ${verificationResult.isCorrect ? 'text-green-600' : 'text-amber-600'}`}
+							>
+								{verificationResult.feedback}
+							</p>
+						</div>
+					)}
 				</div>
-			)}
-		</div>
-	);
+
+				{mathSolution.createdAt && (
+					<div
+						className={`p-3 ${isMobile ? 'text-xs' : 'text-sm'} text-center text-muted-foreground border-t`}
+					>
+						Created{' '}
+						{formatDistanceToNow(new Date(mathSolution.createdAt), {
+							addSuffix: true,
+						})}
+					</div>
+				)}
+			</div>
+		);
+	};
 
 	// For mobile, render a slide-out sheet instead of a fixed sidebar
 	if (isMobile) {
@@ -258,9 +235,9 @@ export function MathSolutionSidebar({
 		);
 	}
 
-	// For desktop, render the normal sidebar
+	// For desktop, render a fixed sidebar
 	return (
-		<div className={`border-r ${className} h-full`}>
+		<div className={`border-r h-full ${className}`}>
 			<SidebarContent />
 		</div>
 	);

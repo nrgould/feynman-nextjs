@@ -5,7 +5,7 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { MathInput } from './MathInput';
 import { MathSolutionSidebar } from './MathSolutionSidebar';
 import { MathSolutionFlow, MathSolutionFlowHandle } from './MathSolutionFlow';
-import { MathSolution, MathEdge, VerificationResult } from './types';
+import { MathSolution, MathEdge, VerificationResult, MathStep } from './types';
 import { useMathHistoryStore } from '@/store/math-history-store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calculator, ArrowRight } from 'lucide-react';
@@ -17,6 +17,7 @@ export function MathClient() {
 		useState<VerificationResult | null>(null);
 	const [grade, setGrade] = useState<number | null>(null);
 	const [solutionCorrect, setSolutionCorrect] = useState<boolean>(false);
+	const [placedSteps, setPlacedSteps] = useState<string[]>([]);
 
 	// Reference to the MathSolutionFlow component
 	const mathSolutionFlowRef = useRef<MathSolutionFlowHandle>(null);
@@ -52,6 +53,28 @@ export function MathClient() {
 		if (mathSolutionFlowRef.current) {
 			mathSolutionFlowRef.current.verifyCurrentSolution();
 		}
+	};
+
+	// Function to reset all steps back to the sidebar
+	const resetSteps = () => {
+		if (mathSolutionFlowRef.current) {
+			mathSolutionFlowRef.current.resetCanvas();
+		}
+	};
+
+	// Handle drag start event for steps
+	const handleDragStart = (
+		event: React.DragEvent<HTMLDivElement>,
+		step: MathStep
+	) => {
+		// Set the drag data to the step object
+		event.dataTransfer.setData('application/json', JSON.stringify(step));
+		event.dataTransfer.effectAllowed = 'move';
+	};
+
+	// Handle placed steps change
+	const handlePlacedStepsChange = (stepIds: string[]) => {
+		setPlacedSteps(stepIds);
 	};
 
 	return (
@@ -141,6 +164,9 @@ export function MathClient() {
 							grade={grade}
 							solutionCorrect={solutionCorrect}
 							onVerifyRequest={triggerVerification}
+							onDragStart={handleDragStart}
+							placedSteps={placedSteps}
+							onResetSteps={resetSteps}
 						/>
 						<div className='flex-1 flex flex-col h-full overflow-hidden'>
 							<div className='p-4 border-b flex items-center justify-between'>
@@ -163,6 +189,9 @@ export function MathClient() {
 									onEdgesUpdate={handleEdgesUpdate}
 									onVerificationUpdate={
 										handleVerificationUpdate
+									}
+									onPlacedStepsChange={
+										handlePlacedStepsChange
 									}
 								/>
 							</div>

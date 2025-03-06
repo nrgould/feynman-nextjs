@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { MathStep } from './types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Info, HelpCircle, Calculator } from 'lucide-react';
 import {
@@ -94,24 +94,11 @@ export const MathStepNode = memo(
 				<Card
 					className={`${isMobile ? 'w-[250px]' : 'w-[300px]'} ${borderColor} shadow-md`}
 				>
-					<CardHeader
-						className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'} pb-0 flex flex-row items-center justify-between`}
-					>
-						<CardTitle
-							className={`${isMobile ? 'text-base' : 'text-lg'} flex items-center`}
-						>
-							<Calculator
-								className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} mr-2 text-primary`}
-							/>
-							{/* Only show step order when showOrder is true */}
-							{showOrder ? <>Step {step.order}</> : <>Step</>}
-						</CardTitle>
-					</CardHeader>
 					<CardContent
 						className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
 					>
 						<p
-							className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold leading-relaxed`}
+							className={`${isMobile ? 'text-base' : 'text-2xl'} font-semibold leading-relaxed`}
 						>
 							{step.content}
 						</p>
