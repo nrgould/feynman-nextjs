@@ -100,22 +100,42 @@ export function MathSolutionSidebar({
 						correct order.
 					</p>
 
-					{remainingStepsCount === 0 ? (
+					{mathSolution.steps.filter(
+						(step) =>
+							!placedSteps.includes(step.id) &&
+							step.order !==
+								Math.max(
+									...mathSolution.steps.map((s) => s.order)
+								)
+					).length === 0 ? (
 						<div className='p-3 border rounded-md bg-muted/50 text-center'>
 							<p className='text-sm text-muted-foreground'>
 								All steps have been placed on the canvas.
 							</p>
 							<p className='text-xs mt-1'>
-								Connect them in the correct order and verify
-								your solution.
+								Fill in the final answer and connect them in the
+								correct order.
 							</p>
 						</div>
 					) : (
-						<ScrollArea className='min-h-[calc(100%-100px)] pr-4'>
+						<ScrollArea
+							className={
+								isMobile
+									? 'h-[calc(100vh-450px)] pr-4'
+									: 'h-[calc(100vh-350px)] pr-4'
+							}
+						>
 							<div className='space-y-3'>
 								{mathSolution.steps
 									.filter(
-										(step) => !placedSteps.includes(step.id)
+										(step) =>
+											!placedSteps.includes(step.id) &&
+											step.order !==
+												Math.max(
+													...mathSolution.steps.map(
+														(s) => s.order
+													)
+												)
 									)
 									.map((step) => (
 										<div
@@ -177,25 +197,6 @@ export function MathSolutionSidebar({
 					>
 						Verify Solution
 					</Button>
-
-					{verificationResult && (
-						<div
-							className={`mt-4 p-3 rounded-md absolute -top-24 ${verificationResult.isCorrect ? 'bg-green-50 border-green-200 border' : 'bg-amber-50 border-amber-200 border'}`}
-						>
-							<p
-								className={`${isMobile ? 'text-sm' : 'text-base'} font-medium ${verificationResult.isCorrect ? 'text-green-700' : 'text-amber-700'}`}
-							>
-								{verificationResult.isCorrect
-									? 'Correct Solution!'
-									: 'Needs Improvement'}
-							</p>
-							<p
-								className={`${isMobile ? 'text-xs' : 'text-sm'} mt-1 ${verificationResult.isCorrect ? 'text-green-600' : 'text-amber-600'}`}
-							>
-								{verificationResult.feedback}
-							</p>
-						</div>
-					)}
 				</div>
 
 				{mathSolution.createdAt && (

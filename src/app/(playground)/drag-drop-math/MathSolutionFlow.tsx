@@ -29,10 +29,10 @@ import '@xyflow/react/dist/style.css';
 import { MathStepNode } from './MathStepNode';
 import {
 	MathSolution,
-	MathNode,
 	MathEdge,
-	MathStep,
+	MathNode,
 	VerificationResult,
+	MathStep,
 } from './types';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
@@ -50,12 +50,16 @@ import {
 	Smartphone,
 	Maximize,
 	Wand2,
+	AlertCircle,
+	CheckCircle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface MathSolutionFlowProps {
 	mathSolution: MathSolution;
@@ -97,7 +101,7 @@ export const MathSolutionFlow = forwardRef<
 		const nodeTypes = useMemo(() => ({ mathStep: MathStepNode }), []);
 
 		// State for nodes and edges - start with empty arrays
-		const [nodes, setNodes] = useState<MathNode[]>([]);
+		const [nodes, setNodes] = useState<Node[]>([]);
 		const [edges, setEdges] = useState<MathEdge[]>([]);
 
 		// State for verification results
@@ -106,6 +110,25 @@ export const MathSolutionFlow = forwardRef<
 		const [grade, setGrade] = useState<number | null>(null);
 		const [showStepOrder, setShowStepOrder] = useState(false);
 		const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
+		const [finalStepCorrect, setFinalStepCorrect] = useState(false);
+		const [finalStepInput, setFinalStepInput] = useState('');
+		const [shouldResetInput, setShouldResetInput] = useState(false);
+
+		// Get the last step in the correct order
+		const lastStep = useMemo(() => {
+			return [...mathSolution.steps]
+				.sort((a, b) => a.order - b.order)
+				.pop();
+		}, [mathSolution.steps]);
+
+		// Get all steps except the final step
+		const regularSteps = useMemo(() => {
+			return mathSolution.steps.filter(
+				(step) =>
+					step.order !==
+					Math.max(...mathSolution.steps.map((s) => s.order))
+			);
+		}, [mathSolution.steps]);
 
 		// Handle drag over event
 		const onDragOver = useCallback(
@@ -140,7 +163,7 @@ export const MathSolutionFlow = forwardRef<
 				});
 
 				// Create a new node for the step
-				const newNode: MathNode = {
+				const newNode = {
 					id: stepData.id,
 					type: 'mathStep',
 					position,
@@ -172,10 +195,96 @@ export const MathSolutionFlow = forwardRef<
 			]
 		);
 
+		// Function to handle final step correctness
+		const handleFinalStepCorrect = useCallback((isCorrect: boolean) => {
+			setFinalStepCorrect(isCorrect);
+		}, []);
+
+		// Function to handle final step input change
+		const handleFinalStepInputChange = useCallback((value: string) => {
+			setFinalStepInput(value);
+		}, []);
+
+		// Initialize the canvas with the final step node
+		useEffect(() => {
+			if (lastStep && nodes.length === 0) {
+				// Calculate position for the final node (bottom right or based on device)
+				const finalNodePosition = isMobile
+					? { x: 50, y: 500 }
+					: { x: 800, y: 200 };
+
+				// Create the final step node
+				const finalNode = {
+					id: lastStep.id,
+					type: 'mathStep',
+					position: finalNodePosition,
+					data: {
+						step: lastStep,
+						showOrder: false,
+						isMobile,
+						isLastStep: true,
+						finalStepCorrect: false,
+						onFinalStepCorrect: handleFinalStepCorrect,
+						onFinalStepInputChange: handleFinalStepInputChange,
+						finalStepInput: '',
+						shouldResetInput: false,
+					},
+				};
+
+				// Add the final node to the canvas
+				setNodes([finalNode]);
+
+				// Update the list of placed steps
+				const updatedPlacedSteps = [lastStep.id];
+				setPlacedSteps(updatedPlacedSteps);
+
+				// Notify parent component of placed steps change
+				if (onPlacedStepsChange) {
+					onPlacedStepsChange(updatedPlacedSteps);
+				}
+
+				toast({
+					title: 'Build Your Solution',
+					description:
+						'Arrange the solution steps in order, then enter the final answer.',
+				});
+			}
+		}, [
+			lastStep,
+			nodes.length,
+			isMobile,
+			onPlacedStepsChange,
+			handleFinalStepCorrect,
+			handleFinalStepInputChange,
+		]);
+
 		// Reset the canvas
 		const resetCanvas = useCallback(() => {
+			// Store the final step node if it exists
+			const finalStepNode = nodes.find(
+				(node) => (node.data as any).isLastStep === true
+			);
+
+			// Trigger reset of final step input
+			setShouldResetInput(true);
+			setFinalStepInput('');
+			setFinalStepCorrect(false);
+
 			// Clear all nodes and edges
-			setNodes([]);
+			if (finalStepNode) {
+				const resetFinalNode = {
+					...finalStepNode,
+					data: {
+						...finalStepNode.data,
+						finalStepCorrect: false,
+						finalStepInput: '',
+						shouldResetInput: true,
+					},
+				};
+				setNodes([resetFinalNode]);
+			} else {
+				setNodes([]);
+			}
 			setEdges([]);
 
 			// Reset state
@@ -184,12 +293,18 @@ export const MathSolutionFlow = forwardRef<
 			setShowStepOrder(false);
 			setSelectedEdge(null);
 
-			// Clear the placed steps list
-			setPlacedSteps([]);
+			// Reset shouldResetInput after a delay
+			setTimeout(() => {
+				setShouldResetInput(false);
+			}, 100);
 
-			// Notify parent component that all steps have been removed from the canvas
+			// Update placed steps to only include the final step if it exists
+			const updatedPlacedSteps = finalStepNode ? [finalStepNode.id] : [];
+			setPlacedSteps(updatedPlacedSteps);
+
+			// Notify parent component of placed steps change
 			if (onPlacedStepsChange) {
-				onPlacedStepsChange([]);
+				onPlacedStepsChange(updatedPlacedSteps);
 			}
 
 			// Notify parent component of edges update
@@ -213,10 +328,16 @@ export const MathSolutionFlow = forwardRef<
 			// Show confirmation toast
 			toast({
 				title: 'Canvas Reset',
-				description: 'All steps have been returned to the sidebar.',
+				description:
+					'Solution steps have been returned to the sidebar. Final answer node remains.',
 			});
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [onPlacedStepsChange, onEdgesUpdate, onVerificationUpdate, toast]);
+		}, [
+			nodes,
+			onPlacedStepsChange,
+			onEdgesUpdate,
+			onVerificationUpdate,
+			toast,
+		]);
 
 		// Expose functions through the ref
 		useImperativeHandle(ref, () => ({
@@ -374,8 +495,9 @@ export const MathSolutionFlow = forwardRef<
 					return;
 				}
 
-				// Use the target node's explanation for the edge label
-				const edgeLabel = targetNode.data.step.explanation || '';
+				// Find the source node to get its explanation
+				const sourceExplanation =
+					(sourceNode.data as any).step.explanation || '';
 
 				// Create a new edge with the target node's explanation as the label
 				const newEdge: MathEdge = {
@@ -383,7 +505,11 @@ export const MathSolutionFlow = forwardRef<
 					id: `${params.source}-${params.target}`,
 					type: 'smoothstep',
 					animated: true,
-					label: edgeLabel,
+					// Truncate long labels to make them less wide
+					label:
+						sourceExplanation.length > 25
+							? sourceExplanation.substring(0, 25) + '...'
+							: sourceExplanation,
 					labelBgPadding: [8, 4],
 					labelBgBorderRadius: 4,
 					labelBgStyle: {
@@ -568,10 +694,11 @@ export const MathSolutionFlow = forwardRef<
 			reactFlowInstance.fitView({ padding: 0.2 });
 		}, [reactFlowInstance]);
 
-		// Update the handleVerify function to check if all steps are placed
+		// Update the handleVerify function to check for the final answer
 		const handleVerify = useCallback(() => {
-			// Check if all steps have been placed on the canvas
-			if (placedSteps.length < mathSolution.steps.length) {
+			// Check if all regular steps have been placed on the canvas
+			if (placedSteps.length < regularSteps.length + 1) {
+				// +1 for the final step
 				toast({
 					title: 'Incomplete Solution',
 					description:
@@ -591,6 +718,34 @@ export const MathSolutionFlow = forwardRef<
 				return;
 			}
 
+			// Check if the final answer is correct
+			if (!finalStepCorrect) {
+				toast({
+					title: 'Final Answer Check',
+					description:
+						'Please enter the correct final answer to complete your solution.',
+					variant: 'destructive',
+				});
+
+				// Focus any node with isLastStep true
+				const finalNode = nodes.find(
+					(node) => (node.data as any).isLastStep
+				);
+				if (finalNode) {
+					// Calculate center position of the final node
+					const center = {
+						x: finalNode.position.x + 150, // Approximate half width
+						y: finalNode.position.y + 100, // Approximate half height
+					};
+					// Pan to the final node
+					reactFlowInstance.setCenter(center.x, center.y, {
+						duration: 500,
+					});
+				}
+
+				return;
+			}
+
 			// Check if all nodes are connected
 			const connectedNodeIds = new Set<string>();
 			edges.forEach((edge) => {
@@ -598,7 +753,13 @@ export const MathSolutionFlow = forwardRef<
 				connectedNodeIds.add(edge.target);
 			});
 
-			if (connectedNodeIds.size < nodes.length) {
+			// We need all nodes except potentially the final step node to be connected
+			const nonFinalStepNodes = nodes.filter(
+				(node) => !(node.data as any).isLastStep
+			);
+			if (
+				nonFinalStepNodes.some((node) => !connectedNodeIds.has(node.id))
+			) {
 				toast({
 					title: 'Incomplete solution',
 					description:
@@ -614,16 +775,29 @@ export const MathSolutionFlow = forwardRef<
 
 			// Update edges with verification results
 			setEdges((eds) =>
-				eds.map((edge) => ({
-					...edge,
-					style: {
-						...edge.style,
-						stroke: result.incorrectConnections.includes(edge.id)
-							? '#ef4444'
-							: '#22c55e',
-						strokeWidth: isMobile ? 4 : 3,
-					},
-				}))
+				eds.map((edge) => {
+					// Get the marker color based on whether this connection is correct
+					const markerColor = result.incorrectConnections.includes(
+						edge.id
+					)
+						? '#ef4444' // Red for incorrect
+						: '#22c55e'; // Green for correct
+
+					return {
+						...edge,
+						style: {
+							...edge.style,
+							stroke: markerColor,
+							strokeWidth: isMobile ? 4 : 3,
+						},
+						markerEnd: {
+							type: MarkerType.ArrowClosed,
+							width: isMobile ? 20 : 16,
+							height: isMobile ? 20 : 16,
+							color: markerColor,
+						},
+					};
+				})
 			);
 
 			// Update nodes with verification results
@@ -632,8 +806,22 @@ export const MathSolutionFlow = forwardRef<
 					...node,
 					data: {
 						...node.data,
-						isCorrect: !result.incorrectNodes.includes(node.id),
+						isCorrect:
+							!result.incorrectNodes.includes(node.id) ||
+							(node.data as any).isLastStep,
 						showOrder: result.isCorrect, // Only show order if solution is correct
+						// Keep the final step's special properties
+						...((node.data as any).isLastStep
+							? {
+									isLastStep: true,
+									finalStepCorrect: finalStepCorrect,
+									onFinalStepCorrect: handleFinalStepCorrect,
+									onFinalStepInputChange:
+										handleFinalStepInputChange,
+									finalStepInput: finalStepInput,
+									shouldResetInput: shouldResetInput,
+								}
+							: {}),
 					},
 				}))
 			);
@@ -672,6 +860,10 @@ export const MathSolutionFlow = forwardRef<
 			edges,
 			nodes,
 			mathSolution,
+			finalStepCorrect,
+			finalStepInput,
+			shouldResetInput,
+			regularSteps,
 			onVerificationUpdate,
 			isMobile,
 			reactFlowInstance,
@@ -683,6 +875,8 @@ export const MathSolutionFlow = forwardRef<
 			verifySolution,
 			calculateGrade,
 			toast,
+			handleFinalStepCorrect,
+			handleFinalStepInputChange,
 		]);
 
 		// Function to automatically connect nodes based on proximity
@@ -704,7 +898,7 @@ export const MathSolutionFlow = forwardRef<
 
 				// Find the source node to get its explanation
 				const sourceExplanation =
-					sourceNode.data.step.explanation || '';
+					(sourceNode.data as any).step.explanation || '';
 
 				// Create a new edge
 				const newEdge: MathEdge = {
@@ -723,7 +917,11 @@ export const MathSolutionFlow = forwardRef<
 						height: isMobile ? 20 : 16,
 						color: '#a1a1aa',
 					},
-					label: sourceExplanation,
+					// Truncate long labels
+					label:
+						sourceExplanation.length > 25
+							? sourceExplanation.substring(0, 25) + '...'
+							: sourceExplanation,
 					labelBgPadding: [8, 4],
 					labelBgBorderRadius: 4,
 					labelBgStyle: {
@@ -906,6 +1104,36 @@ export const MathSolutionFlow = forwardRef<
 							Verify Solution
 						</Button>
 					</Panel>
+
+					{/* Verification result card */}
+					{verificationResult && (
+						<Panel
+							position='top-center'
+							className='mt-16 mx-auto max-w-md'
+						>
+							<Card
+								className={`shadow-lg ${verificationResult.isCorrect ? 'border-green-500' : 'border-amber-500'} border-2`}
+							>
+								<CardContent className='p-4'>
+									<div className='flex items-center gap-2 mb-2'>
+										{verificationResult.isCorrect ? (
+											<CheckCircle className='h-5 w-5 text-green-500' />
+										) : (
+											<AlertCircle className='h-5 w-5 text-amber-500' />
+										)}
+										<h3 className='font-semibold'>
+											{verificationResult.isCorrect
+												? 'Correct Solution!'
+												: 'Needs Improvement'}
+										</h3>
+									</div>
+									<p className='text-sm text-muted-foreground'>
+										{verificationResult.feedback}
+									</p>
+								</CardContent>
+							</Card>
+						</Panel>
+					)}
 				</ReactFlow>
 			</div>
 		);
