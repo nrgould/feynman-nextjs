@@ -14,7 +14,7 @@ const mathStepSchema = z.object({
 const mathSolutionSchema = z.object({
 	problem: z.string(),
 	title: z.string(),
-	steps: z.array(mathStepSchema).max(5),
+	steps: z.array(mathStepSchema).length(5),
 });
 
 // Handler for POST requests
