@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MathSolution, MathEdge } from './types';
+import { MathSolution, MathEdge, VerificationResult } from './types';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -27,12 +27,20 @@ interface MathSolutionSidebarProps {
 	mathSolution: MathSolution;
 	className?: string;
 	edges?: MathEdge[];
+	verificationResult?: VerificationResult | null;
+	grade?: number | null;
+	solutionCorrect?: boolean;
+	onVerifyRequest?: () => void;
 }
 
 export function MathSolutionSidebar({
 	mathSolution,
 	className = 'w-[350px]',
 	edges = [],
+	verificationResult,
+	grade = null,
+	solutionCorrect = false,
+	onVerifyRequest,
 }: MathSolutionSidebarProps) {
 	// Check if device is mobile
 	const isMobile = useMediaQuery('(max-width: 768px)');

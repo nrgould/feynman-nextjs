@@ -1,21 +1,57 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import { MathInput } from './MathInput';
 import { MathSolutionSidebar } from './MathSolutionSidebar';
-import { MathSolutionFlow } from './MathSolutionFlow';
-import { MathSolution, MathEdge } from './types';
+import { MathSolutionFlow, MathSolutionFlowHandle } from './MathSolutionFlow';
+import { MathSolution, MathEdge, VerificationResult } from './types';
+import { useMathHistoryStore } from '@/store/math-history-store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calculator, ArrowRight } from 'lucide-react';
 
 export function MathClient() {
 	const [mathSolution, setMathSolution] = useState<MathSolution | null>(null);
 	const [edges, setEdges] = useState<MathEdge[]>([]);
+	const [verificationResult, setVerificationResult] =
+		useState<VerificationResult | null>(null);
+	const [grade, setGrade] = useState<number | null>(null);
+	const [solutionCorrect, setSolutionCorrect] = useState<boolean>(false);
+
+	// Reference to the MathSolutionFlow component
+	const mathSolutionFlowRef = useRef<MathSolutionFlowHandle>(null);
+
+	// Access the math history store
+	const { updateSession } = useMathHistoryStore();
 
 	// Handle edges update from MathSolutionFlow
 	const handleEdgesUpdate = (updatedEdges: MathEdge[]) => {
 		setEdges(updatedEdges);
+	};
+
+	// Handle verification result update from MathSolutionFlow
+	const handleVerificationUpdate = (
+		result: VerificationResult,
+		calculatedGrade: number
+	) => {
+		setVerificationResult(result);
+		setGrade(calculatedGrade);
+		setSolutionCorrect(result.isCorrect);
+
+		// Update the session in history with verification results
+		if (mathSolution && mathSolution.id) {
+			updateSession(mathSolution.id, {
+				verificationResult: result,
+				grade: calculatedGrade,
+			});
+		}
+	};
+
+	// Function to trigger verification from outside the MathSolutionFlow
+	const triggerVerification = () => {
+		if (mathSolutionFlowRef.current) {
+			mathSolutionFlowRef.current.verifyCurrentSolution();
+		}
 	};
 
 	return (
@@ -101,6 +137,10 @@ export function MathClient() {
 						<MathSolutionSidebar
 							mathSolution={mathSolution}
 							edges={edges}
+							verificationResult={verificationResult}
+							grade={grade}
+							solutionCorrect={solutionCorrect}
+							onVerifyRequest={triggerVerification}
 						/>
 						<div className='flex-1 flex flex-col h-full overflow-hidden'>
 							<div className='p-4 border-b flex items-center justify-between'>
@@ -118,8 +158,12 @@ export function MathClient() {
 							</div>
 							<div className='flex-1 overflow-hidden'>
 								<MathSolutionFlow
+									ref={mathSolutionFlowRef}
 									mathSolution={mathSolution}
 									onEdgesUpdate={handleEdgesUpdate}
+									onVerificationUpdate={
+										handleVerificationUpdate
+									}
 								/>
 							</div>
 						</div>

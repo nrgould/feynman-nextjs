@@ -1,6 +1,13 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import {
+	useState,
+	useCallback,
+	useMemo,
+	useEffect,
+	useImperativeHandle,
+	forwardRef,
+} from 'react';
 import {
 	ReactFlow,
 	Controls,
@@ -57,11 +64,15 @@ interface MathSolutionFlowProps {
 	onVerificationUpdate?: (result: VerificationResult, grade: number) => void;
 }
 
-export function MathSolutionFlow({
-	mathSolution,
-	onEdgesUpdate,
-	onVerificationUpdate,
-}: MathSolutionFlowProps) {
+// Export the handle type for TypeScript
+export interface MathSolutionFlowHandle {
+	verifyCurrentSolution: () => void;
+}
+
+export const MathSolutionFlow = forwardRef<
+	MathSolutionFlowHandle,
+	MathSolutionFlowProps
+>(({ mathSolution, onEdgesUpdate, onVerificationUpdate }, ref) => {
 	// Check if device is mobile
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -641,6 +652,11 @@ export function MathSolutionFlow({
 		});
 	}, [nodes, setEdges, isMobile]);
 
+	// Expose the handleVerify function through the ref
+	useImperativeHandle(ref, () => ({
+		verifyCurrentSolution: handleVerify,
+	}));
+
 	return (
 		<div
 			className='w-full h-full flex flex-col'
@@ -956,4 +972,4 @@ export function MathSolutionFlow({
 			</div>
 		</div>
 	);
-}
+});

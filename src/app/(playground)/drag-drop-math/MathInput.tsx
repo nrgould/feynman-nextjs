@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { experimental_useObject as useObject } from 'ai/react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,12 +19,15 @@ import {
 	RefreshCw,
 	SquareFunction,
 	HelpCircle,
+	History,
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { MathSolution } from './types';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { MathSymbolToolbar } from './MathSymbolToolbar';
+import { MathSessionHistory } from './MathFormulaHistory';
+import { useMathHistoryStore } from '@/store/math-history-store';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
@@ -55,11 +58,11 @@ const mathSolutionSchema = z.object({
 
 // Example math problems
 const exampleProblems = [
-	'Solve the equation: 3x + 5 = 20',
-	'Find the derivative of f(x) = x² + 3x + 2',
-	'Calculate the integral of f(x) = 2x + sin(x)',
-	'Solve the system of equations: { 2x + y = 5, x - y = 1 }',
-	'Find the limit as x approaches 0 of (sin(x))/x',
+	"Solve the equation: 3x + 5 = 20",
+	"Find the derivative of f(x) = x² + 3x + 2",
+	"Calculate the integral of f(x) = 2x + sin(x)",
+	"Solve the system of equations: { 2x + y = 5, x - y = 1 }",
+	"Find the limit as x approaches 0 of (sin(x))/x",
 ];
 
 interface MathInputProps {
@@ -70,7 +73,9 @@ export function MathInput({ onSolutionGenerated }: MathInputProps) {
 	const [problem, setProblem] = useState('');
 	const [showSymbolToolbar, setShowSymbolToolbar] = useState(false);
 	const [showExamples, setShowExamples] = useState(false);
+	const [showHistory, setShowHistory] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const { addSession } = useMathHistoryStore();
 
 	// Use the useObject hook to generate a math solution
 	const {
@@ -86,12 +91,20 @@ export function MathInput({ onSolutionGenerated }: MathInputProps) {
 				try {
 					// Generate a local ID for the solution
 					const solutionId = uuidv4();
-
-					// Pass the solution to the parent component
-					onSolutionGenerated({
+					
+					const completeSolution = {
 						...result.object,
 						id: solutionId,
+					};
+
+					// Save to history
+					addSession({
+						formula: problem,
+						solution: completeSolution,
 					});
+
+					// Pass the solution to the parent component
+					onSolutionGenerated(completeSolution);
 
 					toast({
 						title: 'Solution Generated',
@@ -162,6 +175,27 @@ export function MathInput({ onSolutionGenerated }: MathInputProps) {
 		}
 	};
 
+	// Handle selecting a session from history
+	const handleSelectSession = (formula: string, savedSolution: MathSolution | null) => {
+		setProblem(formula);
+		
+		if (savedSolution) {
+			// If we have a saved solution, use it directly
+			onSolutionGenerated(savedSolution);
+			
+			toast({
+				title: 'Session Loaded',
+				description: 'Previous session has been restored.',
+			});
+		}
+		
+		if (textareaRef.current) {
+			setTimeout(() => {
+				textareaRef.current?.focus();
+			}, 0);
+		}
+	};
+
 	return (
 		<Card className='w-full max-w-2xl mx-auto'>
 			<CardHeader>
@@ -176,77 +210,61 @@ export function MathInput({ onSolutionGenerated }: MathInputProps) {
 			</CardHeader>
 
 			<form onSubmit={handleSubmit}>
-				<CardContent className='space-y-4'>
+				<CardContent className="space-y-4">
 					<div className='flex items-center justify-between'>
 						<div className='flex items-center space-x-2'>
 							<Switch
-								id='show-symbols'
+								id="show-symbols"
 								checked={showSymbolToolbar}
 								onCheckedChange={setShowSymbolToolbar}
 							/>
-							<Label
-								htmlFor='show-symbols'
-								className='flex items-center cursor-pointer'
-							>
+							<Label htmlFor='show-symbols' className='flex items-center cursor-pointer'>
 								<SquareFunction className='h-4 w-4 mr-1' />
 								Math Symbols
 							</Label>
 							<TooltipProvider>
 								<Tooltip>
 									<TooltipTrigger asChild>
-										<Button
-											variant='ghost'
-											size='icon'
-											className='h-6 w-6'
-											type='button'
-										>
+										<Button variant='ghost' size='icon' className='h-6 w-6' type='button'>
 											<HelpCircle className='h-4 w-4' />
 										</Button>
 									</TooltipTrigger>
 									<TooltipContent className='max-w-[300px] p-4'>
 										<p className='text-sm'>
-											Enable the math symbols toolbar to
-											easily insert special mathematical
-											symbols into your problem. Click on
-											any symbol to add it at the cursor
-											position.
+											Enable the math symbols toolbar to easily insert special mathematical symbols into your problem.
+											Click on any symbol to add it at the cursor position.
 										</p>
 									</TooltipContent>
 								</Tooltip>
 							</TooltipProvider>
 						</div>
-
-						<Collapsible
-							open={showExamples}
-							onOpenChange={setShowExamples}
-						>
-							<CollapsibleTrigger asChild>
-								<Button variant='outline' size='sm' type='button'>
-									{showExamples
-										? 'Hide Examples'
-										: 'Show Examples'}
-								</Button>
-							</CollapsibleTrigger>
-							<CollapsibleContent className='mt-2 p-2 border rounded-md bg-muted/50'>
-								<div className='space-y-1'>
-									<p className='text-sm font-medium mb-2'>
-										Example Problems:
-									</p>
-									{exampleProblems.map((example, index) => (
-										<Button
-											key={index}
-											variant='ghost'
-											size='sm'
-											className='w-full justify-start text-left text-sm h-auto py-1'
-											onClick={() => handleExampleClick(example)}
-											type="button"
-										>
-											{example}
-										</Button>
-									))}
-								</div>
-							</CollapsibleContent>
-						</Collapsible>
+						
+						<div className="flex items-center space-x-2">
+							<Collapsible open={showExamples} onOpenChange={setShowExamples}>
+								<CollapsibleTrigger asChild>
+									<Button variant='outline' size='sm' type='button'>
+										{showExamples ? 'Hide Examples' : 'Show Examples'}
+									</Button>
+								</CollapsibleTrigger>
+								<CollapsibleContent className='mt-2 p-2 border rounded-md bg-muted/50'>
+									<div className='space-y-1'>
+										<p className='text-sm font-medium mb-2'>Example Problems:</p>
+										{exampleProblems.map((example, index) => (
+											<Button 
+												key={index} 
+												variant='ghost' 
+												size='sm' 
+												className='w-full justify-start text-left text-sm h-auto py-1'
+												onClick={() => handleExampleClick(example)}
+												type="button"
+											>
+												{example}
+											</Button>
+										))}
+									</div>
+								</CollapsibleContent>
+							</Collapsible>
+						</div>
 					</div>
 
 					{showSymbolToolbar && (
@@ -280,6 +298,29 @@ export function MathInput({ onSolutionGenerated }: MathInputProps) {
 							<p className='text-xs mt-1'>
 								{solution.steps?.length} steps created
 							</p>
+						</div>
+					)}
+					
+					<div className="flex items-center justify-between">
+						<h3 className="text-sm font-medium">Previous Sessions</h3>
+						<Button 
+							variant="ghost" 
+							size="sm" 
+							className="flex items-center space-x-1"
+							onClick={() => setShowHistory(!showHistory)}
+							type="button"
+						>
+							<History className="h-4 w-4 mr-1" />
+							<span>{showHistory ? "Hide History" : "Show History"}</span>
+						</Button>
+					</div>
+					
+					{showHistory && (
+						<div className="border rounded-md">
+							<MathSessionHistory 
+								onSelectSession={handleSelectSession} 
+								currentFormula={problem}
+							/>
 						</div>
 					)}
 				</CardContent>
