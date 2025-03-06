@@ -60,6 +60,8 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { useMathGamificationStore } from '@/store/math-gamification-store';
+import { PointsAnimation } from './MathGamificationDisplay';
 
 interface MathSolutionFlowProps {
 	mathSolution: MathSolution;
@@ -113,6 +115,30 @@ export const MathSolutionFlow = forwardRef<
 		const [finalStepCorrect, setFinalStepCorrect] = useState(false);
 		const [finalStepInput, setFinalStepInput] = useState('');
 		const [shouldResetInput, setShouldResetInput] = useState(false);
+
+		// Track timing for "quick solver" achievement
+		const [startTime, setStartTime] = useState<number | null>(null);
+		const [solveTime, setSolveTime] = useState<number | null>(null);
+
+		// Track whether the user has attempted a solution
+		const [hasAttempted, setHasAttempted] = useState(false);
+
+		// Gamification state
+		const [pointsAwarded, setPointsAwarded] = useState(0);
+		const [showPointsAnimation, setShowPointsAnimation] = useState(false);
+		const [hasAwardedPointsForSession, setHasAwardedPointsForSession] =
+			useState(false);
+
+		// Access gamification store
+		const {
+			addPoints,
+			unlockAchievement,
+			hasAwardedPoints,
+			achievements,
+			increaseStreak,
+			resetStreak,
+			correctStreak,
+		} = useMathGamificationStore();
 
 		// Get the last step in the correct order
 		const lastStep = useMemo(() => {
@@ -205,6 +231,11 @@ export const MathSolutionFlow = forwardRef<
 			setFinalStepInput(value);
 		}, []);
 
+		// Reset awarded points state when problem changes
+		useEffect(() => {
+			setHasAwardedPointsForSession(false);
+		}, [mathSolution.id, mathSolution.title]);
+
 		// Initialize the canvas with the final step node
 		useEffect(() => {
 			if (lastStep && nodes.length === 0) {
@@ -292,6 +323,7 @@ export const MathSolutionFlow = forwardRef<
 			setGrade(null);
 			setShowStepOrder(false);
 			setSelectedEdge(null);
+			setHasAwardedPointsForSession(false);
 
 			// Reset shouldResetInput after a delay
 			setTimeout(() => {
@@ -694,8 +726,34 @@ export const MathSolutionFlow = forwardRef<
 			reactFlowInstance.fitView({ padding: 0.2 });
 		}, [reactFlowInstance]);
 
-		// Update the handleVerify function to check for the final answer
+		// Set start time when component mounts
+		useEffect(() => {
+			setStartTime(Date.now());
+		}, []);
+
+		// Check for streak achievements
+		useEffect(() => {
+			if (correctStreak >= 5) {
+				unlockAchievement('streak_master');
+			}
+		}, [correctStreak, unlockAchievement]);
+
+		// Hide points animation after a delay
+		useEffect(() => {
+			if (showPointsAnimation) {
+				const timer = setTimeout(() => {
+					setShowPointsAnimation(false);
+				}, 3000);
+
+				return () => clearTimeout(timer);
+			}
+		}, [showPointsAnimation]);
+
+		// Update the handleVerify function to include gamification
 		const handleVerify = useCallback(() => {
+			// Mark that user has attempted a solution
+			setHasAttempted(true);
+
 			// Check if all regular steps have been placed on the canvas
 			if (placedSteps.length < regularSteps.length + 1) {
 				// +1 for the final step
@@ -773,6 +831,17 @@ export const MathSolutionFlow = forwardRef<
 			const result = verifySolution(edges, mathSolution);
 			const calculatedGrade = calculateGrade(result, mathSolution);
 
+			// Calculate solve time if this is the first successful verification
+			if (result.isCorrect && startTime && !solveTime) {
+				const timeToSolve = Math.floor((Date.now() - startTime) / 1000); // in seconds
+				setSolveTime(timeToSolve);
+
+				// Check for quick solver achievement
+				if (timeToSolve < 60) {
+					unlockAchievement('quick_solver');
+				}
+			}
+
 			// Update edges with verification results
 			setEdges((eds) =>
 				eds.map((edge) => {
@@ -838,13 +907,86 @@ export const MathSolutionFlow = forwardRef<
 				onVerificationUpdate(result, calculatedGrade);
 			}
 
-			// Show toast with verification result
+			// Handle gamification logic
 			if (result.isCorrect) {
+				// Generate stable problem ID based on the solution ID or title
+				const problemId =
+					mathSolution.id ||
+					`math-problem-${mathSolution.title.replace(/\s+/g, '-').toLowerCase()}`;
+
+				// Check if we've already awarded points for this problem
+				if (
+					!hasAwardedPoints(problemId) &&
+					!hasAwardedPointsForSession
+				) {
+					let points = 0;
+
+					// Base points from grade
+					if (calculatedGrade >= 90) {
+						points += 30;
+					} else if (calculatedGrade >= 80) {
+						points += 20;
+					} else if (calculatedGrade >= 70) {
+						points += 15;
+					} else {
+						points += 10; // At least some points for completing
+					}
+
+					// Bonus for final step correct
+					if (finalStepCorrect) {
+						points += 10;
+					}
+
+					// First solution achievement
+					const firstSolutionAchievement = achievements.find(
+						(a) => a.id === 'first_solution'
+					);
+					if (
+						firstSolutionAchievement &&
+						!firstSolutionAchievement.unlockedAt
+					) {
+						unlockAchievement('first_solution');
+						points += 5; // Bonus for first solution
+					}
+
+					// Math expert achievement
+					if (calculatedGrade === 100) {
+						unlockAchievement('math_expert');
+						points += 10; // Bonus for perfect score
+					}
+
+					// Persistent learner achievement
+					if (hasAttempted && !verificationResult?.isCorrect) {
+						unlockAchievement('persistent_learner');
+						points += 5; // Bonus for persistence
+					}
+
+					// Add points to the store
+					addPoints(points, problemId);
+					setPointsAwarded(points);
+					setShowPointsAnimation(true);
+					setHasAwardedPointsForSession(true);
+
+					// Increase streak for correct solution
+					increaseStreak();
+				} else {
+					// Already awarded points for this problem
+					toast({
+						title: 'Already completed',
+						description:
+							"You've already earned points for this problem.",
+						duration: 3000,
+					});
+				}
+
 				toast({
 					title: 'Solution correct!',
 					description: `Great job! Your solution is correct. Your grade is ${calculatedGrade}%.`,
 				});
 			} else {
+				// Reset streak for incorrect solution
+				resetStreak();
+
 				toast({
 					title: 'Solution incorrect',
 					description: `Your solution has ${result.incorrectConnections.length} incorrect connections. Your grade is ${calculatedGrade}%.`,
@@ -877,6 +1019,17 @@ export const MathSolutionFlow = forwardRef<
 			toast,
 			handleFinalStepCorrect,
 			handleFinalStepInputChange,
+			hasAttempted,
+			verificationResult,
+			startTime,
+			solveTime,
+			addPoints,
+			unlockAchievement,
+			hasAwardedPoints,
+			hasAwardedPointsForSession,
+			achievements,
+			increaseStreak,
+			resetStreak,
 		]);
 
 		// Function to automatically connect nodes based on proximity
@@ -956,11 +1109,15 @@ export const MathSolutionFlow = forwardRef<
 
 		return (
 			<div
-				className='h-full w-full'
+				className='h-full w-full relative'
 				ref={reactFlowWrapper}
 				onKeyDown={onKeyDown}
 				tabIndex={0}
 			>
+				{showPointsAnimation && (
+					<PointsAnimation points={pointsAwarded} />
+				)}
+
 				<ReactFlow
 					nodes={nodes}
 					edges={edges}

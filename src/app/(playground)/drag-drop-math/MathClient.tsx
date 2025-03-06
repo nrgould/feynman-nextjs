@@ -9,6 +9,7 @@ import { MathSolution, MathEdge, VerificationResult, MathStep } from './types';
 import { useMathHistoryStore } from '@/store/math-history-store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calculator, ArrowRight } from 'lucide-react';
+import { MathGamificationBadge } from './MathGamificationDisplay';
 
 export function MathClient() {
 	const [mathSolution, setMathSolution] = useState<MathSolution | null>(null);
@@ -174,13 +175,16 @@ export function MathClient() {
 									<Calculator className='h-5 w-5 mr-2 text-primary' />
 									{mathSolution.title}
 								</h2>
-								<button
-									onClick={() => setMathSolution(null)}
-									className='text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center'
-								>
-									<ArrowRight className='h-4 w-4 mr-1' />
-									Try another problem
-								</button>
+								<div className='flex items-center gap-4'>
+									<MathGamificationBadge />
+									<button
+										onClick={() => setMathSolution(null)}
+										className='text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center'
+									>
+										<ArrowRight className='h-4 w-4 mr-1' />
+										Try another problem
+									</button>
+								</div>
 							</div>
 							<div className='flex-1 overflow-hidden'>
 								<MathSolutionFlow

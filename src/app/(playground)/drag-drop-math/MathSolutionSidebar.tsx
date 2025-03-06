@@ -46,11 +46,14 @@ export function MathSolutionSidebar({
 	const SidebarContent = () => {
 		// Calculate the number of steps that are not placed on the canvas
 		const remainingStepsCount = mathSolution.steps.filter(
-			(step) => !placedSteps.includes(step.id)
+			(step) =>
+				!placedSteps.includes(step.id) &&
+				step.order !==
+					Math.max(...mathSolution.steps.map((s) => s.order))
 		).length;
 
 		return (
-			<div className='h-screen flex flex-col'>
+			<div className='h-full flex flex-col'>
 				{/* Math Problem Section - Fixed height */}
 				<div
 					className={`${isMobile ? 'p-4' : 'p-5'} border-b flex-shrink-0`}
@@ -74,7 +77,7 @@ export function MathSolutionSidebar({
 				{/* Steps Section - Fixed height with scrollable content */}
 				<div
 					className={`${isMobile ? 'p-4' : 'p-5'} border-b`}
-					style={{ height: isMobile ? '300px' : '100%' }}
+					style={{ height: isMobile ? '300px' : '350px' }}
 				>
 					<div className='flex items-center justify-between mb-3'>
 						<h3
@@ -167,8 +170,8 @@ export function MathSolutionSidebar({
 
 				{/* Verification Section - Fixed at the bottom */}
 				<div
-					className={`${isMobile ? 'p-4' : 'p-5'} relative border-t mt-auto flex-shrink-0`}
-					style={{ minHeight: '200px' }}
+					className={`${isMobile ? 'p-4' : 'p-5'} border-t mt-auto flex-shrink-0`}
+					style={{ minHeight: '150px' }}
 				>
 					<div className='flex items-center justify-between mb-3'>
 						<h3
