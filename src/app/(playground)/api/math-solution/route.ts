@@ -50,8 +50,8 @@ export async function POST(req: Request) {
         - A title field that briefly describes the problem
         - A steps array, where each step has:
           - An id (unique string)
-          - Content (the mathematical step)
-          - Explanation (why this step is needed)
+          - Content (the mathematical step, kept short and concise)
+          - Explanation (why this step is needed, again kept short and concise)
           - Order (numeric position in the solution sequence)
         
         Make each step atomic and focused on a single concept or operation.

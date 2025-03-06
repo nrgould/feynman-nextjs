@@ -236,6 +236,29 @@ export const MathSolutionFlow = forwardRef<
 			setHasAwardedPointsForSession(false);
 		}, [mathSolution.id, mathSolution.title]);
 
+		// Reset state when mathSolution changes completely
+		useEffect(() => {
+			// Reset state
+			setVerificationResult(null);
+			setGrade(null);
+			setShowStepOrder(false);
+			setSelectedEdge(null);
+			setHasAwardedPointsForSession(false);
+			setShowPointsAnimation(false);
+			setFinalStepCorrect(false);
+			setFinalStepInput('');
+			setShouldResetInput(true);
+
+			// Reset shouldResetInput after a delay
+			setTimeout(() => {
+				setShouldResetInput(false);
+			}, 100);
+
+			// Reset start time
+			setStartTime(Date.now());
+			setSolveTime(null);
+		}, [mathSolution]);
+
 		// Initialize the canvas with the final step node
 		useEffect(() => {
 			if (lastStep && nodes.length === 0) {
@@ -300,6 +323,9 @@ export const MathSolutionFlow = forwardRef<
 			setShouldResetInput(true);
 			setFinalStepInput('');
 			setFinalStepCorrect(false);
+
+			// Clear animations
+			setShowPointsAnimation(false);
 
 			// Clear all nodes and edges
 			if (finalStepNode) {
@@ -725,11 +751,6 @@ export const MathSolutionFlow = forwardRef<
 		const handleFitView = useCallback(() => {
 			reactFlowInstance.fitView({ padding: 0.2 });
 		}, [reactFlowInstance]);
-
-		// Set start time when component mounts
-		useEffect(() => {
-			setStartTime(Date.now());
-		}, []);
 
 		// Check for streak achievements
 		useEffect(() => {
