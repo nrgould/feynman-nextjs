@@ -55,9 +55,9 @@ export default function Footer() {
 					</div>
 				</div> */}
 
-				<div className='flex flex-col md:flex-row justify-between'>
-					{/* Company Links */}
-					<div className='mb-8 md:mb-0'>
+				{/* <div className='flex flex-col md:flex-row justify-between'> */}
+				{/* Company Links */}
+				{/* <div className='mb-8 md:mb-0'>
 						<h4 className='text-xl font-semibold mb-4'>Company</h4>
 						<ul className='space-y-2'>
 							<li>
@@ -85,10 +85,10 @@ export default function Footer() {
 								</Link>
 							</li>
 						</ul>
-					</div>
+					</div> */}
 
-					{/* Resources */}
-					<div className='mb-8 md:mb-0'>
+				{/* Resources */}
+				{/* <div className='mb-8 md:mb-0'>
 						<h4 className='text-xl font-semibold mb-4'>
 							Resources
 						</h4>
@@ -118,10 +118,10 @@ export default function Footer() {
 								</Link>
 							</li>
 						</ul>
-					</div>
+					</div> */}
 
-					{/* Legal */}
-					<div className='mb-8 md:mb-0'>
+				{/* Legal */}
+				{/* <div className='mb-8 md:mb-0'>
 						<h4 className='text-xl font-semibold mb-4'>Legal</h4>
 						<ul className='space-y-2'>
 							<li>
@@ -149,10 +149,10 @@ export default function Footer() {
 								</Link>
 							</li>
 						</ul>
-					</div>
+					</div> */}
 
-					{/* Newsletter Signup */}
-					<div className='md:max-w-xs'>
+				{/* Newsletter Signup */}
+				{/* <div className='md:max-w-xs'>
 						<h4 className='text-xl font-semibold mb-4'>
 							Stay Updated
 						</h4>
@@ -171,10 +171,10 @@ export default function Footer() {
 							</Button>
 						</div>
 					</div>
-				</div>
+				</div> */}
 
 				{/* Divider */}
-				<div className='my-8 border-t border-gray-800'></div>
+				{/* <div className='my-8 border-t border-gray-800'></div> */}
 
 				{/* Social Media and Attribution */}
 				<div className='flex flex-col md:flex-row items-center justify-between'>

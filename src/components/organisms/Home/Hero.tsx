@@ -10,6 +10,9 @@ import {
 	Atom,
 	FlaskConical,
 	ArrowRight,
+	Triangle,
+	TriangleRight,
+	FunctionSquare,
 } from 'lucide-react';
 import {
 	Select,
@@ -76,10 +79,10 @@ const Hero = () => {
 				>
 					<Title className='max-w-2xl'>
 						Learn with{' '}
-						<span className='text-emerald-400'>Your Brain</span>
+						<span className='text-emerald-400'>your brain</span>
 						,
 						<br />
-						Not <span className='text-emerald-400'>Against It</span>
+						Not <span className='text-emerald-400'>against it</span>
 						.
 					</Title>
 				</motion.div>
@@ -106,6 +109,15 @@ const Hero = () => {
 							<SelectValue placeholder='Help me learn...' />
 						</SelectTrigger>
 						<SelectContent>
+							<SelectItem
+								value='pre-calculus'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<FunctionSquare className='h-4 w-4 text-cyan-500' />
+									Pre-Calculus
+								</div>
+							</SelectItem>
 							<SelectItem
 								value='calculus'
 								className='cursor-pointer'
@@ -140,6 +152,24 @@ const Hero = () => {
 								<div className='flex items-center gap-2 font-semibold p-1'>
 									<Atom className='h-4 w-4 text-orange-500' />
 									Physics
+								</div>
+							</SelectItem>
+							<SelectItem
+								value='geometry'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<Triangle className='h-4 w-4 text-red-500' />
+									Geometry
+								</div>
+							</SelectItem>
+							<SelectItem
+								value='trigonometry'
+								className='cursor-pointer'
+							>
+								<div className='flex items-center gap-2 font-semibold p-1'>
+									<TriangleRight className='h-4 w-4 text-yellow-500' />
+									Trigonometry
 								</div>
 							</SelectItem>
 						</SelectContent>

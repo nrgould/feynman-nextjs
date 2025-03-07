@@ -26,7 +26,7 @@ export default async function Home() {
 				<Hero />
 
 				{/* Value proposition sections with consistent spacing */}
-				<div className='space-y-24'>
+				<div className='space-y-12'>
 					{/* Core benefits */}
 					<LinearPath />
 					<KinestheticLearning />
@@ -35,6 +35,7 @@ export default async function Home() {
 					<FeaturesSection />
 
 					{/* How it works */}
+					<TextAside />
 					<LearnsYou />
 					<Steps />
 
@@ -45,7 +46,6 @@ export default async function Home() {
 					{/* <Testimonials /> */}
 
 					{/* Additional value */}
-					<TextAside />
 					<StartLearning />
 				</div>
 
