@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState, useEffect, useRef } from 'react';
+import { memo, useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { MathStep } from './types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -50,6 +50,30 @@ export const MathStepNode = memo(
 		// State for the final step input
 		const [inputValue, setInputValue] = useState(finalStepInput);
 		const [isInputCorrect, setIsInputCorrect] = useState(finalStepCorrect);
+		const nodeRef = useRef<HTMLDivElement>(null);
+
+		// Dynamic sizing based on content length
+		useLayoutEffect(() => {
+			if (nodeRef.current) {
+				// Base width for the card
+				const baseWidth = isMobile ? 250 : 300;
+
+				// Calculate width based on content length
+				// Adjust the multiplier based on your font size and style
+				const contentLength = step.content.length;
+				const minWidth = baseWidth;
+				const calculatedWidth = Math.max(
+					minWidth,
+					contentLength * (isMobile ? 6 : 8)
+				);
+
+				// Set a maximum width to prevent extremely wide cards
+				const maxWidth = isMobile ? 400 : 500;
+				const finalWidth = Math.min(calculatedWidth, maxWidth);
+
+				nodeRef.current.style.width = `${finalWidth}px`;
+			}
+		}, [step.content, isMobile]);
 
 		// Reset input when shouldResetInput is true
 		useEffect(() => {
@@ -177,17 +201,12 @@ export const MathStepNode = memo(
 				)}
 
 				{/* Card content */}
-				<Card
-					className={`${isMobile ? 'w-[250px]' : 'w-[300px]'} ${borderColor} shadow-md`}
-				>
+				<Card ref={nodeRef} className={`${borderColor} shadow-md`}>
 					<CardContent
 						className={`${isMobile ? 'py-2 px-3' : 'py-3 px-5'}`}
 					>
 						<div className='flex items-center justify-between mb-2'>
 							<div className='flex items-center'>
-								<Calculator
-									className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} mr-2 text-primary`}
-								/>
 								{showOrder && (
 									<span className='text-sm font-medium'>
 										Step {step.order}

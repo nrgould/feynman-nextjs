@@ -146,6 +146,8 @@ export async function updateConceptProgress({
 			console.error('Error fetching chat data:', chatFetchError);
 		}
 
+		console.log('chatData', chatData);
+
 		// Update concept progress
 		const { error: conceptError } = await supabase
 			.from('Concept')

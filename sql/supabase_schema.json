@@ -1,0 +1,703 @@
+
+[
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "concept_id",
+    "referenced_table": "Concept",
+    "referenced_column": "id",
+    "constraint_name": "Conversation_concept_id_fkey"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "concept_learning_path_id",
+    "referenced_table": "ConceptLearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_concept_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Chat",
+    "referencing_column": "learning_path_id",
+    "referenced_table": "LearningPath",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "Concept",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "learning_path_node_id",
+    "referenced_table": "LearningPathNode",
+    "referenced_column": "id",
+    "constraint_name": "fk_learning_path_node"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "chat_id",
+    "referenced_table": "Chat",
+    "referenced_column": "id",
+    "constraint_name": "fk_chat"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "concept_id",
+    "referenced_table": "Concept",
+    "referenced_column": "id",
+    "constraint_name": "fk_concept"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "ConceptLearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "pdf_id",
+    "referenced_table": "LearningPathPdf",
+    "referenced_column": "id",
+    "constraint_name": "fk_pdf"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  },
+  {
+    "referencing_table": "LearningPath",
+    "referencing_column": "user_id",
+    "referenced_table": "User",
+    "referenced_column": "id",
+    "constraint_name": "fk_user"
+  }
+]
