@@ -51,11 +51,17 @@ SET is_active = c.is_active
 FROM "Concept" c
 WHERE lpn.id = c.id AND c.is_active = true;
 
--- Step 6: Drop the Concept table and its dependent objects
-DROP TABLE IF EXISTS "Concept" CASCADE;
+-- Step 6: Update Chat records with progress from Concept if needed
+UPDATE "Chat" c
+SET progress = con.progress
+FROM "Concept" con
+WHERE c.concept_id = con.id AND c.progress = 0 AND con.progress > 0;
 
--- Step 7: Make concept_id nullable in Chat table since we're transitioning away from it
+-- Step 7: Drop the Concept table
+DROP TABLE IF EXISTS "Concept";
+
+-- Step 8: Make concept_id nullable in Chat table since we're transitioning away from it
 ALTER TABLE "Chat" ALTER COLUMN concept_id DROP NOT NULL;
 
--- Step 8: Add an index on learning_path_node_id for better performance
+-- Step 9: Add an index on learning_path_node_id for better performance
 CREATE INDEX IF NOT EXISTS idx_chat_learning_path_node_id ON "Chat" (learning_path_node_id); 

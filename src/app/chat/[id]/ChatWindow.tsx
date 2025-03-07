@@ -183,17 +183,25 @@ function ChatWindow({
 
 	// Update the updateProgress function to also update the store
 	const updateProgress = async (newProgress: number) => {
-		if (concept_id && userId) {
+		// Use the chat ID directly instead of concept_id
+		// If concept_id is available, use it as a fallback
+		const progressId = chatId || concept_id;
+
+		if (progressId && userId) {
 			try {
 				const result = await updateConceptProgress({
-					conceptId: concept_id,
+					conceptId: progressId,
 					userId,
 					progress: newProgress,
 				});
 
 				if (result.success) {
 					setCurrentProgress(newProgress);
-					setConceptProgress(concept_id, newProgress);
+
+					// If concept_id is available, update the concept progress in the store
+					if (concept_id) {
+						setConceptProgress(concept_id, newProgress);
+					}
 
 					// Check if this is linked to a learning path
 					const isLearningPathNode =

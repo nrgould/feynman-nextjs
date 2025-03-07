@@ -113,8 +113,8 @@ export async function updateUserSessionTime({
 	}
 }
 
-// Define the return type for updateConceptProgress
-interface UpdateConceptProgressResult {
+// Rename the interface to better reflect its purpose
+interface UpdateProgressResult {
 	success: boolean;
 	error?: any;
 	learningPathNodeUpdated?: boolean;
@@ -130,37 +130,57 @@ export async function updateConceptProgress({
 	conceptId: string;
 	userId: string;
 	progress: number;
-}): Promise<UpdateConceptProgressResult> {
+}): Promise<UpdateProgressResult> {
 	try {
 		const supabase = await createClient();
 
 		// First, get the chat to check if it's linked to a learning path node
-		const { data: chatData, error: chatFetchError } = await supabase
+		// We now use the chat ID directly instead of concept_id
+		let chatData: any = null;
+		const { data, error: chatFetchError } = await supabase
 			.from('Chat')
 			.select('id, learning_path_node_id, learning_path_id')
-			.eq('concept_id', conceptId)
+			.eq('id', conceptId)
 			.single();
 
 		if (chatFetchError) {
-			console.error('Error fetching chat data:', chatFetchError);
+			// Try to find by learning_path_node_id if not found by id
+			const { data: nodeChat, error: nodeError } = await supabase
+				.from('Chat')
+				.select('id, learning_path_node_id, learning_path_id')
+				.eq('learning_path_node_id', conceptId)
+				.single();
+
+			if (nodeError) {
+				console.error('Error fetching chat data:', nodeError);
+				// If we can't find the chat, we can't update progress
+				return { success: false, error: nodeError };
+			}
+
+			// Use the chat data found by learning_path_node_id
+			chatData = nodeChat;
+		} else {
+			chatData = data;
 		}
 
-		// Update concept progress
-		const { error: conceptError } = await supabase
-			.from('Concept')
-			.update({ progress })
-			.eq('id', conceptId);
-
-		if (conceptError) {
-			console.error('Error updating concept progress:', conceptError);
-			return { success: false, error: conceptError };
+		// Make sure we have chat data before proceeding
+		if (!chatData) {
+			return {
+				success: false,
+				error: 'Could not find chat data for the given ID',
+			};
 		}
 
-		// Also update the chat progress if this concept is linked to a chat
+		// Update the chat progress
 		const { error: chatError } = await supabase
 			.from('Chat')
 			.update({ progress })
-			.eq('concept_id', conceptId);
+			.eq('id', chatData.id);
+
+		if (chatError) {
+			console.error('Error updating chat progress:', chatError);
+			// Continue execution even if this part fails
+		}
 
 		let learningPathNodeUpdated = false;
 		let learningPathNodeId = null;
@@ -234,7 +254,7 @@ export async function updateConceptProgress({
 			learningPathId,
 		};
 	} catch (error) {
-		console.error('Error updating concept progress:', error);
+		console.error('Error updating progress:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : String(error),
