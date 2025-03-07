@@ -201,7 +201,7 @@ function Question({
 			<CardFooter className='flex justify-end pt-2'>
 				{showExplanation ? (
 					<Button onClick={handleReset} variant='outline'>
-						Try Another Question
+						Try Again
 					</Button>
 				) : (
 					<Button
