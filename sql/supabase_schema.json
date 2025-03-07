@@ -1,703 +1,792 @@
-
 [
   {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "concept_id",
-    "referenced_table": "Concept",
-    "referenced_column": "id",
-    "constraint_name": "Conversation_concept_id_fkey"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "concept_learning_path_id",
-    "referenced_table": "ConceptLearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_concept_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Chat",
-    "referencing_column": "learning_path_id",
-    "referenced_table": "LearningPath",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "Concept",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "learning_path_node_id",
-    "referenced_table": "LearningPathNode",
-    "referenced_column": "id",
-    "constraint_name": "fk_learning_path_node"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "chat_id",
-    "referenced_table": "Chat",
-    "referenced_column": "id",
-    "constraint_name": "fk_chat"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "concept_id",
-    "referenced_table": "Concept",
-    "referenced_column": "id",
-    "constraint_name": "fk_concept"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "ConceptLearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "pdf_id",
-    "referenced_table": "LearningPathPdf",
-    "referenced_column": "id",
-    "constraint_name": "fk_pdf"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
-  },
-  {
-    "referencing_table": "LearningPath",
-    "referencing_column": "user_id",
-    "referenced_table": "User",
-    "referenced_column": "id",
-    "constraint_name": "fk_user"
+    "table_name": "Chat",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "uuid_generate_v4()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "title",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "created_at",
+    "data_type": "timestamp without time zone",
+    "is_nullable": "NO",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "description",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "concept_id",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "progress",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "user_id",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "learning_path_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "learning_path_node_id",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Chat",
+    "column_name": "concept_learning_path_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "id",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": "uuid_generate_v4()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "title",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "description",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "related_concepts",
+    "data_type": "ARRAY",
+    "is_nullable": "YES",
+    "column_default": "'{}'::text[]",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "created_at",
+    "data_type": "timestamp without time zone",
+    "is_nullable": "NO",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "progress",
+    "data_type": "numeric",
+    "is_nullable": "NO",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "user_id",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "is_active",
+    "data_type": "boolean",
+    "is_nullable": "NO",
+    "column_default": "true",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "subject",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Concept",
+    "column_name": "chat_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "title",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "description",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "concept",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "grade_level",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "overall_progress",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "user_id",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPath",
+    "column_name": "pdf_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathEdge",
+    "column_name": "id",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathEdge",
+    "column_name": "learning_path_id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathEdge",
+    "column_name": "source",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathEdge",
+    "column_name": "target",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathEdge",
+    "column_name": "label",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathEdge",
+    "column_name": "type",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": "'smoothstep'::text",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "id",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "learning_path_id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "concept",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "description",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "difficulty",
+    "data_type": "integer",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "position_x",
+    "data_type": "integer",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "position_y",
+    "data_type": "integer",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "progress",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "grade",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "chat_id",
+    "data_type": "uuid",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "LearningPathNode",
+    "column_name": "is_active",
+    "data_type": "boolean",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Message",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "uuid_generate_v4()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Message",
+    "column_name": "chat_id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Message",
+    "column_name": "role",
+    "data_type": "character varying",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Message",
+    "column_name": "content",
+    "data_type": "jsonb",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "Message",
+    "column_name": "created_at",
+    "data_type": "timestamp without time zone",
+    "is_nullable": "NO",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "id",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": "uuid_generate_v4()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "name",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "username",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "email",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "learning_disability",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "goals",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "selected_subjects",
+    "data_type": "ARRAY",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "profile_image",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "referral_source",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "education_level",
+    "data_type": "text",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "account_type",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": "'free'::text",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "concept_limit",
+    "data_type": "integer",
+    "is_nullable": "NO",
+    "column_default": "1",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "User",
+    "column_name": "concepts",
+    "data_type": "ARRAY",
+    "is_nullable": "YES",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "created_at",
+    "data_type": "timestamp without time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "updated_at",
+    "data_type": "timestamp without time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User",
+    "column_name": "learning_streak",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "User",
+    "column_name": "total_session_time",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "User",
+    "column_name": "achievements",
+    "data_type": "ARRAY",
+    "is_nullable": "YES",
+    "column_default": "'{}'::text[]",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User_Activity",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User_Activity",
+    "column_name": "user_id",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User_Activity",
+    "column_name": "activity_type",
+    "data_type": "text",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User_Activity",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES",
+    "column_default": "CURRENT_TIMESTAMP",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "User_Activity",
+    "column_name": "session_time",
+    "data_type": "integer",
+    "is_nullable": "YES",
+    "column_default": "0",
+    "character_maximum_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0
+  },
+  {
+    "table_name": "learningobjectives",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "learningobjectives",
+    "column_name": "chat_id",
+    "data_type": "uuid",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "learningobjectives",
+    "column_name": "objectives",
+    "data_type": "ARRAY",
+    "is_nullable": "NO",
+    "column_default": null,
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
+  },
+  {
+    "table_name": "learningobjectives",
+    "column_name": "created_at",
+    "data_type": "timestamp without time zone",
+    "is_nullable": "YES",
+    "column_default": "now()",
+    "character_maximum_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null
   }
 ]
