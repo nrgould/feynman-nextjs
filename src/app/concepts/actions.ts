@@ -11,14 +11,13 @@ export async function createChatFromConcept(
 		title: string;
 		description: string;
 		id: string;
-		subject: string;
 	},
 	chatId: string
 ) {
 	const { userId } = await auth();
 	if (!userId) throw new Error('User not found');
 
-	const { title, description, id: conceptId, subject } = concept;
+	const { title, description, id: conceptId } = concept;
 	const supabase = await createClient();
 
 	console.log('CREATING CHAT FROM CONCEPT', concept);
@@ -57,7 +56,7 @@ export async function createChatFromConcept(
 		};
 	}
 
-	await generateFirstMessage(title, description, chatId, subject);
+	await generateFirstMessage(title, description, chatId);
 
 	redirect(`/chat/${chatId}`);
 }
