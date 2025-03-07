@@ -1,6 +1,6 @@
 'use server';
 
-import { generateObject, generateText } from 'ai';
+import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { systemPrompt2 } from '@/lib/ai/prompts';
 import { createClient } from '@/utils/supabase/server';
@@ -58,9 +58,9 @@ export async function generateFirstMessage(
 	const supabase = await createClient();
 
 	const result = await generateText({
-		model: openai('gpt-4o'),
+		model: openai('gpt-4o-mini'),
 		system: systemPrompt2,
-		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} in the subject of ${subject} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. Do not act like you are responding to a previous message. I may have ADHD or Dyscalculia, so keep your response concise, only asking one question to not overwhelm me.`,
+		prompt: `Generate a first message for a conversation between you and I based off of the concept ${title} in the subject of ${subject} with a description of ${description}. Your first message should ask me to explain the concept to you in as much detail as I can. Do not act like you are responding to a previous message. I may have ADHD or Dyscalculia, so keep your response concise, only asking one question to not overwhelm me. Keep it conversational and friendly.`,
 	});
 
 	const id = generateUUID();
@@ -145,8 +145,6 @@ export async function updateConceptProgress({
 		if (chatFetchError) {
 			console.error('Error fetching chat data:', chatFetchError);
 		}
-
-		console.log('chatData', chatData);
 
 		// Update concept progress
 		const { error: conceptError } = await supabase
