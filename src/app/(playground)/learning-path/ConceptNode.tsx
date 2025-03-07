@@ -204,22 +204,6 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 							Completed
 						</Badge>
 					)}
-					{isActive && node.progress < 100 && !isChecking && (
-						<Badge
-							variant='outline'
-							className='bg-blue-50 text-blue-600 border-blue-200 text-xs px-2'
-						>
-							Active
-						</Badge>
-					)}
-					{!isActive && !isDisabled && !isChecking && (
-						<Badge
-							variant='outline'
-							className='bg-amber-50 text-amber-600 border-amber-200 text-xs px-2'
-						>
-							Ready
-						</Badge>
-					)}
 					{isDisabled && !isChecking && (
 						<Badge
 							variant='outline'
