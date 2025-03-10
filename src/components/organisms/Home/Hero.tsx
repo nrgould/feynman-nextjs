@@ -149,7 +149,7 @@ const Hero = () => {
 							href='/waitlist'
 							className='flex items-center gap-2'
 						>
-							Start Learning – it's free
+							Start Learning – it&apos;s free
 							<ArrowRight className='h-4 w-4' />
 						</Link>
 					</GradientButton>
