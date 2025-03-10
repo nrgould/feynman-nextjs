@@ -16,8 +16,9 @@ export default function TryConceptsPage() {
 						Start learning in seconds
 					</h1>
 					<p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-						Upload a PDF to see how our AI can extract learning
-						concepts for you. No account required to try it out!
+						Upload a PDF of homework, practice exams, lecture slides,
+						or any other document and see how our AI can extract key
+						learning concepts for you.
 					</p>
 				</div>
 
