@@ -46,6 +46,16 @@ export default clerkMiddleware(async (auth, req) => {
 	// Catch users who do not have `onboardingComplete: true` in their publicMetadata
 	if (userId && !sessionClaims?.metadata?.onboardingComplete) {
 		const onboardingUrl = new URL('/onboarding', req.url);
+
+		// Preserve query parameters, especially pdfId
+		const url = new URL(req.url);
+		if (url.searchParams.has('pdfId')) {
+			onboardingUrl.searchParams.set(
+				'pdfId',
+				url.searchParams.get('pdfId')!
+			);
+		}
+
 		return NextResponse.redirect(onboardingUrl);
 	}
 

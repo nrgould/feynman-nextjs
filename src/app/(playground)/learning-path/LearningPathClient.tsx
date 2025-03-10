@@ -112,7 +112,7 @@ export default function LearningPathClient({
 		}
 
 		return (
-			<div className='flex items-center justify-center h-screen'>
+			<div className='flex items-center justify-center h-[calc(100vh-64px)]'>
 				<LearningPathInput onPathCreated={handlePathCreated} />
 			</div>
 		);

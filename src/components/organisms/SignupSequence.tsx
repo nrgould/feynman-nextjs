@@ -116,6 +116,10 @@ export interface SignupData {
 	goals: string;
 }
 
+interface SignupSequenceProps {
+	pdfId?: string;
+}
+
 const slideIn = {
 	hidden: { opacity: 0, x: 20 },
 	visible: {
@@ -139,7 +143,7 @@ const containerVariants = {
 	},
 };
 
-export function SignupSequence() {
+export function SignupSequence({ pdfId }: SignupSequenceProps) {
 	const { user } = useUser();
 	const [step, setStep] = useState(1);
 	const [formData, setFormData] = useState<SignupData>({
@@ -203,7 +207,13 @@ export function SignupSequence() {
 
 			await completeOnboarding(formData);
 			await user?.reload();
-			router.push('/concepts');
+
+			// Include pdfId in the redirect if it exists
+			if (pdfId) {
+				router.push(`/learning-path?pdfId=${pdfId}`);
+			} else {
+				router.push('/learning-path');
+			}
 		} catch (error) {
 			console.error('Error submitting form:', error);
 		}

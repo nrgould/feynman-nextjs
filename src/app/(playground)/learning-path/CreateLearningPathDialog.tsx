@@ -393,7 +393,18 @@ export function CreateLearningPathDialog({
 
 						<div className='space-y-2'>
 							<Label>Upload PDF</Label>
-							<div className='border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center'>
+							<div
+								className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-md p-6 transition-colors hover:border-muted-foreground/50 ${files.length > 0 ? 'bg-muted/10' : ''}`}
+							>
+								<input
+									ref={fileInputRef}
+									type='file'
+									accept='.pdf'
+									onChange={handleFileChange}
+									className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
+									id='pdf-upload'
+									disabled={isLoading}
+								/>
 								{files.length > 0 ? (
 									<div className='w-full'>
 										{files.map((file, index) => (
@@ -410,7 +421,11 @@ export function CreateLearningPathDialog({
 												<Button
 													variant='ghost'
 													size='icon'
-													onClick={clearPDF}
+													onClick={(e) => {
+														e.stopPropagation();
+														e.preventDefault();
+														clearPDF();
+													}}
 												>
 													<X className='h-4 w-4' />
 												</Button>
@@ -421,28 +436,12 @@ export function CreateLearningPathDialog({
 									<>
 										<Upload className='h-8 w-8 text-muted-foreground mb-2' />
 										<p className='text-sm text-muted-foreground mb-1'>
-											Drag and drop your PDF here or click
-											to browse
+											Drop your PDF here or click to
+											browse
 										</p>
-										<Input
-											ref={fileInputRef}
-											type='file'
-											accept='.pdf'
-											onChange={handleFileChange}
-											className='hidden'
-											id='pdf-upload'
-											disabled={isLoading}
-										/>
-										<Button
-											variant='secondary'
-											size='sm'
-											onClick={() =>
-												fileInputRef.current?.click()
-											}
-											disabled={isLoading}
-										>
-											Select PDF
-										</Button>
+										<p className='text-xs text-muted-foreground mt-2'>
+											PDF files up to 5MB are supported
+										</p>
 									</>
 								)}
 							</div>

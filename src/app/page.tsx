@@ -17,6 +17,7 @@ import Steps from '@/components/organisms/Home/Steps';
 import MicroLearning from '@/components/organisms/Home/MicroLearning';
 import TryConcepts from '@/components/organisms/Home/TryConcepts';
 import KinestheticLearning from '@/components/organisms/Home/KinestheticLearning';
+import AdaptiveLearning from '@/components/organisms/Home/AdaptiveLearning';
 
 export default async function Home() {
 	return (
@@ -28,16 +29,17 @@ export default async function Home() {
 				{/* Value proposition sections with consistent spacing */}
 				<div className='space-y-12'>
 					{/* Core benefits */}
+					<AdaptiveLearning />
 					<LinearPath />
 					<KinestheticLearning />
 					<MicroLearning />
 					{/* <TryConcepts /> */}
+					<Steps />
 					<FeaturesSection />
 
 					{/* How it works */}
 					<TextAside />
-					<LearnsYou />
-					<Steps />
+					{/* <LearnsYou /> */}
 
 					{/* Demonstration */}
 					{/* <HomeSampleChat /> */}

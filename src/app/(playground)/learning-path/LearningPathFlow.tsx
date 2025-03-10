@@ -377,13 +377,8 @@ export function LearningPathFlow({
 							minZoom={0.5}
 							maxZoom={1.5}
 						>
-							<Background color='#f8fafc' gap={16} />
-							<Background
-								id='1'
-								gap={10}
-								color='#f1f1f1'
-								variant={BackgroundVariant.Lines}
-							/>
+							{/* <Background color='#FAECD2' gap={16} /> */}
+							<Background id='1' gap={0} color='#fdfbf6' />
 
 							<Controls position='top-right' />
 						</ReactFlow>

@@ -5,7 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { LearningPath } from '@/lib/learning-path-schemas';
 import { v4 as uuidv4 } from 'uuid';
-
+import { generateFirstMessage } from '@/app/chat/[id]/actions';
 export async function saveLearningPathToSupabase(
 	learningPath: LearningPath,
 	concept: string,
@@ -184,6 +184,9 @@ export async function getLearningPathDetails(learningPathId: string) {
 			};
 		}
 
+		// Log the raw node data from the database
+		console.log('Raw node data from database:', nodes);
+
 		// 3. Get the edges
 		const { data: edges, error: edgesError } = await supabase
 			.from('LearningPathEdge')
@@ -209,8 +212,12 @@ export async function getLearningPathDetails(learningPathId: string) {
 			},
 			progress: node.progress || 0,
 			grade: node.grade,
-			isActive: node.is_active || false,
+			is_active: node.is_active || false,
+			chat_id: node.chat_id || null,
 		}));
+
+		// Log the formatted nodes
+		console.log('Formatted nodes:', formattedNodes);
 
 		const formattedEdges = edges.map((edge) => ({
 			id: edge.id,
@@ -425,7 +432,7 @@ export async function deleteLearningPath(learningPathId: string) {
 	}
 }
 
-export async function checkConceptActive(conceptId: string) {
+export async function checkConceptActive(nodeId: string) {
 	try {
 		const { userId } = await auth();
 		if (!userId) {
@@ -434,16 +441,15 @@ export async function checkConceptActive(conceptId: string) {
 
 		const supabase = await createClient();
 
-		// Check if the concept exists and has a chat_id
+		// Check if the learning path node exists and has a chat_id
 		const { data, error } = await supabase
-			.from('Concept')
+			.from('LearningPathNode')
 			.select('id, chat_id, is_active')
-			.eq('id', conceptId)
-			.eq('user_id', userId)
+			.eq('id', nodeId)
 			.single();
 
 		if (error) {
-			// If the concept doesn't exist, it's not active
+			// If the node doesn't exist, it's not active
 			if (error.code === 'PGRST116') {
 				// PostgreSQL not found error
 				return {
@@ -452,7 +458,7 @@ export async function checkConceptActive(conceptId: string) {
 					chatId: null,
 				};
 			}
-			throw new Error(`Error checking concept: ${error.message}`);
+			throw new Error(`Error checking node: ${error.message}`);
 		}
 
 		return {
@@ -461,7 +467,7 @@ export async function checkConceptActive(conceptId: string) {
 			chatId: data.chat_id,
 		};
 	} catch (error) {
-		console.error('Error checking if concept is active:', error);
+		console.error('Error checking if node is active:', error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',
@@ -489,79 +495,47 @@ export async function createChatFromLearningPathNode(
 
 		const supabase = await createClient();
 
-		// First, check if a concept with this ID already exists and has a chat
-		const { data: existingConcept, error: conceptFetchError } =
-			await supabase
-				.from('Concept')
-				.select('id, chat_id')
-				.eq('id', node.id)
-				.eq('user_id', userId)
-				.single();
-
-		// If the concept exists and has a chat, return that chat ID
-		if (existingConcept && existingConcept.chat_id) {
-			return {
-				success: true,
-				chatId: existingConcept.chat_id,
-				message: 'Using existing chat for this concept',
-			};
-		}
-
-		// First, create a Concept entry without the chat_id (we'll update it later)
-		const conceptId = node.id; // Using the node ID as the concept ID
-		const { error: conceptError } = await supabase
-			.from('Concept')
-			.insert({
-				id: conceptId,
-				title: node.concept,
-				description: node.description,
-				subject: 'Learning Path', // Default subject for learning path nodes
-				user_id: userId,
-				progress: 0,
-				is_active: true,
-				// Omit chat_id initially to avoid foreign key constraint
-			})
-			.select()
+		// First, check if the learning path node already has a chat associated with it
+		const { data: existingNode, error: nodeError } = await supabase
+			.from('LearningPathNode')
+			.select('id, chat_id, is_active')
+			.eq('id', node.id)
 			.single();
 
-		// Handle potential duplicate concept
-		if (conceptError) {
-			// If it's not a duplicate error, throw it
-			if (conceptError.code !== '23505') {
-				// Postgres unique violation code
-				throw new Error(
-					`Error creating concept: ${conceptError.message}`
-				);
-			}
-			// For duplicates, we'll continue with the existing concept
+		// If the node exists and has a chat, return that chat ID
+		if (existingNode && existingNode.chat_id) {
+			return {
+				success: true,
+				chatId: existingNode.chat_id,
+				message: 'Using existing chat for this node',
+			};
 		}
 
 		// Get the learning path ID for this node if not provided
 		let learningPathId = node.learningPathId;
-		if (!learningPathId) {
-			// Try to find the learning path ID from the node ID
-			const { data: nodeData, error: nodeError } = await supabase
+		if (!learningPathId && existingNode) {
+			// Try to find the learning path ID from the node
+			const { data: nodeData, error: lpNodeError } = await supabase
 				.from('LearningPathNode')
 				.select('learning_path_id')
 				.eq('id', node.id)
 				.single();
 
-			if (!nodeError && nodeData) {
+			if (!lpNodeError && nodeData) {
 				learningPathId = nodeData.learning_path_id;
 			}
 		}
 
-		// Then, create a Chat entry that references the concept
-		const { error: chatError } = await supabase
+		// Create a Chat entry that references the learning path node
+		const { data: chatData, error: chatError } = await supabase
 			.from('Chat')
 			.insert({
 				id: chatId,
-				concept_id: conceptId,
 				description: node.description,
 				title: node.concept,
 				created_at: new Date().toISOString(),
 				user_id: userId,
-				// Add learning path references if available
+				// Add learning path references
 				learning_path_id: learningPathId || null,
 				learning_path_node_id: node.id,
 			})
@@ -572,45 +546,33 @@ export async function createChatFromLearningPathNode(
 			throw new Error(`Error creating chat: ${chatError.message}`);
 		}
 
-		// Now update the Concept with the chat_id
-		const { error: updateError } = await supabase
-			.from('Concept')
-			.update({
-				chat_id: chatId,
-				is_active: true,
-			})
-			.eq('id', conceptId)
-			.eq('user_id', userId);
+		// Update the LearningPathNode with the chat_id and set is_active to true
+		console.log('Updating LearningPathNode with chat_id and is_active:', {
+			node_id: node.id,
+			chat_id: chatData.id,
+		});
 
-		if (updateError) {
-			throw new Error(`Error updating concept: ${updateError.message}`);
-		}
-
-		// Also update the LearningPathNode to set is_active to true
 		const { error: nodeUpdateError } = await supabase
 			.from('LearningPathNode')
 			.update({
+				chat_id: chatData.id,
 				is_active: true,
 			})
 			.eq('id', node.id);
 
 		if (nodeUpdateError) {
 			console.error(
-				`Warning: Failed to update node active status: ${nodeUpdateError.message}`
+				`Warning: Failed to update node with chat ID: ${nodeUpdateError.message}`
 			);
 			// Continue execution even if this fails
+		} else {
+			console.log(
+				'Successfully updated LearningPathNode with chat_id and is_active'
+			);
 		}
 
 		// Generate the first message for the chat
-		const { generateFirstMessage } = await import(
-			'@/app/chat/[id]/actions'
-		);
-		await generateFirstMessage(
-			node.concept,
-			node.description,
-			chatId,
-			'Learning Path'
-		);
+		await generateFirstMessage(node.concept, node.description, chatId);
 
 		// Return success with the chat ID
 		return {

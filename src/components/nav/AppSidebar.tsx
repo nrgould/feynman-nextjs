@@ -33,21 +33,21 @@ const signedInItems = [
 		url: '/',
 		icon: Home,
 	},
-	{
-		title: 'Concepts',
-		url: '/concepts',
-		icon: Brain,
-	},
+	// {
+	// 	title: 'Concepts',
+	// 	url: '/concepts',
+	// 	icon: Brain,
+	// },
 	{
 		title: 'Learn',
 		url: '/learning-path',
 		icon: Blocks,
 	},
-	{
-		title: 'Settings',
-		url: '/settings',
-		icon: Settings2,
-	},
+	// {
+	// 	title: 'Settings',
+	// 	url: '/settings',
+	// 	icon: Settings2,
+	// },
 ];
 
 const signedOutItems = [

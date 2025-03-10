@@ -1,30 +1,21 @@
-import { tool as createTool, generateObject } from 'ai';
+import { tool as createTool, generateObject, generateText } from 'ai';
 import { z } from 'zod';
-import { lessonPlanSchema } from './learningPlanSchema';
 import { questionSchema } from './questionSchema';
 import { openai } from '@ai-sdk/openai';
+import { createClient } from '@supabase/supabase-js';
 
-//tool for mathematical inputs, access wolfram alpha api
-export const lessonPlanTool = createTool({
-	description:
-		'Generate a custom lesson plan for the user to learn the concept',
-	parameters: z.object({
-		title: z.string().describe('The title of the concept'),
-		description: z.string().describe('The description of the concept'),
-		initialExplanation: z
-			.string()
-			.describe('The initial explanation of the concept'),
-	}),
-	execute: async function ({ title, description, initialExplanation }) {
-		const result = await generateObject({
-			model: openai('gpt-4o-mini-2024-07-18'),
-			schema: lessonPlanSchema,
-			prompt: `Generate a learning plan for me to learn the concept ${title} with a description of ${description}. Using my initial explantion of ${initialExplanation}, assess my gaps in understanding and help me fill those gaps.`,
-		});
-
-		return result;
-	},
+// Define the schema as an object with an array property
+const LearningObjectivesSchema = z.object({
+	objectives: z.array(z.string().min(1, 'Objective cannot be empty')),
 });
+
+// Helper function to merge objects to string
+function mergeObjectsToString(objects, key) {
+	return objects
+		.map((obj) => obj[key])
+		.filter(Boolean)
+		.join(' ');
+}
 
 export const youtubeSearchTool = createTool({
 	description:
@@ -83,10 +74,122 @@ export const questionGeneratorTool = createTool({
 	},
 });
 
+//tool for updating progress
+export const updateProgressTool = createTool({
+	description: 'Update the progress of the user',
+	parameters: z.object({
+		progress: z.number().describe('The progress of the user'),
+	}),
+	execute: async function ({ progress }) {
+		console.log('progress', progress);
+	},
+});
+
+// Tool for analyzing learning objectives
+export const learningObjectivesAnalysisTool = createTool({
+	description:
+		'Analyze which learning objectives have been met in the conversation',
+	parameters: z.object({
+		chatId: z.string().describe('The ID of the chat to analyze'),
+		title: z.string().describe('The title of the concept being taught'),
+		messages: z.array(z.any()).describe('The messages in the conversation'),
+	}),
+	execute: async function ({ chatId, title, messages }) {
+		try {
+			// Initialize Supabase client
+			const supabase = createClient(
+				process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+				process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+			);
+
+			// Check for learning objectives in supabase
+			const { data: objectives, error: learningObjectivesError } =
+				await supabase
+					.from('learningobjectives')
+					.select('objectives')
+					.eq('chat_id', chatId)
+					.single();
+
+			console.log('OBJECTIVES: ', objectives);
+
+			let newObjectives;
+
+			if (!objectives) {
+				newObjectives = await generateObject({
+					model: openai('gpt-4o-mini'),
+					schema: LearningObjectivesSchema,
+					prompt: `You are an expert educational curriculum designer creating a comprehensive list of learning objectives for teaching the concept of "${title}".
+		Please provide a list of specific, measurable learning objectives that cover all aspects of understanding ${title}.
+		Each objective should start with an action verb and describe what the learner will be able to do after mastering this concept.
+		Include objectives that cover different levels of understanding, from basic recall to application and analysis.`,
+				});
+
+				const parsedObjectives = LearningObjectivesSchema.safeParse(
+					newObjectives.object.objectives
+				);
+
+				console.log(parsedObjectives);
+
+				await supabase
+					.from('learningobjectives')
+					.insert({
+						chat_id: chatId,
+						objectives: newObjectives.object.objectives,
+					})
+					.throwOnError();
+			}
+
+			const messagesString = mergeObjectsToString(messages, 'content');
+
+			// Analyze which learning objectives have been met
+			const objectivesNotMet = await generateObject({
+				model: openai('gpt-4o-mini'),
+				schema: LearningObjectivesSchema,
+				prompt: `You are a helpful assistant that analyzes the current message history and compare it to the following learning objectives: ${objectives?.objectives || newObjectives?.object?.objectives}.
+				You will need to analyze the message history and determine which learning objectives have not been covered by the conversation. Here is the message history: ${messagesString}.
+				You will then need to return a list of the learning objectives that have NOT been met.`,
+			});
+
+			const parsedObjectivesNotMet = LearningObjectivesSchema.safeParse(
+				objectivesNotMet.object.objectives
+			);
+
+			console.log(
+				'OBJECTIVES NOT MET: ',
+				objectivesNotMet.object.objectives
+			);
+
+			// Calculate progress percentage
+			let progressPercentage = 0;
+			const allObjectives =
+				objectives?.objectives ||
+				newObjectives?.object?.objectives ||
+				[];
+			const notMetObjectives = objectivesNotMet.object.objectives || [];
+
+			if (allObjectives.length > 0) {
+				const metObjectivesCount =
+					allObjectives.length - notMetObjectives.length;
+				progressPercentage =
+					(metObjectivesCount / allObjectives.length) * 100;
+			}
+
+			return {
+				objectivesMet: allObjectives,
+				objectivesNotMet: notMetObjectives,
+				progress: progressPercentage,
+			};
+		} catch (error) {
+			console.error('Failed to analyze learning objectives:', error);
+			throw error;
+		}
+	},
+});
+
 export const tools = {
 	getYoutubeVideo: youtubeSearchTool,
-	generateLessonPlan: lessonPlanTool,
 	generateQuestion: questionGeneratorTool,
+	// analyzeLearningObjectives: learningObjectivesAnalysisTool,
 };
 
 // const visualizationSchema = z.object({

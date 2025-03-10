@@ -1,6 +1,11 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { CoreAssistantMessage, CoreMessage, CoreToolMessage, Message } from 'ai';
+import {
+	CoreAssistantMessage,
+	CoreMessage,
+	CoreToolMessage,
+	Message,
+} from 'ai';
 import { customAlphabet } from 'nanoid';
 
 export function cn(...inputs: ClassValue[]) {
@@ -69,8 +74,8 @@ export function sanitizeResponseMessages(
 			content.type === 'tool-call'
 				? toolResultIds.includes(content.toolCallId)
 				: content.type === 'text'
-				? content.text.length > 0
-				: true
+					? content.text.length > 0
+					: true
 		);
 
 		return {
@@ -117,20 +122,23 @@ export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
 	);
 }
 
- export function removePointerEventsFromBody() {
-		if (document.body.style.pointerEvents === 'none') {
-			document.body.style.pointerEvents = '';
-		}
- }
+export function removePointerEventsFromBody() {
+	if (document.body.style.pointerEvents === 'none') {
+		document.body.style.pointerEvents = '';
+	}
+}
 
- export const encodeFileAsBase64 = (file: File): Promise<string> => {
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.onload = () => resolve(reader.result as string);
-			reader.onerror = (error) => reject(error);
-		});
- };
+export const encodeFileAsBase64 = (file: File): Promise<string> => {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = () => resolve(reader.result as string);
+		reader.onerror = (error) => reject(error);
+	});
+};
 
+export const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789');
 
- export const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789');
+export function isMultipleOfFive(messages: any[]): boolean {
+	return messages.length % 5 === 0;
+}
