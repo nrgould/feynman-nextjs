@@ -1,0 +1,11 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Disallow specific paths (uncomment and modify as needed)
+# Disallow: /api/
+# Disallow: /admin/
+# Disallow: /private/ 
