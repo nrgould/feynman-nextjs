@@ -40,10 +40,10 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 	// Function to get color based on difficulty
 	const getDifficultyColor = (difficulty: number) => {
 		if (difficulty <= 3)
-			return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+			return 'bg-emerald-50 text-emerald-600 border-emerald-100';
 		if (difficulty <= 6)
-			return 'bg-amber-100 text-amber-800 border-amber-200';
-		return 'bg-rose-100 text-rose-800 border-rose-200';
+			return 'bg-amber-50 text-amber-600 border-amber-100';
+		return 'bg-rose-50 text-rose-600 border-rose-100';
 	};
 
 	// Function to get grade color and letter
@@ -209,9 +209,11 @@ export function ConceptNode({ data, selected }: ConceptNodeProps) {
 
 				{/* Metadata */}
 				<div className='flex flex-wrap gap-2 text-xs'>
-					<Badge variant='outline' className={difficultyClass}>
-						<BarChart className='w-3 h-3 mr-1' />
-						Difficulty: {node.difficulty}/10
+					<Badge
+						variant='outline'
+						className={`${difficultyClass} text-xs opacity-80`}
+					>
+						Lvl {node.difficulty}
 					</Badge>
 
 					{/* <Badge
