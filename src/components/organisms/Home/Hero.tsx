@@ -69,7 +69,7 @@ const Hero = () => {
 					transition={{ duration: 0.5 }}
 					className='text-sm font-medium text-zinc-600 tracking-widest'
 				>
-					FOR STUDENTS WITH ADHD & LEARNING DIFFERENCES
+					FOR STUDENTS WITH LEARNING DIFFERENCES
 				</motion.div>
 
 				<motion.div
@@ -77,13 +77,9 @@ const Hero = () => {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.1 }}
 				>
-					<Title className='max-w-2xl'>
-						Learn with{' '}
-						<span className='text-emerald-400'>your brain</span>
-						,
-						<br />
-						Not <span className='text-emerald-400'>against it</span>
-						.
+					<Title className='max-w-2xl tracking-wide leading-loose'>
+						Learning Experience Designed for{' '}
+						<span className='text-emerald-400'>ADHD.</span>
 					</Title>
 				</motion.div>
 
@@ -94,7 +90,7 @@ const Hero = () => {
 				>
 					<Subtitle className='max-w-2xl text-zinc-800 font-bold text-2xl'>
 						The AI-powered learning platform that adapts to your
-						unique needs
+						unique needs.
 					</Subtitle>
 				</motion.div>
 
