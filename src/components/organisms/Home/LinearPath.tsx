@@ -15,11 +15,11 @@ function LinearPath() {
 
 				<h2 className='text-3xl md:text-4xl font-bold leading-loose tracking-tighter'>
 					<span className='relative'>
-						<span>A linear</span>
+						<span>Never worry</span>
 						<motion.span
-							className='absolute -bottom-1 left-[1.15ch] h-[5px] bg-emerald-400'
+							className='absolute -bottom-1 left-[0ch] h-[5px] bg-emerald-400'
 							initial={{ width: 0 }}
-							whileInView={{ width: '3.3ch' }}
+							whileInView={{ width: '7.8ch' }}
 							transition={{
 								duration: 0.8,
 								ease: 'easeOut',
@@ -27,7 +27,7 @@ function LinearPath() {
 							}}
 						/>
 					</span>{' '}
-					path for studying
+					about what to study
 				</h2>
 
 				<div className='space-y-4 text-gray-600 font-medium'>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Upload, BookOpen, Sparkles, ArrowRight } from 'lucide-react';
 import * as motion from 'motion/react-client';
 import ColoredIcon from '@/components/atoms/ColoredIcon';
+import Subtitle from '@/components/atoms/Subtitle';
 
 const container = {
 	hidden: { opacity: 0 },
@@ -21,95 +22,106 @@ const item = {
 
 function Steps() {
 	return (
-		<section className='bg-zinc-950'>
-			<div className='container mx-auto px-8 py-16 md:py-24'>
-				<div className='flex flex-col items-center gap-12'>
-					<div>
-						<h2 className='text-2xl md:text-3xl font-bold text-center mb-2 text-white'>
-							Get started in minutes.
-						</h2>
-						<h3 className='text-xl md:text-xl font-medium tracking-tight text-center text-gray-400 max-w-2xl'>
-							From the basics to advanced topics, our system makes
-							it easy to jump in, learn at your pace, and see
-							progress right away.
-						</h3>
-					</div>
+		<section className='py-20 px-4 w-full'>
+			<div className='max-w-6xl mx-auto text-center'>
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ duration: 0.5 }}
+					className='mb-16'
+				>
+					<h2 className='text-3xl md:text-4xl font-bold mb-6 text-center'>
+						Get Started{' '}
+						<span className='text-emerald-500'>in Minutes</span>
+					</h2>
+					<Subtitle className='max-w-3xl mx-auto text-zinc-600'>
+						From the basics to advanced topics, our system makes it
+						easy to jump in, learn at your pace, and see progress
+						right away.
+					</Subtitle>
+				</motion.div>
 
+				<motion.div
+					variants={container}
+					initial='hidden'
+					whileInView='show'
+					viewport={{ once: true }}
+					className='flex flex-col md:flex-row items-center justify-center gap-8 md:gap-4'
+				>
+					{/* Step 1 */}
 					<motion.div
-						variants={container}
-						initial='hidden'
-						whileInView='show'
-						viewport={{ once: true }}
-						className='flex flex-col md:flex-row items-center justify-center gap-8 md:gap-4'
+						variants={item}
+						className='flex flex-col items-center text-center space-y-4 bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 max-w-[300px] h-full'
 					>
-						{/* Step 1 */}
-						<motion.div
-							variants={item}
-							className='flex flex-col items-center text-center space-y-4 max-w-[250px]'
-						>
+						<div className='mb-4'>
 							<ColoredIcon
 								icon={Upload}
 								color='violet'
 								size='sm'
 							/>
-							<h3 className='text-xl font-semibold text-white'>
-								Upload Materials
-							</h3>
-							<p className='text-gray-400 font-medium'>
-								Share your homework or lecture slides to get
-								started
-							</p>
-						</motion.div>
+						</div>
+						<h3 className='text-xl font-bold mb-2'>
+							Upload Materials
+						</h3>
+						<p className='text-zinc-600'>
+							Share your homework or lecture slides to get started
+							with personalized learning
+						</p>
+					</motion.div>
 
-						{/* Arrow 1 */}
-						<motion.div variants={item}>
-							<ArrowRight className='hidden md:block w-8 h-8 text-gray-600 mx-4 flex-shrink-0' />
-						</motion.div>
+					{/* Arrow 1 */}
+					<motion.div variants={item} className='hidden md:block'>
+						<ArrowRight className='w-8 h-8 text-emerald-400 mx-4 flex-shrink-0' />
+					</motion.div>
 
-						{/* Step 2 */}
-						<motion.div
-							variants={item}
-							className='flex flex-col items-center text-center space-y-4 max-w-[250px]'
-						>
+					{/* Step 2 */}
+					<motion.div
+						variants={item}
+						className='flex flex-col items-center text-center space-y-4 bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 max-w-[300px] h-full'
+					>
+						<div className='mb-4'>
 							<ColoredIcon
 								icon={BookOpen}
 								color='sky'
 								size='sm'
 							/>
-							<h3 className='text-xl font-semibold text-white'>
-								Get Key Concepts
-							</h3>
-							<p className='text-gray-400 font-medium'>
-								Our AI identifies the core concepts you need to
-								master
-							</p>
-						</motion.div>
+						</div>
+						<h3 className='text-xl font-bold mb-2'>
+							Get Key Concepts
+						</h3>
+						<p className='text-zinc-600'>
+							Our AI identifies the core concepts you need to
+							master and adapts to your learning style
+						</p>
+					</motion.div>
 
-						{/* Arrow 2 */}
-						<motion.div variants={item}>
-							<ArrowRight className='hidden md:block w-8 h-8 text-gray-600 mx-4 flex-shrink-0' />
-						</motion.div>
+					{/* Arrow 2 */}
+					<motion.div variants={item} className='hidden md:block'>
+						<ArrowRight className='w-8 h-8 text-emerald-400 mx-4 flex-shrink-0' />
+					</motion.div>
 
-						{/* Step 3 */}
-						<motion.div
-							variants={item}
-							className='flex flex-col items-center text-center space-y-4 max-w-[250px]'
-						>
+					{/* Step 3 */}
+					<motion.div
+						variants={item}
+						className='flex flex-col items-center text-center space-y-4 bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 max-w-[300px] h-full'
+					>
+						<div className='mb-4'>
 							<ColoredIcon
 								icon={Sparkles}
 								color='emerald'
 								size='sm'
 							/>
-							<h3 className='text-xl font-semibold text-white'>
-								Start Learning
-							</h3>
-							<p className='text-gray-400 font-medium'>
-								Begin your personalized learning journey right
-								away
-							</p>
-						</motion.div>
+						</div>
+						<h3 className='text-xl font-bold mb-2'>
+							Start Learning
+						</h3>
+						<p className='text-zinc-600'>
+							Begin your personalized learning journey with
+							interactive exercises tailored to your needs
+						</p>
 					</motion.div>
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);

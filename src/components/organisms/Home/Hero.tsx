@@ -32,7 +32,7 @@ import GradientButton from '@/components/atoms/GradientButton';
 const Hero = () => {
 	return (
 		<div className='flex flex-col items-center justify-center py-12 sm:py-32 px-4 sm:px-16 w-full mx-auto'>
-			<div className='flex flex-col items-center justify-center space-y-6 w-full max-w-3xl text-center'>
+			<div className='flex flex-col items-center justify-center space-y-6 w-full max-w-4xl text-center'>
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -49,7 +49,7 @@ const Hero = () => {
 				>
 					<Title className='tracking-wide leading-loose'>
 						Your Intelligent ADHD{' '}
-						<span className='text-emerald-400'>Tutor.</span>
+						<span className='text-emerald-400'>Math Tutor.</span>
 					</Title>
 				</motion.div>
 

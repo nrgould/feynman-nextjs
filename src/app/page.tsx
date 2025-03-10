@@ -34,12 +34,12 @@ export default async function Home() {
 					<KinestheticLearning />
 					<MicroLearning />
 					{/* <TryConcepts /> */}
+					<Steps />
 					<FeaturesSection />
 
 					{/* How it works */}
 					<TextAside />
-					<LearnsYou />
-					<Steps />
+					{/* <LearnsYou /> */}
 
 					{/* Demonstration */}
 					{/* <HomeSampleChat /> */}
