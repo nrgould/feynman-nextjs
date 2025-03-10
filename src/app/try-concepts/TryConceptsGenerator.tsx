@@ -26,6 +26,7 @@ export default function TryConceptsGenerator() {
 	const [progress, setProgress] = useState(0);
 	const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 	const [redirectUrl, setRedirectUrl] = useState('/learning-path');
+	const [noPdfFlow, setNoPdfFlow] = useState(false);
 	const router = useRouter();
 	const { setPdf } = usePdfStore();
 
@@ -121,6 +122,7 @@ export default function TryConceptsGenerator() {
 					clearInterval(interval);
 					// After reaching 30%, show login prompt
 					setShowLoginPrompt(true);
+					setNoPdfFlow(false);
 					return 30;
 				}
 				return prev + 1;
@@ -182,19 +184,21 @@ export default function TryConceptsGenerator() {
 					<Card className='w-full max-w-md'>
 						<CardHeader className='text-center'>
 							<CardTitle className='text-2xl font-bold'>
-								Almost There!
+								{noPdfFlow
+									? 'Get Started with Feynman Learning'
+									: 'Almost There!'}
 							</CardTitle>
 							<CardDescription className='text-base'>
-								Sign up or log in to view your generated
-								concepts and continue learning.
+								{noPdfFlow
+									? 'Sign up or log in to create your personalized learning path'
+									: 'Sign up or log in to view your generated concepts and continue learning.'}
 							</CardDescription>
 						</CardHeader>
 						<CardContent className='space-y-4'>
 							<p className='text-center text-muted-foreground'>
-								We&apos;ve analyzed your PDF and found several
-								key concepts to help you learn more effectively.
-								Create an account to access these concepts and
-								unlock all features.
+								{noPdfFlow
+									? 'Create an account to access our powerful learning tools and build your own personalized learning path.'
+									: "We've analyzed your PDF and found several key concepts to help you learn more effectively. Create an account to access these concepts and unlock all features."}
 							</p>
 							<div className='flex flex-col gap-3 mt-6'>
 								<SignUpButton forceRedirectUrl={redirectUrl}>
@@ -293,6 +297,32 @@ export default function TryConceptsGenerator() {
 									)}
 								</Button>
 							</form>
+
+							<div className='mt-6 text-center'>
+								<div className='relative'>
+									<div className='absolute inset-0 flex items-center'>
+										<span className='w-full border-t border-muted'></span>
+									</div>
+									<div className='relative flex justify-center text-xs uppercase'>
+										<span className='bg-background px-2 text-muted-foreground'>
+											Or
+										</span>
+									</div>
+								</div>
+								<div className='mt-4'>
+									<Button
+										variant='outline'
+										className='w-full text-sm'
+										onClick={() => {
+											setShowLoginPrompt(true);
+											setRedirectUrl('/learning-path');
+											setNoPdfFlow(true);
+										}}
+									>
+										I don't have a PDF
+									</Button>
+								</div>
+							</div>
 						</CardContent>
 						{isLoading && (
 							<CardFooter className='flex flex-col space-y-4'>
