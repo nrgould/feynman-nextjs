@@ -65,7 +65,7 @@ const AdaptiveLearning = () => {
 				>
 					<h2 className='text-3xl md:text-4xl font-bold mb-6 text-center'>
 						What You Need,{' '}
-						<span className='text-emerald-500'>
+						<span className='text-emerald-400'>
 							When You Need It
 						</span>
 					</h2>
@@ -100,7 +100,7 @@ const AdaptiveLearning = () => {
 					))}
 				</div>
 
-				<motion.div
+				{/* <motion.div
 					initial={{ opacity: 0, y: 20 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
@@ -121,7 +121,7 @@ const AdaptiveLearning = () => {
 						the most effective way possible for your unique ADHD
 						brain.
 					</p>
-				</motion.div>
+				</motion.div> */}
 			</div>
 		</section>
 	);
