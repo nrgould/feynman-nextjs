@@ -140,7 +140,7 @@ export function LearningPathSidebar({
 			<div className={className}>
 				<div className='p-4 border-b flex justify-between items-center'>
 					<h3 className='font-semibold text-sm'>
-						Your Learning Paths
+						Your Paths
 					</h3>
 					<Skeleton className='h-8 w-8' />
 				</div>
@@ -162,7 +162,7 @@ export function LearningPathSidebar({
 	return (
 		<div className={className}>
 			<div className='p-4 border-b flex justify-between items-center sticky top-0 bg-background z-10'>
-				<h3 className='font-semibold text-sm'>Your Learning Paths</h3>
+				<h3 className='font-semibold text-sm'>Your Paths</h3>
 				<CreateLearningPathDialog onPathCreated={handlePathCreated} />
 			</div>
 			<ScrollArea className={containerClassName}>
