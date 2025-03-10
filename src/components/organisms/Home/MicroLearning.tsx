@@ -55,7 +55,7 @@ function MicroLearning() {
 				</div>
 
 				<Button size='lg' className='font-semibold w-auto' asChild>
-					<Link href='/waitlist'>Get Started</Link>
+					<Link href='/try-concepts'>Get Started</Link>
 				</Button>
 			</div>
 		</section>

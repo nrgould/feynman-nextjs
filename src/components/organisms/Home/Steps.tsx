@@ -3,6 +3,7 @@ import { Upload, BookOpen, Sparkles, ArrowRight } from 'lucide-react';
 import * as motion from 'motion/react-client';
 import ColoredIcon from '@/components/atoms/ColoredIcon';
 import Subtitle from '@/components/atoms/Subtitle';
+import Link from 'next/link';
 
 const container = {
 	hidden: { opacity: 0 },
@@ -114,7 +115,12 @@ function Steps() {
 							/>
 						</div>
 						<h3 className='text-xl font-bold mb-2'>
-							Start Learning
+							<Link
+								href='/try-concepts'
+								className='hover:text-emerald-500 transition-colors'
+							>
+								Start Learning
+							</Link>
 						</h3>
 						<p className='text-zinc-600'>
 							Begin your personalized learning journey with
