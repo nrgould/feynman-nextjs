@@ -319,7 +319,7 @@ export default function TryConceptsGenerator() {
 											setNoPdfFlow(true);
 										}}
 									>
-										I don't have a PDF
+										I don&apos;t have a PDF
 									</Button>
 								</div>
 							</div>
