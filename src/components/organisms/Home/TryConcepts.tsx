@@ -1,8 +1,9 @@
-
 import TryConceptsGenerator from '@/app/try-concepts/TryConceptsGenerator';
 import { FileUp } from 'lucide-react';
 import ColoredIcon from '@/components/atoms/ColoredIcon';
 import * as motion from 'motion/react-client';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function TryConcepts() {
 	return (
@@ -66,7 +67,7 @@ export default function TryConcepts() {
 					</ul>
 				</div>
 
-				{/* <Button
+				<Button
 					size='lg'
 					className='font-semibold w-auto gap-2'
 					asChild
@@ -75,7 +76,7 @@ export default function TryConcepts() {
 						<FileUp className='h-4 w-4' />
 						Try Concept Generator
 					</Link>
-				</Button> */}
+				</Button>
 			</div>
 
 			<div className='flex-1 relative max-w-lg'>

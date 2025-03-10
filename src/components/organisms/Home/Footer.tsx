@@ -180,7 +180,7 @@ export default function Footer() {
 				<div className='flex flex-col md:flex-row items-center justify-between'>
 					<div className='space-y-2 text-center md:text-left mb-4 md:mb-0'>
 						<p>
-							&copy; {new Date().getFullYear()} Feynman Learning.
+							&copy; {new Date().getFullYear()} NRG Studios, LLC.
 							All rights reserved.
 						</p>
 						<p className='text-sm text-gray-400'>

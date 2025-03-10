@@ -33,7 +33,7 @@ export default async function Home() {
 					<LinearPath />
 					<KinestheticLearning />
 					<MicroLearning />
-					{/* <TryConcepts /> */}
+					<TryConcepts />
 					<Steps />
 					<FeaturesSection />
 

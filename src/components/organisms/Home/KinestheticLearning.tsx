@@ -15,19 +15,18 @@ function KinestheticLearning() {
 
 				<h2 className='text-3xl md:text-4xl font-bold leading-loose tracking-tighter'>
 					<span className='relative'>
-						<span>Hands-on</span>
+						<span>Interactive math.</span>
 						<motion.span
 							className='absolute -bottom-1 left-[0] h-[5px] bg-emerald-400'
 							initial={{ width: 0 }}
-							whileInView={{ width: '6.5ch' }}
+							whileInView={{ width: '6.7ch' }}
 							transition={{
 								duration: 0.8,
 								ease: 'easeOut',
 								delay: 0.2,
 							}}
 						/>
-					</span>{' '}
-					learning for ADHD
+					</span>
 				</h2>
 
 				<div className='space-y-4 text-gray-600 font-medium'>
