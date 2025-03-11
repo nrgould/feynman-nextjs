@@ -51,7 +51,7 @@ function ChatWindow({
 	} = useChat({
 		id: chatId,
 		body: { chatId, userId, title, description },
-		api: '/api/test',
+		api: '/api/chat',
 		initialMessages,
 		sendExtraMessageFields: true,
 		onFinish: async (message) => {

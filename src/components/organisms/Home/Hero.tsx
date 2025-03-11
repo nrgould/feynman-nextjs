@@ -146,7 +146,7 @@ const Hero = () => {
 						className='p-6 max-w-[220px]'
 					>
 						<Link
-							href='/try-concepts'
+							href='/waitlist'
 							className='flex items-center gap-2'
 						>
 							Start Learning – it&apos;s free

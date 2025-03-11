@@ -116,7 +116,7 @@ function Steps() {
 						</div>
 						<h3 className='text-xl font-bold mb-2'>
 							<Link
-								href='/try-concepts'
+								href='/waitlist'
 								className='hover:text-emerald-500 transition-colors'
 							>
 								Start Learning

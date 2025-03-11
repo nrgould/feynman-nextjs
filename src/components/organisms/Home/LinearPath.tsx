@@ -61,7 +61,7 @@ function LinearPath() {
 				</div>
 
 				<Button size='lg' className='font-semibold w-auto' asChild>
-					<Link href='/try-concepts'>Start Learning</Link>
+					<Link href='/waitlist'>Start Learning</Link>
 				</Button>
 			</div>
 

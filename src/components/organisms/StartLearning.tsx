@@ -24,7 +24,6 @@ import {
 	PiSquare,
 	ChartScatter,
 } from 'lucide-react';
-import GradientButton from '../atoms/GradientButton';
 import ColorSpan from '../atoms/ColorSpan';
 import Link from 'next/link';
 
@@ -189,7 +188,7 @@ export default function StartLearning() {
 				</div>
 
 				<div className='flex justify-center mt-12'>
-					<Link href='/try-concepts'>
+					<Link href='/waitlist'>
 						<Button size='lg' variant='outline' className='py-6'>
 							Start Exploring
 						</Button>
