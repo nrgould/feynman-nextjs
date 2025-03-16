@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { questionSchema } from './questionSchema';
 import { openai } from '@ai-sdk/openai';
 import { createClient } from '@supabase/supabase-js';
+import { findRelevantContent } from './embedding';
+import { createResource } from './actions/resources';
 
 // Define the schema as an object with an array property
 const LearningObjectivesSchema = z.object({
@@ -186,26 +188,50 @@ export const learningObjectivesAnalysisTool = createTool({
 	},
 });
 
+export const addResource = createTool({
+	description: `Use this to add information about users to your knowledge base.
+          If the user provides a random piece of knowledge unprompted, use this tool without asking for confirmation.`,
+	parameters: z.object({
+		content: z
+			.string()
+			.describe('the content or resource to add to the knowledge base'),
+		title: z
+			.string()
+			.default('User Information')
+			.describe('a title for the resource'),
+	}),
+	execute: async ({ content, title }) => createResource({ content, title }),
+});
+
+export const getInformation = createTool({
+	description: `get information from your knowledge base to answer questions. Use this tool without asking for confirmation.`,
+	parameters: z.object({
+		question: z.string().describe('the users question'),
+	}),
+	execute: async ({ question }) => findRelevantContent(question),
+});
+
+export const memoryTool = createTool({
+	description: "Store information in the user's memory for later retrieval",
+	parameters: z.object({
+		title: z.string().describe('A short title for the memory'),
+		content: z.string().describe('The content to store in memory'),
+	}),
+	execute: async ({ title, content }) => {
+		try {
+			const result = await createResource({ title, content });
+			return `Successfully stored memory: ${title}`;
+		} catch (error) {
+			return `Failed to store memory: ${error instanceof Error ? error.message : 'Unknown error'}`;
+		}
+	},
+});
+
 export const tools = {
 	getYoutubeVideo: youtubeSearchTool,
 	generateQuestion: questionGeneratorTool,
+	addResource: addResource,
+	getInformation: getInformation,
 	// analyzeLearningObjectives: learningObjectivesAnalysisTool,
+	memoryTool,
 };
-
-// const visualizationSchema = z.object({
-// 	code: z.string().describe('The p5.js code to visualize the concept'),
-// });
-
-// //p5 visualization tool
-// export const generateVisualizationTool = createTool({
-// 	description: 'Generate a p5.js visualization of the concept',
-// 	parameters: z.object({
-// 		concept: z.string().describe('The concept or topic to visualize'),
-// 	}),
-// 	execute: async function ({ concept }) {
-// 		const result = await generateObject({
-// 			model: openai('gpt-4o-mini-2024-07-18'),
-// 			schema: visualizationSchema,
-// 		});
-// 	},
-// });

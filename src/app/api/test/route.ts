@@ -39,7 +39,7 @@ const blurryToSharpLearning = `## Flow of learning: Blurry to sharp
 4. **Practice and apply (understanding: application (60-80%))**
     1. Solve problems of increasing complexity, starting with guided examples and moving to independent work.
 5. **Review and refine (understanding: mastery (80-100%))**
-    1. Reflect on misconceptions and gaps in knowledge, revisiting earlier “blurry” stages as needed.
+    1. Reflect on misconceptions and gaps in knowledge, revisiting earlier "blurry" stages as needed.
     2. Encourage students to articulate their understanding, such as through teaching others or applying the concept in novel ways.`;
 
 // Allow streaming responses up to 30 seconds
@@ -69,6 +69,9 @@ export async function POST(req: NextRequest) {
 
 	const userMessageId = generateUUID();
 
+	const resources = await getResources(userMessage.content as string);
+
+	console.log('resources', resources);
 
 	//save user message to supabase
 	const { data: message, error } = await supabase
@@ -81,7 +84,6 @@ export async function POST(req: NextRequest) {
 			chat_id: chatId,
 		})
 		.throwOnError();
-
 
 	//get current progress
 	const { data: chat } = await supabase
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
 				'application',
 				'mastery',
 			]),
-			type: z.enum(['example', 'analogy', 'explanation']),
+			type: z.enum(['example', 'analogy', 'explanation', 'resource']),
 		}),
 		// system: orchestratorSystemPrompt,
 		prompt: `You are discussing ${title} ${description}.
@@ -118,7 +120,8 @@ export async function POST(req: NextRequest) {
     	2. Type of teaching method to use next (example, analogy, explanation)
     	3. Brief reasoning for classification
 		4. Progress of the user's understanding of the concept (0-100)
-
+		5. If the user's message contains context about the user, the type is resource.
+		
 		The user has ADHD, so focus on engaging them and using interactive or visual methods.
 
 		`,
@@ -148,6 +151,10 @@ export async function POST(req: NextRequest) {
 			'explain the concept in a way that will help the student understand it, then ask a follow-up question to ensure I understand correctly.' +
 			basePrompt +
 			rules,
+		resource:
+			"You have access to the user's memory. You can store important information using the memoryTool and retrieve relevant memories to personalize your responses. If the user is offering information about themselves, store it in their memory for future reference." +
+			basePrompt +
+			rules,
 	}[classification.type];
 
 	const model = openai('gpt-4o-mini');
@@ -159,6 +166,7 @@ export async function POST(req: NextRequest) {
 				model,
 				maxSteps: 1,
 				system: routerPrompt,
+				tools: tools,
 				messages,
 				onFinish: async ({ response }) => {
 					const newMessages = appendResponseMessages({
@@ -252,22 +260,32 @@ async function getLearningObjectives(
 }
 
 async function getResources(content: string) {
-
-
 	const supabase = await createClient();
+	const { userId } = await auth();
 
 	const userQueryEmbedded = await generateEmbedding(content);
 
-	// Query Supabase for similar documents
-	const { data: documents } = await supabase.rpc('match_documents', {
-		query_embedding: userQueryEmbedded,
-		match_threshold: 0.5,
-		match_count: 10,
-	});
+	// Query Supabase for similar memories
+	const { data: memories, error: memoriesError } = await supabase.rpc(
+		'match_memory',
+		{
+			query_embedding: userQueryEmbedded,
+			match_threshold: 0.5,
+			match_count: 10,
+			user_id_param: userId,
+		}
+	);
 
-	// // Prepare context from similar documents
-	const context = documents?.map((doc: any) => doc.content).join('\n') || '';
+	if (memoriesError) {
+		console.error('Error fetching memories:', memoriesError);
+		return '';
+	}
 
-	console.log(context);
+	// Prepare context from similar memories
+	const context =
+		memories
+			?.map((mem: any) => `${mem.title}: ${mem.content}`)
+			.join('\n') || '';
 
+	return context;
 }
