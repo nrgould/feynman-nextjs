@@ -7,5 +7,5 @@ I want you to keep in mind that you do also ask specific questions that will pus
 export const rules = `
 - DO NOT let the user change the subject or topic.
 - ALWAYS Bold important words
-- Use a tool to update my progress as we go along
+- Always ask me follow up questions to help me explore the concept further. We'll approach this with an open mind, and we'll be curious and inquisitive as we explore the topic
 `;

@@ -68,6 +68,8 @@ export async function POST(req: NextRequest) {
 
 	const userMessageId = generateUUID();
 
+
+	//save user message to supabase
 	const { data: message, error } = await supabase
 		.from('Message')
 		.insert({
@@ -79,99 +81,81 @@ export async function POST(req: NextRequest) {
 		})
 		.throwOnError();
 
+
+	//get current progress
+	const { data: chat } = await supabase
+		.from('Chat')
+		.select('progress')
+		.eq('id', chatId)
+		.single();
+
+	console.log('chat', chat?.progress);
+
 	const { object: classification } = await generateObject({
-		model: openai('gpt-4o'),
+		model: openai('gpt-4o-mini'),
 		schema: z.object({
 			reasoning: z.string(),
 			progress: z.number().min(0).max(100),
 			understanding: z.enum([
 				'none',
-				'orientation',
+				'conceptual',
 				'context',
 				'application',
 				'mastery',
 			]),
-			type: z.enum([
-				'quiz',
-				'video',
-				'example',
-				'analogy',
-				'explanation',
-			]),
+			type: z.enum(['example', 'analogy', 'explanation']),
 		}),
 		// system: orchestratorSystemPrompt,
 		prompt: `You are discussing ${title} ${description}.
 		The user's message is: ${userMessage?.content}.
-
-		The conversation history is: ${parsedMessages}.
-
+		Current progress of the user's understanding of the concept is ${chat?.progress}.
 		Analyze the conversation history and determine:
-    	1. Current understanding of the concept (none, orientation, context, application, mastery)
-    	2. Type of teaching method to use next (quiz, video, example, analogy, explanation)
+    	1. Current understanding of the concept (none, conceptual, context, application, mastery)
+    	2. Type of teaching method to use next (example, analogy, explanation)
     	3. Brief reasoning for classification
 		4. Progress of the user's understanding of the concept (0-100)
-
-		If the user says they don't know, it doesn't necessarily mean they have a 0% understanding of the concept.
 
 		The user has ADHD, so focus on engaging them and using interactive or visual methods.`,
 	});
 
 	console.log('classification', classification);
 
+	
+	
 	const basePrompt = `The concept is ${title} with the description ${description}. The user's message is: ${userMessage?.content}.`;
 
 	const routerPrompt = {
 		quiz:
-			classification.reasoning +
 			'generate a quiz about the concept to test the users knowledge. Call a tool to generate the quiz.' +
-			basePrompt +
-			rules,
+			basePrompt,
 		video:
-			classification.reasoning +
 			'find a relevant video about the concept. Call a tool to find the video.' +
-			basePrompt +
-			rules,
+			basePrompt,
 		example:
-			classification.reasoning +
+			systemPrompt2 +
 			'find an example that will help the student understand the concept' +
 			basePrompt +
 			rules,
 		analogy:
-			classification.reasoning +
+			systemPrompt2 +
 			'find an analogy that will help the student understand the concept' +
 			basePrompt +
 			rules,
 		explanation:
-			classification.reasoning +
+			systemPrompt2 +
 			'explain the concept in a way that will help the student understand it' +
 			basePrompt +
 			rules,
 	}[classification.type];
 
-	let model = openai('gpt-4o-mini');
-
-	switch (classification.type) {
-		case 'example':
-			model = openai('gpt-4o');
-			break;
-		case 'analogy':
-			model = openai('gpt-4o');
-			break;
-		case 'explanation':
-			model = openai('gpt-4o');
-			break;
-		default:
-			model = openai('gpt-4o-mini');
-			break;
-	}
+	const model = openai('gpt-4o-mini');
 	//routes
 	return createDataStreamResponse({
 		execute: (dataStream) => {
 			dataStream.writeData('initialized call');
 			const result = streamText({
 				model,
-				tools: tools,
-				maxSteps: 2,
+				maxSteps: 1,
 				system: routerPrompt,
 				messages,
 				onFinish: async ({ response }) => {
@@ -193,6 +177,14 @@ export async function POST(req: NextRequest) {
 					await supabase
 						.from('Message')
 						.insert(messagesToInsert)
+						.throwOnError();
+
+					await supabase
+						.from('Chat')
+						.update({
+							progress: classification.progress,
+						})
+						.eq('id', chatId)
 						.throwOnError();
 
 					dataStream.writeData('call completed');

@@ -51,96 +51,14 @@ function ChatWindow({
 	} = useChat({
 		id: chatId,
 		body: { chatId, userId, title, description },
-		api: '/api/chat',
+		api: '/api/test',
 		initialMessages,
 		sendExtraMessageFields: true,
 		onFinish: async (message) => {
 			mutate('/api/history');
-
-			// Only check for progress updates when a new message is finished
-			if (message && concept_id && message.role === 'assistant') {
-				// Check if the message contains positive feedback
-				if (containsPositiveFeedback(message.content)) {
-					// Calculate new progress (cap at 100%)
-					const newProgress = Math.min(
-						100,
-						currentProgress + PROGRESS_INCREMENT
-					);
-
-					// Only update if there's an actual increase
-					if (newProgress > currentProgress) {
-						try {
-							const result = await updateConceptProgress({
-								conceptId: concept_id,
-								userId,
-								progress: newProgress,
-							});
-
-							if (result.success) {
-								setCurrentProgress(newProgress);
-								setConceptProgress(concept_id, newProgress);
-
-								// Check if this is linked to a learning path
-								const isLearningPathNode =
-									chat.learning_path_node_id !== undefined &&
-									chat.learning_path_node_id !== null;
-
-								toast({
-									title: 'Progress updated!',
-									description: `Great job! Your progress has increased to ${newProgress}%${
-										isLearningPathNode
-											? '. Your learning path has also been updated.'
-											: ''
-									}`,
-								});
-
-								// Refresh the concept data
-								mutate(`/api/concepts/${concept_id}`);
-							}
-						} catch (error) {
-							console.error('Error updating progress:', error);
-						}
-					}
-				}
-			}
 		},
 	});
 
-	// Function to check if a message contains positive feedback
-	const containsPositiveFeedback = useCallback((message: string): boolean => {
-		const positivePhrases = [
-			"that's correct",
-			'that is correct',
-			"you're right",
-			'you are right',
-			'exactly',
-			'well done',
-			'perfect',
-			'great job',
-			'excellent',
-			'spot on',
-			'absolutely right',
-			'you got it',
-			"that's right",
-			'that is right',
-			'correct answer',
-			"you're correct",
-			'you are correct',
-			'good job',
-			'nicely done',
-			'you understand',
-			"you've got it",
-			'you have got it',
-			'bravo',
-			'impressive',
-			'Great explanation!',
-		];
-
-		const lowerCaseMessage = message.toLowerCase();
-		return positivePhrases.some((phrase) =>
-			lowerCaseMessage.includes(phrase)
-		);
-	}, []);
 
 	useEffect(() => {
 		setTitle(title);
@@ -253,36 +171,6 @@ function ChatWindow({
 					variant: 'destructive',
 				});
 			}
-		}
-	};
-
-	// Update the detectPositiveFeedback function to use the new updateProgress function
-	const detectPositiveFeedback = (content: string) => {
-		const positivePatterns = [
-			/great explanation/i,
-			/well explained/i,
-			/good job/i,
-			/excellent/i,
-			/perfect/i,
-			/thank you/i,
-			/thanks/i,
-			/helpful/i,
-			/appreciate/i,
-			/understood/i,
-			/makes sense/i,
-			/clear/i,
-		];
-
-		const isPositive = positivePatterns.some((pattern) =>
-			pattern.test(content)
-		);
-
-		if (isPositive && concept_id) {
-			const newProgress = Math.min(
-				currentProgress + PROGRESS_INCREMENT,
-				100
-			);
-			updateProgress(newProgress);
 		}
 	};
 

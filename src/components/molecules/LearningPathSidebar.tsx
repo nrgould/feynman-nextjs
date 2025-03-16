@@ -265,17 +265,6 @@ export function LearningPathSidebar({
 							</li>
 						</ul>
 					</div> */}
-
-					<div className='p-4 border-l-4 border-violet-400 bg-violet-50 rounded-r-lg'>
-						<h2 className='font-semibold text-zinc-800 mb-4 flex items-center'>
-							<Brain className='w-5 h-5 mr-2 text-violet-500' />
-							Concept Details
-						</h2>
-						<div className='text-sm text-zinc-600'>
-							<p className='font-medium mb-1'>{title}</p>
-							<p>{description}</p>
-						</div>
-					</div>
 				</div>
 			</ScrollArea>
 		</div>
