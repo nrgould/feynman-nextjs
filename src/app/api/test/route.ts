@@ -24,20 +24,20 @@ import { rules, systemPrompt2 } from '@/lib/ai/prompts';
 
 const blurryToSharpLearning = `## Flow of learning: Blurry to sharp
 
-1. **Introduce the big picture**
+1. **Introduce the big picture (understanding: none (0-20%))**
     1. **Initial Explanation from student to set baseline understanding**
     2. high-level simple overview of the concept
-2. **Build context and connections**
+2. **Build context and connections (understanding: conceptual (20-40%))**
     1. **Use an analogy from a different concept**
     2. Provide related concepts or background information to give learners a framework.
     3. Encourage questions and curiosity, even if answers are incomplete at this stage.
     4. **Easy practice** (have user self-explain steps)
-3. **Add structure and details**
+3. **Add structure and details (understanding: context (40-60%))**
     1. Introduce the formal definitions, rules, and notations that govern the concept.
     2. Transition from qualitative descriptions to quantitative reasoning.
-4. **Practice and apply**
+4. **Practice and apply (understanding: application (60-80%))**
     1. Solve problems of increasing complexity, starting with guided examples and moving to independent work.
-5. **Review and refine**
+5. **Review and refine (understanding: mastery (80-100%))**
     1. Reflect on misconceptions and gaps in knowledge, revisiting earlier “blurry” stages as needed.
     2. Encourage students to articulate their understanding, such as through teaching others or applying the concept in novel ways.`;
 
@@ -108,20 +108,23 @@ export async function POST(req: NextRequest) {
 		// system: orchestratorSystemPrompt,
 		prompt: `You are discussing ${title} ${description}.
 		The user's message is: ${userMessage?.content}.
+
 		Current progress of the user's understanding of the concept is ${chat?.progress}.
+		You are using the teaching method of ${blurryToSharpLearning}.
+
 		Analyze the conversation history and determine:
     	1. Current understanding of the concept (none, conceptual, context, application, mastery)
     	2. Type of teaching method to use next (example, analogy, explanation)
     	3. Brief reasoning for classification
 		4. Progress of the user's understanding of the concept (0-100)
 
-		The user has ADHD, so focus on engaging them and using interactive or visual methods.`,
+		The user has ADHD, so focus on engaging them and using interactive or visual methods.
+
+		`,
 	});
 
 	console.log('classification', classification);
 
-	
-	
 	const basePrompt = `The concept is ${title} with the description ${description}. The user's message is: ${userMessage?.content}.`;
 
 	const routerPrompt = {
@@ -137,13 +140,11 @@ export async function POST(req: NextRequest) {
 			basePrompt +
 			rules,
 		analogy:
-			systemPrompt2 +
 			'find an analogy that will help the student understand the concept' +
 			basePrompt +
 			rules,
 		explanation:
-			systemPrompt2 +
-			'explain the concept in a way that will help the student understand it' +
+			'explain the concept in a way that will help the student understand it, then ask a follow-up question to ensure I understand correctly.' +
 			basePrompt +
 			rules,
 	}[classification.type];
@@ -174,11 +175,13 @@ export async function POST(req: NextRequest) {
 						created_at: lastMessage.createdAt,
 					};
 
+					//save message to supabase
 					await supabase
 						.from('Message')
 						.insert(messagesToInsert)
 						.throwOnError();
 
+					//update progress
 					await supabase
 						.from('Chat')
 						.update({
