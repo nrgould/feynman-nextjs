@@ -15,6 +15,7 @@ import { auth } from '@clerk/nextjs/server';
 import { generateUUID, getMostRecentUserMessage } from '@/lib/utils';
 import supabase from '@/lib/supabaseClient';
 import { rules, systemPrompt2 } from '@/lib/ai/prompts';
+import { generateEmbedding } from '@/lib/ai/embedding';
 
 // You have access to the following workers, each specialized for different teaching tasks:
 // - Explainer: Provides clear, concise explanations of concepts
@@ -248,4 +249,25 @@ async function getLearningObjectives(
 	}
 
 	return objectives || newObjectives;
+}
+
+async function getResources(content: string) {
+
+
+	const supabase = await createClient();
+
+	const userQueryEmbedded = await generateEmbedding(content);
+
+	// Query Supabase for similar documents
+	const { data: documents } = await supabase.rpc('match_documents', {
+		query_embedding: userQueryEmbedded,
+		match_threshold: 0.5,
+		match_count: 10,
+	});
+
+	// // Prepare context from similar documents
+	const context = documents?.map((doc: any) => doc.content).join('\n') || '';
+
+	console.log(context);
+
 }
