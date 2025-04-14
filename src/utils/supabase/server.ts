@@ -37,6 +37,9 @@ export async function createClient() {
 					return fetch(url, { ...options, headers });
 				},
 			},
+			// accessToken: () => {
+			// 	return Clerk.session?.getToken();
+			// },
 		}
 	);
 }

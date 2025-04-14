@@ -17,30 +17,30 @@ import supabase from '@/lib/supabaseClient';
 import { rules, systemPrompt2 } from '@/lib/ai/prompts';
 import { generateEmbedding } from '@/lib/ai/embedding';
 
-// You have access to the following workers, each specialized for different teaching tasks:
-// - Explainer: Provides clear, concise explanations of concepts
-// - Example Provider: Creates illuminating examples that clarify concepts
-// - Quiz Creator: Generates targeted questions to check understanding
-// - Analogy Provider: Creates analogies to help explain concepts
+const blurryToSharpLearning = `Flow of learning: Blurry to sharp
 
-const blurryToSharpLearning = `## Flow of learning: Blurry to sharp
-
-1. **Introduce the big picture (understanding: none (0-20%))**
-    1. **Initial Explanation from student to set baseline understanding**
-    2. high-level simple overview of the concept
-2. **Build context and connections (understanding: conceptual (20-40%))**
-    1. **Use an analogy from a different concept**
+1. Introduce the big picture (understanding: none (0-20%))
+    1. Initial Explanation from student to set baseline understanding
+    2. high-level simple overview of the concept, no formulas or equations should be used at this stage.
+	3. Teaching methods: storytelling, analogy, simple explanation
+2. Build context and connections (understanding: conceptual (20-40%))
+    1. Use an analogy from a different concept
     2. Provide related concepts or background information to give learners a framework.
     3. Encourage questions and curiosity, even if answers are incomplete at this stage.
-    4. **Easy practice** (have user self-explain steps)
-3. **Add structure and details (understanding: context (40-60%))**
+    4. Teaching methods: video, analogy, explanation
+3. Add structure and details (understanding: context (40-60%))
     1. Introduce the formal definitions, rules, and notations that govern the concept.
     2. Transition from qualitative descriptions to quantitative reasoning.
-4. **Practice and apply (understanding: application (60-80%))**
+	3. Teaching methods: more in-depth explanation, simple example
+4. Practice and apply (understanding: application (60-80%))
     1. Solve problems of increasing complexity, starting with guided examples and moving to independent work.
-5. **Review and refine (understanding: mastery (80-100%))**
+	2. Teaching methods: quiz, example, practice
+5. Review and refine (understanding: mastery (80-100%))
     1. Reflect on misconceptions and gaps in knowledge, revisiting earlier "blurry" stages as needed.
-    2. Encourage students to articulate their understanding, such as through teaching others or applying the concept in novel ways.`;
+    2. Encourage students to articulate their understanding, such as through teaching others or applying the concept in novel
+	 ways.
+	3. Teaching methods: hard practice, self-teaching
+	 `;
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -85,14 +85,13 @@ export async function POST(req: NextRequest) {
 		})
 		.throwOnError();
 
-	//get current progress
+	//get current progress and previous reasoning/understanding
 	const { data: chat } = await supabase
 		.from('Chat')
-		.select('progress')
+		.select('progress, understanding, previous_reasoning')
 		.eq('id', chatId)
 		.single();
 
-	console.log('chat', chat?.progress);
 
 	const { object: classification } = await generateObject({
 		model: openai('gpt-4o-mini'),
@@ -106,23 +105,29 @@ export async function POST(req: NextRequest) {
 				'application',
 				'mastery',
 			]),
-			type: z.enum(['example', 'analogy', 'explanation', 'resource']),
+			type: z.enum([
+				'example',
+				'analogy',
+				'explanation',
+				'storytelling',
+				'quiz',
+				'video',
+				'practice',
+			]),
 		}),
-		// system: orchestratorSystemPrompt,
-		prompt: `You are discussing ${title} ${description}.
-		The user's message is: ${userMessage?.content}.
+		system: `You are a professional teacher who is teaching ${title} ${description} with a student who has the following background: ${resources}.
 
-		Current progress of the user's understanding of the concept is ${chat?.progress}.
 		You are using the teaching method of ${blurryToSharpLearning}.
 
-		Analyze the conversation history and determine:
-    	1. Current understanding of the concept (none, conceptual, context, application, mastery)
-    	2. Type of teaching method to use next (example, analogy, explanation)
-    	3. Brief reasoning for classification
-		4. Progress of the user's understanding of the concept (0-100)
-		5. If the user's message contains context about the user, the type is resource.
-		
-		The user has ADHD, so focus on engaging them and using interactive or visual methods.
+		The conversation history is: ${parsedMessages}.`,
+		prompt: `Analyze the conversation history and the user's message to determine:
+
+    	1. Updated understanding of the concept (none, conceptual, context, application, mastery). The current understanding is: ${chat?.understanding}
+    	2. Type of teaching method to use next (example, analogy, explanation, storytelling, quiz, video). Make sure that the teaching method is appropriate for the user's understanding. For example, if the user is in the "none" stage, offer simple explanations and analogies, but do not offer difficult practice questions or any kind of formulas.
+    	3. Brief reasoning for classification. Take into account the previous reasoning and classification, which is: ${chat?.previous_reasoning}
+		4. Updated progress of the user's understanding of the concept (0-100)
+
+		The user's message is: ${userMessage?.content}.
 
 		`,
 	});
@@ -132,43 +137,37 @@ export async function POST(req: NextRequest) {
 	const basePrompt = `The concept is ${title} with the description ${description}. The user's message is: ${userMessage?.content}.`;
 
 	const routerPrompt = {
+		resource:
+			"You have access to the user's memory. You can store important information using the memoryTool and retrieve relevant memories to personalize your responses. If the user is offering information about themselves, store it in their memory for future reference.",
 		quiz:
-			'generate a quiz about the concept to test the users knowledge. Call a tool to generate the quiz.' +
-			basePrompt,
+			'generate a quiz about the concept to test the users knowledge. Call a tool to generate the quiz.',
 		video:
-			'find a relevant video about the concept. Call a tool to find the video.' +
-			basePrompt,
+			'find a relevant video about the concept. Call a tool to find the video.',
 		example:
 			systemPrompt2 +
-			'find an example that will help the student understand the concept' +
-			basePrompt +
-			rules,
+			'find an example that will help the student understand the concept',
 		analogy:
-			'find an analogy that will help the student understand the concept' +
-			basePrompt +
-			rules,
+			'find an analogy that will help the student understand the concept',
 		explanation:
-			'explain the concept in a way that will help the student understand it, then ask a follow-up question to ensure I understand correctly.' +
-			basePrompt +
-			rules,
-		resource:
-			"You have access to the user's memory. You can store important information using the memoryTool and retrieve relevant memories to personalize your responses. If the user is offering information about themselves, store it in their memory for future reference." +
-			basePrompt +
-			rules,
+			'explain the concept in a way that will help the student understand it, then ask a follow-up question to ensure I understand correctly.',
+		storytelling:
+			'Create a word problem based on the concept, then turn it into a story. Ask me to point out the “characters” in the story which are the parameters in the problem. Do not use formulas or equations in your story. Think of it as an analogy.',
+		practice:
+			'create a practice question for the user to solve. Ask them to explain their thought process to you.',
 	}[classification.type];
 
-	const model = openai('gpt-4o-mini');
-	//routes
 	return createDataStreamResponse({
 		execute: (dataStream) => {
 			dataStream.writeData('initialized call');
 			const result = streamText({
-				model,
-				maxSteps: 1,
-				system: routerPrompt,
+				maxSteps: 2,
+				model: openai('gpt-4o-mini'),
+				system: basePrompt + routerPrompt + rules,
 				tools: tools,
 				messages,
 				onFinish: async ({ response }) => {
+
+
 					const newMessages = appendResponseMessages({
 						messages,
 						responseMessages: response.messages,
@@ -195,6 +194,8 @@ export async function POST(req: NextRequest) {
 						.from('Chat')
 						.update({
 							progress: classification.progress,
+							understanding: classification.understanding,
+							previous_reasoning: classification.reasoning,
 						})
 						.eq('id', chatId)
 						.throwOnError();
@@ -206,57 +207,6 @@ export async function POST(req: NextRequest) {
 			result.mergeIntoDataStream(dataStream);
 		},
 	});
-}
-
-async function getLearningObjectives(
-	chatId: string,
-	title: string,
-	description: string
-) {
-	const { userId } = await auth();
-
-	if (!userId) {
-		return new Response('Unauthorized', { status: 401 });
-	}
-
-	// check for learning objectives in supabase
-	const { data: objectives, error: learningObjectivesError } = await supabase
-		.from('learningobjectives')
-		.select('objectives')
-		.eq('chat_id', chatId)
-		.single();
-
-	// Define the schema as an object with an array property, not directly as an array
-	const LearningObjectivesSchema = z.object({
-		objectives: z
-			.array(z.string().min(1, 'Objective cannot be empty'))
-			.length(5),
-	});
-
-	let newObjectives;
-
-	//when creating new objectives, make sure they don't overlap with other stages in the learning path
-
-	if (!objectives) {
-		newObjectives = await generateObject({
-			model: openai('gpt-4o-mini'),
-			schema: LearningObjectivesSchema,
-			prompt: `You are an expert educational curriculum designer creating a comprehensive list of learning objectives for teaching the concept of "${title}: ${description}".
-	Please provide a list of specific, measurable learning objectives that cover all aspects of understanding ${title}.
-	Each objective should start with an action verb and describe what the learner will be able to do after mastering this concept.
-	Include objectives that cover different levels of understanding, from basic recall to application and analysis.`,
-		});
-
-		await supabase
-			.from('learningobjectives')
-			.insert({
-				chat_id: chatId,
-				objectives: newObjectives.object.objectives,
-			})
-			.throwOnError();
-	}
-
-	return objectives || newObjectives;
 }
 
 async function getResources(content: string) {
@@ -272,7 +222,7 @@ async function getResources(content: string) {
 			query_embedding: userQueryEmbedded,
 			match_threshold: 0.5,
 			match_count: 10,
-			user_id_param: userId,
+			// user_id_param: userId,
 		}
 	);
 
