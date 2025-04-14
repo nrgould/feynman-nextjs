@@ -7,4 +7,5 @@ I want you to keep in mind that you do also ask specific questions that will pus
 export const rules = `
 - DO NOT let the user change the subject or topic.
 - ALWAYS Bold important words
+- ALWAYS keep the flow of the conversation going.
 `;

@@ -188,31 +188,31 @@ export const learningObjectivesAnalysisTool = createTool({
 	},
 });
 
-export const addResource = createTool({
-	description: `Use this to add information about users to your knowledge base.
-          If the user provides a random piece of knowledge unprompted, use this tool without asking for confirmation.`,
-	parameters: z.object({
-		content: z
-			.string()
-			.describe('the content or resource to add to the knowledge base'),
-		title: z
-			.string()
-			.default('User Information')
-			.describe('a title for the resource'),
-	}),
-	execute: async ({ content, title }) => createResource({ content, title }),
-});
+// export const addResource = createTool({
+// 	description: `Use this to add information about users to your knowledge base.
+//           If the user provides a random piece of knowledge unprompted, use this tool without asking for confirmation.`,
+// 	parameters: z.object({
+// 		content: z
+// 			.string()
+// 			.describe('the content or resource to add to the knowledge base'),
+// 		title: z
+// 			.string()
+// 			.default('User Information')
+// 			.describe('a title for the resource'),
+// 	}),
+// 	execute: async ({ content, title }) => createResource({ content, title }),
+// });
 
-export const getInformation = createTool({
-	description: `get information from your knowledge base to answer questions. Use this tool without asking for confirmation.`,
-	parameters: z.object({
-		question: z.string().describe('the users question'),
-	}),
-	execute: async ({ question }) => findRelevantContent(question),
-});
+// export const getInformation = createTool({
+// 	description: `get information from your knowledge base to answer questions. Use this tool without asking for confirmation.`,
+// 	parameters: z.object({
+// 		question: z.string().describe('the users question'),
+// 	}),
+// 	execute: async ({ question }) => findRelevantContent(question),
+// });
 
 export const memoryTool = createTool({
-	description: "Store information in the user's memory for later retrieval",
+	description: "Store information in memory for later retrieval. If a user provides a random piece of knowledge unprompted, use this tool without asking for confirmation. If a user mentions a new concept, use this tool to store it in memory.",
 	parameters: z.object({
 		title: z.string().describe('A short title for the memory'),
 		content: z.string().describe('The content to store in memory'),
@@ -230,8 +230,5 @@ export const memoryTool = createTool({
 export const tools = {
 	getYoutubeVideo: youtubeSearchTool,
 	generateQuestion: questionGeneratorTool,
-	addResource: addResource,
-	getInformation: getInformation,
-	// analyzeLearningObjectives: learningObjectivesAnalysisTool,
 	memoryTool,
 };

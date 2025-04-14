@@ -1,6 +1,7 @@
 import { embed, embedMany } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { createClient } from '@/utils/supabase/server';
+import { auth } from '@clerk/nextjs/server';
 
 const embeddingModel = openai.embedding('text-embedding-ada-002');
 
@@ -33,15 +34,17 @@ export const generateEmbedding = async (value: string): Promise<number[]> => {
 
 export const findRelevantContent = async (userQuery: string) => {
 	const userQueryEmbedded = await generateEmbedding(userQuery);
+	const { userId } = await auth();
 
 	const supabase = await createClient();
 
 	const { data: similarGuides, error } = await supabase.rpc(
-		'match_documents',
+		'match_memory',
 		{
 			query_embedding: userQueryEmbedded,
 			match_threshold: 0.5,
 			match_count: 4,
+			user_id_param: userId,
 		}
 	);
 

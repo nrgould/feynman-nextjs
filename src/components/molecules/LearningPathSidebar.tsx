@@ -143,7 +143,7 @@ export function LearningPathSidebar({
 							</div>
 							<Progress value={currentProgress} className='h-2' />
 						</div>
-						<div className='flex gap-2 mt-4'>
+						{/* <div className='flex gap-2 mt-4'>
 							<Button
 								size='sm'
 								variant='outline'
@@ -172,7 +172,7 @@ export function LearningPathSidebar({
 								<CheckCircle2 className='w-4 h-4 mr-1' />
 								Mark Complete
 							</Button>
-						</div>
+						</div> */}
 					</div>
 
 					{/* <div className='p-4 border-l-4 border-amber-400 bg-amber-50 rounded-r-lg'>
