@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { LearningPath } from '@/lib/learning-path-schemas';
@@ -18,7 +18,7 @@ export async function saveLearningPathToSupabase(
 			throw new Error('User not authenticated');
 		}
 
-		const supabase = await createClient();
+		const supabase = await createServerSupabaseClient();
 
 		// Generate a UUID for the learning path or use the provided one
 		const learningPathId = providedLearningPathId || uuidv4();
@@ -118,7 +118,7 @@ export async function getUserLearningPaths() {
 			throw new Error('User not authenticated');
 		}
 
-		const supabase = await createClient();
+		const supabase = await createServerSupabaseClient();
 
 		const { data: learningPaths, error } = await supabase
 			.from('LearningPath')
@@ -153,7 +153,7 @@ export async function getLearningPathDetails(learningPathId: string) {
 			};
 		}
 
-		const supabase = await createClient();
+		const supabase = await createServerSupabaseClient();
 
 		// 1. Get the learning path
 		const { data: learningPath, error: learningPathError } = await supabase
@@ -260,7 +260,7 @@ export async function updateLearningPathNodeProgress(
 			throw new Error('User not authenticated');
 		}
 
-		const supabase = await createClient();
+		const supabase = await createServerSupabaseClient();
 
 		// First, get the node to find its learning path ID
 		const { data: node, error: nodeError } = await supabase
@@ -359,7 +359,7 @@ export async function deleteLearningPath(learningPathId: string) {
 			throw new Error('User not authenticated');
 		}
 
-		const supabase = await createClient();
+		const supabase = await createServerSupabaseClient();
 
 		// First, get all chats associated with this learning path
 		const { data: chats, error: chatsError } = await supabase
@@ -439,7 +439,7 @@ export async function checkConceptActive(nodeId: string) {
 			throw new Error('User not authenticated');
 		}
 
-		const supabase = await createClient();
+		const supabase = await createServerSupabaseClient();
 
 		// Check if the learning path node exists and has a chat_id
 		const { data, error } = await supabase
@@ -493,7 +493,7 @@ export async function createChatFromLearningPathNode(
 			throw new Error('User not authenticated');
 		}
 
-		const supabase = await createClient();
+		const supabase = await createServerSupabaseClient();
 
 		// First, check if the learning path node already has a chat associated with it
 		const { data: existingNode, error: nodeError } = await supabase

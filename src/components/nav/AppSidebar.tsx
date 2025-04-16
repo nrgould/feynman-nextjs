@@ -33,11 +33,11 @@ const signedInItems = [
 		url: '/',
 		icon: Home,
 	},
-	// {
-	// 	title: 'Concepts',
-	// 	url: '/concepts',
-	// 	icon: Brain,
-	// },
+	{
+		title: 'Concepts',
+		url: '/three-test',
+		icon: Brain,
+	},
 	{
 		title: 'Learn',
 		url: '/learning-path',

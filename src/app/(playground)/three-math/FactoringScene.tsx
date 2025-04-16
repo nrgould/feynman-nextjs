@@ -1,20 +1,27 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { gsap } from 'gsap'; // Import gsap
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+
+// Define visual properties for text and animation
+const colors = {
+	xTerm: 0x4a90e2, // Blue for x terms
+	constant: 0xd0021b, // Red for constants
+	operator: 0x7ed321, // Green for operators (+, -)
+	parenthesis: 0x9b59b6, // Purple for parentheses
+	default: 0x333333, // Default text color
+	// Add a single vibrant color for all text
+	highlight: 0x0066ff, // Bright blue for all text
+};
 
 // Define visual properties
 const xSize = 4; // Visual size representing 'x'
 const unitSize = 1; // Visual size representing '1'
 const depth = 0.2; // Make blocks 3D
-
-const colors = {
-	xSquared: 0x4a90e2, // Blue
-	xTerm: 0x7ed321, // Green
-	unitTerm: 0xd0021b, // Red
-};
 
 // Helper function to convert 3D world coords to 2D screen coords
 function worldToScreen(
@@ -51,223 +58,266 @@ const FactoringScene: React.FC = () => {
 	const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 	const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 	const controlsRef = useRef<OrbitControls | null>(null);
-	const shapesRef = useRef<THREE.Mesh[]>([]);
+	const textMeshesRef = useRef<THREE.Mesh[]>([]); // ADDED: Ref to hold text meshes
+	const fontRef = useRef<any>(null); // ADDED: Ref to hold the loaded font
 
-	const [isFactored, setIsFactored] = useState(false);
-	const [isAnimating, setIsAnimating] = useState(false); // Prevent clicking during animation
-	const [showLabels, setShowLabels] = useState(false);
-	const [labels, setLabels] = useState<LabelInfo[]>([]);
+	const [currentStep, setCurrentStep] = useState(0); // ADDED: State for current factoring step
+	const [isFontLoaded, setIsFontLoaded] = useState(false); // ADDED: State to track font loading
+	const [isAnimating, setIsAnimating] = useState(false); // ADDED BACK: Animation state
 
-	// Function to create meshes
-	const createShapes = useCallback(() => {
-		const shapes: THREE.Mesh[] = [];
-		const spacing = 0.1; // Small gap between shapes
-		const initialSpread = 6; // Spread shapes out initially
+	// Define factoring steps (textual representation)
+	const factoringSteps = useMemo(() => [
+		'x² + 5x + 6',
+		'x² + 2x + 3x + 6',
+		'(x² + 2x) + (3x + 6)',
+		'x(x + 2) + 3(x + 2)',
+		'(x + 2)(x + 3)',
+	], []);
 
-		// Create x^2 term (Blue Box)
-		const xSquaredGeo = new THREE.BoxGeometry(xSize, xSize, depth);
-		const xSquaredMat = new THREE.MeshStandardMaterial({
-			color: colors.xSquared,
-		});
-		const xSquaredMesh = new THREE.Mesh(xSquaredGeo, xSquaredMat);
-		xSquaredMesh.position.set(-initialSpread, initialSpread, 0); // Initial top-left
-		xSquaredMesh.userData = {
-			type: 'xSquared',
-			initialPos: xSquaredMesh.position.clone(),
-			targetPos: new THREE.Vector3(0, 0, 0),
-			targetRot: new THREE.Euler(0, 0, 0),
-		};
-		shapes.push(xSquaredMesh);
+	// Add step descriptions
+	const stepDescriptions = [
+		'Start with x² + 5x + 6',
+		'Split the middle term: 5x = 2x + 3x',
+		'Group the terms: (x² + 2x) + (3x + 6)',
+		'Factor out common terms: x(x + 2) + 3(x + 2)',
+		'Factor out (x + 2): (x + 2)(x + 3)',
+	];
 
-		// Create 5x terms (Green Boxes)
-		const xTermGeo = new THREE.BoxGeometry(xSize, unitSize, depth);
-		const xTermMat = new THREE.MeshStandardMaterial({
-			color: colors.xTerm,
-		});
-		for (let i = 0; i < 5; i++) {
-			const xTermMesh = new THREE.Mesh(xTermGeo, xTermMat);
-			xTermMesh.position.set(
-				0,
-				initialSpread - i * (unitSize + spacing + 0.2),
-				0.5
-			); // Initial middle, slightly forward
-			xTermMesh.userData = {
-				type: 'xTerm',
-				index: i,
-				initialPos: xTermMesh.position.clone(),
-				targetPos: new THREE.Vector3(0, 0, 0),
-				targetRot: new THREE.Euler(0, 0, 0),
-			};
-			shapes.push(xTermMesh);
-		}
-
-		// Create 6 unit terms (Red Boxes)
-		const unitTermGeo = new THREE.BoxGeometry(unitSize, unitSize, depth);
-		const unitTermMat = new THREE.MeshStandardMaterial({
-			color: colors.unitTerm,
-		});
-		for (let i = 0; i < 6; i++) {
-			const unitTermMesh = new THREE.Mesh(unitTermGeo, unitTermMat);
-			const row = Math.floor(i / 3); // Arrange in 2 rows initially
-			const col = i % 3;
-			unitTermMesh.position.set(
-				initialSpread + col * (unitSize + spacing),
-				initialSpread - row * (unitSize + spacing),
-				0
-			); // Initial top-right
-			unitTermMesh.userData = {
-				type: 'unitTerm',
-				index: i,
-				initialPos: unitTermMesh.position.clone(),
-				targetPos: new THREE.Vector3(0, 0, 0),
-				targetRot: new THREE.Euler(0, 0, 0),
-			};
-			shapes.push(unitTermMesh);
-		}
-
-		// Calculate target positions and rotations for factored state (x+2)(x+3)
-		// Center the final rectangle around (0,0,0)
-		const totalWidth = xSize + 3 * unitSize;
-		const totalHeight = xSize + 2 * unitSize;
-		const offsetX = -totalWidth / 2;
-		const offsetY = totalHeight / 2;
-
-		shapes.forEach((shape) => {
-			const data = shape.userData;
-			data.initialRot = shape.rotation.clone();
-
-			if (data.type === 'xSquared') {
-				data.targetPos.set(offsetX + xSize / 2, offsetY - xSize / 2, 0);
-				data.targetRot.set(0, 0, 0);
-			} else if (data.type === 'xTerm') {
-				if (data.index < 2) {
-					// The 2 x*1 terms forming the side rectangle part (width=1, height=x)
-					const sideIndex = data.index;
-					data.targetPos.set(
-						offsetX + xSize + unitSize / 2 + sideIndex * unitSize, // Positioned right of x^2, stacked horizontally
-						offsetY - xSize / 2, // Centered vertically beside x^2
-						0
-					);
-					data.targetRot.set(0, 0, 0);
-				} else {
-					// The 3 x*1 terms forming the top rectangle part (width=x, height=1)
-					const topIndex = data.index - 2;
-					data.targetPos.set(
-						offsetX + xSize / 2, // Centered horizontally under x^2
-						offsetY - xSize - unitSize / 2 - topIndex * unitSize, // Positioned below x^2, stacked vertically
-						0
-					);
-					data.targetRot.set(0, 0, Math.PI / 2); // Rotate 90 deg around Z
-				}
-			} else if (data.type === 'unitTerm') {
-				// The 6 1x1 terms in the bottom right corner (2 rows, 3 columns)
-				const row = Math.floor(data.index / 3);
-				const col = data.index % 3;
-				data.targetPos.set(
-					offsetX + xSize + unitSize / 2 + col * unitSize, // Align with side xTerms horiz., stack horiz.
-					offsetY - xSize - unitSize / 2 - row * unitSize, // Align with top xTerms vert., stack vert.
-					0
-				);
-				data.targetRot.set(0, 0, 0);
-			}
-		});
-
-		return shapes;
-	}, []);
-
-	// Calculate and update label positions
-	const updateLabels = useCallback(() => {
-		if (!cameraRef.current || !containerRef.current) return;
-
-		const camera = cameraRef.current;
-		const container = containerRef.current;
-		const newLabels: LabelInfo[] = [];
-
-		const totalWidth = xSize + 3 * unitSize;
-		const totalHeight = xSize + 2 * unitSize;
-		const offsetX = -totalWidth / 2;
-		const offsetY = totalHeight / 2;
-		const labelOffset = 0.6;
-
-		// Helper to add label only if position is valid
-		const addLabel = (
+	// ADDED: Helper function to create text meshes
+	const createTextMesh = useCallback(
+		(
 			text: string,
-			worldX: number,
-			worldY: number,
-			worldZ: number,
-			id: string
+			font: any,
+			options: {
+				size?: number;
+				depth?: number;
+				color?: number;
+				position?: THREE.Vector3;
+				initialOpacity?: number;
+			} = {}
 		) => {
-			const screenPos = worldToScreen(
-				new THREE.Vector3(worldX, worldY, worldZ),
-				camera,
-				container
-			);
-			if (screenPos) {
-				// Check if position is valid before adding
-				newLabels.push({ text, position: screenPos, id });
-			}
-		};
+			const {
+				size = 0.6, // Smaller size to fit all characters
+				depth = 0.2,
+				color = colors.highlight, // Use a single bright color for all text
+				position = new THREE.Vector3(0, 0, 0),
+				initialOpacity = 1, // Default to fully opaque
+			} = options;
 
-		// Vertical Labels (x+2)
-		const vertLabelX = offsetX - labelOffset;
-		addLabel('x', vertLabelX, offsetY - xSize / 2, 0, 'v1');
-		addLabel('+ 1', vertLabelX, offsetY - xSize - unitSize / 2, 0, 'v2');
-		addLabel('+ 1', vertLabelX, offsetY - xSize - unitSize * 1.5, 0, 'v3');
+			const textGeo = new TextGeometry(text, {
+				font: font,
+				size: size,
+				depth: depth,
+				curveSegments: 12,
+				bevelEnabled: false,
+			});
 
-		// Horizontal Labels (x+3)
-		const horizLabelY = offsetY + labelOffset;
-		addLabel('x', offsetX + xSize / 2, horizLabelY, 0, 'h1');
-		addLabel('+ 1', offsetX + xSize + unitSize / 2, horizLabelY, 0, 'h2');
-		addLabel('+ 1', offsetX + xSize + unitSize * 1.5, horizLabelY, 0, 'h3');
-		addLabel('+ 1', offsetX + xSize + unitSize * 2.5, horizLabelY, 0, 'h4');
+			// Center the text geometry
+			textGeo.computeBoundingBox();
+			const textWidth =
+				textGeo.boundingBox!.max.x - textGeo.boundingBox!.min.x;
+			textGeo.translate(-textWidth / 2, 0, 0);
 
-		setLabels(newLabels);
-	}, []);
+			// Create material for all faces - CRITICAL CHANGE:
+			// Three.js needs separate materials for front/back/sides in an array
+			const material = new THREE.MeshPhongMaterial({
+				color: color,
+				shininess: 100,
+				specular: 0x111111,
+				transparent: true,
+				opacity: 1,
+			});
+
+			// Create identical materials for all sides to ensure consistent coloring
+			const materials = [
+				material.clone(), // front
+				material.clone(), // back
+				material.clone(), // sides (all remaining faces)
+				// material.clone(),
+				// material.clone(),
+				// material.clone(),
+			];
+
+			// Set initial opacity for all materials
+			materials.forEach((mat) => {
+				mat.opacity = initialOpacity;
+			});
+
+			// Create a mesh with the geometry and materials array
+			const textMesh = new THREE.Mesh(textGeo, materials);
+			textMesh.position.copy(position);
+			textMesh.userData = { text: text }; // Store the text for reference
+
+			return textMesh;
+		},
+		[]
+	);
+
+	// New function to create color-coded text segments
+	const createSegmentedText = useCallback(
+		(
+			expression: string,
+			font: any,
+			yPosition: number = 0,
+			initialOpacity: number = 1
+		) => {
+			if (!font) return [];
+
+			// Instead of color-coding, just divide by characters with spaces
+			const characters = expression.split('');
+
+			// Create text meshes for each character - this gives more precise control
+			const meshes: THREE.Mesh[] = [];
+			const totalChars = characters.length;
+			const textWidth = totalChars * 0.6; // Estimate total width
+			let xPosition = -textWidth / 2; // Center the text
+
+			characters.forEach((char) => {
+				// Skip actual spaces but keep their positioning
+				if (char === ' ') {
+					xPosition += 0.3; // Space width
+					return;
+				}
+
+				const mesh = createTextMesh(char, font, {
+					size: 0.6, // Unified size
+					depth: 0.2, // More depth for better visibility
+					color: colors.highlight, // Single color for all
+					position: new THREE.Vector3(xPosition, yPosition, 0),
+					initialOpacity: initialOpacity, // Pass through the initial opacity
+				});
+
+				// Set initial opacity
+				if (mesh.material instanceof THREE.Material) {
+					mesh.material.opacity = initialOpacity;
+				}
+
+				meshes.push(mesh);
+
+				// Use fixed width for better spacing
+				const charWidth = char === 'x' ? 0.6 : 0.4;
+				xPosition += charWidth;
+			});
+
+			return meshes;
+		},
+		[createTextMesh]
+	);
 
 	// Animation function using GSAP
-	const animateFactor = useCallback(() => {
-		if (isAnimating) return; // Prevent re-triggering during animation
+	const animateNextStep = useCallback(() => {
+		if (
+			isAnimating ||
+			!isFontLoaded ||
+			currentStep >= factoringSteps.length - 1
+		)
+			return;
 		setIsAnimating(true);
-		setIsFactored(true);
-		console.log('Starting factoring animation...');
+		const nextStep = currentStep + 1;
+		console.log(
+			`Animating to step ${nextStep}: ${factoringSteps[nextStep]}`
+		);
 
+		// Create a GSAP timeline for animations
 		const tl = gsap.timeline({
 			onComplete: () => {
+				setCurrentStep(nextStep);
 				setIsAnimating(false);
-				setShowLabels(true); // Show labels after animation
-				updateLabels(); // Calculate initial label positions
-			},
-			onUpdate: () => {
-				if (showLabels) updateLabels(); // Update labels during camera movement
 			},
 		});
 
-		shapesRef.current.forEach((shape) => {
-			tl.to(
-				shape.position,
-				{
-					x: shape.userData.targetPos.x,
-					y: shape.userData.targetPos.y,
-					z: shape.userData.targetPos.z,
-					duration: 1.5, // Animation duration in seconds
-					ease: 'power2.inOut', // Easing function
-				},
-				0
-			); // Start all animations at the same time (time 0 in timeline)
+		// Find any existing group that contains our meshes
+		let existingGroup: THREE.Group | null = null;
+		if (textMeshesRef.current.length > 0) {
+			const currentMeshes = [...textMeshesRef.current];
 
-			tl.to(
-				shape.rotation,
-				{
-					x: shape.userData.targetRot.x,
-					y: shape.userData.targetRot.y,
-					z: shape.userData.targetRot.z,
-					duration: 1.5,
-					ease: 'power2.inOut',
+			currentMeshes.forEach((mesh) => {
+				if (mesh.parent && mesh.parent instanceof THREE.Group) {
+					existingGroup = mesh.parent;
+				}
+			});
+
+			// Fade out current text
+			const allCurrentMaterials: THREE.Material[] = [];
+			currentMeshes.forEach((mesh) => {
+				if (Array.isArray(mesh.material)) {
+					mesh.material.forEach((mat) =>
+						allCurrentMaterials.push(mat)
+					);
+				} else if (mesh.material) {
+					allCurrentMaterials.push(mesh.material);
+				}
+			});
+
+			tl.to(allCurrentMaterials, {
+				opacity: 0,
+				duration: 0.5,
+				ease: 'power2.out',
+				onComplete: () => {
+					// Remove the entire group if it exists
+					if (existingGroup && sceneRef.current) {
+						sceneRef.current.remove(existingGroup);
+					}
 				},
-				0
+			});
+		}
+
+		// Create and fade in new text
+		tl.call(() => {
+			if (!fontRef.current || !sceneRef.current) return;
+
+			// Clear the array for new meshes
+			textMeshesRef.current = [];
+
+			// Create text meshes for next step
+			const textMeshes = createSegmentedText(
+				factoringSteps[nextStep],
+				fontRef.current,
+				0, // y position
+				0 // start with opacity 0 for fade-in
 			);
+
+			// Create a new group
+			const textGroup = new THREE.Group();
+
+			// Add meshes to group and store references
+			textMeshes.forEach((mesh) => {
+				textGroup.add(mesh);
+				textMeshesRef.current.push(mesh);
+			});
+
+			// Apply the same positioning
+			textGroup.position.set(0, 0, 0);
+			textGroup.rotation.x = -Math.PI / 8;
+
+			// Add group to scene
+			sceneRef.current.add(textGroup);
+
+			// Simple fade-in animation - handle array of materials
+			const allMaterials: THREE.Material[] = [];
+			textMeshes.forEach((mesh) => {
+				if (Array.isArray(mesh.material)) {
+					// If it's an array of materials, add each one
+					mesh.material.forEach((mat) => allMaterials.push(mat));
+				} else if (mesh.material) {
+					// If it's a single material
+					allMaterials.push(mesh.material);
+				}
+			});
+
+			gsap.to(allMaterials, {
+				opacity: 1,
+				duration: 0.7,
+				ease: 'power2.inOut',
+			});
 		});
-	}, [isAnimating, updateLabels, showLabels]);
+	}, [
+		isAnimating,
+		isFontLoaded,
+		currentStep,
+		factoringSteps,
+		createSegmentedText,
+	]);
 
 	// Effect for setup and cleanup
 	useEffect(() => {
@@ -280,11 +330,23 @@ const FactoringScene: React.FC = () => {
 			sceneRef.current = scene;
 
 			// --- Add Lighting ---
-			const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+			const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Increased ambient for better overall illumination
 			scene.add(ambientLight);
-			const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-			directionalLight.position.set(5, 10, 7.5);
+
+			// Main directional light from front
+			const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+			directionalLight.position.set(0, 0, 10); // Directly in front
 			scene.add(directionalLight);
+
+			// Add a secondary light from the top-right
+			const secondaryLight = new THREE.DirectionalLight(0xffffff, 0.7);
+			secondaryLight.position.set(10, 10, 5);
+			scene.add(secondaryLight);
+
+			// Add a third light from the left for balance
+			const leftLight = new THREE.DirectionalLight(0xffffff, 0.7);
+			leftLight.position.set(-10, 5, 5);
+			scene.add(leftLight);
 
 			const camera = new THREE.PerspectiveCamera(
 				50,
@@ -293,9 +355,12 @@ const FactoringScene: React.FC = () => {
 				1000
 			);
 			cameraRef.current = camera;
-			camera.position.set(0, 0, 20); // Position camera further back for 3D view
+			camera.position.set(0, 0, 5); // Closer and centered
 
-			const renderer = new THREE.WebGLRenderer({ antialias: true });
+			const renderer = new THREE.WebGLRenderer({
+				antialias: true,
+				alpha: true, // Enable transparency
+			});
 			rendererRef.current = renderer;
 			renderer.setSize(container.clientWidth, container.clientHeight);
 			renderer.setPixelRatio(window.devicePixelRatio);
@@ -303,18 +368,82 @@ const FactoringScene: React.FC = () => {
 
 			const controls = new OrbitControls(camera, renderer.domElement);
 			controlsRef.current = controls;
-			controls.enableRotate = true; // Enable rotation for 3D view
+			controls.enableRotate = true;
 			controls.enableDamping = true;
 			controls.dampingFactor = 0.1;
 			controls.screenSpacePanning = true;
-			controls.target.set(0, 0, 0); // Point controls at the center
-			controls.addEventListener('change', () => {
-				if (showLabels) updateLabels();
-			});
+			controls.minDistance = 5; // Prevent zooming in too close
+			controls.maxDistance = 20; // Prevent zooming out too far
+			controls.target.set(0, 0, 0);
 
-			// --- Create Shapes ---
-			shapesRef.current = createShapes();
-			shapesRef.current.forEach((shape) => scene.add(shape));
+			// --- Load Font ---
+			const fontLoader = new FontLoader();
+			fontLoader.load(
+				// Ensure you have a font file in your public directory
+				'/fonts/helvetiker_regular.typeface.json', // Example path
+				(font) => {
+					console.log('Font loaded successfully!');
+					fontRef.current = font;
+					setIsFontLoaded(true);
+
+					// Create color-coded segments for initial step
+					console.log('Creating initial text meshes...');
+					const initialMeshes = createSegmentedText(
+						factoringSteps[0],
+						font,
+						0, // y position
+						0 // start invisible for fade-in
+					);
+
+					if (initialMeshes.length > 0 && sceneRef.current) {
+						// Create a group for text grouping and manipulation
+						const textGroup = new THREE.Group();
+						initialMeshes.forEach((mesh) => {
+							textGroup.add(mesh);
+						});
+
+						// Position the text centrally with a slight forward tilt
+						textGroup.position.set(0, 0, 0);
+						textGroup.rotation.x = -Math.PI / 8; // Less aggressive tilt
+
+						// Add group to scene
+						sceneRef.current.add(textGroup);
+
+						// Store references
+						textMeshesRef.current = initialMeshes;
+
+						// Simple fade-in animation - handle array of materials
+						const allMaterials: THREE.Material[] = [];
+						initialMeshes.forEach((mesh) => {
+							if (Array.isArray(mesh.material)) {
+								// If it's an array of materials, add each one
+								mesh.material.forEach((mat) =>
+									allMaterials.push(mat)
+								);
+							} else if (mesh.material) {
+								// If it's a single material
+								allMaterials.push(mesh.material);
+							}
+						});
+
+						gsap.to(allMaterials, {
+							opacity: 1,
+							duration: 1.0,
+							ease: 'power2.inOut',
+						});
+
+						console.log('Initial text meshes added to scene.');
+					} else {
+						console.error(
+							'Failed to create or add initial text meshes.'
+						);
+					}
+				},
+				undefined, // onProgress callback (optional)
+				(error) => {
+					console.error('An error occurred loading the font:', error);
+				}
+			);
 
 			// --- Animation Loop ---
 			let animationFrameId: number;
@@ -343,21 +472,14 @@ const FactoringScene: React.FC = () => {
 				cameraRef.current.aspect = width / height;
 				cameraRef.current.updateProjectionMatrix();
 				rendererRef.current.setSize(width, height);
-				if (showLabels) updateLabels(); // Update labels on resize
 			};
 			window.addEventListener('resize', handleResize);
 
 			// --- Cleanup ---
 			return () => {
 				cancelAnimationFrame(animationFrameId);
-				gsap.killTweensOf(shapesRef.current.map((s) => s.position)); // Kill GSAP animations on cleanup
-				gsap.killTweensOf(shapesRef.current.map((s) => s.rotation));
 				window.removeEventListener('resize', handleResize);
 				if (controlsRef.current) {
-					controlsRef.current.removeEventListener(
-						'change',
-						updateLabels
-					);
 					controlsRef.current.dispose();
 				}
 				if (rendererRef.current && containerRef.current) {
@@ -372,23 +494,23 @@ const FactoringScene: React.FC = () => {
 					}
 					rendererRef.current.dispose();
 				}
-				// Dispose geometries/materials
-				shapesRef.current.forEach((shape) => {
-					shape.geometry.dispose();
-					if (shape.material instanceof THREE.Material) {
-						shape.material.dispose();
-					} else if (Array.isArray(shape.material)) {
-						shape.material.forEach((m) => m.dispose());
+				textMeshesRef.current.forEach((mesh) => {
+					if (sceneRef.current) sceneRef.current.remove(mesh); // Remove from scene
+					mesh.geometry.dispose();
+					if (mesh.material instanceof THREE.Material) {
+						mesh.material.dispose();
+					} else if (Array.isArray(mesh.material)) {
+						mesh.material.forEach((m) => m.dispose());
 					}
 				});
 				sceneRef.current = null;
 				cameraRef.current = null;
 				rendererRef.current = null;
 				controlsRef.current = null;
-				shapesRef.current = [];
+				textMeshesRef.current = []; // Clear text meshes ref
 			};
 		}
-	}, [createShapes, updateLabels, showLabels]);
+	}, [createTextMesh, createSegmentedText, factoringSteps]); // Added createSegmentedText as dependency
 
 	return (
 		<div
@@ -396,82 +518,66 @@ const FactoringScene: React.FC = () => {
 				width: '100%',
 				height: 'calc(100vh - 60px)',
 				position: 'relative',
-				overflow: 'hidden', // Hide potential scrollbars from labels
+				overflow: 'hidden', // Hide potential scrollbars
 			}}
 		>
-			{' '}
-			{/* Adjust height if needed */}
 			<button
-				onClick={animateFactor}
-				disabled={isFactored || isAnimating} // Disable while factored or animating
+				onClick={animateNextStep} // CHANGED: Trigger next step animation
+				disabled={
+					isAnimating ||
+					!isFontLoaded ||
+					currentStep >= factoringSteps.length - 1
+				} // Disable during animation, before font load, or at last step
 				style={{
 					position: 'absolute',
 					top: '20px',
 					left: '20px',
 					zIndex: 100,
 					padding: '12px 20px',
-					cursor: isAnimating ? 'wait' : 'pointer',
-					backgroundColor: isFactored
-						? '#cccccc'
-						: isAnimating
-							? '#ffc107'
-							: '#007bff', // Blue, Yellow during anim, Grey when done
+					cursor:
+						isAnimating || currentStep >= factoringSteps.length - 1
+							? 'default'
+							: 'pointer',
+					backgroundColor:
+						currentStep >= factoringSteps.length - 1
+							? '#cccccc' // Grey when done
+							: isAnimating
+								? '#ffc107' // Yellow during anim
+								: '#007bff', // Blue default
 					color: 'white',
 					fontWeight: 'bold',
 					fontSize: '16px',
 					border: 'none',
 					borderRadius: '8px',
 					boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+					minWidth: '150px', // Give button some width
 				}}
 			>
-				{isFactored
+				{currentStep >= factoringSteps.length - 1
 					? 'Factored!'
 					: isAnimating
-						? 'Factoring...'
-						: 'Factor! x² + 5x + 6'}
+						? 'Animating...'
+						: 'Next Step'}
 			</button>
 			<div
 				ref={containerRef}
 				style={{ width: '100%', height: '100%', cursor: 'grab' }}
 			/>
-			{/* Render Labels */}
-			{showLabels &&
-				labels.map((label) => (
-					<div
-						key={label.id}
-						style={{
-							position: 'absolute',
-							left: `${label.position.x}px`,
-							top: `${label.position.y}px`,
-							transform: 'translate(-50%, -50%)', // Center label on position
-							color: '#333', // Dark text color
-							background: 'rgba(255, 255, 255, 0.7)', // Semi-transparent white background
-							padding: '2px 5px',
-							borderRadius: '3px',
-							fontSize: '14px',
-							fontWeight: 'bold',
-							pointerEvents: 'none', // Prevent labels from blocking interactions
-							whiteSpace: 'nowrap',
-						}}
-					>
-						{label.text}
-					</div>
-				))}
 			<div
 				style={{
 					position: 'absolute',
 					bottom: '10px',
 					left: '10px',
-					color: '#555',
-					fontSize: '12px',
-					background: 'rgba(255,255,255,0.6)',
-					padding: '4px',
-					borderRadius: '3px',
+					color: '#333',
+					fontSize: '16px',
+					background: 'rgba(255,255,255,0.7)',
+					padding: '5px 10px',
+					borderRadius: '4px',
+					maxWidth: '80%',
 				}}
 			>
-				{isFactored
-					? 'Area = Height x Width = (x + 1 + 1) * (x + 1 + 1 + 1) = (x+2)(x+3)'
-					: 'Click Factor to see how x² + 5x + 6 forms a rectangle.'}
+				<strong>Step {currentStep + 1}:</strong>{' '}
+				{stepDescriptions[currentStep]}
 			</div>
 		</div>
 	);
