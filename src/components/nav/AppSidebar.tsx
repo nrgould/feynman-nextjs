@@ -8,6 +8,7 @@ import {
 	Gauge,
 	Shapes,
 	Sparkles,
+	Box,
 } from 'lucide-react';
 import {
 	Sidebar,
@@ -43,11 +44,11 @@ const signedInItems = [
 		url: '/learning-path',
 		icon: Blocks,
 	},
-	// {
-	// 	title: 'Settings',
-	// 	url: '/settings',
-	// 	icon: Settings2,
-	// },
+	{
+		title: '3D Math',
+		url: '/three-math',
+		icon: Box,
+	},
 ];
 
 const signedOutItems = [

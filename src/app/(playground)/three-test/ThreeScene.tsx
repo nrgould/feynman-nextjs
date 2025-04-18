@@ -89,21 +89,47 @@ const categoryColors = {
 };
 
 // Shared geometries and materials
-const nodeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-const originalNodeColor = new THREE.Color(0x4287f5);
-const highlightColor = new THREE.Color(0xf5a742);
+const nodeGeometry = new THREE.SphereGeometry(0.05, 32, 16); // Increased segments for smoother sphere
+const originalNodeColor = new THREE.Color(0x000000); // Nodes are now black by default
+const highlightColor = new THREE.Color(0xaaaaaa); // Light grey highlight for black nodes
 const lineMaterial = new THREE.LineBasicMaterial({
-	color: 0xff5500,
+	color: 0xff5500, // Keep lines orange for now
 	transparent: true,
 	opacity: 0.8,
 	linewidth: 2,
 });
 
-// Toon shader configuration
-const createToonMaterial = (color: THREE.Color) => {
-	return new THREE.MeshToonMaterial({
+// Standard Material Configuration
+const createStandardMaterial = (
+	color: THREE.Color,
+	metalness = 0.0,
+	roughness = 0.9
+) => {
+	return new THREE.MeshStandardMaterial({
 		color: color,
-		gradientMap: null, // We'll assign this later
+		metalness: metalness,
+		roughness: roughness,
+		envMapIntensity: 0.8,
+	});
+};
+
+// Physical Material Configuration (for center sphere)
+const createPhysicalMaterial = (
+	color: THREE.Color,
+	metalness = 0.8,
+	roughness = 0.2,
+	iors = 1.5,
+	transmission = 0.0 // 0 = opaque, 1 = fully transparent/glassy
+) => {
+	return new THREE.MeshPhysicalMaterial({
+		color: color,
+		metalness: metalness,
+		roughness: roughness,
+		ior: iors,
+		transmission: transmission,
+		thickness: 0.5, // Required for transmission
+		specularIntensity: 0.5,
+		envMapIntensity: 1.0,
 	});
 };
 
@@ -293,26 +319,26 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 			animate: boolean = false,
 			position?: THREE.Vector3 // Add position parameter
 		) => {
-			const nodeMaterial = createToonMaterial(concept.color);
-			if (gradientMapRef.current) {
-				nodeMaterial.gradientMap = gradientMapRef.current;
-			}
+			// Use Standard Material, black nodes, no emission
+			const nodeMaterial = createStandardMaterial(
+				new THREE.Color(0x000000), // Base color black
+				0.0, // metalness
+				0.9 // roughness
+			);
+			console.log(
+				`[Node Material] ID: ${concept.id}, Material Type: ${nodeMaterial.type}`
+			); // Log material type
+
 			const node = new THREE.Mesh(nodeGeometry.clone(), nodeMaterial);
 			node.userData = { ...concept }; // Store all concept data
 			node.visible = concept.visible;
 
 			// --- Calculate Scale based on Mastery --- //
-			const mastery = concept.mastery ?? 0.5; // Default mastery if undefined
 			const minScale = 0.5;
 			const maxScale = 2.3;
-			const masteryScale = minScale + (maxScale - minScale) * mastery;
-			// --- DEBUG: Log scale --- //
-			console.log(
-				`[Node Scale] ID: ${concept.id}, Mastery: ${mastery.toFixed(2)}, Scale: ${masteryScale.toFixed(2)}`
-			);
-			// --- END DEBUG --- //
+			const masteryScale =
+				minScale + (maxScale - minScale) * concept.mastery;
 			node.scale.set(masteryScale, masteryScale, masteryScale);
-			// --- End Scale Calculation ---
 
 			let targetPosition: THREE.Vector3;
 			if (position) {
@@ -334,20 +360,10 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 				node.userData.targetPosition = targetPosition;
 			}
 
-			const outlineMaterial = new THREE.MeshBasicMaterial({
-				color: 0x000000,
-				side: THREE.BackSide,
-			});
-			const outlineMesh = new THREE.Mesh(
-				nodeGeometry.clone().scale(1.15, 1.15, 1.15),
-				outlineMaterial
-			);
-			node.add(outlineMesh);
-
 			return node;
 		},
 		[sphereMinRadius, sphereMaxRadius]
-	); // Only depends on constants now
+	);
 
 	const applyFilters = useCallback(() => {
 		if (!groupRef.current || nodesRef.current.length === 0) return;
@@ -735,7 +751,12 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 
 		// Define handlers within useEffect scope
 		const onMouseMove = (event: MouseEvent) => {
-			if (!rendererRef.current || !cameraRef.current) return;
+			if (
+				!rendererRef.current ||
+				!cameraRef.current ||
+				!initialLoadCompletedRef.current
+			)
+				return;
 			const rect = rendererRef.current.domElement.getBoundingClientRect();
 			mouseRef.current.x =
 				((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -748,23 +769,26 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 			const intersects = raycasterRef.current.intersectObjects(
 				nodesRef.current
 			);
-
 			if (intersects.length > 0) {
 				const intersectedNode = intersects[0].object as THREE.Mesh;
 				if (hoveredNodeRef.current !== intersectedNode) {
-					if (hoveredNodeRef.current && originalColorRef.current) {
-						(
-							hoveredNodeRef.current
-								.material as THREE.MeshToonMaterial
-						).color.copy(originalColorRef.current);
+					// Restore previous hovered node
+					if (hoveredNodeRef.current) {
+						const mat = hoveredNodeRef.current
+							.material as THREE.MeshStandardMaterial;
+						if (originalColorRef.current)
+							mat.color.copy(originalColorRef.current);
 					}
+					// Store current node and its original material properties
 					hoveredNodeRef.current = intersectedNode;
-					originalColorRef.current = (
-						intersectedNode.material as THREE.MeshToonMaterial
-					).color.clone();
-					(
-						intersectedNode.material as THREE.MeshToonMaterial
-					).color.copy(highlightColor);
+					const currentMat =
+						intersectedNode.material as THREE.MeshStandardMaterial;
+					originalColorRef.current = currentMat.color.clone();
+
+					// Apply highlight
+					currentMat.color.copy(highlightColor);
+
+					// Update tooltip
 					const userData = intersectedNode.userData as ConceptState;
 					const masteryPercentage =
 						userData.mastery !== undefined
@@ -779,11 +803,12 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 					});
 				}
 			} else {
-				if (hoveredNodeRef.current && originalColorRef.current) {
-					(
-						hoveredNodeRef.current
-							.material as THREE.MeshToonMaterial
-					).color.copy(originalColorRef.current);
+				// Restore previous hovered node if mouse moves off
+				if (hoveredNodeRef.current) {
+					const mat = hoveredNodeRef.current
+						.material as THREE.MeshStandardMaterial;
+					if (originalColorRef.current)
+						mat.color.copy(originalColorRef.current);
 				}
 				hoveredNodeRef.current = null;
 				originalColorRef.current = null;
@@ -842,7 +867,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 		// --- Scene Setup --- //
 		const scene = new THREE.Scene();
 		sceneRef.current = scene;
-		scene.background = new THREE.Color(0xffffff);
+		scene.background = new THREE.Color(0xffffff); // White background
 		const camera = new THREE.PerspectiveCamera(
 			75,
 			container.clientWidth / container.clientHeight,
@@ -857,41 +882,11 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 		renderer.outputColorSpace = THREE.SRGBColorSpace;
 		container.appendChild(renderer.domElement);
 
-		// Gradient map
-		const createGradientTexture = () => {
-			const size = 256,
-				canvas = document.createElement('canvas');
-			canvas.width = canvas.height = size;
-			const context = canvas.getContext('2d');
-			if (!context) return null;
-			const gradient = context.createLinearGradient(0, 0, size, size);
-			gradient.addColorStop(0, '#333');
-			gradient.addColorStop(0.3, '#666');
-			gradient.addColorStop(0.5, '#999');
-			gradient.addColorStop(0.7, '#CCC');
-			gradient.addColorStop(1, '#FFF');
-			context.fillStyle = gradient;
-			context.fillRect(0, 0, size, size);
-			const texture = new THREE.CanvasTexture(canvas);
-			texture.minFilter = THREE.NearestFilter;
-			texture.magFilter = THREE.NearestFilter;
-			texture.generateMipmaps = false;
-			return texture;
-		};
-		gradientMapRef.current = createGradientTexture();
-
-		// Assign gradient map to materials (important to do it here)
-		Object.values(categoryColors).forEach((color) => {
-			const mat = createToonMaterial(color);
-			if (gradientMapRef.current)
-				mat.gradientMap = gradientMapRef.current;
-		});
-
-		// Lighting
-		const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-		directionalLight.position.set(5, 3, 5);
+		// Lighting (Adjusted for contrast)
+		const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // Increased intensity
+		directionalLight.position.set(5, 5, 5);
 		scene.add(directionalLight);
-		const ambientLight = new THREE.AmbientLight(0x9090a0, 0.8);
+		const ambientLight = new THREE.AmbientLight(0xffffff, 0.2); // Decreased ambient light
 		scene.add(ambientLight);
 
 		// Controls
@@ -907,26 +902,21 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 		const group = new THREE.Group();
 		groupRef.current = group;
 		scene.add(group);
-		const centerSphereGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-		const centerSphereMaterial = createToonMaterial(
-			new THREE.Color(0x2255cc)
+		const centerSphereGeometry = new THREE.SphereGeometry(0.2, 32, 16); // Smoother geometry
+		// Use Physical Material for center sphere - brighter, more reflective
+		const centerSphereMaterial = createPhysicalMaterial(
+			new THREE.Color(0x88bbff), // Brighter blue
+			0.8, // metalness (slightly more metallic)
+			0.15, // roughness (smoother/shinier)
+			1.5, // ior
+			0.0 // transmission (opaque)
 		);
-		if (gradientMapRef.current)
-			centerSphereMaterial.gradientMap = gradientMapRef.current;
 		const centerSphere = new THREE.Mesh(
 			centerSphereGeometry,
 			centerSphereMaterial
 		);
-		const centerOutlineMaterial = new THREE.MeshBasicMaterial({
-			color: 0x000000,
-			side: THREE.BackSide,
-		});
-		const centerOutlineMesh = new THREE.Mesh(
-			centerSphereGeometry.clone().scale(1.15, 1.15, 1.15),
-			centerOutlineMaterial
-		);
-		centerSphere.add(centerOutlineMesh);
 		centerSphere.position.set(0, 0, 0);
+		centerSphere.userData = { isCenterSphere: true };
 		group.add(centerSphere);
 
 		// --- Layout Calculation (UMAP/t-SNE) --- //
@@ -1257,14 +1247,13 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 				}
 				rendererRef.current.dispose();
 			}
-			// Dispose geometries/materials created in this effect
+			// Dispose geometries/materials
 			nodeGeometry.dispose();
 			lineMaterial.dispose();
 			centerSphereGeometry.dispose();
-			(centerSphereMaterial as THREE.Material).dispose();
-			(centerOutlineMaterial as THREE.Material).dispose();
+			(centerSphereMaterial as THREE.Material)?.dispose(); // Dispose main material
+			// (centerOutlineMaterial as THREE.Material)?.dispose(); // Outline removed
 			gradientMapRef.current?.dispose();
-
 			// Clear refs
 			groupRef.current = null;
 			sceneRef.current = null;
