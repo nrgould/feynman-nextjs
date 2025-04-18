@@ -4,36 +4,9 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { gsap } from 'gsap';
-import {
-	ChevronLeft,
-	ChevronRight,
-	X,
-	Eye,
-	EyeOff,
-	Filter,
-	Maximize,
-	Plus,
-	Loader2,
-} from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { Filter, Maximize, Plus } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
@@ -44,11 +17,8 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 	DrawerDescription,
-	DrawerFooter,
-	DrawerClose,
 } from '@/components/ui/drawer';
 import NodeDetailsDrawer from './NodeDetailsDrawer';
-import AddConceptNodeCard from './AddConceptNodeCard';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import {
 	Sheet,
@@ -56,8 +26,6 @@ import {
 	SheetHeader,
 	SheetTitle,
 	SheetDescription,
-	SheetFooter,
-	SheetClose,
 	SheetTrigger,
 } from '@/components/ui/sheet';
 import { FilterPanelContent } from './FilterPanelContent';
@@ -1335,7 +1303,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 									Configure and add a new concept node.
 								</SheetDescription>
 							</SheetHeader>
-							<div className='p-4'>
+							<div>
 								<AddNodePanelContent
 									{...addNodeContentProps}
 									onClose={() => setIsAddNodePanelOpen(false)}
@@ -1366,7 +1334,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 										Configure and add a new concept node.
 									</DrawerDescription>
 								</DrawerHeader>
-								<div className='p-4 pb-0'>
+								<div className='pb-0'>
 									<AddNodePanelContent
 										{...addNodeContentProps}
 										onClose={() =>
@@ -1403,7 +1371,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 									Adjust node visibility.
 								</SheetDescription>
 							</SheetHeader>
-							<div className='p-4'>
+							<div className='pb-0'>
 								<FilterPanelContent
 									{...filterContentProps}
 									onClose={() => setIsFilterPanelOpen(false)}
@@ -1434,7 +1402,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 										Adjust node visibility.
 									</DrawerDescription>
 								</DrawerHeader>
-								<div className='p-4 pb-0'>
+								<div className='pb-0'>
 									<FilterPanelContent
 										{...filterContentProps}
 										onClose={() =>

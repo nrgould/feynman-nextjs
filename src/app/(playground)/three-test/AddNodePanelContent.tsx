@@ -32,7 +32,7 @@ export function AddNodePanelContent({
 
 			{/* Footer section for cancel button if needed */}
 			{onClose && (
-				<div className='mt-4 pt-4 border-t'>
+				<div className='my-4'>
 					<Button
 						variant='outline'
 						className='w-full'

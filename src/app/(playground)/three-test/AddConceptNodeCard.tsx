@@ -2,13 +2,6 @@
 
 import React, { useState, useCallback } from 'react';
 import * as THREE from 'three';
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,21 +48,19 @@ const AddConceptNodeCard: React.FC<AddConceptNodeCardProps> = ({
 	);
 
 	return (
-		<Card className='w-full border-none shadow-none'>
-			<CardHeader className='pb-2'>
-				<CardTitle className='text-lg'>Add Concept Node</CardTitle>
-			</CardHeader>
-			<CardContent className='pt-0 pb-2'>
+		<div className='w-full'>
+			<h3 className='text-lg font-semibold mb-4'>Add Concept Node</h3>
+
+			<div className='space-y-4'>
 				<Input
 					placeholder='Enter concept name...'
 					value={newConceptName}
 					onChange={(e) => setNewConceptName(e.target.value)}
 					onKeyDown={handleKeyPress}
-					className='mb-4'
 					disabled={isAdding}
 				/>
 
-				<div className='mb-4'>
+				<div>
 					<Label className='block mb-2'>
 						Mastery Level: {masteryLevel.toFixed(2)}
 					</Label>
@@ -90,7 +81,7 @@ const AddConceptNodeCard: React.FC<AddConceptNodeCardProps> = ({
 					</div>
 				</div>
 
-				<div className='mb-4'>
+				<div>
 					<Label className='block mb-2'>Category:</Label>
 					<select
 						value={addNodeCategory}
@@ -107,8 +98,9 @@ const AddConceptNodeCard: React.FC<AddConceptNodeCardProps> = ({
 						Color will be determined by category
 					</div>
 				</div>
-			</CardContent>
-			<CardFooter className='flex justify-between p-4 pt-0'>
+			</div>
+
+			<div className='flex justify-between mt-6'>
 				<Button
 					variant='outline'
 					onClick={onAddRandom}
@@ -122,15 +114,16 @@ const AddConceptNodeCard: React.FC<AddConceptNodeCardProps> = ({
 				</Button>
 				<Button
 					onClick={onAddCustom}
+					className='w-full'
 					disabled={!newConceptName.trim() || isAdding}
 				>
 					{isAdding ? (
 						<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 					) : null}
-					{isAdding ? 'Adding...' : 'Add Custom'}
+					{isAdding ? 'Adding...' : 'Add'}
 				</Button>
-			</CardFooter>
-		</Card>
+			</div>
+		</div>
 	);
 };
 
