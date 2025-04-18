@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
 	Card,
 	CardContent,
@@ -22,6 +23,8 @@ import {
 	EyeOff,
 	Filter,
 	Maximize,
+	Plus,
+	Loader2,
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -32,13 +35,38 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import {
+	Drawer,
+	DrawerTrigger,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerClose,
+} from '@/components/ui/drawer';
 import NodeDetailsDrawer from './NodeDetailsDrawer';
-
-// Initial Dummy concept data
-const initialConceptNames = Array.from(
-	{ length: 20 },
-	(_, i) => `Concept ${i + 1}`
-);
+import AddConceptNodeCard from './AddConceptNodeCard';
+import useMediaQuery from '@/hooks/useMediaQuery';
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetDescription,
+	SheetFooter,
+	SheetClose,
+	SheetTrigger,
+} from '@/components/ui/sheet';
+import { FilterPanelContent } from './FilterPanelContent';
+import { AddNodePanelContent } from './AddNodePanelContent';
+import { useUser } from '@clerk/nextjs';
+import { addConceptAction } from './actions'; // Keep addConceptAction
+import { toast } from 'sonner';
+import { UMAP } from 'umap-js'; // <-- Add UMAP import
+import { PCA } from 'ml-pca'; // Keep PCA import for potential pre-processing
 
 // Concept categories
 const categories = [
@@ -50,32 +78,32 @@ const categories = [
 	'All',
 ];
 
-// Concept colors for swatches
-const conceptColors = [
-	{ name: 'Blue', hex: '#4287f5', color: new THREE.Color(0x4287f5) },
-	{ name: 'Green', hex: '#42f572', color: new THREE.Color(0x42f572) },
-	{ name: 'Purple', hex: '#8442f5', color: new THREE.Color(0x8442f5) },
-	{ name: 'Orange', hex: '#f58442', color: new THREE.Color(0xf58442) },
-	{ name: 'Pink', hex: '#f542a7', color: new THREE.Color(0xf542a7) },
-	{ name: 'Cyan', hex: '#42e8f5', color: new THREE.Color(0x42e8f5) },
-];
+// Concept colors for categories - map each category to a specific color
+const categoryColors = {
+	Mathematics: new THREE.Color(0x4287f5),
+	Physics: new THREE.Color(0xf58442),
+	Chemistry: new THREE.Color(0x42f572),
+	Biology: new THREE.Color(0xf542a7),
+	'Computer Science': new THREE.Color(0x8442f5),
+	All: new THREE.Color(0x42e8f5),
+};
 
-// Shared geometries and materials (can be reused)
-const nodeGeometry = new THREE.SphereGeometry(0.05, 8, 8); // Reduced segments for blocky look
-const originalNodeColor = new THREE.Color(0x4287f5); // Blue
-const highlightColor = new THREE.Color(0xf5a742); // Amber highlight
+// Shared geometries and materials
+const nodeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+const originalNodeColor = new THREE.Color(0x4287f5);
+const highlightColor = new THREE.Color(0xf5a742);
 const lineMaterial = new THREE.LineBasicMaterial({
-	color: 0xff5500, // Changed to bright orange for better contrast
+	color: 0xff5500,
 	transparent: true,
-	opacity: 0.8, // Increased opacity
-	linewidth: 2, // Note: linewidth only works in WebGLRenderer with certain extensions
+	opacity: 0.8,
+	linewidth: 2,
 });
 
 // Toon shader configuration
-const createToonMaterial = (color) => {
+const createToonMaterial = (color: THREE.Color) => {
 	return new THREE.MeshToonMaterial({
 		color: color,
-		gradientMap: null, // We'll set this up in the effect
+		gradientMap: null, // We'll assign this later
 	});
 };
 
@@ -89,187 +117,215 @@ const DEFAULT_CATEGORY = 'All';
 const DEFAULT_MASTERY_RANGE: [number, number] = [0, 1];
 const DEFAULT_SHOW_EDGES = true;
 
-const ThreeScene: React.FC = () => {
+// Define the shape of the concept data fetched from DB (passed as prop)
+interface FetchedConcept {
+	id: number;
+	name: string;
+	category: string;
+	mastery: number;
+	embedding?: number[]; // Add embedding
+}
+
+// Define the shape of the concept data used in the component state
+interface ConceptState extends FetchedConcept {
+	color: THREE.Color; // Make color non-optional here
+	visible: boolean; // Make visible non-optional here
+}
+
+// Define props for ThreeScene
+interface ThreeSceneProps {
+	initialConceptsData: FetchedConcept[]; // Accept initial data as prop
+}
+
+const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
+	// --- Refs --- //
 	const containerRef = useRef<HTMLDivElement>(null);
 	const sceneRef = useRef<THREE.Scene | null>(null);
 	const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 	const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 	const controlsRef = useRef<OrbitControls | null>(null);
 	const groupRef = useRef<THREE.Group | null>(null);
-	const nodesRef = useRef<THREE.Mesh[]>([]); // Ref to store node meshes
+	const nodesRef = useRef<THREE.Mesh[]>([]);
+	const edgesRef = useRef<THREE.Line[]>([]);
 	const mouseRef = useRef(new THREE.Vector2());
 	const raycasterRef = useRef(new THREE.Raycaster());
 	const gradientMapRef = useRef<THREE.Texture | null>(null);
-	const initializedRef = useRef<boolean>(false); // Track if the scene has been initialized
-	const [newConceptName, setNewConceptName] = useState<string>('');
-	const [selectedColor, setSelectedColor] = useState<
-		(typeof conceptColors)[0]
-	>(conceptColors[0]);
-	const [masteryLevel, setMasteryLevel] = useState<number>(0.5); // Default to middle value
-	const sphereMinRadius = 1.0; // Minimum radius (center)
-	const sphereMaxRadius = 3.0; // Maximum radius (edge)
+	const initializedRef = useRef<boolean>(false);
+	const activeAnimationsRef = useRef<AnimationTracker[]>([]);
+	const initialLoadCompletedRef = useRef<boolean>(false);
+	const hoveredNodeRef = useRef<THREE.Mesh | null>(null);
+	const originalColorRef = useRef<THREE.Color | null>(null);
+	const selectedNodeRef = useRef<THREE.Mesh | null>(null);
+	const originalCameraPositionRef = useRef<THREE.Vector3 | null>(null);
+	const originalTargetRef = useRef<THREE.Vector3 | null>(null);
+	const isRotatingRef = useRef<boolean>(true);
 
-	// UI state
-	const [menuOpen, setMenuOpen] = useState<boolean>(false);
-	const [showEdges, setShowEdges] = useState<boolean>(DEFAULT_SHOW_EDGES);
-	const [selectedCategory, setSelectedCategory] =
-		useState<string>(DEFAULT_CATEGORY);
+	// --- Hooks --- //
+	const user = useUser();
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const isDesktop = useMediaQuery('(min-width: 1024px)');
+
+	// --- State --- //
+	// Input/State for Adding Nodes
+	const [newConceptName, setNewConceptName] = useState<string>('');
+	const [masteryLevel, setMasteryLevel] = useState<number>(0.5);
 	const [addNodeCategory, setAddNodeCategory] =
 		useState<string>(DEFAULT_CATEGORY);
-	const [masteryFilter, setMasteryFilter] = useState<[number, number]>(
-		DEFAULT_MASTERY_RANGE
-	); // [min, max]
-	const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-	const [selectedNodeData, setSelectedNodeData] = useState<{
-		name: string;
-		mastery: number;
-		category: string;
-		id: number;
-	} | null>(null);
+	const [isAddingNode, setIsAddingNode] = useState<boolean>(false);
+	const [isAddNodePanelOpen, setIsAddNodePanelOpen] =
+		useState<boolean>(false);
+	const [isFilterPanelOpen, setIsFilterPanelOpen] = useState<boolean>(false);
 
-	// Animation tweens collection
-	const activeAnimationsRef = useRef<AnimationTracker[]>([]);
-	const edgesRef = useRef<THREE.Line[]>([]);
-	const applyFiltersRef = useRef<() => void>(() => {});
-
-	// State for concepts with expanded type
-	const [concepts, setConcepts] = useState<
-		{
-			id: number;
-			name: string;
-			color?: THREE.Color;
-			mastery?: number;
-			category?: string;
-			visible?: boolean;
-		}[]
-	>(
-		initialConceptNames.map((name, i) => ({
-			id: i,
-			name,
-			color: new THREE.Color().setHSL(Math.random(), 0.7, 0.5),
-			mastery: Math.random(), // Random mastery level for initial nodes
-			category:
-				categories[Math.floor(Math.random() * (categories.length - 1))], // Random category (not "All")
-			visible: true,
-		}))
+	// Filter State
+	const [showEdges, setShowEdges] = useState<boolean>(() => {
+		const paramValue = searchParams.get('edges');
+		return paramValue !== null ? paramValue === 'true' : DEFAULT_SHOW_EDGES;
+	});
+	const [selectedCategories, setSelectedCategories] = useState<string[]>(
+		() => {
+			const paramValue = searchParams.get('categories');
+			return paramValue ? paramValue.split(',') : [DEFAULT_CATEGORY];
+		}
 	);
+	const [masteryFilter, setMasteryFilter] = useState<[number, number]>(() => {
+		const minParam = searchParams.get('min');
+		const maxParam = searchParams.get('max');
+		const min =
+			minParam !== null ? parseFloat(minParam) : DEFAULT_MASTERY_RANGE[0];
+		const max =
+			maxParam !== null ? parseFloat(maxParam) : DEFAULT_MASTERY_RANGE[1];
+		return [min, max];
+	});
+
+	// Node Details/Interaction State
+	const [isNodeDetailPanelOpen, setIsNodeDetailPanelOpen] =
+		useState<boolean>(false);
+	const [selectedNodeData, setSelectedNodeData] =
+		useState<FetchedConcept | null>(null);
 	const [tooltipContent, setTooltipContent] = useState<string | null>(null);
 	const [tooltipPosition, setTooltipPosition] = useState<{
 		x: number;
 		y: number;
 	} | null>(null);
-	const hoveredNodeRef = useRef<THREE.Mesh | null>(null);
-	const originalColorRef = useRef<THREE.Color | null>(null);
-	const selectedNodeRef = useRef<THREE.Mesh | null>(null);
-	const isRotatingRef = useRef<boolean>(true);
-	const originalCameraPositionRef = useRef<THREE.Vector3 | null>(null);
-	const originalTargetRef = useRef<THREE.Vector3 | null>(null);
 
-	// Add a new ref to track initial load
-	const initialLoadCompletedRef = useRef<boolean>(false);
+	// State for concepts - Initialize from prop, mapping to internal state shape
+	const [concepts, setConcepts] = useState<ConceptState[]>(() =>
+		initialConceptsData.map((concept) => {
+			let parsedEmbedding: number[] | undefined = undefined;
+			if (typeof concept.embedding === 'string') {
+				try {
+					// Attempt to parse the string embedding
+					parsedEmbedding = JSON.parse(concept.embedding);
+					// Validate that the parsed result is an array of numbers
+					if (
+						!Array.isArray(parsedEmbedding) ||
+						!parsedEmbedding.every((v) => typeof v === 'number')
+					) {
+						console.warn(
+							`[Concept Init] Failed to parse embedding string into number array for concept ID ${concept.id}. Value:`,
+							concept.embedding
+						);
+						parsedEmbedding = undefined; // Reset on invalid parse
+					}
+				} catch (error) {
+					console.error(
+						`[Concept Init] Error parsing embedding string for concept ID ${concept.id}:`,
+						error,
+						`Value: ${concept.embedding}`
+					);
+					parsedEmbedding = undefined; // Reset on error
+				}
+			} else if (Array.isArray(concept.embedding)) {
+				// If it's already an array, use it (basic validation)
+				parsedEmbedding = concept.embedding.every(
+					(v) => typeof v === 'number'
+				)
+					? concept.embedding
+					: undefined;
+			}
 
-	// Function to animate node from center to target position
+			return {
+				...concept,
+				embedding: parsedEmbedding, // Use the parsed array or undefined
+				color:
+					categoryColors[concept.category] ||
+					new THREE.Color(0xcccccc),
+				visible: true,
+			};
+		})
+	);
+
+	// --- Constants --- //
+	const sphereMinRadius = 1.0;
+	const sphereMaxRadius = 3.0;
+
+	// --- Callbacks --- //
+
 	const animateNodeFromCenter = useCallback(
 		(node: THREE.Mesh, targetPosition: THREE.Vector3) => {
-			// Store original position
-			const targetX = targetPosition.x;
-			const targetY = targetPosition.y;
-			const targetZ = targetPosition.z;
-
-			// Set initial position at center
 			node.position.set(0, 0, 0);
-
-			// Ensure node is visible
 			node.visible = true;
-
-			// Create animation
 			const tween = gsap.to(node.position, {
-				x: targetX,
-				y: targetY,
-				z: targetZ,
+				x: targetPosition.x,
+				y: targetPosition.y,
+				z: targetPosition.z,
 				duration: 1.5,
-				ease: 'elastic.out(1, 0.8)',
+				ease: 'elastic.out(1, 0.9)',
 				onComplete: () => {
-					// Remove this tween from active animations when complete
 					activeAnimationsRef.current =
 						activeAnimationsRef.current.filter(
 							(anim) =>
 								anim.type !== 'gsap' ||
 								(anim as any).tween !== tween
 						);
-
-					// Apply visibility filters after animation completes
-					if (applyFiltersRef.current) {
-						applyFiltersRef.current();
-					}
 				},
 			});
-
-			// Add to active animations
 			activeAnimationsRef.current.push({ type: 'gsap', tween });
-
 			return tween;
 		},
 		[]
 	);
 
-	// Function to create a single node mesh with animation capability
 	const createNodeMesh = useCallback(
 		(
-			concept: {
-				id: number;
-				name: string;
-				color?: THREE.Color;
-				mastery?: number;
-				category?: string;
-				visible?: boolean;
-			},
-			animate: boolean = false
+			concept: ConceptState,
+			animate: boolean = false,
+			position?: THREE.Vector3 // Add position parameter
 		) => {
-			// Use provided color or generate a random one
-			const nodeColor =
-				concept.color ||
-				new THREE.Color().setHSL(
-					0.3 + Math.random() * 0.15,
-					0.7 + Math.random() * 0.3,
-					0.5 + Math.random() * 0.2
-				);
-			const nodeMaterial = createToonMaterial(nodeColor);
+			const nodeMaterial = createToonMaterial(concept.color);
+			if (gradientMapRef.current) {
+				nodeMaterial.gradientMap = gradientMapRef.current;
+			}
+			const node = new THREE.Mesh(nodeGeometry.clone(), nodeMaterial);
+			node.userData = { ...concept }; // Store all concept data
+			node.visible = concept.visible;
 
-			const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-			node.userData = {
-				id: concept.id,
-				name: concept.name,
-				mastery: concept.mastery !== undefined ? concept.mastery : 0.5, // Default to middle if not provided
-				category: concept.category || categories[0], // Default to first category if not provided
-				visible: concept.visible !== undefined ? concept.visible : true,
-			};
-
-			// Set initial visibility
-			node.visible = node.userData.visible;
-
-			// Calculate target position based on mastery level
-			const mastery =
-				concept.mastery !== undefined ? concept.mastery : 0.5;
-			const sphereRadius =
-				sphereMinRadius + (sphereMaxRadius - sphereMinRadius) * mastery;
-
-			const phi = Math.random() * Math.PI;
-			const theta = Math.random() * 2 * Math.PI;
-			const x = sphereRadius * Math.sin(phi) * Math.cos(theta);
-			const y = sphereRadius * Math.sin(phi) * Math.sin(theta);
-			const z = sphereRadius * Math.cos(phi);
-
-			// If animated, position will be set by the animation
-			// If not animated, set position immediately
-			if (!animate) {
-				node.position.set(x, y, z);
+			let targetPosition: THREE.Vector3;
+			if (position) {
+				// Use provided position if available
+				targetPosition = position.clone();
 			} else {
-				// For animated nodes, we'll store the target position in userData for later
-				node.userData.targetPosition = new THREE.Vector3(x, y, z);
+				// Otherwise, calculate random spherical position
+				const mastery =
+					concept.mastery !== undefined ? concept.mastery : 0.5;
+				const sphereRadius =
+					sphereMinRadius +
+					(sphereMaxRadius - sphereMinRadius) * mastery;
+				const phi = Math.random() * Math.PI;
+				const theta = Math.random() * 2 * Math.PI;
+				const x = sphereRadius * Math.sin(phi) * Math.cos(theta);
+				const y = sphereRadius * Math.sin(phi) * Math.sin(theta);
+				const z = sphereRadius * Math.cos(phi);
+				targetPosition = new THREE.Vector3(x, y, z);
 			}
 
-			// Add black outline to enhance cartoon look
+			if (!animate) {
+				node.position.copy(targetPosition);
+			} else {
+				node.userData.targetPosition = targetPosition;
+			}
+
 			const outlineMaterial = new THREE.MeshBasicMaterial({
 				color: 0x000000,
 				side: THREE.BackSide,
@@ -283,203 +339,31 @@ const ThreeScene: React.FC = () => {
 			return node;
 		},
 		[sphereMinRadius, sphereMaxRadius]
-	);
+	); // Only depends on constants now
 
-	// Function to add a new concept/node with correct typing
-	const addNode = useCallback(
-		(customName?: string) => {
-			if (!groupRef.current || !initializedRef.current) return;
-
-			// Ensure we only add nodes after initial loading is complete
-			if (!initialLoadCompletedRef.current) {
-				console.warn(
-					'Cannot add node until initial loading is complete'
-				);
-				return;
-			}
-
-			const newId = concepts.length;
-			const conceptName = customName || `Concept ${newId + 1}`;
-			const newConcept = {
-				id: newId,
-				name: conceptName,
-				color: selectedColor.color.clone(),
-				mastery: masteryLevel,
-				category:
-					addNodeCategory === 'All'
-						? categories[
-								Math.floor(
-									Math.random() * (categories.length - 1)
-								)
-							]
-						: addNodeCategory,
-				visible: true,
-			};
-
-			// Update React state
-			setConcepts((prevConcepts) => [...prevConcepts, newConcept]);
-
-			// Create and add Three.js object - with animation
-			const newNodeMesh = createNodeMesh(newConcept, true);
-			groupRef.current.add(newNodeMesh);
-			nodesRef.current.push(newNodeMesh); // Keep track of the mesh for interaction
-
-			// Animate the node from center
-			if (newNodeMesh.userData.targetPosition) {
-				animateNodeFromCenter(
-					newNodeMesh,
-					newNodeMesh.userData.targetPosition
-				);
-			}
-
-			console.log(
-				`Added node: ${newConcept.name} with mastery: ${newConcept.mastery}`
-			);
-
-			// Maybe add a connection?
-			if (nodesRef.current.length > 1) {
-				const randomIndex = Math.floor(
-					Math.random() * (nodesRef.current.length - 1)
-				); // Connect to any node except the last one (itself)
-				const targetNode = nodesRef.current[randomIndex];
-
-				// Create the line geometry
-				const lineGeometry = new THREE.BufferGeometry();
-				const positions = new Float32Array(6); // 2 points * 3 dimensions = 6 values
-				lineGeometry.setAttribute(
-					'position',
-					new THREE.BufferAttribute(positions, 3)
-				);
-
-				const line = new THREE.Line(lineGeometry, lineMaterial.clone());
-
-				// Make line initially invisible and fade it in
-				line.material.opacity = 0;
-				gsap.to(line.material, {
-					opacity: 0.8,
-					duration: 1.5,
-					ease: 'power2.out',
-				});
-
-				// Function to update line position during animation
-				const updateLine = () => {
-					const positionArray = lineGeometry.attributes.position
-						.array as Float32Array;
-
-					// Set the first point (target node)
-					positionArray[0] = targetNode.position.x;
-					positionArray[1] = targetNode.position.y;
-					positionArray[2] = targetNode.position.z;
-
-					// Set the second point (new node)
-					positionArray[3] = newNodeMesh.position.x;
-					positionArray[4] = newNodeMesh.position.y;
-					positionArray[5] = newNodeMesh.position.z;
-
-					lineGeometry.attributes.position.needsUpdate = true;
-				};
-
-				// Initial update
-				updateLine();
-
-				// Create animation loop for line updates
-				let animationId = 0;
-				const updateAnimation = () => {
-					animationId = requestAnimationFrame(updateAnimation);
-					updateLine();
-				};
-
-				// Start animation
-				updateAnimation();
-
-				// Add to active animations for cleanup
-				activeAnimationsRef.current.push({
-					type: 'raf',
-					id: animationId,
-				});
-
-				// Stop updating after node animations finish
-				setTimeout(() => {
-					cancelAnimationFrame(animationId);
-					// Remove from active animations
-					activeAnimationsRef.current =
-						activeAnimationsRef.current.filter(
-							(anim) =>
-								anim.type !== 'raf' || anim.id !== animationId
-						);
-				}, 2000); // Allow a little longer than node animation (1.5s)
-
-				groupRef.current.add(line);
-
-				// Store the line in edgesRef for toggling visibility
-				edgesRef.current.push(line);
-
-				// Apply filters to ensure proper visibility on the new line
-				if (applyFiltersRef.current) {
-					setTimeout(() => {
-						applyFiltersRef.current();
-					}, 100);
-				}
-			}
-		},
-		[
-			concepts,
-			createNodeMesh,
-			selectedColor,
-			masteryLevel,
-			addNodeCategory,
-			animateNodeFromCenter,
-		]
-	);
-
-	const handleAddRandomConcept = useCallback(() => {
-		addNode();
-	}, [addNode]);
-
-	const handleAddCustomConcept = useCallback(() => {
-		if (newConceptName.trim()) {
-			addNode(newConceptName.trim());
-			setNewConceptName(''); // Reset input field
-		}
-	}, [addNode, newConceptName]);
-
-	const handleKeyPress = useCallback(
-		(e: React.KeyboardEvent) => {
-			if (e.key === 'Enter') {
-				handleAddCustomConcept();
-			}
-		},
-		[handleAddCustomConcept]
-	);
-
-	// Function to apply visibility filters - defined first to use in effect
 	const applyFilters = useCallback(() => {
 		if (!groupRef.current || nodesRef.current.length === 0) return;
 
-		// Apply category and mastery filters to nodes
 		nodesRef.current.forEach((node) => {
-			if (!node.userData) return;
-
-			const { category, mastery } = node.userData;
+			if (
+				!node.userData ||
+				typeof node.userData.mastery !== 'number' ||
+				typeof node.userData.category !== 'string'
+			)
+				return;
+			const { category, mastery } = node.userData as ConceptState;
 			const categoryVisible =
-				selectedCategory === 'All' || category === selectedCategory;
+				selectedCategories.includes('All') ||
+				selectedCategories.includes(category);
 			const masteryVisible =
 				mastery >= masteryFilter[0] && mastery <= masteryFilter[1];
 			node.visible = categoryVisible && masteryVisible;
 		});
 
-		// Apply edge visibility based on showEdges setting and connected nodes
 		edgesRef.current.forEach((edge) => {
-			// Only show edge if showEdges is true AND both connected nodes are visible
 			const lineGeometry = edge.geometry as THREE.BufferGeometry;
 			const posArray = lineGeometry.attributes.position
 				.array as Float32Array;
-
-			// Check if we can find visible nodes at both endpoints of this line
-			let startNodeVisible = false;
-			let endNodeVisible = false;
-
-			// Get positions from line geometry
 			const startPos = new THREE.Vector3(
 				posArray[0],
 				posArray[1],
@@ -490,47 +374,191 @@ const ThreeScene: React.FC = () => {
 				posArray[4],
 				posArray[5]
 			);
+			let startNodeVisible = false;
+			let endNodeVisible = false;
 
-			// Find if nodes at these positions are visible
 			for (const node of nodesRef.current) {
 				if (!node.visible) continue;
-
-				// Use small threshold for position comparison
-				if (node.position.distanceTo(startPos) < 0.01) {
+				if (node.position.distanceTo(startPos) < 0.01)
 					startNodeVisible = true;
-				}
-				if (node.position.distanceTo(endPos) < 0.01) {
+				if (node.position.distanceTo(endPos) < 0.01)
 					endNodeVisible = true;
-				}
-
 				if (startNodeVisible && endNodeVisible) break;
 			}
-
 			edge.visible = showEdges && startNodeVisible && endNodeVisible;
 		});
-	}, [selectedCategory, masteryFilter, showEdges]);
+	}, [selectedCategories, masteryFilter, showEdges]);
 
-	// Store applyFilters in ref to avoid circular dependencies
-	useEffect(() => {
-		applyFiltersRef.current = applyFilters;
-	}, [applyFilters]);
+	const addNode = useCallback(
+		async (customName?: string) => {
+			if (
+				!groupRef.current ||
+				!initializedRef.current ||
+				!initialLoadCompletedRef.current ||
+				isAddingNode
+			) {
+				console.warn(
+					'Cannot add node: Scene not ready or already adding.'
+				);
+				return;
+			}
 
-	// Apply filters when filter settings change
-	useEffect(() => {
-		// Only apply filters after scene initialization
-		if (initializedRef.current) {
-			applyFilters();
+			setIsAddingNode(true);
+
+			try {
+				const tempId = Date.now(); // Use timestamp for temporary client ID
+				const conceptName = customName || `Concept ${tempId}`;
+				const category =
+					addNodeCategory === 'All'
+						? categories[
+								Math.floor(
+									Math.random() * (categories.length - 1)
+								)
+							]
+						: addNodeCategory;
+				const nodeColor =
+					categoryColors[category] || new THREE.Color(0x999999);
+				const conceptPayload = {
+					name: conceptName,
+					category: category,
+					mastery: masteryLevel,
+					// Embedding is not set here, it should be added later if needed
+				};
+
+				console.log('Calling addConceptAction with:', conceptPayload);
+				const result = await addConceptAction(conceptPayload);
+				console.log('Server action result:', result);
+
+				if (!result.success || !result.id) {
+					throw new Error(
+						result.error ||
+							'Failed to add concept to database or get ID.'
+					);
+				}
+
+				const dbConceptId = result.id;
+				const newConcept: ConceptState = {
+					id: dbConceptId,
+					name: conceptName,
+					color: nodeColor.clone(),
+					mastery: masteryLevel,
+					category: category,
+					visible: true,
+					// Newly added concepts won't have embeddings immediately
+				};
+
+				setConcepts((prevConcepts) => [...prevConcepts, newConcept]);
+
+				const newNodeMesh = createNodeMesh(newConcept, true); // No position passed, uses random
+				groupRef.current.add(newNodeMesh);
+				nodesRef.current.push(newNodeMesh);
+
+				if (newNodeMesh.userData.targetPosition) {
+					animateNodeFromCenter(
+						newNodeMesh,
+						newNodeMesh.userData.targetPosition
+					);
+				}
+
+				console.log(
+					`Added node locally: ${newConcept.name} (DB ID: ${newConcept.id})`
+				);
+
+				// Add connection
+				if (nodesRef.current.length > 1 && groupRef.current) {
+					const randomIndex = Math.floor(
+						Math.random() * (nodesRef.current.length - 1)
+					);
+					const targetNode = nodesRef.current[randomIndex];
+					const lineGeometry = new THREE.BufferGeometry();
+					const positions = new Float32Array(6);
+					lineGeometry.setAttribute(
+						'position',
+						new THREE.BufferAttribute(positions, 3)
+					);
+					const line = new THREE.Line(
+						lineGeometry,
+						lineMaterial.clone()
+					);
+					line.material.opacity = 0;
+					gsap.to(line.material, {
+						opacity: 0.8,
+						duration: 1.5,
+						ease: 'power2.out',
+					});
+
+					const updateLine = () => {
+						if (!line.parent) return; // Skip update if line was removed
+						const posArray = lineGeometry.attributes.position
+							.array as Float32Array;
+						targetNode.getWorldPosition(tempVec1); // Use temp vectors
+						newNodeMesh.getWorldPosition(tempVec2);
+						posArray[0] = tempVec1.x;
+						posArray[1] = tempVec1.y;
+						posArray[2] = tempVec1.z;
+						posArray[3] = tempVec2.x;
+						posArray[4] = tempVec2.y;
+						posArray[5] = tempVec2.z;
+						lineGeometry.attributes.position.needsUpdate = true;
+					};
+					updateLine();
+					let animationId = 0;
+					const updateAnimation = () => {
+						animationId = requestAnimationFrame(updateAnimation);
+						updateLine();
+					};
+					updateAnimation();
+					activeAnimationsRef.current.push({
+						type: 'raf',
+						id: animationId,
+					});
+					setTimeout(() => {
+						cancelAnimationFrame(animationId);
+						activeAnimationsRef.current =
+							activeAnimationsRef.current.filter(
+								(anim) =>
+									anim.type !== 'raf' ||
+									anim.id !== animationId
+							);
+					}, 2000);
+					if (groupRef.current) {
+						groupRef.current.add(line);
+					}
+					edgesRef.current.push(line);
+					// Apply filters immediately after adding the line
+					setTimeout(() => applyFilters(), 50); // Small delay might be needed
+				}
+
+				toast.success(`Concept "${conceptName}" added successfully!`);
+				setIsAddNodePanelOpen(false);
+				setNewConceptName(''); // Clear input on success
+			} catch (error) {
+				console.error('Error adding concept:', error);
+				const errorMessage =
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred.';
+				toast.error(`Failed to add concept: ${errorMessage}`);
+			} finally {
+				setIsAddingNode(false);
+			}
+		},
+		[
+			addNodeCategory,
+			masteryLevel,
+			createNodeMesh,
+			animateNodeFromCenter,
+			isAddingNode,
+			applyFilters,
+		]
+	);
+
+	const handleAddCustomConcept = useCallback(async () => {
+		if (newConceptName.trim() && !isAddingNode) {
+			await addNode(newConceptName.trim());
 		}
-	}, [applyFilters, initializedRef.current]);
+	}, [addNode, newConceptName, isAddingNode]);
 
-	// Function to reset all filters to defaults
-	const resetFilters = useCallback(() => {
-		setShowEdges(DEFAULT_SHOW_EDGES);
-		setSelectedCategory(DEFAULT_CATEGORY);
-		setMasteryFilter(DEFAULT_MASTERY_RANGE);
-	}, []);
-
-	// Function to reset the camera view
 	const resetCameraView = useCallback(() => {
 		if (
 			!cameraRef.current ||
@@ -538,91 +566,61 @@ const ThreeScene: React.FC = () => {
 			!originalCameraPositionRef.current
 		)
 			return;
-
-		// Animate camera back to original position
 		gsap.to(cameraRef.current.position, {
-			x: originalCameraPositionRef.current.x,
-			y: originalCameraPositionRef.current.y,
-			z: originalCameraPositionRef.current.z,
+			...originalCameraPositionRef.current,
 			duration: 1.0,
 			ease: 'power2.inOut',
 			onUpdate: () => {
-				if (controlsRef.current) controlsRef.current.update();
+				controlsRef.current?.update();
 			},
 		});
-
-		// Get target position - either stored original or default to origin
 		const targetPos =
 			originalTargetRef.current || new THREE.Vector3(0, 0, 0);
-
-		// Animate target back to original position
 		gsap.to(controlsRef.current.target, {
-			x: targetPos.x,
-			y: targetPos.y,
-			z: targetPos.z,
+			...targetPos,
 			duration: 0.8,
 			ease: 'power2.inOut',
 			onUpdate: () => {
-				if (controlsRef.current) controlsRef.current.update();
+				controlsRef.current?.update();
 			},
 			onComplete: () => {
-				// Resume rotation when animation completes
 				isRotatingRef.current = true;
 			},
 		});
-
-		// Clear selected node
 		selectedNodeRef.current = null;
+		originalCameraPositionRef.current = null;
+		originalTargetRef.current = null;
 	}, []);
 
-	// Function to handle node click
 	const handleNodeClick = useCallback(
 		(node: THREE.Mesh) => {
 			if (!cameraRef.current || !controlsRef.current || !groupRef.current)
 				return;
-
-			// Get node data to display in drawer
-			const userData = node.userData;
+			const userData = node.userData as ConceptState;
 			setSelectedNodeData({
-				name: userData.name || 'Unnamed Concept',
-				mastery:
-					userData.mastery !== undefined ? userData.mastery : 0.5,
-				category: userData.category || 'Uncategorized',
 				id: userData.id,
+				name: userData.name,
+				category: userData.category,
+				mastery: userData.mastery,
 			});
+			setIsNodeDetailPanelOpen(true);
 
-			// Open the drawer
-			setDrawerOpen(true);
-
-			// If this node is already selected, reset the view
 			if (selectedNodeRef.current === node) {
 				resetCameraView();
 				return;
 			}
 
-			// Store the original camera distance if not already saved
 			if (!originalCameraPositionRef.current) {
 				originalCameraPositionRef.current =
 					cameraRef.current.position.clone();
-				// Also store original target
-				if (controlsRef.current) {
-					originalTargetRef.current =
-						controlsRef.current.target.clone();
-				}
+				originalTargetRef.current = controlsRef.current.target.clone();
 			}
 
-			// Set node as selected
 			selectedNodeRef.current = node;
-
-			// Pause rotation
 			isRotatingRef.current = false;
-
-			// Get node's current WORLD position (accounting for group rotation)
-			// This is crucial - we need to use getWorldPosition to get the correct position after rotation
 			const worldPosition = new THREE.Vector3();
 			node.getWorldPosition(worldPosition);
 
-			// First move the camera focus target to the node's world position
 			gsap.to(controlsRef.current.target, {
 				x: worldPosition.x,
 				y: worldPosition.y,
@@ -630,24 +628,15 @@ const ThreeScene: React.FC = () => {
 				duration: 0.8,
 				ease: 'power2.inOut',
 				onUpdate: () => {
-					if (controlsRef.current) controlsRef.current.update();
+					controlsRef.current?.update();
 				},
 			});
 
-			// Calculate a new camera position
-			// Start with current camera position
 			const startPosition = cameraRef.current.position.clone();
-
-			// Calculate vector from node to camera
-			const nodeToCamera = startPosition.clone().sub(worldPosition);
-
-			// Maintain direction but reduce distance for zooming effect
-			nodeToCamera.normalize().multiplyScalar(2.0); // zoom scale (distance from node)
-
-			// Calculate new camera position: node + distance * direction
+			const nodeToCamera = startPosition.sub(worldPosition);
+			nodeToCamera.normalize().multiplyScalar(2.0);
 			const newCameraPosition = worldPosition.clone().add(nodeToCamera);
 
-			// Animate camera to new position
 			gsap.to(cameraRef.current.position, {
 				x: newCameraPosition.x,
 				y: newCameraPosition.y,
@@ -655,19 +644,16 @@ const ThreeScene: React.FC = () => {
 				duration: 1.2,
 				ease: 'power2.inOut',
 				onUpdate: () => {
-					if (controlsRef.current) controlsRef.current.update();
+					controlsRef.current?.update();
 				},
 			});
 		},
 		[resetCameraView]
 	);
 
-	// Handle drawer open/close
-	const handleDrawerOpenChange = useCallback(
+	const handleNodeDetailPanelOpenChange = useCallback(
 		(open: boolean) => {
-			setDrawerOpen(open);
-
-			// If drawer is closing and we have a selected node, reset the camera view
+			setIsNodeDetailPanelOpen(open);
 			if (!open && selectedNodeRef.current) {
 				resetCameraView();
 			}
@@ -675,721 +661,806 @@ const ThreeScene: React.FC = () => {
 		[resetCameraView]
 	);
 
-	// Effect for initial setup and cleanup
+	const updateUrlParams = useCallback(() => {
+		const params = new URLSearchParams();
+		params.set('edges', showEdges.toString());
+		params.set('categories', selectedCategories.join(','));
+		params.set('min', masteryFilter[0].toString());
+		params.set('max', masteryFilter[1].toString());
+		const url = `${window.location.pathname}?${params.toString()}`;
+		router.push(url, { scroll: false });
+	}, [showEdges, selectedCategories, masteryFilter, router]);
+
+	const toggleCategory = useCallback((category: string) => {
+		setSelectedCategories((prev) => {
+			if (category === 'All')
+				return prev.includes('All') && prev.length === 1
+					? prev
+					: ['All'];
+			const newCategories = prev.filter(
+				(c) => c !== 'All' && c !== category
+			);
+			if (!prev.includes(category)) newCategories.push(category);
+			return newCategories.length === 0 ? ['All'] : newCategories;
+		});
+	}, []);
+
+	const resetFilters = useCallback(() => {
+		setShowEdges(DEFAULT_SHOW_EDGES);
+		setSelectedCategories([DEFAULT_CATEGORY]);
+		setMasteryFilter(DEFAULT_MASTERY_RANGE);
+		router.push(window.location.pathname, { scroll: false });
+	}, [router]);
+
+	// Apply filters when settings change
+	useEffect(() => {
+		if (initializedRef.current) {
+			applyFilters();
+		}
+	}, [applyFilters, selectedCategories, masteryFilter, showEdges]);
+
+	// Update URL when settings change
+	useEffect(() => {
+		updateUrlParams();
+	}, [updateUrlParams]);
+
+	// Temporary vectors for calculations to avoid allocations in loop/update
+	const tempVec1 = new THREE.Vector3();
+	const tempVec2 = new THREE.Vector3();
+
+	// --- Effect for Initial Scene Setup --- //
 	useEffect(() => {
 		if (
-			typeof window !== 'undefined' &&
-			containerRef.current &&
-			!initializedRef.current
+			typeof window === 'undefined' ||
+			!containerRef.current ||
+			initializedRef.current
 		) {
-			initializedRef.current = true; // Mark as initialized to prevent re-initialization
-			console.log('Initializing scene');
+			return;
+		}
 
-			// Reset any filters to default at initialization
-			setShowEdges(DEFAULT_SHOW_EDGES);
-			setSelectedCategory(DEFAULT_CATEGORY);
-			setMasteryFilter(DEFAULT_MASTERY_RANGE);
+		initializedRef.current = true;
+		console.log('[useEffect Init] Initializing Three.js scene...');
 
-			const container = containerRef.current;
+		const container = containerRef.current;
+		let animationFrameId: number;
+		let initialConnectionTimeoutId: NodeJS.Timeout;
 
-			// --- Initialize Scene, Camera, Renderer, Controls ---
-			const scene = new THREE.Scene();
-			sceneRef.current = scene;
-			scene.background = new THREE.Color(0xffffff); // Changed to white background
-
-			const camera = new THREE.PerspectiveCamera(
-				75,
-				container.clientWidth / container.clientHeight,
-				0.1,
-				1000
+		// Define handlers within useEffect scope
+		const onMouseMove = (event: MouseEvent) => {
+			if (!rendererRef.current || !cameraRef.current) return;
+			const rect = rendererRef.current.domElement.getBoundingClientRect();
+			mouseRef.current.x =
+				((event.clientX - rect.left) / rect.width) * 2 - 1;
+			mouseRef.current.y =
+				-((event.clientY - rect.top) / rect.height) * 2 + 1;
+			raycasterRef.current.setFromCamera(
+				mouseRef.current,
+				cameraRef.current
 			);
-			cameraRef.current = camera;
-			camera.position.z = 5;
-
-			const renderer = new THREE.WebGLRenderer({ antialias: true });
-			rendererRef.current = renderer;
-			renderer.setSize(container.clientWidth, container.clientHeight);
-			renderer.outputColorSpace = THREE.SRGBColorSpace;
-			container.appendChild(renderer.domElement);
-
-			// Create and apply gradient map for toon shading
-			const createGradientTexture = () => {
-				const size = 256;
-				const canvas = document.createElement('canvas');
-				canvas.width = size;
-				canvas.height = size;
-
-				const context = canvas.getContext('2d');
-				if (!context) return null;
-
-				// Create a gradient going from dark to light (cartoon-like)
-				const gradient = context.createLinearGradient(0, 0, size, size);
-				gradient.addColorStop(0, '#333333');
-				gradient.addColorStop(0.3, '#666666');
-				gradient.addColorStop(0.5, '#999999');
-				gradient.addColorStop(0.7, '#CCCCCC');
-				gradient.addColorStop(1, '#FFFFFF');
-
-				context.fillStyle = gradient;
-				context.fillRect(0, 0, size, size);
-
-				const texture = new THREE.CanvasTexture(canvas);
-				texture.minFilter = THREE.NearestFilter;
-				texture.magFilter = THREE.NearestFilter;
-				texture.generateMipmaps = false;
-
-				return texture;
-			};
-
-			const gradientMap = createGradientTexture();
-			gradientMapRef.current = gradientMap;
-
-			// Add cartoon-style lighting - flat and directional
-			const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-			directionalLight.position.set(5, 3, 5);
-			scene.add(directionalLight);
-
-			// Add ambient light for flat illumination in shadows
-			const ambientLight = new THREE.AmbientLight(0x9090a0, 0.8);
-			scene.add(ambientLight);
-
-			const controls = new OrbitControls(camera, renderer.domElement);
-			controlsRef.current = controls;
-			controls.enableDamping = true;
-			controls.dampingFactor = 0.05;
-			controls.screenSpacePanning = false;
-			controls.minDistance = 2;
-			controls.maxDistance = 10;
-
-			const group = new THREE.Group();
-			groupRef.current = group;
-			scene.add(group);
-
-			// Create center sphere with cartoon aesthetic
-			const centerSphereGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-			const centerSphereMaterial = createToonMaterial(0x2255cc); // Changed to deeper blue
-			const centerSphere = new THREE.Mesh(
-				centerSphereGeometry,
-				centerSphereMaterial
+			const intersects = raycasterRef.current.intersectObjects(
+				nodesRef.current
 			);
 
-			// Add black outline to center sphere
-			const centerOutlineMaterial = new THREE.MeshBasicMaterial({
-				color: 0x000000,
-				side: THREE.BackSide,
-			});
-			const centerOutlineMesh = new THREE.Mesh(
-				centerSphereGeometry.clone().scale(1.15, 1.15, 1.15),
-				centerOutlineMaterial
-			);
-			centerSphere.add(centerOutlineMesh);
-
-			centerSphere.position.set(0, 0, 0);
-			group.add(centerSphere);
-
-			// --- Create Initial Nodes and Lines ---
-			console.log('Creating nodes...');
-			nodesRef.current = []; // Clear previous nodes if effect re-runs
-			edgesRef.current = []; // Clear edges
-
-			// Start with an empty scene
-			while (group.children.length > 1) {
-				// Keep just the center sphere
-				const obj = group.children[group.children.length - 1];
-				if (obj !== centerSphere) {
-					group.remove(obj);
-				}
-			}
-
-			// Get the current concepts snapshot for initialization
-			// instead of using concepts from deps
-			const initialConcepts = concepts;
-
-			// Create nodes
-			initialConcepts.forEach((concept) => {
-				const nodeMesh = createNodeMesh(concept, true); // Set animate=true
-				nodeMesh.visible = true; // Force visibility
-				group.add(nodeMesh);
-				nodesRef.current.push(nodeMesh);
-				console.log(
-					`Created node: ${concept.name}, visible: ${nodeMesh.visible}`
-				);
-			});
-
-			// Animate all nodes from center with staggered timing
-			console.log(
-				`Starting animations for ${nodesRef.current.length} nodes`
-			);
-			nodesRef.current.forEach((nodeMesh, index) => {
-				if (nodeMesh.userData && nodeMesh.userData.targetPosition) {
-					// Stagger the animations slightly for visual interest
-					setTimeout(() => {
-						nodeMesh.visible = true; // Ensure visible before animation
-						animateNodeFromCenter(
-							nodeMesh,
-							nodeMesh.userData.targetPosition
-						);
-						console.log(`Started animation for node ${index + 1}`);
-					}, index * 50); // 50ms delay between each node
-				}
-			});
-
-			// Add connections after a delay to allow nodes to start moving
-			setTimeout(() => {
-				console.log('Creating connections...');
-				const initialConnections = Math.min(
-					30,
-					Math.floor(nodesRef.current.length * 1.5)
-				);
-				for (
-					let i = 0;
-					i < initialConnections && nodesRef.current.length > 1;
-					i++
-				) {
-					const startIndex = Math.floor(
-						Math.random() * nodesRef.current.length
-					);
-					let endIndex = Math.floor(
-						Math.random() * nodesRef.current.length
-					);
-					// Ensure we don't connect a node to itself
-					while (startIndex === endIndex) {
-						endIndex = Math.floor(
-							Math.random() * nodesRef.current.length
-						);
-					}
-
-					const startNode = nodesRef.current[startIndex];
-					const endNode = nodesRef.current[endIndex];
-
-					// Create the line geometry with dynamic positions
-					const lineGeometry = new THREE.BufferGeometry();
-					const positions = new Float32Array(6); // 2 points * 3 dimensions = 6 values
-					lineGeometry.setAttribute(
-						'position',
-						new THREE.BufferAttribute(positions, 3)
-					);
-
-					const line = new THREE.Line(
-						lineGeometry,
-						lineMaterial.clone()
-					);
-
-					// Start with transparent line and fade in
-					line.material.opacity = 0;
-					gsap.to(line.material, {
-						opacity: 0.8,
-						duration: 1.5,
-						delay: 0.5, // Start fading in after nodes have started moving
-						ease: 'power2.out',
-					});
-
-					// Make visible based on initial state
-					line.visible = showEdges;
-
-					// Function to update line position during animation
-					const updateLine = () => {
-						const positionArray = lineGeometry.attributes.position
-							.array as Float32Array;
-
-						// Update the line position
-						positionArray[0] = startNode.position.x;
-						positionArray[1] = startNode.position.y;
-						positionArray[2] = startNode.position.z;
-
-						positionArray[3] = endNode.position.x;
-						positionArray[4] = endNode.position.y;
-						positionArray[5] = endNode.position.z;
-
-						lineGeometry.attributes.position.needsUpdate = true;
-					};
-
-					// Initial update
-					updateLine();
-
-					// Create animation loop for line updates
-					let animationId = 0;
-					const updateAnimation = () => {
-						animationId = requestAnimationFrame(updateAnimation);
-						updateLine();
-					};
-
-					// Start animation
-					updateAnimation();
-
-					// Add to active animations for cleanup
-					activeAnimationsRef.current.push({
-						type: 'raf',
-						id: animationId,
-					});
-
-					// Stop updating after node animations finish
-					setTimeout(() => {
-						cancelAnimationFrame(animationId);
-						// Remove from active animations
-						activeAnimationsRef.current =
-							activeAnimationsRef.current.filter(
-								(anim) =>
-									anim.type !== 'raf' ||
-									anim.id !== animationId
-							);
-					}, 2000); // Allow a little longer than node animation (1.5s)
-
-					group.add(line);
-					edgesRef.current.push(line);
-				}
-				console.log(`Created ${edgesRef.current.length} connections`);
-
-				// Mark initial load as complete
-				initialLoadCompletedRef.current = true;
-			}, 300); // Slight delay before adding connections
-
-			// --- Raycasting Setup ---
-			const raycaster = raycasterRef.current;
-			const mouse = mouseRef.current;
-
-			const onMouseMove = (event: MouseEvent) => {
-				if (!rendererRef.current || !cameraRef.current) return;
-				const rect =
-					rendererRef.current.domElement.getBoundingClientRect();
-				mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-				mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-				raycaster.setFromCamera(mouse, cameraRef.current);
-				const intersects = raycaster.intersectObjects(nodesRef.current);
-
-				if (intersects.length > 0) {
-					const intersectedNode = intersects[0].object as THREE.Mesh;
-					if (hoveredNodeRef.current !== intersectedNode) {
-						// Restore previous
-						if (
-							hoveredNodeRef.current &&
-							originalColorRef.current
-						) {
-							(
-								hoveredNodeRef.current
-									.material as THREE.MeshToonMaterial
-							).color.copy(originalColorRef.current);
-						}
-
-						hoveredNodeRef.current = intersectedNode;
-						originalColorRef.current = (
-							intersectedNode.material as THREE.MeshToonMaterial
-						).color.clone();
-						(
-							intersectedNode.material as THREE.MeshToonMaterial
-						).color.copy(highlightColor);
-
-						const userData = intersectedNode.userData;
-						const masteryPercentage =
-							userData.mastery !== undefined
-								? `${(userData.mastery * 100).toFixed(0)}%`
-								: 'N/A';
-						setTooltipContent(
-							`${userData.name}\nCategory: ${userData.category}\nMastery: ${masteryPercentage}`
-						);
-						setTooltipPosition({
-							x: event.clientX + 10,
-							y: event.clientY + 10,
-						});
-					}
-				} else {
-					// Restore previous
+			if (intersects.length > 0) {
+				const intersectedNode = intersects[0].object as THREE.Mesh;
+				if (hoveredNodeRef.current !== intersectedNode) {
 					if (hoveredNodeRef.current && originalColorRef.current) {
 						(
 							hoveredNodeRef.current
 								.material as THREE.MeshToonMaterial
 						).color.copy(originalColorRef.current);
 					}
-					hoveredNodeRef.current = null;
-					originalColorRef.current = null;
-					setTooltipContent(null);
-					setTooltipPosition(null);
-				}
-			};
-
-			// Add mouse click handler
-			const onMouseClick = (event: MouseEvent) => {
-				if (!rendererRef.current || !cameraRef.current) return;
-				const rect =
-					rendererRef.current.domElement.getBoundingClientRect();
-				mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-				mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-				raycaster.setFromCamera(mouse, cameraRef.current);
-				const intersects = raycaster.intersectObjects(nodesRef.current);
-
-				if (intersects.length > 0) {
-					const intersectedNode = intersects[0].object as THREE.Mesh;
-					handleNodeClick(intersectedNode);
-				}
-			};
-
-			container.addEventListener('mousemove', onMouseMove);
-			container.addEventListener('click', onMouseClick);
-
-			// --- Animation Loop ---
-			let animationFrameId: number;
-			const animate = () => {
-				animationFrameId = requestAnimationFrame(animate);
-
-				// Add null checks for refs used in animation loop
-				if (
-					!controlsRef.current ||
-					!groupRef.current ||
-					!rendererRef.current ||
-					!sceneRef.current ||
-					!cameraRef.current
-				) {
-					console.warn(
-						'Skipping animation frame: refs not yet initialized.'
+					hoveredNodeRef.current = intersectedNode;
+					originalColorRef.current = (
+						intersectedNode.material as THREE.MeshToonMaterial
+					).color.clone();
+					(
+						intersectedNode.material as THREE.MeshToonMaterial
+					).color.copy(highlightColor);
+					const userData = intersectedNode.userData as ConceptState;
+					const masteryPercentage =
+						userData.mastery !== undefined
+							? `${(userData.mastery * 100).toFixed(0)}%`
+							: 'N/A';
+					setTooltipContent(
+						`${userData.name}\nCategory: ${userData.category}\nMastery: ${masteryPercentage}`
 					);
-					return;
+					setTooltipPosition({
+						x: event.clientX + 10,
+						y: event.clientY + 10,
+					});
 				}
-
-				controlsRef.current.update();
-
-				// Only rotate if not focused on a node
-				if (isRotatingRef.current) {
-					groupRef.current.rotation.y += 0.001;
+			} else {
+				if (hoveredNodeRef.current && originalColorRef.current) {
+					(
+						hoveredNodeRef.current
+							.material as THREE.MeshToonMaterial
+					).color.copy(originalColorRef.current);
 				}
+				hoveredNodeRef.current = null;
+				originalColorRef.current = null;
+				setTooltipContent(null);
+				setTooltipPosition(null);
+			}
+		};
 
-				rendererRef.current.render(sceneRef.current, cameraRef.current);
-			};
-
-			animate();
-
-			// --- Resize Handling ---
-			const handleResize = () => {
-				if (!rendererRef.current || !cameraRef.current) return;
-				const width = container.clientWidth;
-				const height = container.clientHeight;
-				cameraRef.current.aspect = width / height;
-				cameraRef.current.updateProjectionMatrix();
-				rendererRef.current.setSize(width, height);
-			};
-
-			window.addEventListener('resize', handleResize);
-
-			// --- Cleanup ---
-			return () => {
-				cancelAnimationFrame(animationFrameId);
-				window.removeEventListener('resize', handleResize);
-				if (containerRef.current) {
-					// Check containerRef before removing listener
-					containerRef.current.removeEventListener(
-						'mousemove',
-						onMouseMove
-					);
-					containerRef.current.removeEventListener(
-						'click',
-						onMouseClick
-					);
-				}
-
-				// Kill all active animations
-				activeAnimationsRef.current.forEach((anim) => {
-					if (anim.type === 'gsap') {
-						// It's a GSAP tween
-						(
-							anim as { type: 'gsap'; tween: gsap.core.Tween }
-						).tween.kill();
-					} else if (anim.type === 'raf') {
-						// It's a requestAnimationFrame animation
-						cancelAnimationFrame(
-							(anim as { type: 'raf'; id: number }).id
-						);
-					}
-				});
-				activeAnimationsRef.current = [];
-
-				if (controlsRef.current) controlsRef.current.dispose();
-				if (rendererRef.current && containerRef.current) {
-					// Check containerRef again before removing child
-					if (
-						containerRef.current.contains(
-							rendererRef.current.domElement
-						)
-					) {
-						containerRef.current.removeChild(
-							rendererRef.current.domElement
-						);
-					}
-					rendererRef.current.dispose(); // Dispose renderer resources
-				}
-				// Optional: Dispose geometries/materials if not reused elsewhere
-				// nodeGeometry.dispose();
-				// lineMaterial.dispose();
-				groupRef.current = null;
-				sceneRef.current = null;
-				cameraRef.current = null;
-				rendererRef.current = null;
-				controlsRef.current = null;
-				nodesRef.current = [];
-				initialLoadCompletedRef.current = false; // Reset initial load flag
-				initializedRef.current = false; // Reset initialized state
-			};
-		}
-	}, [createNodeMesh, animateNodeFromCenter]); // Remove concepts and showEdges dependencies
-
-	// Log node visibility for debugging
-	useEffect(() => {
-		if (nodesRef.current.length > 0) {
-			console.log(`Total nodes: ${nodesRef.current.length}`);
-			console.log(
-				`Visible nodes: ${nodesRef.current.filter((n) => n.visible).length}`
+		const onMouseClick = (event: MouseEvent) => {
+			if (!rendererRef.current || !cameraRef.current) return;
+			const rect = rendererRef.current.domElement.getBoundingClientRect();
+			mouseRef.current.x =
+				((event.clientX - rect.left) / rect.width) * 2 - 1;
+			mouseRef.current.y =
+				-((event.clientY - rect.top) / rect.height) * 2 + 1;
+			raycasterRef.current.setFromCamera(
+				mouseRef.current,
+				cameraRef.current
 			);
-		}
-	}, [selectedCategory, masteryFilter, showEdges]);
+			const intersects = raycasterRef.current.intersectObjects(
+				nodesRef.current
+			);
+			if (intersects.length > 0)
+				handleNodeClick(intersects[0].object as THREE.Mesh);
+		};
 
+		const handleResize = () => {
+			if (
+				!rendererRef.current ||
+				!cameraRef.current ||
+				!containerRef.current
+			)
+				return;
+			const width = containerRef.current.clientWidth;
+			const height = containerRef.current.clientHeight;
+			cameraRef.current.aspect = width / height;
+			cameraRef.current.updateProjectionMatrix();
+			rendererRef.current.setSize(width, height);
+		};
+
+		const animate = () => {
+			animationFrameId = requestAnimationFrame(animate);
+			if (
+				!controlsRef.current ||
+				!groupRef.current ||
+				!rendererRef.current ||
+				!sceneRef.current ||
+				!cameraRef.current
+			)
+				return;
+			controlsRef.current.update();
+			if (isRotatingRef.current) groupRef.current.rotation.y += 0.001;
+			rendererRef.current.render(sceneRef.current, cameraRef.current);
+		};
+
+		// --- Scene Setup --- //
+		const scene = new THREE.Scene();
+		sceneRef.current = scene;
+		scene.background = new THREE.Color(0xffffff);
+		const camera = new THREE.PerspectiveCamera(
+			75,
+			container.clientWidth / container.clientHeight,
+			0.1,
+			1000
+		);
+		cameraRef.current = camera;
+		camera.position.z = 5;
+		const renderer = new THREE.WebGLRenderer({ antialias: true });
+		rendererRef.current = renderer;
+		renderer.setSize(container.clientWidth, container.clientHeight);
+		renderer.outputColorSpace = THREE.SRGBColorSpace;
+		container.appendChild(renderer.domElement);
+
+		// Gradient map
+		const createGradientTexture = () => {
+			const size = 256,
+				canvas = document.createElement('canvas');
+			canvas.width = canvas.height = size;
+			const context = canvas.getContext('2d');
+			if (!context) return null;
+			const gradient = context.createLinearGradient(0, 0, size, size);
+			gradient.addColorStop(0, '#333');
+			gradient.addColorStop(0.3, '#666');
+			gradient.addColorStop(0.5, '#999');
+			gradient.addColorStop(0.7, '#CCC');
+			gradient.addColorStop(1, '#FFF');
+			context.fillStyle = gradient;
+			context.fillRect(0, 0, size, size);
+			const texture = new THREE.CanvasTexture(canvas);
+			texture.minFilter = THREE.NearestFilter;
+			texture.magFilter = THREE.NearestFilter;
+			texture.generateMipmaps = false;
+			return texture;
+		};
+		gradientMapRef.current = createGradientTexture();
+
+		// Assign gradient map to materials (important to do it here)
+		Object.values(categoryColors).forEach((color) => {
+			const mat = createToonMaterial(color);
+			if (gradientMapRef.current)
+				mat.gradientMap = gradientMapRef.current;
+		});
+
+		// Lighting
+		const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+		directionalLight.position.set(5, 3, 5);
+		scene.add(directionalLight);
+		const ambientLight = new THREE.AmbientLight(0x9090a0, 0.8);
+		scene.add(ambientLight);
+
+		// Controls
+		const controls = new OrbitControls(camera, renderer.domElement);
+		controlsRef.current = controls;
+		controls.enableDamping = true;
+		controls.dampingFactor = 0.05;
+		controls.screenSpacePanning = false;
+		controls.minDistance = 2;
+		controls.maxDistance = 10;
+
+		// Group and Center Sphere
+		const group = new THREE.Group();
+		groupRef.current = group;
+		scene.add(group);
+		const centerSphereGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+		const centerSphereMaterial = createToonMaterial(
+			new THREE.Color(0x2255cc)
+		);
+		if (gradientMapRef.current)
+			centerSphereMaterial.gradientMap = gradientMapRef.current;
+		const centerSphere = new THREE.Mesh(
+			centerSphereGeometry,
+			centerSphereMaterial
+		);
+		const centerOutlineMaterial = new THREE.MeshBasicMaterial({
+			color: 0x000000,
+			side: THREE.BackSide,
+		});
+		const centerOutlineMesh = new THREE.Mesh(
+			centerSphereGeometry.clone().scale(1.15, 1.15, 1.15),
+			centerOutlineMaterial
+		);
+		centerSphere.add(centerOutlineMesh);
+		centerSphere.position.set(0, 0, 0);
+		group.add(centerSphere);
+
+		// --- Layout Calculation (UMAP/t-SNE) --- //
+		// Rename tsnePositions to layoutPositions for generality
+		let layoutPositions = new Map<number, THREE.Vector3>();
+		try {
+			const conceptsWithEmbeddings = concepts.filter(
+				(c) => c.embedding && c.embedding.length > 0
+			);
+
+			if (conceptsWithEmbeddings.length > 1) {
+				// Need at least 2 points for t-SNE
+				console.log(
+					`[Layout Calc] Calculating layout for ${conceptsWithEmbeddings.length} concepts.`
+				);
+				const embeddings = conceptsWithEmbeddings.map(
+					(c) => c.embedding!
+				); // Non-null assertion safe due to filter
+
+				// --- DEBUG: Log input embeddings ---
+				console.log(
+					'[Layout Calc Debug] Input embeddings:',
+					embeddings
+				);
+				const hasInvalidEmbedding = embeddings.some((emb, index) => {
+					// Robust check: ensure emb is an array before calling .some
+					if (!Array.isArray(emb)) {
+						console.error(
+							`[Layout Calc Error] Embedding at index ${index} is not an array! Type: ${typeof emb}, Value:`,
+							emb
+						);
+						return true; // Found an invalid embedding
+					}
+					// Now it's safe to call .some
+					const hasInvalidValue = emb.some(
+						(val) => !Number.isFinite(val)
+					);
+					if (hasInvalidValue) {
+						console.error(
+							`[Layout Calc Error] Embedding at index ${index} contains non-finite value:`,
+							emb
+						);
+					}
+					return hasInvalidValue;
+				});
+
+				if (hasInvalidEmbedding) {
+					console.error(
+						'[Layout Calc Error] Input embeddings contain invalid data!'
+					);
+					throw new Error(
+						'Invalid embedding data for layout calculation.'
+					);
+				}
+				// --- END DEBUG ---
+
+				// --- PCA Pre-processing (Optional but Recommended) --- //
+				const originalDim = embeddings[0].length;
+				const targetPcaDim = Math.min(40, originalDim);
+				let dataForUmap = embeddings;
+				if (
+					originalDim > 50 &&
+					conceptsWithEmbeddings.length > targetPcaDim
+				) {
+					console.log(
+						`[Layout Calc] Running PCA to reduce from ${originalDim}D to ${targetPcaDim}D`
+					);
+					const pca = new PCA(embeddings, {
+						center: true,
+						scale: true,
+					});
+					dataForUmap = pca
+						.predict(embeddings, { nComponents: targetPcaDim })
+						.to2DArray();
+					console.log('[Layout Calc] PCA complete.');
+				} else {
+					console.log(
+						'[Layout Calc] Skipping PCA (dim <= 50 or not enough data).'
+					);
+				}
+				// --- End PCA ---
+
+				// --- UMAP Calculation --- //
+				const nPoints = dataForUmap.length;
+				const umapParams = {
+					nNeighbors: Math.min(15, Math.max(5, nPoints - 1)), // Default 15, ensure >= 5 and < nPoints
+					minDist: 0.1, // Default
+					nComponents: 3, // For 3D visualization
+					spread: 1.0, // Default
+				};
+				console.log(
+					'[Layout Calc] Running UMAP with params:',
+					umapParams
+				);
+				const umap = new UMAP(umapParams);
+				const rawOutput = umap.fit(dataForUmap); // Use fit directly
+				console.log('[Layout Calc] UMAP complete.');
+
+				if (!rawOutput || rawOutput.length !== nPoints) {
+					throw new Error('UMAP did not return valid output.');
+				}
+				// --- End UMAP --- //
+
+				// --- Sphere Normalization --- //
+				console.log(
+					'[Layout Calc] Normalizing UMAP output into sphere...'
+				);
+				const vecMagnitude = (vec: number[]) =>
+					Math.sqrt(vec.reduce((sum, val) => sum + val * val, 0));
+
+				// 1. Centre at origin
+				const centroid = rawOutput
+					.reduce((c, v) => c.map((d, i) => d + v[i]), [0, 0, 0])
+					.map((d) => d / nPoints);
+				const centred = rawOutput.map((v) =>
+					v.map((d, i) => d - centroid[i])
+				);
+
+				// 2. Find the *max* radius after centering
+				let maxR = 0;
+				for (const v of centred) {
+					maxR = Math.max(maxR, vecMagnitude(v));
+				}
+
+				// 3. Scale so that maxR -> sphereMaxRadius
+				const scale = maxR > 1e-9 ? sphereMaxRadius / maxR : 1.0; // Avoid division by zero
+
+				centred.forEach((v, index) => {
+					const id = conceptsWithEmbeddings[index].id;
+					const finalPos = new THREE.Vector3(
+						v[0] * scale,
+						v[1] * scale,
+						v[2] * scale
+					);
+					layoutPositions.set(id, finalPos);
+				});
+				console.log('[Layout Calc] UMAP + Normalization complete.');
+				// --- End Normalization --- //
+			} else {
+				console.log(
+					'[Layout Calc] Not enough concepts with embeddings, using random positions.'
+				);
+			}
+		} catch (error) {
+			console.error(
+				'[Layout Calc] Error during UMAP/Normalization:',
+				error
+			);
+			// Fallback to random positions if calculation fails
+			layoutPositions = new Map<number, THREE.Vector3>();
+		}
+
+		// --- Create Initial Nodes from State --- //
+		console.log(
+			`[useEffect Init] Creating ${concepts.length} nodes from initial state...`
+		);
+		nodesRef.current = [];
+		edgesRef.current = [];
+		// Clear previous objects except center sphere
+		const objectsToRemove = group.children.filter(
+			(child) => child !== centerSphere
+		);
+		objectsToRemove.forEach((child) => group.remove(child));
+
+		concepts.forEach((concept) => {
+			// Use layoutPositions map (contains UMAP or empty)
+			const precalculatedPosition = layoutPositions.get(concept.id);
+			const nodeMesh = createNodeMesh(
+				concept,
+				true,
+				precalculatedPosition // Pass position if available
+			);
+			group.add(nodeMesh);
+			nodesRef.current.push(nodeMesh);
+		});
+		console.log(
+			`[useEffect Init] Created ${nodesRef.current.length} node meshes.`
+		);
+
+		// --- Animate Nodes --- //
+		console.log(
+			`[useEffect Init] Starting animations for ${nodesRef.current.length} nodes`
+		);
+		nodesRef.current.forEach((nodeMesh, index) => {
+			if (nodeMesh.userData && nodeMesh.userData.targetPosition) {
+				setTimeout(() => {
+					animateNodeFromCenter(
+						nodeMesh,
+						nodeMesh.userData.targetPosition
+					);
+				}, index * 50);
+			}
+		});
+
+		// --- Add Initial Connections --- //
+		initialConnectionTimeoutId = setTimeout(() => {
+			console.log('[useEffect Init] Creating initial connections...');
+			const initialConnections = Math.min(
+				30,
+				Math.floor(nodesRef.current.length * 1.5)
+			);
+			let createdCount = 0;
+			for (
+				let i = 0;
+				i < initialConnections && nodesRef.current.length > 1;
+				i++
+			) {
+				const startIndex = Math.floor(
+					Math.random() * nodesRef.current.length
+				);
+				let endIndex = Math.floor(
+					Math.random() * nodesRef.current.length
+				);
+				while (startIndex === endIndex)
+					endIndex = Math.floor(
+						Math.random() * nodesRef.current.length
+					);
+				const startNode = nodesRef.current[startIndex];
+				const endNode = nodesRef.current[endIndex];
+				const lineGeometry = new THREE.BufferGeometry();
+				const positions = new Float32Array(6);
+				lineGeometry.setAttribute(
+					'position',
+					new THREE.BufferAttribute(positions, 3)
+				);
+				const line = new THREE.Line(lineGeometry, lineMaterial.clone());
+				line.material.opacity = 0;
+				gsap.to(line.material, {
+					opacity: 0.8,
+					duration: 1.5,
+					delay: 0.5,
+					ease: 'power2.out',
+				});
+				line.visible = showEdges;
+
+				const updateLine = () => {
+					if (!line.parent) return; // Skip update if line removed
+					const posArray = lineGeometry.attributes.position
+						.array as Float32Array;
+					startNode.getWorldPosition(tempVec1);
+					endNode.getWorldPosition(tempVec2);
+					posArray[0] = tempVec1.x;
+					posArray[1] = tempVec1.y;
+					posArray[2] = tempVec1.z;
+					posArray[3] = tempVec2.x;
+					posArray[4] = tempVec2.y;
+					posArray[5] = tempVec2.z;
+					lineGeometry.attributes.position.needsUpdate = true;
+				};
+				updateLine();
+				let connectionRafId = 0;
+				const updateConnectionAnimation = () => {
+					connectionRafId = requestAnimationFrame(
+						updateConnectionAnimation
+					);
+					updateLine();
+				};
+				updateConnectionAnimation();
+				activeAnimationsRef.current.push({
+					type: 'raf',
+					id: connectionRafId,
+				});
+				setTimeout(() => {
+					cancelAnimationFrame(connectionRafId);
+					activeAnimationsRef.current =
+						activeAnimationsRef.current.filter(
+							(anim) =>
+								anim.type !== 'raf' ||
+								anim.id !== connectionRafId
+						);
+				}, 2000);
+				if (groupRef.current) {
+					groupRef.current.add(line);
+				}
+				edgesRef.current.push(line);
+				createdCount++;
+			}
+			console.log(
+				`[useEffect Init] Created ${createdCount} initial connections.`
+			);
+			initialLoadCompletedRef.current = true;
+			console.log('[useEffect Init] Initial load marked complete.');
+			applyFilters(); // Apply initial filters
+		}, 300);
+
+		// Add event listeners
+		container.addEventListener('mousemove', onMouseMove);
+		container.addEventListener('click', onMouseClick);
+		window.addEventListener('resize', handleResize);
+
+		// Start animation loop
+		animate();
+
+		// --- Cleanup --- //
+		return () => {
+			console.log('[useEffect Init] Cleaning up Three.js scene...');
+			clearTimeout(initialConnectionTimeoutId);
+			cancelAnimationFrame(animationFrameId);
+			window.removeEventListener('resize', handleResize);
+			if (containerRef.current) {
+				containerRef.current.removeEventListener(
+					'mousemove',
+					onMouseMove
+				);
+				containerRef.current.removeEventListener('click', onMouseClick);
+			}
+			activeAnimationsRef.current.forEach((anim) => {
+				if (anim.type === 'gsap')
+					(
+						anim as { type: 'gsap'; tween: gsap.core.Tween }
+					).tween.kill();
+				else if (anim.type === 'raf')
+					cancelAnimationFrame(
+						(anim as { type: 'raf'; id: number }).id
+					);
+			});
+			activeAnimationsRef.current = [];
+			if (controlsRef.current) controlsRef.current.dispose();
+			if (rendererRef.current) {
+				if (
+					containerRef.current?.contains(
+						rendererRef.current.domElement
+					)
+				) {
+					containerRef.current.removeChild(
+						rendererRef.current.domElement
+					);
+				}
+				rendererRef.current.dispose();
+			}
+			// Dispose geometries/materials created in this effect
+			nodeGeometry.dispose();
+			lineMaterial.dispose();
+			centerSphereGeometry.dispose();
+			(centerSphereMaterial as THREE.Material).dispose();
+			(centerOutlineMaterial as THREE.Material).dispose();
+			gradientMapRef.current?.dispose();
+
+			// Clear refs
+			groupRef.current = null;
+			sceneRef.current = null;
+			cameraRef.current = null;
+			rendererRef.current = null;
+			controlsRef.current = null;
+			nodesRef.current = [];
+			edgesRef.current = [];
+			initialLoadCompletedRef.current = false;
+			initializedRef.current = false;
+		};
+		// Re-run effect if the initial data identity changes (though unlikely for props)
+		// Or if callbacks change (they are memoized, so should be stable)
+	}, [
+		initialConceptsData,
+		createNodeMesh,
+		animateNodeFromCenter,
+		applyFilters,
+	]);
+
+	// --- Props for Panels --- //
+	const filterContentProps = {
+		categories,
+		showEdges,
+		setShowEdges,
+		selectedCategories,
+		toggleCategory,
+		masteryFilter,
+		setMasteryFilter,
+		resetFilters,
+	};
+	const addNodeContentProps = {
+		categories,
+		masteryLevel,
+		setMasteryLevel,
+		addNodeCategory,
+		setAddNodeCategory,
+		onAddRandom: async () => {
+			if (!isAddingNode) await addNode();
+		},
+		onAddCustom: handleAddCustomConcept,
+		isAdding: isAddingNode,
+		newConceptName: newConceptName,
+		setNewConceptName: setNewConceptName,
+	};
+
+	// --- Render Component --- //
 	return (
 		<div style={{ width: '100%', height: '100vh', position: 'relative' }}>
-			{/* Add Concept Card */}
-			<Card className='absolute top-5 left-5 z-50 w-80'>
-				<CardHeader className='p-4 pb-2'>
-					<CardTitle className='text-lg'>Add Concept Node</CardTitle>
-				</CardHeader>
-				<CardContent className='p-4 pt-0 pb-2'>
-					<Input
-						placeholder='Enter concept name...'
-						value={newConceptName}
-						onChange={(e) => setNewConceptName(e.target.value)}
-						onKeyDown={handleKeyPress}
-						className='mb-4'
-					/>
+			{/* Title */}
+			<h1 className='absolute top-5 left-5 z-10 text-3xl font-bold text-gray-800 select-none'>
+				{user?.user?.username}&apos;s Mind Map
+			</h1>
 
-					<div className='mb-4'>
-						<Label className='block mb-2'>
-							Mastery Level: {masteryLevel.toFixed(2)}
-						</Label>
-						<input
-							type='range'
-							min='0'
-							max='1'
-							step='0.01'
-							value={masteryLevel}
-							onChange={(e) =>
-								setMasteryLevel(parseFloat(e.target.value))
-							}
-							className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer'
-						/>
-						<div className='flex items-center justify-between text-xs text-muted-foreground mt-1'>
-							<span>Beginner (Center)</span>
-							<span>Master (Edge)</span>
-						</div>
-					</div>
-
-					<div className='mb-4'>
-						<Label className='block mb-2'>Category:</Label>
-						<Select
-							value={addNodeCategory}
-							onValueChange={setAddNodeCategory}
-						>
-							<SelectTrigger className='w-full'>
-								<SelectValue placeholder='Select a category' />
-							</SelectTrigger>
-							<SelectContent>
-								{categories.map((category) => (
-									<SelectItem key={category} value={category}>
-										{category}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div>
-						<Label className='block mb-2'>Concept Color:</Label>
-						<div className='flex flex-wrap gap-2'>
-							{conceptColors.map((colorOption) => (
-								<button
-									key={colorOption.name}
-									type='button'
-									className={`w-8 h-8 rounded-full border-2 transition-all ${
-										selectedColor.name === colorOption.name
-											? 'border-black scale-110'
-											: 'border-transparent'
-									}`}
-									style={{ backgroundColor: colorOption.hex }}
-									onClick={() =>
-										setSelectedColor(colorOption)
-									}
-									title={colorOption.name}
-									aria-label={`Select ${colorOption.name} color`}
-								/>
-							))}
-						</div>
-					</div>
-				</CardContent>
-				<CardFooter className='flex justify-between p-4 pt-0'>
-					<Button
-						variant='outline'
-						onClick={handleAddRandomConcept}
-						className='mr-2'
+			{/* Action Buttons Group */}
+			<div className='absolute top-5 right-5 z-50 flex flex-col space-y-2'>
+				{/* Add Node Panel */}
+				{isDesktop ? (
+					<Sheet
+						open={isAddNodePanelOpen}
+						onOpenChange={setIsAddNodePanelOpen}
 					>
-						Add Random
-					</Button>
-					<Button
-						onClick={handleAddCustomConcept}
-						disabled={!newConceptName.trim()}
-					>
-						Add Custom
-					</Button>
-				</CardFooter>
-			</Card>
-
-			{/* Filter Menu - Changed to vertical collapse */}
-			<div
-				className={`absolute top-5 right-5 z-50 transition-all duration-300 ease-in-out ${
-					menuOpen
-						? 'translate-y-0'
-						: 'translate-y-[calc(-100%+40px)]'
-				}`}
-			>
-				<Card className='w-64'>
-					<div className='flex items-center justify-between border-b'>
-						<CardHeader className='p-3 pb-2 flex-1'>
-							<CardTitle className='text-md flex items-center'>
-								<Filter size={16} className='mr-2' />
-								Filters
-							</CardTitle>
-						</CardHeader>
-						<button
-							onClick={() => setMenuOpen(!menuOpen)}
-							className='h-full p-3 hover:bg-gray-100 transition-colors'
-							aria-label={
-								menuOpen
-									? 'Close filters menu'
-									: 'Open filters menu'
-							}
+						<SheetTrigger asChild>
+							<Button
+								variant='outline'
+								size='icon'
+								title='Add Concept'
+							>
+								<Plus className='h-4 w-4' />
+							</Button>
+						</SheetTrigger>
+						<SheetContent
+							side='right'
+							className='w-[350px] sm:w-[400px]'
 						>
-							{menuOpen ? <X size={18} /> : <Filter size={18} />}
-						</button>
-					</div>
-
-					{menuOpen && (
-						<CardContent className='p-3 pt-2'>
-							<div className='flex items-center space-x-2 py-2 border-b'>
-								<Checkbox
-									id='showEdges'
-									checked={showEdges}
-									onCheckedChange={(checked) =>
-										setShowEdges(checked as boolean)
-									}
+							<SheetHeader>
+								<SheetTitle>Add New Concept</SheetTitle>
+								<SheetDescription>
+									Configure and add a new concept node.
+								</SheetDescription>
+							</SheetHeader>
+							<div className='p-4'>
+								<AddNodePanelContent
+									{...addNodeContentProps}
+									onClose={() => setIsAddNodePanelOpen(false)}
 								/>
-								<Label
-									htmlFor='showEdges'
-									className='cursor-pointer'
-								>
-									{showEdges ? (
-										<Eye
-											size={16}
-											className='inline mr-1'
-										/>
-									) : (
-										<EyeOff
-											size={16}
-											className='inline mr-1'
-										/>
-									)}
-									Show Connections
-								</Label>
 							</div>
-
-							<div className='py-2 border-b'>
-								<Label className='block mb-2'>
-									Filter by Category:
-								</Label>
-								<Select
-									value={selectedCategory}
-									onValueChange={setSelectedCategory}
-								>
-									<SelectTrigger className='w-full'>
-										<SelectValue placeholder='Select a category' />
-									</SelectTrigger>
-									<SelectContent>
-										{categories.map((category) => (
-											<SelectItem
-												key={category}
-												value={category}
-											>
-												{category}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className='py-2'>
-								<Label className='block mb-2'>
-									Mastery Range: {masteryFilter[0].toFixed(1)}{' '}
-									- {masteryFilter[1].toFixed(1)}
-								</Label>
-								<div className='mb-2'>
-									<Label className='text-xs'>
-										Min Mastery:
-									</Label>
-									<input
-										type='range'
-										min='0'
-										max='1'
-										step='0.1'
-										value={masteryFilter[0]}
-										onChange={(e) =>
-											setMasteryFilter([
-												parseFloat(e.target.value),
-												masteryFilter[1],
-											])
+						</SheetContent>
+					</Sheet>
+				) : (
+					<Drawer
+						open={isAddNodePanelOpen}
+						onOpenChange={setIsAddNodePanelOpen}
+						shouldScaleBackground={false}
+					>
+						<DrawerTrigger asChild>
+							<Button
+								variant='outline'
+								size='icon'
+								title='Add Concept'
+							>
+								<Plus className='h-4 w-4' />
+							</Button>
+						</DrawerTrigger>
+						<DrawerContent>
+							<div className='mx-auto w-full max-w-sm'>
+								<DrawerHeader>
+									<DrawerTitle>Add New Concept</DrawerTitle>
+									<DrawerDescription>
+										Configure and add a new concept node.
+									</DrawerDescription>
+								</DrawerHeader>
+								<div className='p-4 pb-0'>
+									<AddNodePanelContent
+										{...addNodeContentProps}
+										onClose={() =>
+											setIsAddNodePanelOpen(false)
 										}
-										className='w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer'
-									/>
-								</div>
-								<div>
-									<Label className='text-xs'>
-										Max Mastery:
-									</Label>
-									<input
-										type='range'
-										min='0'
-										max='1'
-										step='0.1'
-										value={masteryFilter[1]}
-										onChange={(e) =>
-											setMasteryFilter([
-												masteryFilter[0],
-												parseFloat(e.target.value),
-											])
-										}
-										className='w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer'
 									/>
 								</div>
 							</div>
-
-							<div className='pt-3'>
-								<Button
-									variant='outline'
-									className='w-full'
-									onClick={resetFilters}
-								>
-									Reset Filters
-								</Button>
+						</DrawerContent>
+					</Drawer>
+				)}
+				{/* Filter Panel */}
+				{isDesktop ? (
+					<Sheet
+						open={isFilterPanelOpen}
+						onOpenChange={setIsFilterPanelOpen}
+					>
+						<SheetTrigger asChild>
+							<Button
+								variant='outline'
+								size='icon'
+								title='Filters'
+							>
+								<Filter className='h-4 w-4' />
+							</Button>
+						</SheetTrigger>
+						<SheetContent
+							side='right'
+							className='w-[300px] sm:w-[350px]'
+						>
+							<SheetHeader>
+								<SheetTitle>Filters</SheetTitle>
+								<SheetDescription>
+									Adjust node visibility.
+								</SheetDescription>
+							</SheetHeader>
+							<div className='p-4'>
+								<FilterPanelContent
+									{...filterContentProps}
+									onClose={() => setIsFilterPanelOpen(false)}
+								/>
 							</div>
-						</CardContent>
-					)}
-				</Card>
+						</SheetContent>
+					</Sheet>
+				) : (
+					<Drawer
+						open={isFilterPanelOpen}
+						onOpenChange={setIsFilterPanelOpen}
+						shouldScaleBackground={false}
+					>
+						<DrawerTrigger asChild>
+							<Button
+								variant='outline'
+								size='icon'
+								title='Filters'
+							>
+								<Filter className='h-4 w-4' />
+							</Button>
+						</DrawerTrigger>
+						<DrawerContent>
+							<div className='mx-auto w-full max-w-sm'>
+								<DrawerHeader>
+									<DrawerTitle>Filters</DrawerTitle>
+									<DrawerDescription>
+										Adjust node visibility.
+									</DrawerDescription>
+								</DrawerHeader>
+								<div className='p-4 pb-0'>
+									<FilterPanelContent
+										{...filterContentProps}
+										onClose={() =>
+											setIsFilterPanelOpen(false)
+										}
+									/>
+								</div>
+							</div>
+						</DrawerContent>
+					</Drawer>
+				)}
+				{/* Reset View Button */}
+				<Button
+					variant='outline'
+					size='icon'
+					onClick={resetCameraView}
+					title='Reset View'
+				>
+					<Maximize className='h-4 w-4' />
+				</Button>
 			</div>
 
-			{/* Reset View Button */}
-			<Button
-				variant='outline'
-				size='icon'
-				onClick={resetCameraView}
-				className='absolute bottom-5 right-5 z-50 rounded-full bg-white shadow-md hover:bg-gray-100'
-				title='Reset View'
-			>
-				<Maximize className='h-4 w-4' />
-			</Button>
-
+			{/* Canvas Container */}
 			<div
 				ref={containerRef}
 				style={{
@@ -1401,6 +1472,8 @@ const ThreeScene: React.FC = () => {
 					left: 0,
 				}}
 			/>
+
+			{/* Tooltip */}
 			{tooltipContent && tooltipPosition && (
 				<div
 					style={{
@@ -1414,7 +1487,7 @@ const ThreeScene: React.FC = () => {
 						fontSize: '12px',
 						pointerEvents: 'none',
 						whiteSpace: 'pre-line',
-						zIndex: 20, // Ensure tooltip is above everything
+						zIndex: 20,
 					}}
 				>
 					{tooltipContent}
@@ -1423,8 +1496,8 @@ const ThreeScene: React.FC = () => {
 
 			{/* Node Details Drawer */}
 			<NodeDetailsDrawer
-				isOpen={drawerOpen}
-				onOpenChange={handleDrawerOpenChange}
+				isOpen={isNodeDetailPanelOpen}
+				onOpenChange={handleNodeDetailPanelOpenChange}
 				nodeData={selectedNodeData}
 			/>
 		</div>
