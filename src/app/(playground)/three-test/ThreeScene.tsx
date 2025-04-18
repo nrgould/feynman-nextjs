@@ -301,22 +301,30 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 			node.userData = { ...concept }; // Store all concept data
 			node.visible = concept.visible;
 
+			// --- Calculate Scale based on Mastery --- //
+			const mastery = concept.mastery ?? 0.5; // Default mastery if undefined
+			const minScale = 0.5;
+			const maxScale = 2.3;
+			const masteryScale = minScale + (maxScale - minScale) * mastery;
+			// --- DEBUG: Log scale --- //
+			console.log(
+				`[Node Scale] ID: ${concept.id}, Mastery: ${mastery.toFixed(2)}, Scale: ${masteryScale.toFixed(2)}`
+			);
+			// --- END DEBUG --- //
+			node.scale.set(masteryScale, masteryScale, masteryScale);
+			// --- End Scale Calculation ---
+
 			let targetPosition: THREE.Vector3;
 			if (position) {
 				// Use provided position if available
 				targetPosition = position.clone();
 			} else {
 				// Otherwise, calculate random spherical position
-				const mastery =
-					concept.mastery !== undefined ? concept.mastery : 0.5;
-				const sphereRadius =
-					sphereMinRadius +
-					(sphereMaxRadius - sphereMinRadius) * mastery;
 				const phi = Math.random() * Math.PI;
 				const theta = Math.random() * 2 * Math.PI;
-				const x = sphereRadius * Math.sin(phi) * Math.cos(theta);
-				const y = sphereRadius * Math.sin(phi) * Math.sin(theta);
-				const z = sphereRadius * Math.cos(phi);
+				const x = sphereMinRadius * Math.sin(phi) * Math.cos(theta);
+				const y = sphereMinRadius * Math.sin(phi) * Math.sin(theta);
+				const z = sphereMinRadius * Math.cos(phi);
 				targetPosition = new THREE.Vector3(x, y, z);
 			}
 
