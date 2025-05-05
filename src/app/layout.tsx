@@ -11,6 +11,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { PostHogProvider } from './providers';
 import Banner from './banner';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeToggle } from '@/components/molecules/ThemeToggle';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -59,14 +61,24 @@ export default function RootLayout({
 					content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'
 				/>
 				<body className={`${PlusJakartaSans.variable}`}>
-					<PostHogProvider>
-						<main className='h-[100dvh] bg-zinc-50'>
-							{children}
-							<Banner />
-						</main>
-						<Toaster />
-						<Analytics />
-					</PostHogProvider>
+					<ThemeProvider
+						attribute='class'
+						defaultTheme='system'
+						enableSystem
+						disableTransitionOnChange
+					>
+						<PostHogProvider>
+							<main className='h-[100dvh] bg-background'>
+								<div className='absolute top-0 right-0 p-4'>
+									<ThemeToggle />
+								</div>
+								{children}
+								<Banner />
+							</main>
+							<Toaster />
+							<Analytics />
+						</PostHogProvider>
+					</ThemeProvider>
 				</body>
 			</html>
 		</ClerkProvider>
