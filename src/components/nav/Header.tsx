@@ -70,13 +70,11 @@ const ListItem = React.forwardRef<
 ListItem.displayName = 'ListItem';
 
 function Header() {
-	const { isMobile } = useSidebar();
 	const { title } = useTitleStore();
 
 	return (
 		<header className='sticky top-0 flex shrink-0 items-center justify-between gap-2 border-b bg-background p-2 sm:p-4 bg-white z-50 min-h-[3rem]'>
 			<div className='flex items-center gap-2'>
-				{isMobile && <SidebarTrigger className='flex-shrink-0' />}
 				<Link href='/'>
 					<h1 className='font-extrabold text-base sm:text-xl truncate'>
 						{title}
@@ -164,16 +162,9 @@ function Header() {
 
 			<div className='flex flex-row items-center justify-end gap-2 flex-shrink-0'>
 				<SignedOut>
-					{isMobile && (
-						<Link href='/waitlist'>
-							<Button
-								size='sm'
-								className='bg-gradient-to-br from-emerald-400 to-emerald-500 text-white'
-							>
-								Early Access
-							</Button>
-						</Link>
-					)}
+					<GradientButton>
+						<Link href='/waitlist'>Try Free</Link>
+					</GradientButton>
 				</SignedOut>
 				<ClerkLoaded>
 					<div className='flex flex-row items-center justify-end gap-2'>

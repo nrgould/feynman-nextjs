@@ -60,18 +60,12 @@ export default function RootLayout({
 				/>
 				<body className={`${PlusJakartaSans.variable}`}>
 					<PostHogProvider>
-						<SidebarProvider defaultOpen={false}>
-							<AppSidebar className='h-dvh' />
-							<SidebarInset>
-								<Header />
-								<main className='h-[100dvh] bg-zinc-50'>
-									{children}
-									<Banner />
-								</main>
-								<Toaster />
-							</SidebarInset>
-							<Analytics />
-						</SidebarProvider>
+						<main className='h-[100dvh] bg-zinc-50'>
+							{children}
+							<Banner />
+						</main>
+						<Toaster />
+						<Analytics />
 					</PostHogProvider>
 				</body>
 			</html>

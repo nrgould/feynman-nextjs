@@ -61,16 +61,6 @@ const signedOutItems = [
 
 const resourceItems = [
 	{
-		title: 'Feynman Technique',
-		url: '/feynman-technique',
-		icon: Gauge,
-	},
-	{
-		title: 'Drag & Drop Math',
-		url: '/drag-drop-math',
-		icon: Shapes,
-	},
-	{
 		title: 'Report a bug',
 		url: 'https://rainy-guppy-1b5.notion.site/17516e8b0b9b801e8e2cf6534c065ded?pvs=105',
 		icon: Bug,
@@ -122,25 +112,6 @@ export async function AppSidebar({
 								))}
 							</SidebarMenu>
 						</SignedOut>
-					</SidebarGroupContent>
-				</SidebarGroup>
-				<SidebarGroup>
-					<SidebarGroupLabel>Additional Tools</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{resourceItems.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild>
-										<a href={item.url}>
-											<item.icon size={18} />
-											<span className='font-semibold'>
-												{item.title}
-											</span>
-										</a>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>

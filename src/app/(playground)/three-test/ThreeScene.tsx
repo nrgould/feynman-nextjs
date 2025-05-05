@@ -253,6 +253,14 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 	// --- Constants --- //
 	const sphereMinRadius = 1.0;
 	const sphereMaxRadius = 3.0;
+	// --- UMAP Parameters --- //
+	// Moved here for easier tweaking
+	const umapParams = {
+		nNeighbors: 15, // Default: 15. Adjust based on data density. Higher values capture global structure, lower values capture local structure. Min ~5.
+		minDist: 0.05, // Default: 0.1. Controls how tightly points are packed together. Lower values = tighter clusters.
+		nComponents: 3, // Use 3 for 3D visualization
+		spread: 0.1, // Default: 1.0. Affects the separation between clusters. Higher values spread points out more.
+	};
 
 	// --- Callbacks --- //
 
@@ -969,17 +977,19 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 
 				// --- UMAP Calculation --- //
 				const nPoints = dataForUmap.length;
-				const umapParams = {
-					nNeighbors: Math.min(15, Math.max(5, nPoints - 1)), // Default 15, ensure >= 5 and < nPoints
-					minDist: 0.1, // Default
-					nComponents: 3, // For 3D visualization
-					spread: 1.0, // Default
+				// Adjust nNeighbors dynamically if necessary
+				const adjustedParams = {
+					...umapParams,
+					nNeighbors: Math.min(
+						umapParams.nNeighbors,
+						Math.max(5, nPoints - 1) // Ensure nNeighbors is between 5 and nPoints-1
+					),
 				};
 				console.log(
 					'[Layout Calc] Running UMAP with params:',
-					umapParams
+					adjustedParams
 				);
-				const umap = new UMAP(umapParams);
+				const umap = new UMAP(adjustedParams);
 				const rawOutput = umap.fit(dataForUmap); // Use fit directly
 				console.log('[Layout Calc] UMAP complete.');
 
