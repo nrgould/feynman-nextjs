@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher([
 	'/',
+	'/api/math-tutor',
 	'/plans',
 	'/api/sample-chat',
 	'/waitlist',
