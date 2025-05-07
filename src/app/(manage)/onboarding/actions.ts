@@ -1,11 +1,11 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient} from '@/utils/supabase/server';
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
 
 export const completeOnboarding = async (formData: FormData) => {
 	const client = await clerkClient();
-	const supabase = await createClient();
+	const supabase = await createServerSupabaseClient();
 
 	// Add debug logging for Supabase client
 	if (!supabase) {

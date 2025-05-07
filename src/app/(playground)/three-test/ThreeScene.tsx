@@ -338,7 +338,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 
 			return node;
 		},
-		[sphereMinRadius, sphereMaxRadius]
+		[sphereMinRadius]
 	);
 
 	const applyFilters = useCallback(() => {
@@ -543,6 +543,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 				setIsAddingNode(false);
 			}
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
 			addNodeCategory,
 			masteryLevel,
@@ -723,7 +724,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 
 		const container = containerRef.current;
 		let animationFrameId: number;
-		let initialConnectionTimeoutId: NodeJS.Timeout;
+		// let initialConnectionTimeoutId: NodeJS.Timeout;
 
 		// Define handlers within useEffect scope
 		const onMouseMove = (event: MouseEvent) => {
@@ -1090,7 +1091,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 		});
 
 		// --- Add Initial Connections --- //
-		initialConnectionTimeoutId = setTimeout(() => {
+		const initialConnectionTimeoutId = setTimeout(() => {
 			console.log('[useEffect Init] Creating initial connections...');
 			const initialConnections = Math.min(
 				30,

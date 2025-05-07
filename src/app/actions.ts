@@ -1,22 +1,30 @@
 'use server';
 
 import { openai } from '@ai-sdk/openai';
-import { generateText, streamText } from 'ai';
+import { generateObject, generateText, streamText } from 'ai';
+import { z } from 'zod';
 
 export async function extractMathProblem(imageURL: string) {
 	console.log(imageURL);
-	const result = await generateText({
+	const result = await generateObject({
 		model: openai('gpt-4.1-mini-2025-04-14', {
 			structuredOutputs: true,
 		}),
-		system: "Extract the math problem from the user's message.",
+		system: "Extract the math problem from the user's message.  If there is no math problem, return 'no math problem found'. Also return the subject of the math problem in the response.",
+		schema: z.object({
+			problem: z.string().describe('The math problem to solve.'),
+			subject: z.string().describe('The subject of the math problem.'),
+			title: z
+				.string()
+				.describe('The title of the math problem, i.e. "Solve for x"'),
+		}),
 		messages: [
 			{
 				role: 'user',
 				content: [
 					{
 						type: 'text',
-						text: 'Analyze the following photo and extract the math problem. If there is no math problem, return "No math problem found".',
+						text: 'Analyze the following photo and extract the math problem.',
 					},
 					{
 						type: 'image',
@@ -27,5 +35,32 @@ export async function extractMathProblem(imageURL: string) {
 		],
 	});
 
-	return result.text;
+	return result.object;
+}
+
+export async function generateMethods(problem: string, methods: string[] = []) {
+	const result = await generateObject({
+		model: openai('gpt-4.1-mini-2025-04-14'),
+		schema: z.object({
+			methods: z.array(z.string()).min(1).max(4),
+		}),
+		prompt:
+			methods.length > 0
+				? `Generate more methods to solve the following math problem: ${problem}. These should be high level methods, not specific steps, such as "factor", "use substitution", etc. you've already generated ${methods.join(', ')} methods, so generate different ones.`
+				: `Generate methods to solve the following math problem: ${problem}. These should be high level methods, not specific steps, such as "factor", "use substitution", etc.`,
+	});
+
+	return result.object.methods;
+}
+
+export async function generateSteps(problem: string, method: string) {
+	const result = await generateObject({
+		model: openai('gpt-4.1-mini-2025-04-14'),
+		schema: z.object({
+			steps: z.array(z.string()).min(1).max(6),
+		}),
+		prompt: `Generate steps to solve the following math problem: ${problem} using the ${method} method.`,
+	});
+
+	return result.object.steps;
 }

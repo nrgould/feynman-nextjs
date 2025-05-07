@@ -16,17 +16,16 @@ export default function CameraPage() {
 			{!photo && (
 				<Camera
 					ref={cameraRef}
-					aspectRatio="cover"
+					aspectRatio='cover'
 					numberOfCamerasCallback={() => {}}
-					idealFacingMode="environment"
-					isImageMirror={false}
+					facingMode='environment'
 					errorMessages={{
 						noCameraAccessible: 'No camera detected.',
 						permissionDenied: 'Permission denied.',
 						switchCamera: 'Switch camera',
 						canvas: 'Canvas is not supported.',
 					}}
-					className="absolute top-0 left-0 w-full h-full object-cover"
+					// className="absolute top-0 left-0 w-full h-full object-cover"
 				/>
 			)}
 			{!photo && (
@@ -41,7 +40,7 @@ export default function CameraPage() {
 							}
 						}
 					}}
-					className="absolute bottom-24 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full border-4 border-gray-300 shadow-lg"
+					className='absolute bottom-24 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full border-4 border-gray-300 shadow-lg'
 				/>
 			)}
 			{photo && (

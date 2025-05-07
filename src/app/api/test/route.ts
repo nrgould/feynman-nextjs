@@ -10,7 +10,7 @@ import {
 import { tools } from '@/lib/ai/tools';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 import { generateUUID, getMostRecentUserMessage } from '@/lib/utils';
 import supabase from '@/lib/supabaseClient';
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	const supabase = await createClient();
+	const supabase = await createServerSupabaseClient();
 
 	const coreMessages = convertToCoreMessages(messages);
 	const userMessage = getMostRecentUserMessage(coreMessages);

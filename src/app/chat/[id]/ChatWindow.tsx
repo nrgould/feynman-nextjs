@@ -6,13 +6,10 @@ import { Conversation, Message } from '@/lib/types';
 import { useTitleStore, useProgressStore } from '@/store/store';
 import { Attachment } from 'ai';
 import { useChat } from 'ai/react';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSWRConfig } from 'swr';
-import Timer from '@/components/atoms/Timer';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
-import { LearningPathSidebar } from '@/components/molecules/LearningPathSidebar';
-import { MobileLearningPathSidebar } from '@/components/molecules/MobileLearningPathSidebar';
 import { updateUserSessionTime, updateConceptProgress } from './actions';
 import { toast } from '@/hooks/use-toast';
 
@@ -58,7 +55,6 @@ function ChatWindow({
 			mutate('/api/history');
 		},
 	});
-
 
 	useEffect(() => {
 		setTitle(title);
@@ -217,28 +213,6 @@ function ChatWindow({
 					/>
 				</div>
 			</div>
-
-			{/* Desktop Learning Path Sidebar */}
-			<div className='hidden md:block border-l'>
-				<div className='w-[300px]'>
-					<LearningPathSidebar
-						conceptId={concept_id || chatId}
-						userId={userId}
-						progress={currentProgress}
-						title={title}
-						description={description}
-					/>
-				</div>
-			</div>
-
-			{/* Mobile Learning Path Sidebar */}
-			<MobileLearningPathSidebar
-				conceptId={concept_id || chatId}
-				userId={userId}
-				progress={currentProgress}
-				title={title}
-				description={description}
-			/>
 		</div>
 	);
 }

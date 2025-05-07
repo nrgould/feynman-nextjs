@@ -14,13 +14,7 @@ export async function POST(req: Request) {
 
 	if (stepsGenerated) {
 		stepText = steps.join('\n');
-		console.log('STEPS GENERATED', stepText);
 	}
-
-	//confirm the method
-	//generate steps based on the method
-	//confirm the next step (loop)
-	//final solution -> call the problemSolvedTool
 
 	return createDataStreamResponse({
 		execute: async (dataStream) => {
@@ -45,30 +39,33 @@ export async function POST(req: Request) {
 						}),
 						execute: async ({ feedback }) => feedback,
 					}),
-					generateSteps: tool({
-						description:
-							'Generate steps for the solution process, based on the selected method.',
-						parameters: z.object({ steps: z.array(z.string()) }),
-						execute: async ({ steps }) => steps,
-					}),
-					// askForMethodTool,
+					// generateSteps: tool({
+					// 	description:
+					// 		'Generate steps for the solution process, based on the selected method.',
+					// 	parameters: z.object({ steps: z.array(z.string()) }),
+					// 	execute: async ({ steps }) => steps,
+					// }),
 				},
 			});
 
 			stepAnalysis.mergeIntoDataStream(dataStream, {
-				experimental_sendFinish: false, //if method hasn't been determined yet, set to true
+				experimental_sendFinish: !stepsGenerated, //if method hasn't been determined yet, set to true
 			});
 
-			const stepAnalysisResponse = (await stepAnalysis.response)
-				.messages[0].content[0].args.feedback;
+			const stepContent = (await stepAnalysis.response).messages;
+			let problemSolved = false;
+			let stepAnalysisFeedback = '';
 
-			const problemSolved = (await stepAnalysis.response).messages[0]
-				.content[0].args.problemSolved;
+			// @ts-ignore
+			stepAnalysisFeedback = stepContent[0].args.feedback;
+			// @ts-ignore
+			problemSolved = stepContent[0].args.problemSolved;
+
+			console.log('problemSolved', problemSolved);
 
 			const lastMessage = messages[messages.length - 1];
 			let nextStep = '';
 
-			//disect the message parts to get the confirmation.
 			lastMessage.parts = await Promise.all(
 				lastMessage.parts?.map(async (part: any) => {
 					//run logic on the step chosen by the user
@@ -174,28 +171,4 @@ const problemSolvedTool = tool({
 				'The final answer to the math problem. For example: "x = 5" or "y = 10"'
 			),
 	}),
-});
-
-const askForMethodTool = tool({
-	description:
-		'Asks the user for confirmation of the method they would like to use to solve the math problem. This should be the very first thing you do.',
-	parameters: z.object({
-		title: z
-			.string()
-			.describe(
-				'The title of confirmation options. For example: "Choose preferred method"'
-			),
-		options: z
-			.array(z.string())
-			.describe(
-				'list of methods to solve the math problem. These should be high level methods, not specific steps.'
-			)
-			.length(4),
-	}),
-	execute: async ({ title, options }) => {
-		return {
-			title,
-			options,
-		};
-	},
 });

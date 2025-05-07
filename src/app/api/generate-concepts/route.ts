@@ -4,7 +4,7 @@ import { google } from '@ai-sdk/google';
 import { anthropic } from '@ai-sdk/anthropic';
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { generateUUID } from '@/lib/utils';
 
 export const maxDuration = 60;
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
 	const { userId } = await auth();
 
-	const supabase = await createClient();
+	const supabase = await createServerSupabaseClient();
 
 	if (!userId) {
 		return new Response('Unauthorized', { status: 401 });

@@ -5,7 +5,7 @@ import {
 	getMostRecentUserMessage,
 	sanitizeResponseMessages,
 } from '@/lib/utils';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { openai } from '@ai-sdk/openai';
 import { auth } from '@clerk/nextjs/server';
 import {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	const supabase = await createClient();
+	const supabase = await createServerSupabaseClient();
 
 	const coreMessages = convertToCoreMessages(messages);
 	const userMessage = getMostRecentUserMessage(coreMessages);

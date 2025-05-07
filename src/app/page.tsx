@@ -9,7 +9,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
 import {
@@ -19,13 +19,14 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { extractMathProblem } from './actions';
+import { extractMathProblem, generateMethods, generateSteps } from './actions';
 import {
 	Dropzone,
 	DropzoneContent,
 	DropzoneEmptyState,
 } from '@/components/dropzone';
 import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
+import { MemoizedMarkdown } from '@/components/memoized-markdown';
 
 interface ConfirmationToolCall {
 	toolName: 'askForConfirmationTool';
@@ -70,6 +71,8 @@ export default function Home() {
 	const [solved, setSolved] = useState(false);
 	const [showStepsDialog, setShowStepsDialog] = useState(false);
 	const [analyzedPhoto, setAnalyzedPhoto] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [methods, setMethods] = useState<string[]>([]);
 
 	const { messages, append, addToolResult } = useChat({
 		api: '/api/math-tutor',
@@ -84,7 +87,7 @@ export default function Home() {
 			return response;
 		},
 		onToolCall: ({ toolCall }) => {
-			console.log(toolCall.toolName);
+			console.log(toolCall);
 			if (toolCall.toolName === 'askForConfirmationTool') {
 				const confirmationToolCall = toolCall as ConfirmationToolCall;
 				setPrevProblemState(problemState);
@@ -96,7 +99,8 @@ export default function Home() {
 			}
 
 			if (toolCall.toolName === 'askForMethodTool') {
-				console.log(toolCall);
+				const askForMethodToolCall = toolCall as AskForMethodToolCall;
+				setProblemTitle(askForMethodToolCall.args.title);
 			}
 
 			if (toolCall.toolName === 'extractFeedback') {
@@ -114,14 +118,23 @@ export default function Home() {
 
 	async function handlePhotoAnalysis(publicUrl: string) {
 		try {
+			setLoading(true);
 			const result = await extractMathProblem(publicUrl);
 			console.log(result);
 			const extractedProblemText: string =
 				(result as any)?.toString() ||
 				'Error: Could not extract text from photo';
 
-			setInitialProblem(extractedProblemText);
-			setProblemState(extractedProblemText);
+			setInitialProblem(result.problem);
+			setProblemState(result.problem);
+			setProblemTitle(result.title);
+
+			//generate methods
+			const methods = await generateMethods(problemState);
+			console.log(methods);
+			setMethods(methods);
+
+			setLoading(false);
 			setAnalyzedPhoto(true);
 		} catch (error: any) {
 			console.error('Error during photo analysis:', error);
@@ -162,10 +175,27 @@ export default function Home() {
 		setAnalyzedPhoto(false);
 	}
 
-	function appendProblem() {
+	async function generateInitialMethods() {
+		const methods = await generateMethods(problemState);
+		console.log(methods);
+		setMethods(methods);
+	}
+
+	async function generateMoreMethods() {
+		const newMethods = await generateMethods(problemState, methods);
+		setMethods(newMethods);
+	}
+
+	async function appendProblem(selectedMethod: string) {
+		setLoading(true);
+		const steps = await generateSteps(problemState, selectedMethod);
+		setSteps(steps);
+		setMethods([]);
+		setLoading(false);
+		//generate steps here
 		append({
 			role: 'user',
-			content: problemState,
+			content: `Use the ${selectedMethod} method to help the user solve the following problem: ${problemState}.`,
 		});
 	}
 
@@ -181,6 +211,11 @@ export default function Home() {
 						<DropzoneContent />
 					</Dropzone>
 				</div>
+				{loading && (
+					<p className='text-sm text-muted-foreground mt-4'>
+						Analyzing photo...
+					</p>
+				)}
 				<p className='text-sm text-muted-foreground mt-4'>
 					Drag & drop an image of a math problem, or click to select.
 				</p>
@@ -241,7 +276,10 @@ export default function Home() {
 								}}
 								className={`text-md text-muted-foreground text-center pt-4`}
 							>
-								{prevProblemState}
+								<MemoizedMarkdown
+									content={prevProblemState}
+									id='prev-problem-state'
+								/>
 							</motion.p>
 						)}
 						<motion.p
@@ -266,9 +304,12 @@ export default function Home() {
 							{problemState}
 						</motion.p>
 					</AnimatePresence>
-					{messages.length === 0 && (
-						<Button variant='outline' onClick={appendProblem}>
-							Solve for x
+					{methods.length === 0 && (
+						<Button
+							variant='outline'
+							onClick={generateInitialMethods}
+						>
+							generate methods
 						</Button>
 					)}
 					<p className='text-sm text-center p-4'>{feedback}</p>
@@ -276,6 +317,33 @@ export default function Home() {
 
 				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-4'>
 					<div className='flex-1 overflow-y-auto'>
+						{methods.length > 0 && (
+							<div className='flex flex-col gap-4'>
+								<h2 className='text-xl font-semibold mb-4 text-center'>
+									Choose a method to solve the problem
+								</h2>
+								<div className='grid grid-cols-2 gap-4'>
+									{methods.map((method, index) => (
+										<Button
+											size='lg'
+											key={index}
+											variant='outline'
+											onClick={() =>
+												appendProblem(method)
+											}
+										>
+											{method}
+										</Button>
+									))}
+								</div>
+								<Button
+									variant='ghost'
+									onClick={generateMoreMethods}
+								>
+									Preferred method not here
+								</Button>
+							</div>
+						)}
 						{messages?.map((message) => (
 							<div key={message.id}>
 								{message.parts.map((part, partIndex) => {

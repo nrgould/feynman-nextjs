@@ -247,6 +247,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
 				setFiles(newFiles);
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [files.length, setFiles, maxFiles]);
 
 	return {
