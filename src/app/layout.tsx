@@ -69,7 +69,7 @@ export default function RootLayout({
 					>
 						<PostHogProvider>
 							<main className='h-[100dvh] bg-background'>
-								<div className='absolute top-8 right-8 z-10'>
+								<div className='absolute top-4 right-4 z-10'>
 									<ThemeToggle />
 								</div>
 								{children}

@@ -9,7 +9,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
 import {
@@ -28,54 +28,52 @@ import {
 import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
 import { MemoizedMarkdown } from '@/components/memoized-markdown';
 
-interface ConfirmationToolCall {
-	toolName: 'askForConfirmationTool';
+interface NextStepToolCall {
+	toolName: 'askForNextStepTool';
 	args: {
 		feedback: string;
 		newProblemState: string;
 		options: string[];
 	};
 }
-
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
 	args: {
 		feedback: string;
+		newProblemState: string;
+		problemSolved: boolean;
 	};
 }
-
-interface GenerateStepsToolCall {
-	toolName: 'generateSteps';
+interface ProblemSolvedToolCall {
+	toolName: 'problemSolvedTool';
 	args: {
-		steps: string[];
-	};
-}
-
-interface AskForMethodToolCall {
-	toolName: 'askForMethodTool';
-	args: {
-		title: string;
-		options: string[];
+		message: string;
+		finalAnswer: string;
 	};
 }
 
 export default function Home() {
 	const [initialProblem, setInitialProblem] = useState(
-		'Solve for x: 2x + 5 = 15'
+		'Differentiate f(x) = 3x^2 + 5x - 4.'
 	);
 	const [problemState, setProblemState] = useState(initialProblem);
 	const [prevProblemState, setPrevProblemState] = useState('');
-	const [problemTitle, setProblemTitle] = useState('Solve for x:');
+	const [problemTitle, setProblemTitle] = useState('Differentiate f(x):');
+
 	const [feedback, setFeedback] = useState('');
-	const [steps, setSteps] = useState<string[]>([]);
 	const [solved, setSolved] = useState(false);
+
+	const [steps, setSteps] = useState<string[]>([]);
 	const [showStepsDialog, setShowStepsDialog] = useState(false);
-	const [analyzedPhoto, setAnalyzedPhoto] = useState(true);
-	const [loading, setLoading] = useState(false);
+
+	const [analyzedPhoto, setAnalyzedPhoto] = useState(false);
+
 	const [methods, setMethods] = useState<string[]>([]);
 	const [selectedMethod, setSelectedMethod] = useState<string>(
-		'Isolate the variable'
+		'The user wants to solve by applying the power rule.'
 	);
+
+	const [loading, setLoading] = useState(false);
 
 	const { messages, append, addToolResult } = useChat({
 		api: '/api/math-tutor',
@@ -86,36 +84,30 @@ export default function Home() {
 				problemState,
 				prevProblemState,
 				steps,
-				selectedMethod,
 			};
 			return response;
 		},
 		onToolCall: ({ toolCall }) => {
 			console.log(toolCall);
-			if (toolCall.toolName === 'askForConfirmationTool') {
-				const confirmationToolCall = toolCall as ConfirmationToolCall;
-				setPrevProblemState(problemState);
-				setProblemState(confirmationToolCall.args.newProblemState);
-			}
-
-			if (toolCall.toolName === 'problemSolvedTool') {
-				setSolved(true);
-			}
-
-			if (toolCall.toolName === 'askForMethodTool') {
-				const askForMethodToolCall = toolCall as AskForMethodToolCall;
-				setProblemTitle(askForMethodToolCall.args.title);
+			if (toolCall.toolName === 'askForNextStepTool') {
+				const confirmationToolCall = toolCall as NextStepToolCall;
+				// setPrevProblemState(problemState);
+				// setProblemState(confirmationToolCall.args.newProblemState);
 			}
 
 			if (toolCall.toolName === 'extractFeedback') {
 				const extractFeedbackToolCall =
 					toolCall as ExtractFeedbackToolCall;
 				setFeedback(extractFeedbackToolCall.args.feedback);
+				setPrevProblemState(problemState);
+				setProblemState(extractFeedbackToolCall.args.newProblemState);
 			}
 
-			if (toolCall.toolName === 'generateSteps') {
-				const generateStepsToolCall = toolCall as GenerateStepsToolCall;
-				setSteps(generateStepsToolCall.args.steps);
+			if (toolCall.toolName === 'problemSolvedTool') {
+				const problemSolvedToolCall = toolCall as ProblemSolvedToolCall;
+				setPrevProblemState(problemState);
+				setProblemState(problemSolvedToolCall.args.finalAnswer);
+				setSolved(true);
 			}
 		},
 	});
@@ -129,7 +121,7 @@ export default function Home() {
 			setProblemTitle(result.title);
 
 			//generate methods
-			const methods = await generateMethods(problemState);
+			const methods = await generateMethods(result.problem);
 			setMethods(methods);
 
 			setLoading(false);
@@ -163,10 +155,11 @@ export default function Home() {
 	});
 
 	function reset() {
-		setProblemState('Solve for x: 2x + 5 = 15');
-		setProblemTitle('Solve for x:');
-		setInitialProblem('Solve for x: 2x + 5 = 15');
+		setProblemState('');
+		setProblemTitle('');
+		setInitialProblem('');
 		setFeedback('');
+		setSelectedMethod('');
 		setSteps([]);
 		setSolved(false);
 		setShowStepsDialog(false);
@@ -181,14 +174,18 @@ export default function Home() {
 	async function appendProblem(selectedMethod: string) {
 		setLoading(true);
 		setSelectedMethod(selectedMethod);
-		const steps = await generateSteps(problemState, selectedMethod);
-		setSteps(steps);
+		// const steps = await generateSteps(problemState, selectedMethod);
+		// setSteps(steps);
 		setMethods([]);
 		setLoading(false);
 		append({
 			role: 'user',
 			content: `Use the ${selectedMethod} method to help the user solve the following problem: ${problemState}.`,
 		});
+	}
+
+	function handleAddNewStep(step: string) {
+		setSteps([...steps, step]);
 	}
 
 	if (!analyzedPhoto) {
@@ -225,7 +222,7 @@ export default function Home() {
 						<Button
 							variant='outline'
 							size='icon'
-							className='absolute top-8 left-8 z-10'
+							className='absolute top-4 left-4 z-10'
 							onClick={() => setShowStepsDialog(true)}
 						>
 							<List className='h-4 w-4' />
@@ -233,7 +230,7 @@ export default function Home() {
 					</DialogTrigger>
 					<DialogContent className='sm:max-w-[425px]'>
 						<DialogHeader>
-							<DialogTitle>Problem Steps</DialogTitle>
+							<DialogTitle>Steps Taken</DialogTitle>
 						</DialogHeader>
 						{steps && steps.length > 0 ? (
 							<ul className='list-decimal list-inside space-y-2 p-4'>
@@ -250,56 +247,59 @@ export default function Home() {
 					</DialogContent>
 				</Dialog>
 
-				<div className='flex-1 min-h-[40vh] flex flex-col justify-center items-center border rounded-lg p-2'>
-					<h2 className='text-xl font-semibold mb-4'>
+				<div className='flex-1 min-h-[40vh] flex flex-col justify-between items-center border rounded-lg p-2 pt-12'>
+					<h2 className='text-lg text-muted-foreground mb-4'>
 						{problemTitle}
 					</h2>
-					<AnimatePresence>
-						{prevProblemState && (
+					<div>
+						<AnimatePresence>
+							{prevProblemState && (
+								<motion.div
+									key={'prev-' + prevProblemState}
+									initial={{ opacity: 0, y: -10 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -10 }}
+									transition={{
+										type: 'spring',
+										stiffness: 300,
+										damping: 30,
+										duration: 0.5,
+									}}
+									className={`text-md text-muted-foreground text-center pt-4`}
+								>
+									<MemoizedMarkdown
+										content={prevProblemState}
+										id='prev-problem-state'
+									/>
+								</motion.div>
+							)}
 							<motion.div
-								key={'prev-' + prevProblemState}
-								initial={{ opacity: 0, y: -10 }}
+								key={'curr-' + problemState}
+								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -10 }}
+								exit={{
+									opacity: 0,
+									y: -40,
+									scale: 0.8,
+									position: 'absolute',
+								}}
 								transition={{
 									type: 'spring',
 									stiffness: 300,
 									damping: 30,
 									duration: 0.5,
 								}}
-								className={`text-md text-muted-foreground text-center pt-4`}
+								className={`text-xl font-semibold text-center pb-4 ${
+									solved ? 'text-green-500' : ''
+								}`}
 							>
 								<MemoizedMarkdown
-									content={prevProblemState}
-									id='prev-problem-state'
+									content={problemState}
+									id='curr-problem-state'
 								/>
 							</motion.div>
-						)}
-						<motion.div
-							key={'curr-' + problemState}
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							exit={{
-								opacity: 0,
-								y: -40,
-								scale: 0.8,
-								position: 'absolute',
-							}}
-							transition={{
-								type: 'spring',
-								stiffness: 300,
-								damping: 30,
-							}}
-							className={`text-3xl font-semibold text-center pb-4 ${
-								solved ? 'text-green-500' : ''
-							}`}
-						>
-							<MemoizedMarkdown
-								content={problemState}
-								id='curr-problem-state'
-							/>
-						</motion.div>
-					</AnimatePresence>
+						</AnimatePresence>
+					</div>
 					{messages.length === 0 && (
 						<Button
 							variant='outline'
@@ -308,9 +308,20 @@ export default function Home() {
 							START TEST
 						</Button>
 					)}
-					<p className='text-sm text-center p-4 max-w-sm'>
+					<motion.p
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -10 }}
+						transition={{
+							type: 'spring',
+							stiffness: 300,
+							damping: 30,
+							duration: 0.5,
+						}}
+						className='text-sm text-center p-4 max-w-sm min-h-[6rem] max-h-[6rem] tracking-wide'
+					>
 						{feedback}
-					</p>
+					</motion.p>
 				</div>
 
 				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-4'>
@@ -326,6 +337,7 @@ export default function Home() {
 											size='lg'
 											key={index}
 											variant='outline'
+											className='py-12 text-wrap px-4'
 											onClick={() =>
 												appendProblem(method)
 											}
@@ -352,10 +364,7 @@ export default function Home() {
 											args,
 											state,
 										} = part.toolInvocation;
-										if (
-											toolName ===
-											'askForConfirmationTool'
-										) {
+										if (toolName === 'askForNextStepTool') {
 											if (state === 'call') {
 												return (
 													<div
@@ -374,6 +383,9 @@ export default function Home() {
 																	<Button
 																		key={`${option}-${optionIndex}`}
 																		onClick={() => {
+																			handleAddNewStep(
+																				option
+																			);
 																			addToolResult(
 																				{
 																					toolCallId:
@@ -396,7 +408,7 @@ export default function Home() {
 										} else if (
 											toolName === 'problemSolvedTool'
 										) {
-											if (state === 'call') {
+											if (state === 'result') {
 												return (
 													<div
 														key={`${toolCallId}-${partIndex}-solved-call`}
@@ -422,51 +434,10 @@ export default function Home() {
 													</div>
 												);
 											}
-										} else if (
-											toolName === 'askForMethodTool'
-										) {
-											if (state === 'call') {
-												return (
-													<div
-														className='flex-1 flex flex-col p-4 items-center justify-center'
-														key={`${toolCallId}-${partIndex}-ask-call`}
-													>
-														<h2 className='text-xl font-semibold mb-4 text-center'>
-															{args.title}
-														</h2>
-														<div className='grid grid-cols-2 gap-4'>
-															{args.options.map(
-																(
-																	option: string,
-																	optionIndex: number
-																) => (
-																	<Button
-																		key={`${option}-${optionIndex}`}
-																		onClick={() => {
-																			addToolResult(
-																				{
-																					toolCallId:
-																						toolCallId,
-																					result: option,
-																				}
-																			);
-																		}}
-																		variant='outline'
-																		className='w-[8rem] h-[8rem] text-center whitespace-normal bg-background hover:bg-background/80 dark:bg-zinc-800 rounded-xl'
-																	>
-																		{option}
-																	</Button>
-																)
-															)}
-														</div>
-													</div>
-												);
-											}
 										}
 									}
 									return null;
 								})}
-								<br />
 							</div>
 						))}
 					</div>

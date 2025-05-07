@@ -14,6 +14,11 @@ export async function extractMathProblem(imageURL: string) {
 		schema: z.object({
 			problem: z.string().describe('The math problem to solve.'),
 			subject: z.string().describe('The subject of the math problem.'),
+			description: z
+				.string()
+				.describe(
+					'A short description for additional context about the math problem, i.e. "Solve for x" or "Find the area of a circle" or "Simplify the expression" or "Solve the equation" or "Find the volume of a sphere"'
+				),
 			title: z
 				.string()
 				.describe('The title of the math problem, i.e. "Solve for x"'),
@@ -57,9 +62,9 @@ export async function generateSteps(problem: string, method: string) {
 	const result = await generateObject({
 		model: openai('gpt-4.1-mini-2025-04-14'),
 		schema: z.object({
-			steps: z.array(z.string()).min(1).max(6),
+			steps: z.array(z.string()).min(1).max(10),
 		}),
-		prompt: `Generate steps to solve the following math problem: ${problem} using the ${method} method.`,
+		prompt: `Generate steps to solve the following math problem: ${problem} using the ${method} method. Try to make your steps efficient and concise, allowing at most 10 steps to solve the problem.`,
 	});
 
 	return result.object.steps;
