@@ -5,16 +5,20 @@ import { z } from 'zod';
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const { messages, problemState, prevProblemState, initialProblem, steps } =
-		await req.json();
-
-	const stepsGenerated = steps.length > 0;
+	const {
+		messages,
+		problemState,
+		prevProblemState,
+		initialProblem,
+		steps,
+		selectedMethod,
+	} = await req.json();
 
 	let stepText = '';
 
-	if (stepsGenerated) {
-		stepText = steps.join('\n');
-	}
+	steps.map((step: string, index: number) => {
+		stepText += `${index + 1}. ${step}\n`;
+	});
 
 	return createDataStreamResponse({
 		execute: async (dataStream) => {
@@ -24,9 +28,11 @@ export async function POST(req: Request) {
 				model: openai('gpt-4.1-mini-2025-04-14', {
 					structuredOutputs: true,
 				}),
-				system: stepsGenerated
-					? 'analyze and generate feedback on the step chosen. Be friendly and concise in your response. Do not reveal the answer, but provide detailed feedback on the step chosen, and whether or not it is the wise choice.'
-					: 'Determine the method the user would like to solve the math problem. Once the method is determined, generate the steps to solve based on the method.',
+				system: `analyze and generate feedback on the step chosen. Do not reveal the answer, but provide detailed feedback on the step chosen, and whether or not it is the wise choice.
+
+				Also determine what step of the solution process the user is on.
+				Be friendly and concise in your response. No more than a sentence.
+				`,
 				messages,
 				toolChoice: 'required',
 				tools: {
@@ -36,39 +42,42 @@ export async function POST(req: Request) {
 						parameters: z.object({
 							feedback: z.string(),
 							problemSolved: z.boolean(),
+							currentStep: z.number(),
 						}),
-						execute: async ({ feedback }) => feedback,
+						execute: async ({
+							feedback,
+							problemSolved,
+							currentStep,
+						}) => {
+							return {
+								feedback,
+								problemSolved,
+								currentStep,
+							};
+						},
 					}),
-					// generateSteps: tool({
-					// 	description:
-					// 		'Generate steps for the solution process, based on the selected method.',
-					// 	parameters: z.object({ steps: z.array(z.string()) }),
-					// 	execute: async ({ steps }) => steps,
-					// }),
 				},
 			});
 
 			stepAnalysis.mergeIntoDataStream(dataStream, {
-				experimental_sendFinish: !stepsGenerated, //if method hasn't been determined yet, set to true
+				experimental_sendFinish: false, //if method hasn't been determined yet, set to true
 			});
 
-			const stepContent = (await stepAnalysis.response).messages;
-			let problemSolved = false;
-			let stepAnalysisFeedback = '';
+			// const stepContent = (await stepAnalysis.response).messages;
+			// let problemSolved = false;
+			// let stepAnalysisFeedback = '';
 
-			// @ts-ignore
-			stepAnalysisFeedback = stepContent[0].args.feedback;
-			// @ts-ignore
-			problemSolved = stepContent[0].args.problemSolved;
-
-			console.log('problemSolved', problemSolved);
+			// // @ts-ignore
+			// stepAnalysisFeedback = stepContent[0].args.feedback;
+			// // @ts-ignore
+			// problemSolved = stepContent[0].args.problemSolved;
 
 			const lastMessage = messages[messages.length - 1];
 			let nextStep = '';
 
 			lastMessage.parts = await Promise.all(
 				lastMessage.parts?.map(async (part: any) => {
-					//run logic on the step chosen by the user
+					console.log(part);
 					if (part.type !== 'tool-invocation') {
 						return part;
 					}
@@ -84,20 +93,19 @@ export async function POST(req: Request) {
 			);
 
 			const result = streamText({
-				model: openai('gpt-4o'),
+				model: openai('gpt-4o-mini'),
 				prompt: `You are a helpful math tutor.
 				Your goal is help the user, based on the steps they have chosen, solve the given problem.
 
 				INSTRUCTIONS:
                 First, analyze the math problem and come up with the most common ways a person might solve it.
-                Then, call a tool to ask the user for confirmation on what method they would like to use.
-				Then, after confirming the method of solving, call a tool to get the next step in the solution process.
+				Then, call a tool to get the next step in the solution process from the user. Always ask for confirmation, do not solve anything yourself.
 				Continue until the final solution is reached.
 				When the final solution is reached, call the problemSolvedTool.
                 
 				MATH PROBLEM:
 				${initialProblem}
-				
+
 				CURRENT PROBLEM STATE:
 				${problemState}
 
@@ -107,10 +115,11 @@ export async function POST(req: Request) {
 				STEPS TO SOLVE:
 				${stepText}
 
+				SELECTED METHOD OF SOLVING:
+				${selectedMethod}
+
 				THE USER CHOSE THE NEXT STEP:
 				${nextStep}
-
-				PROBLEM SOLVED: ${problemSolved}
 
 				RULES:
 				-ONLY CALL ONE TOOL AT A TIME
@@ -144,11 +153,6 @@ const askForConfirmationTool = tool({
 				'The next step the user should take to solve the math problem. Only one option should be the correct next step. One of the options should be to say, this is the final answer. The correct next step should always be included in the options.'
 			)
 			.length(4),
-		feedback: z
-			.string()
-			.describe(
-				'Feedback on the user\'s choice. For example: "Great choice!" or "That\'s not the best option."'
-			),
 		newProblemState: z
 			.string()
 			.describe(

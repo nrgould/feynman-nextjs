@@ -70,9 +70,12 @@ export default function Home() {
 	const [steps, setSteps] = useState<string[]>([]);
 	const [solved, setSolved] = useState(false);
 	const [showStepsDialog, setShowStepsDialog] = useState(false);
-	const [analyzedPhoto, setAnalyzedPhoto] = useState(false);
+	const [analyzedPhoto, setAnalyzedPhoto] = useState(true);
 	const [loading, setLoading] = useState(false);
 	const [methods, setMethods] = useState<string[]>([]);
+	const [selectedMethod, setSelectedMethod] = useState<string>(
+		'Isolate the variable'
+	);
 
 	const { messages, append, addToolResult } = useChat({
 		api: '/api/math-tutor',
@@ -83,6 +86,7 @@ export default function Home() {
 				problemState,
 				prevProblemState,
 				steps,
+				selectedMethod,
 			};
 			return response;
 		},
@@ -120,18 +124,12 @@ export default function Home() {
 		try {
 			setLoading(true);
 			const result = await extractMathProblem(publicUrl);
-			console.log(result);
-			const extractedProblemText: string =
-				(result as any)?.toString() ||
-				'Error: Could not extract text from photo';
-
 			setInitialProblem(result.problem);
 			setProblemState(result.problem);
 			setProblemTitle(result.title);
 
 			//generate methods
 			const methods = await generateMethods(problemState);
-			console.log(methods);
 			setMethods(methods);
 
 			setLoading(false);
@@ -175,12 +173,6 @@ export default function Home() {
 		setAnalyzedPhoto(false);
 	}
 
-	async function generateInitialMethods() {
-		const methods = await generateMethods(problemState);
-		console.log(methods);
-		setMethods(methods);
-	}
-
 	async function generateMoreMethods() {
 		const newMethods = await generateMethods(problemState, methods);
 		setMethods(newMethods);
@@ -188,11 +180,11 @@ export default function Home() {
 
 	async function appendProblem(selectedMethod: string) {
 		setLoading(true);
+		setSelectedMethod(selectedMethod);
 		const steps = await generateSteps(problemState, selectedMethod);
 		setSteps(steps);
 		setMethods([]);
 		setLoading(false);
-		//generate steps here
 		append({
 			role: 'user',
 			content: `Use the ${selectedMethod} method to help the user solve the following problem: ${problemState}.`,
@@ -224,7 +216,7 @@ export default function Home() {
 	}
 	if (analyzedPhoto) {
 		return (
-			<div className='relative flex flex-col min-h-screen bg-background p-4 gap-4'>
+			<div className='relative flex flex-col h-full bg-background p-2 gap-2'>
 				<Dialog
 					open={showStepsDialog}
 					onOpenChange={setShowStepsDialog}
@@ -258,13 +250,13 @@ export default function Home() {
 					</DialogContent>
 				</Dialog>
 
-				<div className='flex-1 min-h-[50vh] flex flex-col justify-center items-center border rounded-lg p-4'>
+				<div className='flex-1 min-h-[40vh] flex flex-col justify-center items-center border rounded-lg p-2'>
 					<h2 className='text-xl font-semibold mb-4'>
 						{problemTitle}
 					</h2>
 					<AnimatePresence>
 						{prevProblemState && (
-							<motion.p
+							<motion.div
 								key={'prev-' + prevProblemState}
 								initial={{ opacity: 0, y: -10 }}
 								animate={{ opacity: 1, y: 0 }}
@@ -273,6 +265,7 @@ export default function Home() {
 									type: 'spring',
 									stiffness: 300,
 									damping: 30,
+									duration: 0.5,
 								}}
 								className={`text-md text-muted-foreground text-center pt-4`}
 							>
@@ -280,9 +273,9 @@ export default function Home() {
 									content={prevProblemState}
 									id='prev-problem-state'
 								/>
-							</motion.p>
+							</motion.div>
 						)}
-						<motion.p
+						<motion.div
 							key={'curr-' + problemState}
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -301,18 +294,23 @@ export default function Home() {
 								solved ? 'text-green-500' : ''
 							}`}
 						>
-							{problemState}
-						</motion.p>
+							<MemoizedMarkdown
+								content={problemState}
+								id='curr-problem-state'
+							/>
+						</motion.div>
 					</AnimatePresence>
-					{methods.length === 0 && (
+					{messages.length === 0 && (
 						<Button
 							variant='outline'
-							onClick={generateInitialMethods}
+							onClick={() => appendProblem(selectedMethod)}
 						>
-							generate methods
+							START TEST
 						</Button>
 					)}
-					<p className='text-sm text-center p-4'>{feedback}</p>
+					<p className='text-sm text-center p-4 max-w-sm'>
+						{feedback}
+					</p>
 				</div>
 
 				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-4'>
