@@ -4,16 +4,9 @@ import { NextResponse } from 'next/server';
 const isPublicRoute = createRouteMatcher([
 	'/',
 	'/api/math-tutor',
-	'/plans',
-	'/api/sample-chat',
 	'/waitlist',
 	'/sitemap.xml',
-	'/feynman-technique',
-	'/api/assess',
-	'/api/subconcepts',
-	'/try-concepts',
-	'/api/math-solution',
-	'/drag-drop-math',
+	'/camera-test',
 ]);
 
 const isAuthRoute = createRouteMatcher(['/chat/:id', '/learning-path/:id']);
