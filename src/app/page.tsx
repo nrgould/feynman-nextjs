@@ -27,6 +27,7 @@ import {
 } from '@/components/dropzone';
 import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
 import { MemoizedMarkdown } from '@/components/memoized-markdown';
+import { Markdown } from '@/components/atoms/Markdown';
 
 interface NextStepToolCall {
 	toolName: 'askForNextStepTool';
@@ -235,7 +236,9 @@ export default function Home() {
 						{steps && steps.length > 0 ? (
 							<ul className='list-decimal list-inside space-y-2 p-4'>
 								{steps.map((step, index) => (
-									<li key={index}>{step}</li>
+									<li key={index}>
+										<Markdown>{step}</Markdown>
+									</li>
 								))}
 							</ul>
 						) : (
@@ -247,9 +250,9 @@ export default function Home() {
 					</DialogContent>
 				</Dialog>
 
-				<div className='flex-1 min-h-[40vh] flex flex-col justify-between items-center border rounded-lg p-2 pt-12'>
-					<h2 className='text-lg text-muted-foreground mb-4'>
-						{problemTitle}
+				<div className='flex-1 min-h-[40vh] flex flex-col justify-between items-center border rounded-lg p-2 pt-4'>
+					<h2 className='text-lg text-muted-foreground mb-4 max-w-3/4'>
+						<Markdown>{problemTitle}</Markdown>
 					</h2>
 					<div>
 						<AnimatePresence>
@@ -267,10 +270,7 @@ export default function Home() {
 									}}
 									className={`text-md text-muted-foreground text-center pt-4`}
 								>
-									<MemoizedMarkdown
-										content={prevProblemState}
-										id='prev-problem-state'
-									/>
+									<Markdown>{prevProblemState}</Markdown>
 								</motion.div>
 							)}
 							<motion.div
@@ -293,22 +293,11 @@ export default function Home() {
 									solved ? 'text-green-500' : ''
 								}`}
 							>
-								<MemoizedMarkdown
-									content={problemState}
-									id='curr-problem-state'
-								/>
+								<Markdown>{problemState}</Markdown>
 							</motion.div>
 						</AnimatePresence>
 					</div>
-					{messages.length === 0 && (
-						<Button
-							variant='outline'
-							onClick={() => appendProblem(selectedMethod)}
-						>
-							START TEST
-						</Button>
-					)}
-					<motion.p
+					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: -10 }}
@@ -320,8 +309,8 @@ export default function Home() {
 						}}
 						className='text-sm text-center p-4 max-w-sm min-h-[6rem] max-h-[6rem] tracking-wide'
 					>
-						{feedback}
-					</motion.p>
+						<Markdown>{feedback}</Markdown>
+					</motion.div>
 				</div>
 
 				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-4'>
@@ -342,7 +331,7 @@ export default function Home() {
 												appendProblem(method)
 											}
 										>
-											{method}
+											<Markdown>{method}</Markdown>
 										</Button>
 									))}
 								</div>
@@ -395,9 +384,13 @@ export default function Home() {
 																			);
 																		}}
 																		variant='outline'
-																		className='w-[8rem] h-[8rem] text-center whitespace-normal bg-background hover:bg-background/80 dark:bg-zinc-800 rounded-xl'
+																		className='py-12 text-wrap px-4'
 																	>
-																		{option}
+																		<Markdown>
+																			{
+																				option
+																			}
+																		</Markdown>
 																	</Button>
 																)
 															)}

@@ -101,10 +101,34 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
 			const validFiles = acceptedFiles
 				.filter((file) => !files.find((x) => x.name === file.name))
 				.map((file) => {
-					(file as FileWithPreview).preview =
-						URL.createObjectURL(file);
-					(file as FileWithPreview).errors = [];
-					return file as FileWithPreview;
+					// Generate a unique filename
+					const originalName = file.name;
+					const lastDot = originalName.lastIndexOf('.');
+					const nameWithoutExtension =
+						lastDot === -1
+							? originalName
+							: originalName.substring(0, lastDot);
+					const extension =
+						lastDot === -1
+							? ''
+							: originalName.substring(lastDot + 1);
+					const uniqueSuffix = `${Date.now()}-${Math.random()
+						.toString(36)
+						.substring(2, 7)}`;
+					const uniqueFileName = extension
+						? `${nameWithoutExtension}-${uniqueSuffix}.${extension}`
+						: `${nameWithoutExtension}-${uniqueSuffix}`;
+
+					// Create a new File object with the unique name
+					const newFile = new File([file], uniqueFileName, {
+						type: file.type,
+						lastModified: file.lastModified,
+					});
+
+					(newFile as FileWithPreview).preview =
+						URL.createObjectURL(newFile);
+					(newFile as FileWithPreview).errors = [];
+					return newFile as FileWithPreview;
 				});
 
 			const invalidFiles = fileRejections.map(({ file, errors }) => {
@@ -165,10 +189,9 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
 					};
 				} else {
 					// Upload was successful, now get public URL
-					const { data: publicUrlData } =
-						await supabase.storage
-							.from(bucketName)
-							.getPublicUrl(filePath);
+					const { data: publicUrlData } = await supabase.storage
+						.from(bucketName)
+						.getPublicUrl(filePath);
 
 					// if (getUrlError) {
 					// 	console.error(
