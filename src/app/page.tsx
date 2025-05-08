@@ -206,9 +206,12 @@ export default function Home() {
 	if (!analyzedPhoto) {
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
-				<h1 className='text-4xl font-semibold mb-4 text-center'>
+				<h1 className='text-4xl font-semibold text-center'>
 					Make Math Interactive
 				</h1>
+				<h2 className='text-md text-muted-foreground mb-4 text-center'>
+					Upload a photo of a math problem and get started instantly.
+				</h2>
 				<div className='flex items-center space-x-2 mb-4'>
 					<Label htmlFor='input-mode-switch'>Photo Mode</Label>
 					<Switch
@@ -238,16 +241,9 @@ export default function Home() {
 				)}
 
 				{loading && (
-					<div className='text-sm text-muted-foreground mt-4'>
-						<Loader2 className='animate-spin' /> Processing...
+					<div className='text-sm text-muted-foreground mt-4 flex items-center gap-2'>
+						<Loader2 className='animate-spin' /> Analyzing...
 					</div>
-				)}
-
-				{inputMode === 'photo' && (
-					<p className='text-sm text-muted-foreground mt-4'>
-						Drag & drop an image of a math problem, or click to
-						select.
-					</p>
 				)}
 			</div>
 		);
@@ -329,7 +325,7 @@ export default function Home() {
 									damping: 30,
 									duration: 0.5,
 								}}
-								className={`text-xl font-semibold text-center ${
+								className={`text-xl md:text-3xl font-semibold text-center ${
 									solved ? 'text-green-500' : ''
 								}`}
 							>
@@ -347,7 +343,7 @@ export default function Home() {
 							damping: 30,
 							duration: 0.5,
 						}}
-						className='text-sm text-center p-4 max-w-sm min-h-[6rem] max-h-[6rem] tracking-wide'
+						className='text-sm md:text-md text-center p-4 max-w-sm md:max-w-3/4 min-h-[6rem] max-h-[6rem] tracking-wide'
 					>
 						<Markdown>{feedback}</Markdown>
 					</motion.div>
@@ -361,11 +357,11 @@ export default function Home() {
 					)}
 					<div className='flex-1 overflow-y-auto'>
 						{methods.length > 0 && (
-							<div className='flex flex-col gap-4'>
+							<div className='flex flex-col gap-4 items-center'>
 								<h2 className='text-xl font-semibold mb-4 text-center'>
 									Choose a method to solve the problem
 								</h2>
-								<div className='grid grid-cols-2 gap-4'>
+								<div className='grid grid-cols-2 gap-4 w-full md:w-1/2'>
 									{methods.map((method, index) => (
 										<Button
 											size='lg'
@@ -408,7 +404,7 @@ export default function Home() {
 														<h2 className='text-xl font-semibold mb-4 text-center'>
 															{args.title}
 														</h2>
-														<div className='grid grid-cols-2 gap-4'>
+														<div className='grid grid-cols-2 gap-4 w-full md:w-1/2'>
 															{args.options.map(
 																(
 																	option: Option,
