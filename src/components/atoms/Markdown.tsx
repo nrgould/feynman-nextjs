@@ -42,21 +42,21 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 		},
 		h1: ({ node, children, ...props }: any) => {
 			return (
-				<h1 className='text-2xl font-bold mt-8 mb-4' {...props}>
+				<h1 className='text-2xl font-bold' {...props}>
 					{children}
 				</h1>
 			);
 		},
 		h2: ({ node, children, ...props }: any) => {
 			return (
-				<h2 className='text-xl font-bold mt-6 mb-3' {...props}>
+				<h2 className='text-xl font-bold' {...props}>
 					{children}
 				</h2>
 			);
 		},
 		h3: ({ node, children, ...props }: any) => {
 			return (
-				<h3 className='text-lg font-semibold mt-5 mb-3' {...props}>
+				<h3 className='text-lg font-semibold' {...props}>
 					{children}
 				</h3>
 			);
@@ -64,7 +64,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 		ol: ({ node, children, ...props }: any) => {
 			return (
 				<ol
-					className='list-decimal list-inside ml-4 mb-6 space-y-2'
+					className='list-decimal list-inside ml-4 space-y-2'
 					{...props}
 				>
 					{children}
@@ -81,7 +81,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 		ul: ({ node, children, ...props }: any) => {
 			return (
 				<ul
-					className='list-disc list-inside ml-4 mb-6 space-y-2'
+					className='list-disc list-inside ml-4 space-y-2'
 					{...props}
 				>
 					{children}

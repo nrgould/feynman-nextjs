@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 				model: openai('gpt-4o'),
 				maxSteps: 2,
 				system: `
-				You are a helpful math tutor, trying to guide me to understanding of the math problem.
+				You are a helpful math tutor, trying to guide me to understanding of a math problem.
 				
 				analyze and generate feedback on the step chosen. Then ask the user for confirmation of the next step to take to solve the math problem, unless the problem is solved, in which case call the problemSolvedTool.
 				
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 				RULES:
 				-TAKE THE PROBLEM ONE STEP AT A TIME
 				-DO NOT SOLVE THE PROBLEM YOURSELF
-				-ENSURE THE PROBLEM IS MAXIMALLY SIMPLIFIED BEFORE CALLING THE problemSolvedTool
+				-ENSURE THE PROBLEM IS MAXIMALLY SIMPLIFIED BEFORE CALLING problemSolvedTool
 				`,
 				messages,
 				toolChoice: 'required',
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
 							newProblemState: z
 								.string()
 								.describe(
-									`The new state of the math problem, after the next step has been applied. Only show the math problem, do not show any other text.`
+									`The new state of the math problem, after the next step has been applied. Only show the math problem, do not show any other text. Keep it as simple as possible.`
 								),
 						}),
 						execute: async ({
@@ -156,7 +156,17 @@ const askForNextStepTool = tool({
 				'The title of confirmation options. For example: "Choose next step"'
 			),
 		options: z
-			.array(z.string())
+			.array(
+				z.object({
+					label: z.string(),
+					input: z
+						.string()
+						.optional()
+						.describe(
+							'include if there is a small calculation to be performed on the option'
+						),
+				})
+			)
 			.describe(
 				'The options of next step the user should take to solve the math problem. The correct next step should always be included.'
 			)

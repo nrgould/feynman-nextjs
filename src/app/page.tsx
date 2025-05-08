@@ -2,13 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
-import {
-	RotateCwSquare,
-	Send,
-	List,
-	ChevronLeft,
-	ChevronRight,
-} from 'lucide-react';
+import { Loader2, RotateCwSquare, Send, List } from 'lucide-react';
 import { useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
@@ -31,6 +25,7 @@ import { Markdown } from '@/components/atoms/Markdown';
 import { TextInputProblem } from '@/components/problem-input/TextInputProblem';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 interface NextStepToolCall {
 	toolName: 'askForNextStepTool';
@@ -56,6 +51,11 @@ interface ProblemSolvedToolCall {
 	};
 }
 
+interface Option {
+	label: string;
+	input?: string;
+}
+
 export default function Home() {
 	const [initialProblem, setInitialProblem] = useState(
 		'Differentiate f(x) = 3x^2 + 5x - 4.'
@@ -63,6 +63,7 @@ export default function Home() {
 	const [problemState, setProblemState] = useState(initialProblem);
 	const [prevProblemState, setPrevProblemState] = useState('');
 	const [problemTitle, setProblemTitle] = useState('Differentiate f(x):');
+	const [inputValue, setInputValue] = useState('');
 
 	const [inputMode, setInputMode] = useState<'photo' | 'text'>('photo');
 	const [feedback, setFeedback] = useState('');
@@ -75,7 +76,7 @@ export default function Home() {
 
 	const [methods, setMethods] = useState<string[]>([]);
 	const [selectedMethod, setSelectedMethod] = useState<string>(
-		'The user wants to solve by applying the power rule.'
+		'apply the power rule.'
 	);
 
 	const [loading, setLoading] = useState(false);
@@ -94,11 +95,6 @@ export default function Home() {
 		},
 		onToolCall: ({ toolCall }) => {
 			console.log(toolCall);
-			if (toolCall.toolName === 'askForNextStepTool') {
-				const confirmationToolCall = toolCall as NextStepToolCall;
-				// setPrevProblemState(problemState);
-				// setProblemState(confirmationToolCall.args.newProblemState);
-			}
 
 			if (toolCall.toolName === 'extractFeedback') {
 				const extractFeedbackToolCall =
@@ -210,8 +206,8 @@ export default function Home() {
 	if (!analyzedPhoto) {
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
-				<h1 className='text-2xl font-semibold mb-4'>
-					Make Math Problems Interactive
+				<h1 className='text-4xl font-semibold mb-4 text-center'>
+					Make Math Interactive
 				</h1>
 				<div className='flex items-center space-x-2 mb-4'>
 					<Label htmlFor='input-mode-switch'>Photo Mode</Label>
@@ -242,9 +238,9 @@ export default function Home() {
 				)}
 
 				{loading && (
-					<p className='text-sm text-muted-foreground mt-4'>
-						Processing...
-					</p>
+					<div className='text-sm text-muted-foreground mt-4'>
+						<Loader2 className='animate-spin' /> Processing...
+					</div>
 				)}
 
 				{inputMode === 'photo' && (
@@ -273,7 +269,7 @@ export default function Home() {
 							<List className='h-4 w-4' />
 						</Button>
 					</DialogTrigger>
-					<DialogContent className='sm:max-w-[425px]'>
+					<DialogContent className='sm:max-w-7/8'>
 						<DialogHeader>
 							<DialogTitle>Steps Taken</DialogTitle>
 						</DialogHeader>
@@ -312,7 +308,7 @@ export default function Home() {
 										damping: 30,
 										duration: 0.5,
 									}}
-									className={`text-md text-muted-foreground text-center pt-4`}
+									className={`text-md text-muted-foreground text-center`}
 								>
 									<Markdown>{prevProblemState}</Markdown>
 								</motion.div>
@@ -333,7 +329,7 @@ export default function Home() {
 									damping: 30,
 									duration: 0.5,
 								}}
-								className={`text-xl font-semibold text-center pb-4 ${
+								className={`text-xl font-semibold text-center ${
 									solved ? 'text-green-500' : ''
 								}`}
 							>
@@ -358,6 +354,11 @@ export default function Home() {
 				</div>
 
 				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-4'>
+					{loading && (
+						<p className='text-sm text-muted-foreground mt-4'>
+							Processing...
+						</p>
+					)}
 					<div className='flex-1 overflow-y-auto'>
 						{methods.length > 0 && (
 							<div className='flex flex-col gap-4'>
@@ -410,33 +411,111 @@ export default function Home() {
 														<div className='grid grid-cols-2 gap-4'>
 															{args.options.map(
 																(
-																	option: string,
+																	option: Option,
 																	optionIndex: number
-																) => (
-																	<Button
-																		key={`${option}-${optionIndex}`}
-																		onClick={() => {
-																			handleAddNewStep(
-																				option
-																			);
-																			addToolResult(
-																				{
-																					toolCallId:
-																						toolCallId,
-																					result: option,
-																				}
-																			);
-																		}}
-																		variant='outline'
-																		className='py-12 text-wrap px-4'
-																	>
-																		<Markdown>
-																			{
-																				option
-																			}
-																		</Markdown>
-																	</Button>
-																)
+																) => {
+																	if (
+																		option.input
+																	) {
+																		return (
+																			<div
+																				key={`option-input-${optionIndex}`}
+																				className='flex flex-col gap-2'
+																			>
+																				<Dialog>
+																					<DialogTrigger
+																						asChild
+																					>
+																						<Button
+																							variant='outline'
+																							className='py-12 text-wrap px-4'
+																						>
+																							<Markdown>
+																								{
+																									option.label
+																								}
+																							</Markdown>
+																						</Button>
+																					</DialogTrigger>
+																					<DialogContent>
+																						<DialogHeader>
+																							<DialogTitle>
+																								{
+																									option.label
+																								}
+																							</DialogTitle>
+																						</DialogHeader>
+																						<form
+																							className='p-4'
+																							onSubmit={(
+																								e
+																							) => {
+																								e.preventDefault();
+																								const formData =
+																									new FormData(
+																										e.currentTarget
+																									);
+																								const inputValue =
+																									formData.get(
+																										'calculation'
+																									) as string;
+																								const result = `${option.label} (Calculation: ${inputValue})`;
+																								handleAddNewStep(
+																									result
+																								);
+																								addToolResult(
+																									{
+																										toolCallId,
+																										result,
+																									}
+																								);
+																							}}
+																						>
+																							<Input
+																								type='text'
+																								name='calculation'
+																								placeholder={
+																									option.input
+																								}
+																							/>
+																							<Button
+																								type='submit'
+																								className='mt-4'
+																							>
+																								Submit
+																							</Button>
+																						</form>
+																					</DialogContent>
+																				</Dialog>
+																			</div>
+																		);
+																	} else {
+																		return (
+																			<Button
+																				key={`option-${optionIndex}`}
+																				onClick={() => {
+																					handleAddNewStep(
+																						option.label
+																					);
+																					addToolResult(
+																						{
+																							toolCallId,
+																							result: option.label,
+																						}
+																					);
+																				}}
+																				variant='outline'
+																				className='py-12 text-wrap px-4'
+																			>
+																				<Markdown>
+																					{
+																						option.label
+																					}
+																				</Markdown>
+																			</Button>
+																		);
+																	}
+																}
 															)}
 														</div>
 													</div>
