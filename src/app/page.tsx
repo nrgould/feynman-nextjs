@@ -28,6 +28,9 @@ import {
 import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
 import { MemoizedMarkdown } from '@/components/memoized-markdown';
 import { Markdown } from '@/components/atoms/Markdown';
+import { TextInputProblem } from '@/components/problem-input/TextInputProblem';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface NextStepToolCall {
 	toolName: 'askForNextStepTool';
@@ -61,6 +64,7 @@ export default function Home() {
 	const [prevProblemState, setPrevProblemState] = useState('');
 	const [problemTitle, setProblemTitle] = useState('Differentiate f(x):');
 
+	const [inputMode, setInputMode] = useState<'photo' | 'text'>('photo');
 	const [feedback, setFeedback] = useState('');
 	const [solved, setSolved] = useState(false);
 
@@ -155,6 +159,21 @@ export default function Home() {
 		},
 	});
 
+	function handleTextInputProblemSubmit(
+		problem: string,
+		generatedMethods: string[]
+	) {
+		const newTitle =
+			problem.length > 30
+				? `Problem: ${problem.substring(0, 27)}...`
+				: `Problem: ${problem}`;
+		setInitialProblem(problem);
+		setProblemState(problem);
+		setProblemTitle(newTitle);
+		setMethods(generatedMethods);
+		setAnalyzedPhoto(true);
+	}
+
 	function reset() {
 		setProblemState('');
 		setProblemTitle('');
@@ -165,6 +184,7 @@ export default function Home() {
 		setSolved(false);
 		setShowStepsDialog(false);
 		setAnalyzedPhoto(false);
+		setInputMode('photo');
 	}
 
 	async function generateMoreMethods() {
@@ -175,8 +195,6 @@ export default function Home() {
 	async function appendProblem(selectedMethod: string) {
 		setLoading(true);
 		setSelectedMethod(selectedMethod);
-		// const steps = await generateSteps(problemState, selectedMethod);
-		// setSteps(steps);
 		setMethods([]);
 		setLoading(false);
 		append({
@@ -193,22 +211,48 @@ export default function Home() {
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
 				<h1 className='text-2xl font-semibold mb-4'>
-					Analyze a Math Problem from a Photo
+					Make Math Problems Interactive
 				</h1>
-				<div className='w-full max-w-md'>
-					<Dropzone {...uploadHookProps}>
-						<DropzoneEmptyState />
-						<DropzoneContent />
-					</Dropzone>
+				<div className='flex items-center space-x-2 mb-4'>
+					<Label htmlFor='input-mode-switch'>Photo Mode</Label>
+					<Switch
+						id='input-mode-switch'
+						checked={inputMode === 'text'}
+						onCheckedChange={(checked) =>
+							setInputMode(checked ? 'text' : 'photo')
+						}
+					/>
+					<Label htmlFor='input-mode-switch'>Text Mode</Label>
 				</div>
+
+				{inputMode === 'photo' ? (
+					<div className='w-full max-w-md'>
+						<Dropzone {...uploadHookProps}>
+							<DropzoneEmptyState />
+							<DropzoneContent />
+						</Dropzone>
+					</div>
+				) : (
+					<div className='w-full max-w-md'>
+						<TextInputProblem
+							onProblemSubmit={handleTextInputProblemSubmit}
+							setLoading={setLoading}
+						/>
+					</div>
+				)}
+
 				{loading && (
 					<p className='text-sm text-muted-foreground mt-4'>
-						Analyzing photo...
+						Processing...
 					</p>
 				)}
-				<p className='text-sm text-muted-foreground mt-4'>
-					Drag & drop an image of a math problem, or click to select.
-				</p>
+
+				{inputMode === 'photo' && (
+					<p className='text-sm text-muted-foreground mt-4'>
+						Drag & drop an image of a math problem, or click to
+						select.
+					</p>
+				)}
 			</div>
 		);
 	}

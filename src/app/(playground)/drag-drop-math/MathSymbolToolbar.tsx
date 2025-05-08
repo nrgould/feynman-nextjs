@@ -134,13 +134,43 @@ export function MathSymbolToolbar({ onSymbolClick }: MathSymbolToolbarProps) {
 	return (
 		<div className='w-full border rounded-md p-2 bg-background'>
 			<Tabs defaultValue='basic'>
-				<TabsList className='grid grid-cols-6 mb-2'>
-					<TabsTrigger value='basic'>Basic</TabsTrigger>
-					<TabsTrigger value='algebra'>Algebra</TabsTrigger>
-					<TabsTrigger value='comparison'>Comparison</TabsTrigger>
-					<TabsTrigger value='calculus'>Calculus</TabsTrigger>
-					<TabsTrigger value='greek'>Greek</TabsTrigger>
-					<TabsTrigger value='fractions'>Fractions</TabsTrigger>
+				<TabsList className='w-full mb-2 grid grid-cols-3 md:grid-cols-6'>
+					<TabsTrigger
+						value='basic'
+						className='text-xs md:text-sm px-1 md:px-2'
+					>
+						Basic
+					</TabsTrigger>
+					<TabsTrigger
+						value='algebra'
+						className='text-xs md:text-sm px-1 md:px-2'
+					>
+						Algebra
+					</TabsTrigger>
+					<TabsTrigger
+						value='comparison'
+						className='text-xs md:text-sm px-1 md:px-2'
+					>
+						Compare
+					</TabsTrigger>
+					<TabsTrigger
+						value='calculus'
+						className='text-xs md:text-sm px-1 md:px-2'
+					>
+						Calculus
+					</TabsTrigger>
+					<TabsTrigger
+						value='greek'
+						className='text-xs md:text-sm px-1 md:px-2'
+					>
+						Greek
+					</TabsTrigger>
+					<TabsTrigger
+						value='fractions'
+						className='text-xs md:text-sm px-1 md:px-2'
+					>
+						Fractions
+					</TabsTrigger>
 				</TabsList>
 
 				<ScrollArea className='h-[68px]'>
