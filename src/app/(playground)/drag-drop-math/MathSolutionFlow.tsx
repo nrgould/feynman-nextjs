@@ -170,7 +170,8 @@ export const MathSolutionFlow = forwardRef<
 			(event: React.DragEvent<HTMLDivElement>) => {
 				event.preventDefault();
 
-				if (!reactFlowWrapper.current || !reactFlowInstance) return;
+				const currentReactFlowWrapper = reactFlowWrapper.current;
+				if (!currentReactFlowWrapper || !reactFlowInstance) return;
 
 				// Get the step data from the drag event
 				const stepData = JSON.parse(
@@ -182,7 +183,7 @@ export const MathSolutionFlow = forwardRef<
 
 				// Get the position where the step was dropped
 				const reactFlowBounds =
-					reactFlowWrapper.current.getBoundingClientRect();
+					currentReactFlowWrapper.getBoundingClientRect();
 				const position = reactFlowInstance.screenToFlowPosition({
 					x: event.clientX - reactFlowBounds.left,
 					y: event.clientY - reactFlowBounds.top,
@@ -218,6 +219,7 @@ export const MathSolutionFlow = forwardRef<
 				showStepOrder,
 				isMobile,
 				onPlacedStepsChange,
+				reactFlowWrapper,
 			]
 		);
 
@@ -389,13 +391,7 @@ export const MathSolutionFlow = forwardRef<
 				description:
 					'Solution steps have been returned to the sidebar. Final answer node remains.',
 			});
-		}, [
-			nodes,
-			onPlacedStepsChange,
-			onEdgesUpdate,
-			onVerificationUpdate,
-			toast,
-		]);
+		}, [nodes, onPlacedStepsChange, onEdgesUpdate, onVerificationUpdate]);
 
 		// Expose functions through the ref
 		useImperativeHandle(ref, () => ({
@@ -411,69 +407,79 @@ export const MathSolutionFlow = forwardRef<
 		}, [edges, onEdgesUpdate]);
 
 		// Add these utility functions for solution verification
-		const verifySolution = (
-			edges: MathEdge[],
-			mathSolution: MathSolution
-		): VerificationResult => {
-			// Sort steps by order
-			const sortedSteps = [...mathSolution.steps].sort(
-				(a, b) => a.order - b.order
-			);
-
-			// Create a map of correct connections
-			const correctConnectionsMap = new Map<string, string>();
-			for (let i = 0; i < sortedSteps.length - 1; i++) {
-				correctConnectionsMap.set(
-					sortedSteps[i].id,
-					sortedSteps[i + 1].id
+		const verifySolution = useCallback(
+			(
+				edges: MathEdge[],
+				mathSolution: MathSolution
+			): VerificationResult => {
+				// Sort steps by order
+				const sortedSteps = [...mathSolution.steps].sort(
+					(a, b) => a.order - b.order
 				);
-			}
 
-			// Check connections
-			const incorrectConnections: string[] = [];
-			const incorrectNodes: string[] = [];
-
-			edges.forEach((edge) => {
-				const correctTarget = correctConnectionsMap.get(edge.source);
-				const isCorrect = correctTarget === edge.target;
-
-				if (!isCorrect) {
-					incorrectConnections.push(edge.id);
-					if (!incorrectNodes.includes(edge.source)) {
-						incorrectNodes.push(edge.source);
-					}
-					if (!incorrectNodes.includes(edge.target)) {
-						incorrectNodes.push(edge.target);
-					}
+				// Create a map of correct connections
+				const correctConnectionsMap = new Map<string, string>();
+				for (let i = 0; i < sortedSteps.length - 1; i++) {
+					correctConnectionsMap.set(
+						sortedSteps[i].id,
+						sortedSteps[i + 1].id
+					);
 				}
-			});
 
-			// Set verification result
-			const allCorrect = incorrectConnections.length === 0;
-			return {
-				isCorrect: allCorrect,
-				incorrectConnections,
-				incorrectNodes,
-				feedback: allCorrect
-					? 'Great job! All steps are in the correct order.'
-					: `There are ${incorrectConnections.length} incorrect connections. Try rearranging the steps.`,
-			};
-		};
+				// Check connections
+				const incorrectConnections: string[] = [];
+				const incorrectNodes: string[] = [];
 
-		const calculateGrade = (
-			result: VerificationResult,
-			mathSolution: MathSolution
-		): number => {
-			// Calculate grade as percentage of correct connections
-			const totalConnections = mathSolution.steps.length - 1; // Total possible correct connections
-			const incorrectCount = result.incorrectConnections.length;
-			const correctConnections = Math.max(
-				0,
-				totalConnections - incorrectCount
-			);
+				edges.forEach((edge) => {
+					const correctTarget = correctConnectionsMap.get(
+						edge.source
+					);
+					const isCorrect = correctTarget === edge.target;
 
-			return Math.round((correctConnections / totalConnections) * 100);
-		};
+					if (!isCorrect) {
+						incorrectConnections.push(edge.id);
+						if (!incorrectNodes.includes(edge.source)) {
+							incorrectNodes.push(edge.source);
+						}
+						if (!incorrectNodes.includes(edge.target)) {
+							incorrectNodes.push(edge.target);
+						}
+					}
+				});
+
+				// Set verification result
+				const allCorrect = incorrectConnections.length === 0;
+				return {
+					isCorrect: allCorrect,
+					incorrectConnections,
+					incorrectNodes,
+					feedback: allCorrect
+						? 'Great job! All steps are in the correct order.'
+						: `There are ${incorrectConnections.length} incorrect connections. Try rearranging the steps.`,
+				};
+			},
+			[] // mathSolution is a prop, edges is state. Assuming steps don't change within mathSolution object itself often.
+		);
+
+		const calculateGrade = useCallback(
+			(
+				result: VerificationResult,
+				mathSolution: MathSolution
+			): number => {
+				// Calculate grade as percentage of correct connections
+				const totalConnections = mathSolution.steps.length - 1; // Total possible correct connections
+				const incorrectCount = result.incorrectConnections.length;
+				const correctConnections = Math.max(
+					0,
+					totalConnections - incorrectCount
+				);
+
+				return Math.round(
+					(correctConnections / totalConnections) * 100
+				);
+			},
+			[] // mathSolution is a prop. Assuming steps don't change within mathSolution object itself often.
+		);
 
 		// Function to check if a node already has a connection
 		const hasConnection = useCallback(
@@ -530,7 +536,7 @@ export const MathSolutionFlow = forwardRef<
 
 				return true;
 			},
-			[hasConnection, toast]
+			[hasConnection]
 		);
 
 		// Handle edge connections
@@ -605,15 +611,7 @@ export const MathSolutionFlow = forwardRef<
 					description: 'You connected two steps successfully!',
 				});
 			},
-			[
-				edges,
-				nodes,
-				onEdgesUpdate,
-				isMobile,
-				setEdges,
-				toast,
-				isValidConnection,
-			]
+			[edges, nodes, onEdgesUpdate, isMobile, setEdges, isValidConnection]
 		);
 
 		// Handle edge selection
@@ -633,16 +631,6 @@ export const MathSolutionFlow = forwardRef<
 			[isMobile]
 		);
 
-		// Handle edge deletion with Delete key
-		const onKeyDown = useCallback(
-			(event: React.KeyboardEvent) => {
-				if (event.key === 'Delete' && selectedEdge) {
-					handleDeleteSelectedEdge();
-				}
-			},
-			[selectedEdge]
-		);
-
 		// Function to delete the selected edge
 		const handleDeleteSelectedEdge = useCallback(() => {
 			if (selectedEdge) {
@@ -659,7 +647,17 @@ export const MathSolutionFlow = forwardRef<
 					description: 'The connection has been removed.',
 				});
 			}
-		}, [selectedEdge, setEdges, edges, onEdgesUpdate, toast]);
+		}, [selectedEdge, setEdges, edges, onEdgesUpdate]);
+
+		// Handle edge deletion with Delete key
+		const onKeyDown = useCallback(
+			(event: React.KeyboardEvent) => {
+				if (event.key === 'Delete' && selectedEdge) {
+					handleDeleteSelectedEdge();
+				}
+			},
+			[selectedEdge, handleDeleteSelectedEdge]
+		);
 
 		// Handle reset button click
 		const handleReset = useCallback(() => {
@@ -669,7 +667,7 @@ export const MathSolutionFlow = forwardRef<
 				duration: 2000,
 			});
 			resetCanvas();
-		}, [resetCanvas, toast]);
+		}, [resetCanvas]);
 
 		// Toggle showing step order
 		const handleToggleStepOrder = useCallback(() => {
@@ -1037,7 +1035,6 @@ export const MathSolutionFlow = forwardRef<
 			setVerificationResult,
 			verifySolution,
 			calculateGrade,
-			toast,
 			handleFinalStepCorrect,
 			handleFinalStepInputChange,
 			hasAttempted,

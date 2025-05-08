@@ -76,9 +76,8 @@ export async function POST(req: Request) {
 				experimental_sendFinish: true,
 			});
 
-			// @ts-ignore
-			const problemSolved = (await stepAnalysis.response).messages[0]
-				.content[0].args.problemSolved;
+			// const problemSolved = (await stepAnalysis.response).messages[0]
+			// 	.content[0].args.problemSolved;
 
 			//this doesn't have context of the entire conversation like the above LLM call does.
 			// const result = streamText({

@@ -719,6 +719,10 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 			return;
 		}
 
+		// Capture refs for cleanup
+		const currentContainer = containerRef.current;
+		const currentGradientMap = gradientMapRef.current;
+
 		initializedRef.current = true;
 		console.log('[useEffect Init] Initializing Three.js scene...');
 
@@ -1195,12 +1199,10 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 			clearTimeout(initialConnectionTimeoutId);
 			cancelAnimationFrame(animationFrameId);
 			window.removeEventListener('resize', handleResize);
-			if (containerRef.current) {
-				containerRef.current.removeEventListener(
-					'mousemove',
-					onMouseMove
-				);
-				containerRef.current.removeEventListener('click', onMouseClick);
+			if (currentContainer) {
+				// Use captured variable
+				currentContainer.removeEventListener('mousemove', onMouseMove);
+				currentContainer.removeEventListener('click', onMouseClick);
 			}
 			activeAnimationsRef.current.forEach((anim) => {
 				if (anim.type === 'gsap')
@@ -1216,11 +1218,13 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 			if (controlsRef.current) controlsRef.current.dispose();
 			if (rendererRef.current) {
 				if (
-					containerRef.current?.contains(
+					currentContainer?.contains(
+						// Use captured variable
 						rendererRef.current.domElement
 					)
 				) {
-					containerRef.current.removeChild(
+					currentContainer.removeChild(
+						// Use captured variable
 						rendererRef.current.domElement
 					);
 				}
@@ -1232,7 +1236,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 			centerSphereGeometry.dispose();
 			(centerSphereMaterial as THREE.Material)?.dispose(); // Dispose main material
 			// (centerOutlineMaterial as THREE.Material)?.dispose(); // Outline removed
-			gradientMapRef.current?.dispose();
+			if (currentGradientMap) currentGradientMap.dispose(); // Use captured variable
 			// Clear refs
 			groupRef.current = null;
 			sceneRef.current = null;
@@ -1246,6 +1250,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ initialConceptsData }) => {
 		};
 		// Re-run effect if the initial data identity changes (though unlikely for props)
 		// Or if callbacks change (they are memoized, so should be stable)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		initialConceptsData,
 		createNodeMesh,

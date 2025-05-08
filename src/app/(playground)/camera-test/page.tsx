@@ -4,11 +4,15 @@
 import { Button } from '@/components/ui/button';
 import { Camera } from 'react-camera-pro';
 import React, { useRef, useState } from 'react';
+import Image from 'next/image';
+import { useWindowDimensions } from '@/hooks/use-window-dimensions';
 
 export default function CameraPage() {
 	const cameraRef = useRef<any>(null);
 	const [photo, setPhoto] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
+
+	const [width, height] = useWindowDimensions();
 
 	return (
 		<div className='relative w-screen h-screen bg-black overflow-hidden'>
@@ -44,10 +48,12 @@ export default function CameraPage() {
 				/>
 			)}
 			{photo && (
-				<img
+				<Image
 					src={photo}
 					alt='Captured photo'
 					className='absolute top-0 left-0 w-full h-full object-contain'
+					width={width}
+					height={height}
 				/>
 			)}
 			{photo && (

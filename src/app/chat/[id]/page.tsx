@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import Loading from '../ChatLoading';
 import { currentUser } from '@clerk/nextjs/server';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient as createClient } from '@/utils/supabase/server';
 
 type Params = Promise<{ id: string }>;
 

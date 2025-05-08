@@ -13,7 +13,6 @@ import { z } from 'zod';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 import { generateUUID, getMostRecentUserMessage } from '@/lib/utils';
-import supabase from '@/lib/supabaseClient';
 import { rules, systemPrompt2 } from '@/lib/ai/prompts';
 import { generateEmbedding } from '@/lib/ai/embedding';
 
@@ -210,7 +209,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function getResources(content: string) {
-	const supabase = await createClient();
+	const supabase = await createServerSupabaseClient();
 	const { userId } = await auth();
 
 	const userQueryEmbedded = await generateEmbedding(content);

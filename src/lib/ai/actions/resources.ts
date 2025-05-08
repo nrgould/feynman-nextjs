@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient as createClient } from '@/utils/supabase/server';
 import { generateEmbedding } from '../embedding';
 import { z } from 'zod';
 import { auth } from '@clerk/nextjs/server';

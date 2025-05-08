@@ -1,6 +1,6 @@
 import { embed, embedMany } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient as createClient } from '@/utils/supabase/server';
 import { auth } from '@clerk/nextjs/server';
 
 const embeddingModel = openai.embedding('text-embedding-ada-002');

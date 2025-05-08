@@ -3,7 +3,7 @@
 import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { systemPrompt2 } from '@/lib/ai/prompts';
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient as createClient } from '@/utils/supabase/server';
 import { generateUUID } from '@/lib/utils';
 
 export async function fetchMoreMessages({

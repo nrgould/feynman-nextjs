@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createServerSupabaseClient as createClient } from '@/utils/supabase/server';
 
 /**
  * Ensures that a Clerk user exists in the Supabase User table
