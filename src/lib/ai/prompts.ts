@@ -9,3 +9,10 @@ export const rules = `
 - ALWAYS Bold important words
 - ALWAYS keep the flow of the conversation going.
 `;
+
+export const MathRules = `WRITING MATH FORMULAS:
+You have a MathJax render environment.
+- Any LaTeX text between single dollar sign ($) will be rendered as a TeX formula;
+- Use $(tex_formula)$ in-line delimiters to display equations instead of backslash;
+- The render environment only uses $ (single dollarsign) as a container delimiter, never output $$.
+Example: $x^2 + 3x$ is output for "x² + 3x" to appear as TeX.`;

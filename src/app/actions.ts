@@ -1,16 +1,33 @@
 'use server';
 
+import { MathRules } from '@/lib/ai/prompts';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
 export async function extractMathProblem(imageURL: string) {
-	console.log(imageURL);
 	const result = await generateObject({
 		model: openai('gpt-4.1-mini-2025-04-14', {
 			structuredOutputs: true,
 		}),
-		system: "Extract the math problem from the user's message.  If there is no math problem, return 'no math problem found'. Also return the subject of the math problem in the response.",
+		system: `Extract the math problem from the user's message.  If there is no math problem, return 'no math problem found'. Also return the subject of the math problem in the response.
+		
+		STRICT MATH OUTPUT RULES:
+				- You have a KaTeX render environment.
+				- Your outputs should always be KaTeX inline formatted (single dollar sign).
+				- GOOD: The volume of a sphere is $V(10)=5\\times10$
+				- GOOD: Find $\\int e^{2x} \\, dx$.
+				- BAD: \int e^{2x} \, dx,\quad u = 2x,\quad du = 2dx
+				- BAD: \int e^{2x}\,dx=\int e^{u}\cdot\frac{1}{2}du
+
+				All LaTeX **must** be wrapped in a single pair of dollar signs
+				with **no line breaks inside** the delimiters.
+
+				✔ Good  : "$ \\\\int e^{2x}\\\\,dx $"
+				✘ Bad   : "$⏎ \\\\int e^{2x}\\\\,dx ⏎$"
+
+				Never output "$$", "\\[", "\\]", "\\(", "\\)", and never place "$"
+				on its own line.`,
 		schema: z.object({
 			problem: z.string().describe('The math problem to solve.'),
 			subject: z.string().describe('The subject of the math problem.'),
@@ -29,7 +46,7 @@ export async function extractMathProblem(imageURL: string) {
 				content: [
 					{
 						type: 'text',
-						text: 'Analyze the following photo and extract the math problem.',
+						text: 'Analyze the following photo and extract the math problem. USE KATEX INLINE FORMAT (single dollar sign) FOR ALL MATH. Example: "$V(10)=5\\times10$"',
 					},
 					{
 						type: 'image',
@@ -39,6 +56,8 @@ export async function extractMathProblem(imageURL: string) {
 			},
 		],
 	});
+
+	console.log(result.object);
 
 	//validate the result here
 
@@ -52,6 +71,21 @@ export async function generateMethods(problem: string, methods: string[] = []) {
 			methods: z.array(z.string()).min(1).max(4),
 		}),
 		system: `You are a helpful math tutor. Generate methods to solve the problem.
+
+			STRICT MATH OUTPUT RULES:
+				- You have a KaTeX render environment.
+				- Your outputs should always be KaTeX inline formatted.
+				- Good example: The volume of a sphere is $V(10)=5\\times10$
+				- BAD: \int e^{2x} \, dx,\quad u = 2x,\quad du = 2dx$
+
+				All LaTeX **must** be wrapped in a single pair of dollar signs
+with **no line breaks inside** the delimiters.
+
+✔ Good  : "$ \\\\int e^{2x}\\\\,dx $"
+✘ Bad   : "$⏎ \\\\int e^{2x}\\\\,dx ⏎$"
+
+Never output "$$", "\\[", "\\]", "\\(", "\\)", and never place "$"
+on its own line.
 		
 		RULES:
 		-NEVER OFFER A GRAPHING OPTION`,

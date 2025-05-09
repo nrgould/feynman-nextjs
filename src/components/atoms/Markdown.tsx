@@ -6,13 +6,20 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
+import rehypeMathjax from 'rehype-mathjax';
 import 'katex/dist/katex.min.css';
 import { Components } from 'react-markdown';
+import { MathJaxContext, MathJax } from 'better-react-mathjax';
 
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 	const processedContent = children
+		// convert `\(...\)` → `$...$`  (inline math)
 		.replace(/\\\(/g, '$')
-		.replace(/\\\)/g, '$');
+		.replace(/\\\)/g, '$')
+		// convert `\[ ... \]` → `$$ ... $$` (display math), preserving new‑lines so the delimiters sit on their own lines
+		.replace(/\\\[\s*/g, '$$\n')
+		.replace(/\s*\\\]/g, '\n$$') // Markdown.tsx  (after your other .replace calls)
+		.replace(/\$\s*\n([^$]+?)\n\s*\$/g, (_m, expr) => `$ ${expr.trim()} $`);
 
 	const components: Components = {
 		code: ({ node, inline, className, children, ...props }: any) => {
@@ -80,10 +87,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 		},
 		ul: ({ node, children, ...props }: any) => {
 			return (
-				<ul
-					className='list-disc list-inside ml-4 space-y-2'
-					{...props}
-				>
+				<ul className='list-disc list-inside ml-4 space-y-2' {...props}>
 					{children}
 				</ul>
 			);
@@ -109,13 +113,17 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 	};
 
 	return (
-		<ReactMarkdown
-			remarkPlugins={[remarkGfm, remarkMath]}
-			rehypePlugins={[rehypeKatex, rehypeRaw]}
-			components={components}
-		>
-			{processedContent}
-		</ReactMarkdown>
+		<MathJaxContext>
+			<MathJax dynamic hideUntilTypeset='every'>
+				<ReactMarkdown
+					remarkPlugins={[remarkGfm, remarkMath]}
+					rehypePlugins={[rehypeKatex, rehypeRaw]}
+					components={components}
+				>
+					{processedContent}
+				</ReactMarkdown>
+			</MathJax>
+		</MathJaxContext>
 	);
 };
 

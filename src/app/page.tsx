@@ -35,14 +35,6 @@ interface ExtractFeedbackToolCall {
 		feedbackType: 'positive' | 'negative' | 'neutral';
 		newProblemState: string;
 		problemSolved: boolean;
-		currentStep: number;
-	};
-}
-interface ProblemSolvedToolCall {
-	toolName: 'problemSolvedTool';
-	args: {
-		message: string;
-		finalAnswer: string;
 	};
 }
 
@@ -52,12 +44,10 @@ interface Option {
 }
 
 export default function Home() {
-	const [initialProblem, setInitialProblem] = useState(
-		'Differentiate f(x) = 3x^2 + 5x - 4.'
-	);
+	const [initialProblem, setInitialProblem] = useState('');
 	const [problemState, setProblemState] = useState(initialProblem);
 	const [prevProblemState, setPrevProblemState] = useState('');
-	const [problemTitle, setProblemTitle] = useState('Differentiate f(x):');
+	const [problemTitle, setProblemTitle] = useState('');
 
 	const [inputMode, setInputMode] = useState<'photo' | 'text'>('photo');
 	const [feedback, setFeedback] = useState('');
@@ -69,12 +59,10 @@ export default function Home() {
 	const [steps, setSteps] = useState<string[]>([]);
 	const [showStepsDialog, setShowStepsDialog] = useState(false);
 
-	const [analyzedPhoto, setAnalyzedPhoto] = useState(true);
+	const [analyzedPhoto, setAnalyzedPhoto] = useState(false);
 
 	const [methods, setMethods] = useState<string[]>([]);
-	const [selectedMethod, setSelectedMethod] = useState<string>(
-		'apply the power rule.'
-	);
+	const [selectedMethod, setSelectedMethod] = useState<string>('');
 
 	const [loading, setLoading] = useState(false);
 
@@ -93,17 +81,25 @@ export default function Home() {
 			return response;
 		},
 		onToolCall: ({ toolCall }) => {
-			console.log(toolCall);
+			console.log(toolCall.toolName, toolCall.args);
 
 			if (toolCall.toolName === 'extractFeedback') {
 				const extractFeedbackToolCall =
 					toolCall as ExtractFeedbackToolCall;
 				setFeedback(extractFeedbackToolCall.args.feedback);
 				setSolved(extractFeedbackToolCall.args.problemSolved);
+
 				setPrevProblemState(problemState);
-				setProblemState(extractFeedbackToolCall.args.newProblemState);
+				const newProblemState =
+					extractFeedbackToolCall.args.newProblemState;
+
+				setProblemState(newProblemState);
 				setFeedbackType(extractFeedbackToolCall.args.feedbackType);
+				setSteps((prevSteps) => [...prevSteps, newProblemState]);
 			}
+		},
+		onFinish: (response) => {
+			console.log('RESPONSE:', response);
 		},
 	});
 
@@ -114,7 +110,17 @@ export default function Home() {
 				title: 'Error during AI response.',
 				description: error.message || 'An unknown error occurred.',
 				action: (
-					<ToastAction altText='Try again'>Try again</ToastAction>
+					<ToastAction
+						altText='Try again'
+						onClick={() =>
+							append({
+								role: 'user',
+								content: 'Try the last step again.',
+							})
+						}
+					>
+						Try again
+					</ToastAction>
 				),
 			});
 		}
@@ -127,6 +133,7 @@ export default function Home() {
 			setInitialProblem(result.problem);
 			setProblemState(result.problem);
 			setProblemTitle(result.title);
+			setSteps([result.problem]);
 
 			//generate methods
 			const methods = await generateMethods(result.problem);
@@ -175,6 +182,7 @@ export default function Home() {
 		setInitialProblem(problem);
 		setProblemState(problem);
 		setProblemTitle(newTitle);
+		setSteps([problem]);
 		setMethods(generatedMethods);
 		setAnalyzedPhoto(true);
 	}
@@ -276,15 +284,24 @@ export default function Home() {
 					</DialogTrigger>
 					<DialogContent className='sm:max-w-7/8'>
 						<DialogHeader>
-							<DialogTitle>{initialProblem}</DialogTitle>
+							<DialogTitle>Problem History</DialogTitle>
 						</DialogHeader>
 						{steps && steps.length > 0 ? (
-							<ul className='list-decimal list-inside space-y-2 p-4'>
-								{steps.map((step, index) => (
-									<li key={index}>
-										<Markdown>{step}</Markdown>
-									</li>
-								))}
+							<ul className='list-decimal list-inside space-y-3 p-4 max-h-[70vh] overflow-y-auto'>
+								{steps.map(
+									(currentProblemStateString, index) => (
+										<li key={index} className='mb-1'>
+											<p className='font-semibold text-sm'>
+												{index === 0
+													? 'Initial Problem:'
+													: `After Step ${index}:`}
+											</p>
+											<Markdown>
+												{currentProblemStateString}
+											</Markdown>
+										</li>
+									)
+								)}
 							</ul>
 						) : (
 							<p className='p-4 text-center text-muted-foreground'>
@@ -396,7 +413,9 @@ export default function Home() {
 														key={`${toolCallId}-${partIndex}-ask-call`}
 													>
 														<h2 className='text-xl font-semibold mb-4 text-center'>
-															{args.title}
+															<Markdown>
+																{args.title}
+															</Markdown>
 														</h2>
 														<div className='grid grid-cols-2 gap-4 w-full md:w-1/2'>
 															{args.options.map(
@@ -430,9 +449,11 @@ export default function Home() {
 																					<DialogContent>
 																						<DialogHeader>
 																							<DialogTitle>
-																								{
-																									option.label
-																								}
+																								<Markdown>
+																									{
+																										option.label
+																									}
+																								</Markdown>
 																							</DialogTitle>
 																						</DialogHeader>
 																						<form
@@ -449,7 +470,7 @@ export default function Home() {
 																									formData.get(
 																										'calculation'
 																									) as string;
-																								const result = `${option.label} (Calculation: ${inputValue})`;
+																								const result = `${option.label} (User inputted: ${inputValue})`;
 																								handleAddNewStep(
 																									result
 																								);
