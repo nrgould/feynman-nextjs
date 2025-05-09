@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
 import { Loader2, RotateCwSquare, Send, List } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
 import {
@@ -13,34 +13,29 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { extractMathProblem, generateMethods, generateSteps } from './actions';
+import { extractMathProblem, generateMethods } from './actions';
 import {
 	Dropzone,
 	DropzoneContent,
 	DropzoneEmptyState,
 } from '@/components/dropzone';
 import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
-import { MemoizedMarkdown } from '@/components/memoized-markdown';
 import { Markdown } from '@/components/atoms/Markdown';
 import { TextInputProblem } from '@/components/problem-input/TextInputProblem';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-
-interface NextStepToolCall {
-	toolName: 'askForNextStepTool';
-	args: {
-		feedback: string;
-		newProblemState: string;
-		options: string[];
-	};
-}
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
+import MethodList from '@/components/problem-input/MethodList';
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
 	args: {
 		feedback: string;
+		feedbackType: 'positive' | 'negative' | 'neutral';
 		newProblemState: string;
 		problemSolved: boolean;
+		currentStep: number;
 	};
 }
 interface ProblemSolvedToolCall {
@@ -63,16 +58,18 @@ export default function Home() {
 	const [problemState, setProblemState] = useState(initialProblem);
 	const [prevProblemState, setPrevProblemState] = useState('');
 	const [problemTitle, setProblemTitle] = useState('Differentiate f(x):');
-	const [inputValue, setInputValue] = useState('');
 
 	const [inputMode, setInputMode] = useState<'photo' | 'text'>('photo');
 	const [feedback, setFeedback] = useState('');
 	const [solved, setSolved] = useState(false);
+	const [feedbackType, setFeedbackType] = useState<
+		'positive' | 'negative' | 'neutral'
+	>('neutral');
 
 	const [steps, setSteps] = useState<string[]>([]);
 	const [showStepsDialog, setShowStepsDialog] = useState(false);
 
-	const [analyzedPhoto, setAnalyzedPhoto] = useState(false);
+	const [analyzedPhoto, setAnalyzedPhoto] = useState(true);
 
 	const [methods, setMethods] = useState<string[]>([]);
 	const [selectedMethod, setSelectedMethod] = useState<string>(
@@ -81,7 +78,9 @@ export default function Home() {
 
 	const [loading, setLoading] = useState(false);
 
-	const { messages, append, addToolResult } = useChat({
+	const { toast } = useToast();
+
+	const { messages, append, addToolResult, error } = useChat({
 		api: '/api/math-tutor',
 		experimental_prepareRequestBody: (body) => {
 			const response = {
@@ -100,18 +99,26 @@ export default function Home() {
 				const extractFeedbackToolCall =
 					toolCall as ExtractFeedbackToolCall;
 				setFeedback(extractFeedbackToolCall.args.feedback);
+				setSolved(extractFeedbackToolCall.args.problemSolved);
 				setPrevProblemState(problemState);
 				setProblemState(extractFeedbackToolCall.args.newProblemState);
-			}
-
-			if (toolCall.toolName === 'problemSolvedTool') {
-				const problemSolvedToolCall = toolCall as ProblemSolvedToolCall;
-				setPrevProblemState(problemState);
-				setProblemState(problemSolvedToolCall.args.finalAnswer);
-				setSolved(true);
+				setFeedbackType(extractFeedbackToolCall.args.feedbackType);
 			}
 		},
 	});
+
+	useEffect(() => {
+		if (error) {
+			toast({
+				variant: 'destructive',
+				title: 'Error during AI response.',
+				description: error.message || 'An unknown error occurred.',
+				action: (
+					<ToastAction altText='Try again'>Try again</ToastAction>
+				),
+			});
+		}
+	}, [error]);
 
 	async function handlePhotoAnalysis(publicUrl: string) {
 		try {
@@ -129,9 +136,11 @@ export default function Home() {
 			setAnalyzedPhoto(true);
 		} catch (error: any) {
 			console.error('Error during photo analysis:', error);
-			alert(
-				`Error analyzing photo: ${error.message || 'An unknown error occurred.'}`
-			);
+			toast({
+				variant: 'destructive',
+				title: 'Error analyzing photo',
+				description: error.message || 'An unknown error occurred.',
+			});
 		}
 	}
 
@@ -207,10 +216,10 @@ export default function Home() {
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
 				<h1 className='text-4xl font-semibold text-center'>
-					Make Math Interactive
+					Interactive Math Tutor
 				</h1>
 				<h2 className='text-md text-muted-foreground mb-4 text-center'>
-					Upload a photo of a math problem and get started instantly.
+					Upload a photo of a math problem to get started.
 				</h2>
 				<div className='flex items-center space-x-2 mb-4'>
 					<Label htmlFor='input-mode-switch'>Photo Mode</Label>
@@ -267,7 +276,7 @@ export default function Home() {
 					</DialogTrigger>
 					<DialogContent className='sm:max-w-7/8'>
 						<DialogHeader>
-							<DialogTitle>Steps Taken</DialogTitle>
+							<DialogTitle>{initialProblem}</DialogTitle>
 						</DialogHeader>
 						{steps && steps.length > 0 ? (
 							<ul className='list-decimal list-inside space-y-2 p-4'>
@@ -326,7 +335,7 @@ export default function Home() {
 									duration: 0.5,
 								}}
 								className={`text-xl md:text-3xl font-semibold text-center ${
-									solved ? 'text-green-500' : ''
+									solved ? 'text-emerald-500' : ''
 								}`}
 							>
 								<Markdown>{problemState}</Markdown>
@@ -339,17 +348,23 @@ export default function Home() {
 						exit={{ opacity: 0, y: -10 }}
 						transition={{
 							type: 'spring',
-							stiffness: 300,
-							damping: 30,
-							duration: 0.5,
+							stiffness: 100,
+							damping: 10,
+							duration: 0.3,
 						}}
-						className='text-sm md:text-md text-center p-4 max-w-sm md:max-w-3/4 min-h-[6rem] max-h-[6rem] tracking-wide'
+						className={`text-sm md:text-md text-center p-4 max-w-lg md:max-w-[40rem] max-h-[6rem] tracking-wide ${
+							feedbackType === 'positive'
+								? 'text-emerald-500'
+								: feedbackType === 'negative'
+									? 'text-amber-500'
+									: 'text-muted-foreground'
+						}`}
 					>
 						<Markdown>{feedback}</Markdown>
 					</motion.div>
 				</div>
 
-				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-4'>
+				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-2 mb-8'>
 					{loading && (
 						<p className='text-sm text-muted-foreground mt-4'>
 							Processing...
@@ -357,32 +372,11 @@ export default function Home() {
 					)}
 					<div className='flex-1 overflow-y-auto'>
 						{methods.length > 0 && (
-							<div className='flex flex-col gap-4 items-center'>
-								<h2 className='text-xl font-semibold mb-4 text-center'>
-									Choose a method to solve the problem
-								</h2>
-								<div className='grid grid-cols-2 gap-4 w-full md:w-1/2'>
-									{methods.map((method, index) => (
-										<Button
-											size='lg'
-											key={index}
-											variant='outline'
-											className='py-12 text-wrap px-4'
-											onClick={() =>
-												appendProblem(method)
-											}
-										>
-											<Markdown>{method}</Markdown>
-										</Button>
-									))}
-								</div>
-								<Button
-									variant='ghost'
-									onClick={generateMoreMethods}
-								>
-									Preferred method not here
-								</Button>
-							</div>
+							<MethodList
+								methods={methods}
+								generateMoreMethods={generateMoreMethods}
+								appendProblem={appendProblem}
+							/>
 						)}
 						{messages?.map((message) => (
 							<div key={message.id}>
@@ -517,41 +511,27 @@ export default function Home() {
 													</div>
 												);
 											}
-										} else if (
-											toolName === 'problemSolvedTool'
-										) {
-											if (state === 'result') {
-												return (
-													<div
-														key={`${toolCallId}-${partIndex}-solved-call`}
-														className='flex flex-col p-4 gap-4 px-4'
-													>
-														<p className='text-center'>
-															{args.message}
-														</p>
-														<div className='flex justify-center gap-4'>
-															<Button>
-																<Send /> Share
-																Solution
-															</Button>
-															<Button
-																variant='outline'
-																onClick={reset}
-															>
-																<RotateCwSquare />{' '}
-																Try Another
-																Problem
-															</Button>
-														</div>
-													</div>
-												);
-											}
 										}
 									}
 									return null;
 								})}
 							</div>
 						))}
+						{solved && (
+							<div className='flex flex-col p-4 justify-between items-center h-full gap-4 px-4'>
+								<h2 className='text-center text-lg font-semibold'>
+									Problem solved!
+								</h2>
+								<div className='w-full flex justify-center items-center gap-4'>
+									<Button>
+										<Send /> Share Solution
+									</Button>
+									<Button variant='outline' onClick={reset}>
+										<RotateCwSquare /> Do Another Problem
+									</Button>
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

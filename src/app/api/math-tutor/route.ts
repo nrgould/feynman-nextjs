@@ -21,32 +21,39 @@ export async function POST(req: Request) {
 			let nextStep = '';
 
 			const stepAnalysis = streamText({
-				model: openai('gpt-4o'),
+				model: openai('gpt-4.1-2025-04-14'),
 				maxSteps: 2,
+				temperature: 0.5,
 				system: `
-				You are a helpful math tutor, trying to guide me to understanding of a math problem.
+				You are a helpful math tutor, trying to guide me to understanding of a math problem, step by step.
 				
-				analyze and generate feedback on the step chosen. Then ask the user for confirmation of the next step to take to solve the math problem, unless the problem is solved, in which case call the problemSolvedTool.
+				Analyze and generate feedback each step chosen. Then ask me for confirmation of the next step to take to solve the math problem.
 				
-				Do not reveal the answer or solve it yourself, but provide detailed feedback on the step chosen, and whether or not it is the good choice. Be friendly and extremely concise in your response. No more than a short sentence.
+				NEVER reveal the answer or solve it yourself, but provide detailed feedback on the step chosen, and whether or not it is the good choice. Be friendly and extremely concise in your response. No more than a short sentence.
 
 				You are also responsible for managing the state of the math problem. Take into account the previous steps the user has taken in order to update the problem state.
+
+				If there is a small calculation to be performed on the option, for the user to perform themselves, include it in the option.
+
+				If I make a mistake, make me do the step over again.
+
+				If the problem is solved, set the problem as solved. Do not ask to do another problem.
 
 				RULES:
 				-TAKE THE PROBLEM ONE STEP AT A TIME
 				-DO NOT SOLVE THE PROBLEM YOURSELF
-				-ENSURE THE PROBLEM IS MAXIMALLY SIMPLIFIED BEFORE CALLING problemSolvedTool
+				-ENSURE THE PROBLEM IS MAXIMALLY SIMPLIFIED BEFORE SETTING THE PROBLEM AS SOLVED
 				`,
 				messages,
 				toolChoice: 'required',
 				tools: {
 					askForNextStepTool,
-					problemSolvedTool,
 					extractFeedback: tool({
 						description:
 							"Generate feedback on the user's selected step choice, and update the problem state based on the previous steps.",
 						parameters: z.object({
 							feedback: z.string(),
+							feedbackType: z.enum(['positive', 'negative', 'neutral']),
 							problemSolved: z.boolean(),
 							currentStep: z.number(),
 							newProblemState: z
@@ -75,47 +82,6 @@ export async function POST(req: Request) {
 			stepAnalysis.mergeIntoDataStream(dataStream, {
 				experimental_sendFinish: true,
 			});
-
-			// const problemSolved = (await stepAnalysis.response).messages[0]
-			// 	.content[0].args.problemSolved;
-
-			//this doesn't have context of the entire conversation like the above LLM call does.
-			// const result = streamText({
-			// 	model: openai('gpt-4.1-mini-2025-04-14'),
-			// 	prompt: `You are a helpful math tutor.
-			// 	Your job is to help me, based on the steps I've chosen, solve the given problem.
-
-			// 	INSTRUCTIONS:
-			//     First, analyze the math problem and come up with the most common ways a person might solve it.
-
-			// 	Then, call a tool to get the next step in the solution process from the user. Always ask for confirmation, do not solve anything yourself. Each step should be a single step in the solution process, simplified as much as possible.
-
-			// 	Continue until the FINAL solution is reached (the most simplified form of the solution is reached).
-			// 	When the final solution is reached, call the problemSolvedTool.
-
-			// 	IF THE USER CHOOSES THAT THEY HAVE REACHED THE FINAL SOLUTION, BUT HAS NOT FULLY SOLVED THE PROBLEM, DO NOT CALL THE problemSolvedTool.
-
-			// 	MATH PROBLEM: ${initialProblem}
-
-			// 	PROBLEM SOLVED?: ${problemSolved}
-
-			// 	CURRENT PROBLEM STATE: ${problemState}
-
-			// 	PREVIOUS PROBLEM STATE: ${prevProblemState}
-
-			// 	THE USER CHOSE THE NEXT STEP: ${nextStep}
-
-			// 	RULES:
-			// 	-ONLY CALL ONE TOOL AT A TIME
-			//     `,
-			// 	maxSteps: 1,
-			// 	toolChoice: 'required',
-			// 	tools: { askForNextStepTool, problemSolvedTool },
-			// });
-
-			// result.mergeIntoDataStream(dataStream, {
-			// 	experimental_sendFinish: true,
-			// });
 
 			lastMessage.parts = await Promise.all(
 				lastMessage.parts?.map(async (part: any) => {
@@ -163,7 +129,7 @@ const askForNextStepTool = tool({
 						.string()
 						.optional()
 						.describe(
-							'include if there is a small calculation to be performed on the option'
+							'include if there is a small calculation to be performed on the option, for the user to perform themselves.'
 						),
 				})
 			)

@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/nav/AppSidebar';
 import { Toaster } from '@/components/ui/toaster';
-import Header from '@/components/nav/Header';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
@@ -13,6 +10,7 @@ import { PostHogProvider } from './providers';
 import Banner from './banner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeToggle } from '@/components/molecules/ThemeToggle';
+import Link from 'next/link';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -74,6 +72,7 @@ export default function RootLayout({
 								</div>
 								{children}
 								<Banner />
+								<Footer />
 							</main>
 							<Toaster />
 							<Analytics />
@@ -82,5 +81,21 @@ export default function RootLayout({
 				</body>
 			</html>
 		</ClerkProvider>
+	);
+}
+
+function Footer() {
+	return (
+		<div className='absolute bottom-2 right-0 left-0 flex justify-center items-center'>
+			<div className='flex flex-col gap-2'>
+				<Link
+					href='https://discord.gg/W5t5Xx39r7'
+					target='_blank'
+					className='text-sm text-muted-foreground'
+				>
+					Get help on Discord
+				</Link>
+			</div>
+		</div>
 	);
 }

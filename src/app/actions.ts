@@ -1,7 +1,7 @@
 'use server';
 
 import { openai } from '@ai-sdk/openai';
-import { generateObject, generateText, streamText } from 'ai';
+import { generateObject } from 'ai';
 import { z } from 'zod';
 
 export async function extractMathProblem(imageURL: string) {
@@ -40,6 +40,8 @@ export async function extractMathProblem(imageURL: string) {
 		],
 	});
 
+	//validate the result here
+
 	return result.object;
 }
 
@@ -49,6 +51,10 @@ export async function generateMethods(problem: string, methods: string[] = []) {
 		schema: z.object({
 			methods: z.array(z.string()).min(1).max(4),
 		}),
+		system: `You are a helpful math tutor. Generate methods to solve the problem.
+		
+		RULES:
+		-NEVER OFFER A GRAPHING OPTION`,
 		prompt:
 			methods.length > 0
 				? `Generate more methods to solve the following math problem: ${problem}. These should be high level methods, not specific steps, such as "factor", "use substitution", etc. you've already generated ${methods.join(', ')} methods, so generate different ones.`
@@ -56,16 +62,4 @@ export async function generateMethods(problem: string, methods: string[] = []) {
 	});
 
 	return result.object.methods;
-}
-
-export async function generateSteps(problem: string, method: string) {
-	const result = await generateObject({
-		model: openai('gpt-4.1-mini-2025-04-14'),
-		schema: z.object({
-			steps: z.array(z.string()).min(1).max(10),
-		}),
-		prompt: `Generate steps to solve the following math problem: ${problem} using the ${method} method. Try to make your steps efficient and concise, allowing at most 10 steps to solve the problem.`,
-	});
-
-	return result.object.steps;
 }
