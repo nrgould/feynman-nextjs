@@ -18,30 +18,10 @@ const PlusJakartaSans = localFont({
 	weight: '100 200 900',
 });
 
-// Add the try-concepts route to the navigation items
-const navigationItems = [
-	{
-		name: 'Home',
-		href: '/',
-	},
-	{
-		name: 'Try Concepts',
-		href: '/try-concepts',
-	},
-	{
-		name: 'Pricing',
-		href: '/pricing',
-	},
-	{
-		name: 'Blog',
-		href: '/blog',
-	},
-];
-
 export const metadata: Metadata = {
 	title: 'Feynman Learning',
 	description:
-		'Use AI to test your knowledge for your next exam. Learn through dynamic exercises that focus on active recall.',
+		'Use AI to walk through math problems step by step. Learn through dynamic exercises that focus on active recall.',
 };
 
 export default function RootLayout({
