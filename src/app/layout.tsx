@@ -51,7 +51,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<ClerkProvider>
-			<html lang='en'>
+			<html lang='en' suppressHydrationWarning={true}>
 				<SpeedInsights />
 				<GoogleTagManager gtmId='GTM-ND4L2HBL' />
 				<meta
