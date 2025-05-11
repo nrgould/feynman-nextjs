@@ -33,7 +33,7 @@ interface ExtractFeedbackToolCall {
 	args: {
 		feedback: string;
 		feedbackType: 'positive' | 'negative' | 'neutral';
-		newProblemState: string;
+		currentProblemState: string;
 		problemSolved: boolean;
 	};
 }
@@ -91,15 +91,12 @@ export default function Home() {
 
 				setPrevProblemState(problemState);
 				const newProblemState =
-					extractFeedbackToolCall.args.newProblemState;
+					extractFeedbackToolCall.args.currentProblemState;
 
 				setProblemState(newProblemState);
 				setFeedbackType(extractFeedbackToolCall.args.feedbackType);
 				setSteps((prevSteps) => [...prevSteps, newProblemState]);
 			}
-		},
-		onFinish: (response) => {
-			console.log('RESPONSE:', response);
 		},
 	});
 

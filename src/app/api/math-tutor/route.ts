@@ -11,8 +11,7 @@ import { z } from 'zod';
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-	const { messages, problemState, prevProblemState, initialProblem, steps } =
-		await req.json();
+	const { messages } = await req.json();
 
 	return createDataStreamResponse({
 		execute: async (dataStream) => {
@@ -24,32 +23,27 @@ export async function POST(req: Request) {
 			const stepAnalysis = streamText({
 				model: openai('gpt-4.1-2025-04-14'),
 				maxSteps: 2,
-				// temperature: 0.5,
+				temperature: 0.5,
 				system: `
-				You are a helpful math tutor, trying to guide me to understanding of a math problem, step by step.
+				You are a helpful math tutor, trying to guide me to understanding of a math problem, step by step. Analyze and generate feedback each step chosen. Then ask me for confirmation of the next step to take to solve the math problem.
 
-				Analyze and generate feedback each step chosen. Then ask me for confirmation of the next step to take to solve the math problem.
+				NEVER reveal the answer or try to solve it yourself, but provide detailed feedback on the step chosen, and whether or not it is the good choice. Be friendly and extremely concise in your response. Only short sentences. Use simple language, not complex math terms.
 
-				NEVER reveal the answer or solve it yourself, but provide detailed feedback on the step chosen, and whether or not it is the good choice. Be friendly and extremely concise in your response. No more than a short sentence.
+				You are also responsible for managing the state of the math problem. BAD: User chooses to let $u = 2x$ as the substitution for $\\int e^{2x} \\, dx$. GOOD: Substitute $u = 2x$ for $\\int e^{2x} \\, dx$.
 
-				You are also responsible for managing the state of the math problem. Take into account the previous steps the user has taken in order to update the problem state.
+				Let me do small calculations myself, including the calculations in the step options.
 
-				If there is a small calculation to be performed on the option, for the user to perform themselves, include it in the option.
-
-				If I make a mistake or say IDK, even in a small calculation, make me do the step over again.
+				If I get something wrong or say I don't know, make me do the step over again.
 
 				STRICT MATH OUTPUT RULES:
 				- You have a KaTeX render environment.
 				- Your outputs should always be KaTeX inline formatted.
-				- GOOD: The volume of a sphere is $V(10)=5\\times10$
-				- GOOD: Find $\\int e^{2x} \\, dx$.
-				- BAD: \int e^{2x} \, dx,\quad u = 2x,\quad du = 2dx
-				- BAD: \int e^{2x}\,dx=\int e^{u}\cdot\frac{1}{2}du
+				GOOD: $V(10)=5\\times10$
 
 				All LaTeX **must** be wrapped in a single pair of dollar signs
 				with **no line breaks inside** the delimiters.
 
-				✔ Good: "$\\int e^{2x}\\,dx$"
+				✔ Good: $\\int e^{2x}\\,dx$
 				
 				RULES:
 				-TAKE THE PROBLEM ONE STEP AT A TIME
@@ -59,20 +53,13 @@ export async function POST(req: Request) {
 				`,
 				messages,
 				toolChoice: 'required',
-				onStepFinish: (step) => {
-					console.log('STEP:', step);
-				},
 				tools: {
 					askForNextStepTool,
 					extractFeedback: tool({
 						description:
-							"Generate feedback on the user's selected step choice, and update the problem state based on the previous steps. For all math, use KaTeX inline format (single dollar sign).",
+							"Generate feedback on the user's selected step choice, and update the problem state.",
 						parameters: z.object({
-							newProblemState: z
-								.string()
-								.describe(
-									`The new state of the math problem, after the next step has been applied. Keep it to one line. DO NOT include any instructions. USE KATEX INLINE FORMAT (single dollar sign) FOR ALL MATH. GOOD: "$V(10)=5\\times10$". BAD: "\\int e^{u}\\cdot\\frac{du}{2}"`
-								),
+							currentProblemState: z.string(),
 							problemSolved: z.boolean(),
 							feedback: z.string(),
 							feedbackType: z.enum([
@@ -84,13 +71,13 @@ export async function POST(req: Request) {
 						execute: async ({
 							feedback,
 							problemSolved,
-							newProblemState,
+							currentProblemState,
 							feedbackType,
 						}) => {
 							return {
 								feedback,
 								problemSolved,
-								newProblemState,
+								currentProblemState,
 								feedbackType,
 							};
 						},
@@ -162,7 +149,7 @@ const askForNextStepTool = tool({
 						.string()
 						.optional()
 						.describe(
-							'include if there is a small calculation to be performed on the option, for the user to perform themselves. Good: du = ?'
+							'include if there is a small calculation to be performed on the option, for the user to perform themselves.'
 						),
 				})
 			)
