@@ -29,6 +29,9 @@ import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import MethodList from '@/components/problem-input/MethodList';
 import Image from 'next/image';
+import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
+import LogoComponent from '@/components/atoms/LogoComponent';
+
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
 	args: {
@@ -49,6 +52,7 @@ export default function Home() {
 	const [problemState, setProblemState] = useState(initialProblem);
 	const [prevProblemState, setPrevProblemState] = useState('');
 	const [problemTitle, setProblemTitle] = useState('');
+	const [problemLimit, setProblemLimit] = useState(1);
 
 	const [inputMode, setInputMode] = useState<'photo' | 'text'>('photo');
 	const [feedback, setFeedback] = useState('');
@@ -68,6 +72,16 @@ export default function Home() {
 	const [loading, setLoading] = useState(false);
 
 	const { toast } = useToast();
+
+	const { user, isLoaded } = useUser();
+
+	useEffect(() => {
+		console.log(user, isLoaded);
+		if (user) {
+			console.log(user);
+			setProblemLimit(100);
+		}
+	}, [user, isLoaded]);
 
 	const { messages, append, addToolResult, error } = useChat({
 		api: '/api/math-tutor',
@@ -221,16 +235,8 @@ export default function Home() {
 	if (!analyzedPhoto) {
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
-				<div className='absolute top-5 left-0 right-0 flex items-center justify-center gap-2'>
-					<Image
-						src='/images/felt-logo.png'
-						alt='FEYNAMN LEARNING'
-						width={40}
-						height={40}
-					/>
-					<h1 className='text-lg font-semibold text-center'>
-						FEYNMAN LEARNING
-					</h1>
+				<div className='absolute top-5 left-0 right-0 '>
+					<LogoComponent />
 				</div>
 				<h1 className='text-4xl font-semibold text-center'>
 					Interactive Math Tutor
@@ -556,9 +562,24 @@ export default function Home() {
 									<Button>
 										<Send /> Share Solution
 									</Button>
-									<Button variant='outline' onClick={reset}>
-										<RotateCwSquare /> Do Another Problem
-									</Button>
+									<SignedIn>
+										<Button
+											variant='outline'
+											onClick={reset}
+										>
+											<RotateCwSquare /> Do Another
+											Problem
+										</Button>
+									</SignedIn>
+									<SignedOut>
+										<Button
+											variant='outline'
+											onClick={reset}
+										>
+											<RotateCwSquare /> Do Another
+											Problem
+										</Button>
+									</SignedOut>
 								</div>
 							</div>
 						)}
