@@ -229,7 +229,7 @@ export default function Home() {
 						height={40}
 					/>
 					<h1 className='text-lg font-semibold text-center'>
-						FEYNAMN LEARNING
+						FEYNMAN LEARNING
 					</h1>
 				</div>
 				<h1 className='text-4xl font-semibold text-center'>
