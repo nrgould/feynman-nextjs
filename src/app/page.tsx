@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import MethodList from '@/components/problem-input/MethodList';
+import Image from 'next/image';
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
 	args: {
@@ -220,6 +221,17 @@ export default function Home() {
 	if (!analyzedPhoto) {
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
+				<div className='absolute top-5 left-0 right-0 flex items-center justify-center gap-2'>
+					<Image
+						src='/images/felt-logo.png'
+						alt='FEYNAMN LEARNING'
+						width={40}
+						height={40}
+					/>
+					<h1 className='text-lg font-semibold text-center'>
+						FEYNAMN LEARNING
+					</h1>
+				</div>
 				<h1 className='text-4xl font-semibold text-center'>
 					Interactive Math Tutor
 				</h1>
