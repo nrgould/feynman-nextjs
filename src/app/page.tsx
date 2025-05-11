@@ -28,9 +28,8 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import MethodList from '@/components/problem-input/MethodList';
-import Image from 'next/image';
 import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
-import LogoComponent from '@/components/atoms/LogoComponent';
+import MenuDrawer from '@/components/molecules/MenuDrawer';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -236,7 +235,7 @@ export default function Home() {
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
 				<div className='absolute top-5 left-0 right-0 '>
-					<LogoComponent />
+					<MenuDrawer />
 				</div>
 				<h1 className='text-4xl font-semibold text-center'>
 					Interactive Math Tutor
