@@ -212,7 +212,7 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 			if (pdfId) {
 				router.push(`/learning-path?pdfId=${pdfId}`);
 			} else {
-				router.push('/learning-path');
+				router.push('/');
 			}
 		} catch (error) {
 			console.error('Error submitting form:', error);
@@ -277,7 +277,7 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 											)
 										}
 									>
-										<SelectTrigger className='border-slate-300 text-slate-700 py-6 font-medium'>
+										<SelectTrigger className='border-slate-300 text-slate-700 dark:text-zinc-100 py-6 font-medium'>
 											<SelectValue placeholder='Select your education level' />
 										</SelectTrigger>
 										<SelectContent>
@@ -285,7 +285,7 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 												<SelectItem
 													key={level}
 													value={level}
-													className='text-slate-700'
+													className='text-slate-700 dark:text-zinc-100'
 												>
 													{level}
 												</SelectItem>
@@ -328,7 +328,7 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 												/>
 												<Label
 													htmlFor={source}
-													className='text-slate-700 text-md cursor-pointer'
+													className='text-slate-700 dark:text-zinc-100 text-md cursor-pointer'
 												>
 													{source}
 												</Label>
@@ -371,8 +371,8 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 													transition-colors duration-200
 													${
 														isSelected
-															? 'bg-slate-100 hover:bg-slate-200'
-															: 'text-slate-700 hover:bg-slate-100'
+															? 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600'
+															: 'text-slate-700 dark:text-zinc-100 dark:hover:bg-slate-700 hover:bg-slate-100'
 													}
 												`}
 												onClick={() =>
@@ -406,7 +406,7 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 										Do you have any learning differences we
 										should be aware of?
 									</Label>
-									<p className='text-sm text-slate-600 mb-4'>
+									<p className='text-sm text-slate-700 dark:text-zinc-100 mb-4'>
 										This helps us provide better support.
 										Your response is optional and
 										confidential.
@@ -432,7 +432,7 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 												/>
 												<Label
 													htmlFor={option}
-													className='text-slate-700 text-md'
+													className='text-slate-700 dark:text-zinc-100 text-md'
 												>
 													{option}
 												</Label>
@@ -471,7 +471,7 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 					</div>
 
 					<div className='space-y-4 mt-4'>
-						<div className='flex items-center justify-between text-sm text-slate-600 mb-2 font-medium'>
+						<div className='flex items-center justify-between text-sm text-slate-600 dark:text-zinc-100 mb-2 font-medium'>
 							<span>Progress</span>
 							<span>{step}/5</span>
 						</div>
