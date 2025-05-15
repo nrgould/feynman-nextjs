@@ -258,7 +258,7 @@ const DropzoneEmptyState = ({ className }: { className?: string }) => {
 					onClick={() => inputRef.current?.click()}
 					className='w-full mt-2'
 				>
-					<Camera size={16} /> Choose Photo
+					<Camera size={16} /> Take Photo
 				</Button>
 				{maxFileSize !== Number.POSITIVE_INFINITY && (
 					<p className='text-xs text-muted-foreground'>
