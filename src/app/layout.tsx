@@ -11,6 +11,8 @@ import Banner from './banner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeToggle } from '@/components/molecules/ThemeToggle';
 import Link from 'next/link';
+import Header from '@/components/organisms/Header';
+import MenuDrawer from '@/components/molecules/MenuDrawer';
 
 const PlusJakartaSans = localFont({
 	src: './fonts/PlusJakartaSans-VariableFont_wght.ttf',
@@ -46,13 +48,11 @@ export default function RootLayout({
 						disableTransitionOnChange
 					>
 						<PostHogProvider>
-							<main className='h-[100dvh] bg-background'>
-								<div className='absolute top-4 right-4 z-10'>
-									<ThemeToggle />
-								</div>
+							<Header />
+							<MenuDrawer />
+							<main className='bg-background pt-16'>
 								{children}
 								<Banner />
-								<Footer />
 							</main>
 							<Toaster />
 							<Analytics />

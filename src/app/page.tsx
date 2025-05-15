@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
-import { Loader2, RotateCwSquare, Send, List } from 'lucide-react';
+import { Loader2, RotateCwSquare, Send, List, User2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
@@ -13,7 +13,12 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { extractMathProblem, generateMethods } from './actions';
+import {
+	extractMathProblem,
+	generateMethods,
+	saveMathProblem,
+	updateProblemLimitAfterAnalysis,
+} from './actions';
 import {
 	Dropzone,
 	DropzoneContent,
@@ -30,6 +35,7 @@ import { ToastAction } from '@/components/ui/toast';
 import MethodList from '@/components/problem-input/MethodList';
 import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import MenuDrawer from '@/components/molecules/MenuDrawer';
+import Footer from '@/components/organisms/Home/Footer';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -78,7 +84,8 @@ export default function Home() {
 		console.log(user, isLoaded);
 		if (user) {
 			console.log(user);
-			setProblemLimit(100);
+			const problemLimit = user.publicMetadata.problem_limit;
+			setProblemLimit(problemLimit as number);
 		}
 	}, [user, isLoaded]);
 
@@ -103,6 +110,17 @@ export default function Home() {
 				setFeedback(extractFeedbackToolCall.args.feedback);
 				setSolved(extractFeedbackToolCall.args.problemSolved);
 
+				if (solved && user) {
+					//save the problem to supabase
+					saveMathProblem({
+						initialProblem: initialProblem,
+						title: problemTitle,
+						steps: steps,
+						solved: true,
+						selectedMethod: selectedMethod,
+					});
+				}
+
 				setPrevProblemState(problemState);
 				const newProblemState =
 					extractFeedbackToolCall.args.currentProblemState;
@@ -118,8 +136,9 @@ export default function Home() {
 		if (error) {
 			toast({
 				variant: 'destructive',
-				title: 'Error during AI response.',
-				description: error.message || 'An unknown error occurred.',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a problem with your request.',
+				duration: 10000,
 				action: (
 					<ToastAction
 						altText='Try again'
@@ -152,6 +171,8 @@ export default function Home() {
 
 			setLoading(false);
 			setAnalyzedPhoto(true);
+
+			updateProblemLimitAfterAnalysis();
 		} catch (error: any) {
 			console.error('Error during photo analysis:', error);
 			toast({
@@ -195,7 +216,9 @@ export default function Home() {
 		setProblemTitle(newTitle);
 		setSteps([problem]);
 		setMethods(generatedMethods);
+
 		setAnalyzedPhoto(true);
+		updateProblemLimitAfterAnalysis();
 	}
 
 	function reset() {
@@ -219,6 +242,18 @@ export default function Home() {
 	async function appendProblem(selectedMethod: string) {
 		setLoading(true);
 		setSelectedMethod(selectedMethod);
+
+		if (user) {
+			//save the problem to supabase
+			await saveMathProblem({
+				initialProblem: initialProblem,
+				title: problemTitle,
+				steps: steps,
+				solved: false,
+				selectedMethod: selectedMethod,
+			});
+		}
+
 		setMethods([]);
 		setLoading(false);
 		append({
@@ -327,7 +362,7 @@ export default function Home() {
 				</Dialog>
 
 				<div className='flex-1 min-h-[40vh] flex flex-col justify-between items-center border rounded-lg p-2 pt-4'>
-					<h2 className='text-lg text-muted-foreground mb-4 max-w-3/4'>
+					<h2 className='text-lg text-muted-foreground mb-4 max-w-[350px] text-center'>
 						<Markdown>{problemTitle}</Markdown>
 					</h2>
 					<div>
@@ -421,6 +456,11 @@ export default function Home() {
 										} = part.toolInvocation;
 										if (toolName === 'askForNextStepTool') {
 											if (state === 'call') {
+												const randomizedOptions =
+													args.options.sort(
+														() =>
+															Math.random() - 0.5
+													);
 												return (
 													<div
 														className='flex-1 flex flex-col p-4 items-center justify-center'
@@ -432,7 +472,7 @@ export default function Home() {
 															</Markdown>
 														</h2>
 														<div className='grid grid-cols-2 gap-4 w-full md:w-1/2'>
-															{args.options.map(
+															{randomizedOptions.map(
 																(
 																	option: Option,
 																	optionIndex: number
@@ -530,7 +570,7 @@ export default function Home() {
 																					);
 																				}}
 																				variant='outline'
-																				className='py-12 text-wrap px-4'
+																				className='py-16 text-wrap px-2'
 																			>
 																				<Markdown>
 																					{
@@ -571,12 +611,8 @@ export default function Home() {
 										</Button>
 									</SignedIn>
 									<SignedOut>
-										<Button
-											variant='outline'
-											onClick={reset}
-										>
-											<RotateCwSquare /> Do Another
-											Problem
+										<Button variant='outline'>
+											<User2Icon /> Sign up to continue
 										</Button>
 									</SignedOut>
 								</div>
@@ -584,6 +620,7 @@ export default function Home() {
 						)}
 					</div>
 				</div>
+				<Footer />
 			</div>
 		);
 	}
