@@ -45,33 +45,21 @@ export default function PricingPage() {
 			price: 0,
 			description: 'Perfect for trying out the platform',
 			buttonText: 'Get Started',
-			benefitList: [
-				'1 Learning Path',
-				'3 Concepts per path',
-				'1 PDF upload',
-				'Basic Learning Features',
-			],
-			href: '/concepts',
+			benefitList: ['10 Problem sessions'],
+			href: '/',
 			billingCycle: '',
 			paymentLink: '',
 		},
 		{
 			title: 'Plus',
 			recommended: true,
-			price: billingCycle === 'monthly' ? 15 : 120,
+			price: billingCycle === 'monthly' ? 8 : 75,
 			description: 'For dedicated learners',
 			buttonText:
 				billingCycle === 'monthly'
 					? 'Upgrade to Plus'
-					: 'Upgrade to Plus (Save 25%)',
-			benefitList: [
-				'5 Learning Paths',
-				'Unlimited Concepts per path',
-				'PDF uploads & analysis',
-				'Advanced Learning Models',
-				'Interactive Quizzes',
-				'Progress Analytics',
-			],
+					: 'Upgrade to Plus (Save $20)',
+			benefitList: ['Unlimited problem sessions'],
 			href: billingCycle === 'monthly' ? '/upgrade' : '/upgrade-yearly',
 			paymentLink:
 				billingCycle === 'monthly'
@@ -80,23 +68,15 @@ export default function PricingPage() {
 			billingCycle: billingCycle === 'monthly' ? '/month' : '/year',
 		},
 		{
-			title: 'Pro',
+			title: 'Pay as you go',
 			recommended: false,
-			price: 50,
-			description: 'For power users and educators',
-			buttonText: 'Upgrade to Pro',
-			benefitList: [
-				'Unlimited Learning Paths',
-				'Unlimited Concepts per path',
-				'Unlimited PDF uploads & analysis',
-				'Priority Support',
-				'Advanced Analytics & Reports',
-				'Custom Learning Paths',
-				'All Premium Features',
-			],
+			price: 4.99,
+			description: 'Get started easily',
+			buttonText: 'Get 100 Problems',
+			benefitList: ['100 problem sessions'],
 			href: '/upgrade-pro',
-			billingCycle: '/month',
-			paymentLink: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_LINK || '',
+			billingCycle: '/one time',
+			paymentLink: process.env.NEXT_PUBLIC_STRIPE_ONE_TIME_LINK || '',
 		},
 	];
 
@@ -104,7 +84,7 @@ export default function PricingPage() {
 		<div className='container mx-auto px-4 py-16'>
 			<div className='text-center mb-12'>
 				<h1 className='text-4xl font-bold tracking-tight mb-4'>
-					Simple, Transparent Pricing
+					Upgrade
 				</h1>
 				<p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
 					Choose the perfect plan for your learning journey. Upgrade
