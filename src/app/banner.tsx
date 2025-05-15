@@ -43,7 +43,7 @@ export default function Banner() {
 	return (
 		<>
 			{consentGiven === 'undecided' && (
-				<Card className='fixed bottom-5 right-5 bg-white p-4 px-6 max-w-md'>
+				<Card className='fixed bottom-5 right-5 p-4 px-6 max-w-md'>
 					<p className='text-sm text-center'>
 						We use tracking cookies to understand how you use the
 						product and help us improve it. Click Accept to keep
