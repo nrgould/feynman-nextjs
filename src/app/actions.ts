@@ -4,6 +4,9 @@ import { MathRules } from '@/lib/ai/prompts';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
+import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 
 export async function extractMathProblem(imageURL: string) {
 	const result = await generateObject({
@@ -59,8 +62,6 @@ export async function extractMathProblem(imageURL: string) {
 
 	console.log(result.object);
 
-	//validate the result here
-
 	return result.object;
 }
 
@@ -96,4 +97,90 @@ on its own line.
 	});
 
 	return result.object.methods;
+}
+
+export async function saveMathProblem(problemData: {
+	initialProblem: string;
+	title: string;
+	steps: string[];
+	solved: boolean;
+	selectedMethod: string;
+}) {
+	const cookieStore = cookies();
+	const supabase = await createServerSupabaseClient();
+
+	const { userId } = await auth();
+
+	if (!userId) {
+		console.error('User not authenticated');
+		// Consider throwing an error or returning a specific response
+		// if you want to handle this more explicitly on the client-side.
+		return { error: { message: 'User not authenticated' } };
+	}
+
+	const { initialProblem, title, steps, solved, selectedMethod } =
+		problemData;
+
+	const { data, error } = await supabase
+		.from('math_problems')
+		.insert([
+			{
+				user_id: userId,
+				initial_problem: initialProblem,
+				title,
+				steps,
+				solved,
+				selected_method: selectedMethod,
+			},
+		])
+		.select();
+
+	if (error) {
+		console.error('Error saving math problem:', error);
+		return { error };
+	}
+
+	console.log('Math problem saved:', data);
+	return { data };
+}
+
+export async function getMathProblems() {
+	const { userId } = await auth();
+
+	if (!userId) {
+		console.error('User not authenticated');
+		return { error: { message: 'User not authenticated' } };
+	}
+
+	const supabase = await createServerSupabaseClient();
+	const { data, error } = await supabase
+		.from('math_problems')
+		.select('*')
+		.eq('user_id', userId);
+	return { data, error };
+}
+
+export async function updateProblemLimitAfterAnalysis() {
+	console.log('Updating problem limit after analysis');
+
+	const user = await currentUser();
+	const client = await clerkClient();
+
+	const completedProblems = user?.publicMetadata.completed_problems;
+
+	if (!user) {
+		console.error('User not authenticated');
+		return;
+	}
+
+	try {
+		await client.users.updateUser(user.id, {
+			publicMetadata: {
+				...user.publicMetadata,
+				completed_problems: (completedProblems as number) + 1,
+			},
+		});
+	} catch (error) {
+		console.error('Error updating problem limit after analysis:', error);
+	}
 }
