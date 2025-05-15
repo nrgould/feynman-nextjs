@@ -1,6 +1,6 @@
 'use server';
 
-import { createServerSupabaseClient} from '@/utils/supabase/server';
+import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
 
 export const completeOnboarding = async (formData: FormData) => {
@@ -27,6 +27,7 @@ export const completeOnboarding = async (formData: FormData) => {
 				onboardingComplete: true,
 				account_type: 'free',
 				concept_limit: 3,
+				problem_limit: 10,
 			},
 		});
 
