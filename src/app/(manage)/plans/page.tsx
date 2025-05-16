@@ -44,7 +44,7 @@ export default function PricingPage() {
 			recommended: false,
 			price: 0,
 			description: 'Perfect for trying out the platform',
-			buttonText: 'Get Started',
+			buttonText: 'Continue',
 			benefitList: ['10 Problem sessions'],
 			href: '/',
 			billingCycle: '',
@@ -69,7 +69,7 @@ export default function PricingPage() {
 			mode: 'subscription',
 		},
 		{
-			title: 'Pay as you go',
+			title: 'One-time',
 			recommended: false,
 			price: 4.99,
 			description: 'Get started easily',

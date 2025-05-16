@@ -24,6 +24,7 @@ function MenuDrawer() {
 	const completedProblems = user?.publicMetadata.completed_problems;
 
 	const paidAccount = user?.publicMetadata.account_type === 'paid';
+	const plusAccount = user?.publicMetadata.account_type === 'plus';
 
 	const problemsLeft =
 		(problemLimit as number) - (completedProblems as number);
@@ -57,12 +58,24 @@ function MenuDrawer() {
 							{/* <ProblemList /> */}
 
 							<div className='w-full flex justify-center items-center'>
-								<MenuProblemLimit
-									paidAccount={paidAccount}
-									problemsLeft={problemsLeft}
-									problemLimit={problemLimit as number}
-									progress={progress}
-								/>
+								{!plusAccount && (
+									<MenuProblemLimit
+										paidAccount={paidAccount}
+										problemsLeft={problemsLeft}
+										problemLimit={problemLimit as number}
+										progress={progress}
+									/>
+								)}
+								{plusAccount && (
+									<div className='flex flex-col gap-2 max-w-sm mx-auto'>
+										<p>You have unlimited problems</p>
+										<Button asChild variant='secondary'>
+											<Link href='/dashboard'>
+												Go to Dashboard
+											</Link>
+										</Button>
+									</div>
+								)}
 							</div>
 						</SignedIn>
 						<SignedOut>

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-
 import { NextRequest } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { stripe } from '@/lib/stripe';
@@ -34,6 +33,8 @@ export async function POST(req: NextRequest) {
 	}
 	// If we dont have the event, we can't do anything again
 	if (event === undefined) throw new Error(`event is undefined`);
+
+	console.log(event);
 	switch (event.type) {
 		case 'checkout.session.completed':
 			const session = event.data.object;
@@ -41,17 +42,32 @@ export async function POST(req: NextRequest) {
 			const clerk = await clerkClient();
 			console.log(`Payment successful for session ID: ${session.id}`);
 
+			let publicMetadataUpdate: any = {
+				// Use 'any' or a more specific type if available
+				stripe: {
+					status: session.status,
+					payment: session.payment_status,
+				},
+			};
+
+			if (session.mode === 'subscription') {
+				publicMetadataUpdate = {
+					...publicMetadataUpdate,
+					account_type: 'plus',
+					problem_limit: 100000, // Or a very large number for "unlimited"
+				};
+			} else if (session.mode === 'payment') {
+				publicMetadataUpdate = {
+					...publicMetadataUpdate,
+					account_type: 'paid',
+					problem_limit: 100,
+				};
+			}
+
 			clerk.users.updateUserMetadata(
 				event.data.object.metadata?.userId as string,
 				{
-					publicMetadata: {
-						account_type: 'paid',
-						problem_limit: 100,
-						stripe: {
-							status: session.status,
-							payment: session.payment_status,
-						},
-					},
+					publicMetadata: publicMetadataUpdate,
 				}
 			);
 			break;

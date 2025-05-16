@@ -174,7 +174,7 @@ export async function updateProblemLimitAfterAnalysis() {
 	}
 
 	try {
-		await client.users.updateUser(user.id, {
+		await client.users.updateUserMetadata(user.id, {
 			publicMetadata: {
 				...user.publicMetadata,
 				completed_problems: (completedProblems as number) + 1,

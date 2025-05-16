@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 		const session = await stripe.checkout.sessions.create({
 			mode, // 'subscription' | 'payment'
 			line_items: [{ price: priceId, quantity }],
-			customer_creation: 'always', // or leave default
+			...(mode === 'payment' && { customer_creation: 'always' }), // or leave default
 			metadata: {
 				// Store userId in metadata for the webhook
 				// clerkPublicMetadata: user.publicMetadata,
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 			cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/upgrade/cancel`,
 		});
 
-		console.log(session);
+		// console.log(session);
 
 		return NextResponse.json({
 			session,
