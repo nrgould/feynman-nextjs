@@ -42,7 +42,7 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
 		},
 		p: ({ node, children, ...props }: any) => {
 			return (
-				<p className='mb-6 leading-relaxed' {...props}>
+				<p className='mb-6 leading-relaxed text-md' {...props}>
 					{children}
 				</p>
 			);

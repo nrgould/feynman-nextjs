@@ -260,11 +260,11 @@ const DropzoneEmptyState = ({ className }: { className?: string }) => {
 				>
 					<Camera size={16} /> Take Photo
 				</Button>
-				{maxFileSize !== Number.POSITIVE_INFINITY && (
+				{/* {maxFileSize !== Number.POSITIVE_INFINITY && (
 					<p className='text-xs text-muted-foreground'>
 						Maximum file size: {formatBytes(maxFileSize, 2)}
 					</p>
-				)}
+				)} */}
 			</div>
 		</div>
 	);

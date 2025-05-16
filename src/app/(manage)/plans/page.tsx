@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Check, Star, School, Zap, Sparkles } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -11,11 +11,11 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import Link from 'next/link';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { loadStripe } from '@stripe/stripe-js';
 
 interface PlansProps {
-	paymentLink: any;
+	paymentLink?: any;
 	title: string;
 	description: string;
 	buttonText: string;
@@ -24,19 +24,19 @@ interface PlansProps {
 	billingCycle: string;
 	recommended?: boolean;
 	price: number;
+	priceId: string;
+	mode: 'payment' | 'subscription';
 }
 
+const stripePromise = loadStripe(
+	process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
+
 export default function PricingPage() {
+	const [isPending, startTransition] = useTransition();
 	const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(
 		'monthly'
 	);
-
-	if (
-		!process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PLAN_LINK ||
-		!process.env.NEXT_PUBLIC_STRIPE_YEARLY_PLAN_LINK
-	) {
-		throw new Error('Stripe links not found');
-	}
 
 	const plans: PlansProps[] = [
 		{
@@ -48,7 +48,8 @@ export default function PricingPage() {
 			benefitList: ['10 Problem sessions'],
 			href: '/',
 			billingCycle: '',
-			paymentLink: '',
+			priceId: '',
+			mode: 'payment',
 		},
 		{
 			title: 'Plus',
@@ -60,12 +61,12 @@ export default function PricingPage() {
 					? 'Upgrade to Plus'
 					: 'Upgrade to Plus (Save $20)',
 			benefitList: ['Unlimited problem sessions'],
-			href: billingCycle === 'monthly' ? '/upgrade' : '/upgrade-yearly',
-			paymentLink:
-				billingCycle === 'monthly'
-					? process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PLAN_LINK
-					: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PLAN_LINK,
 			billingCycle: billingCycle === 'monthly' ? '/month' : '/year',
+			priceId:
+				billingCycle === 'monthly'
+					? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY!
+					: process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY!,
+			mode: 'subscription',
 		},
 		{
 			title: 'Pay as you go',
@@ -74,14 +75,93 @@ export default function PricingPage() {
 			description: 'Get started easily',
 			buttonText: 'Get 100 Problems',
 			benefitList: ['100 problem sessions'],
-			href: '/upgrade-pro',
 			billingCycle: '/one time',
-			paymentLink: process.env.NEXT_PUBLIC_STRIPE_ONE_TIME_LINK || '',
+			priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE_TIME || '',
+			mode: 'payment',
 		},
 	];
 
+	const handleCheckout = async (
+		priceId: string,
+		mode: 'payment' | 'subscription',
+		href?: string
+	) => {
+		if (!priceId && href) {
+			window.location.href = href;
+			return;
+		}
+		if (!priceId) {
+			console.warn(
+				'Checkout attempted without priceId and no href for redirection.'
+			);
+			alert('This plan is not configured for checkout currently.');
+			return;
+		}
+
+		startTransition(async () => {
+			try {
+				const stripe = await stripePromise;
+				if (!stripe) {
+					console.error("Stripe.js hasn't loaded yet.");
+					alert(
+						'Payment system is not ready. Please try again in a moment.'
+					);
+					return;
+				}
+
+				const res = await fetch('/api/stripe/checkout', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ priceId, mode }),
+				});
+
+				if (!res.ok) {
+					const errorData = await res.json().catch(() => ({
+						error: 'Failed to parse error response from server',
+					}));
+					console.error(
+						'Stripe session creation failed:',
+						res.status,
+						errorData
+					);
+					alert(
+						`Error: ${errorData.error || 'Could not create payment session.'}`
+					);
+					return;
+				}
+
+				const { sessionId } = await res.json();
+				if (!sessionId) {
+					console.error(
+						'Session ID not found in response from server'
+					);
+					alert('Error: Could not retrieve payment session ID.');
+					return;
+				}
+
+				const { error } = await stripe.redirectToCheckout({
+					sessionId,
+				});
+
+				if (error) {
+					console.error('Stripe redirection error:', error);
+					alert(
+						`Error: ${error.message || 'Could not redirect to payment.'}`
+					);
+				}
+			} catch (error) {
+				console.error('Checkout process error:', error);
+				const message =
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred during checkout.';
+				alert(`An error occurred: ${message} Please try again.`);
+			}
+		});
+	};
+
 	return (
-		<div className='container mx-auto px-4 py-16'>
+		<div className='container mx-auto px-4 py-16 pt-32'>
 			<div className='text-center mb-12'>
 				<h1 className='text-4xl font-bold tracking-tight mb-4'>
 					Upgrade
@@ -101,9 +181,7 @@ export default function PricingPage() {
 				>
 					<TabsList>
 						<TabsTrigger value='monthly'>Monthly</TabsTrigger>
-						<TabsTrigger value='yearly'>
-							Yearly (save 25%)
-						</TabsTrigger>
+						<TabsTrigger value='yearly'>Yearly</TabsTrigger>
 					</TabsList>
 				</Tabs>
 			</div>
@@ -159,13 +237,16 @@ export default function PricingPage() {
 								variant={
 									plan.recommended ? 'default' : 'secondary'
 								}
-								asChild
+								disabled={isPending}
+								onClick={() =>
+									handleCheckout(
+										plan.priceId,
+										plan.mode,
+										plan.href
+									)
+								}
 							>
-								<Link
-									href={plan.paymentLink || plan.href || '#'}
-								>
-									{plan.buttonText}
-								</Link>
+								{isPending ? 'Redirecting…' : plan.buttonText}
 							</Button>
 						</CardFooter>
 					</Card>

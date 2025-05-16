@@ -9,10 +9,10 @@ function Header() {
 	const { openMenuDrawer } = useMenuStore();
 
 	return (
-		<header className='fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-background shadow-md'>
+		<header className='fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-3 bg-background border-b border-border'>
 			<button
 				onClick={openMenuDrawer}
-				className='p-2 rounded-md hover:bg-accent md:hidden' // Only show on mobile, or adjust as needed
+				className='p-2 rounded-md hover:bg-accent'
 				aria-label='Open menu'
 			>
 				<Menu className='h-6 w-6' />

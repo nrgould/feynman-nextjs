@@ -35,7 +35,6 @@ import { ToastAction } from '@/components/ui/toast';
 import MethodList from '@/components/problem-input/MethodList';
 import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import MenuDrawer from '@/components/molecules/MenuDrawer';
-import Footer from '@/components/organisms/Home/Footer';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -316,7 +315,7 @@ export default function Home() {
 	}
 	if (analyzedPhoto) {
 		return (
-			<div className='relative flex flex-col h-full bg-background p-2 gap-2'>
+			<div className='relative flex flex-col h-full bg-background p-2 gap-2 pt-20'>
 				<Dialog
 					open={showStepsDialog}
 					onOpenChange={setShowStepsDialog}
@@ -620,7 +619,6 @@ export default function Home() {
 						)}
 					</div>
 				</div>
-				<Footer />
 			</div>
 		);
 	}

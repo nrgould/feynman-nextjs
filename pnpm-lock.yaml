@@ -107,6 +107,9 @@ importers:
       '@stripe/stripe-js':
         specifier: ^5.10.0
         version: 5.10.0
+      '@supabase/postgrest-js':
+        specifier: '*'
+        version: 1.19.4
       '@supabase/ssr':
         specifier: ^0.6.1
         version: 0.6.1(@supabase/supabase-js@2.49.4(bufferutil@4.0.9))

@@ -50,7 +50,7 @@ export default function RootLayout({
 						<PostHogProvider>
 							<Header />
 							<MenuDrawer />
-							<main className='bg-background pt-16'>
+							<main className='bg-background'>
 								{children}
 								<Banner />
 							</main>
@@ -61,21 +61,5 @@ export default function RootLayout({
 				</body>
 			</html>
 		</ClerkProvider>
-	);
-}
-
-function Footer() {
-	return (
-		<div className='absolute bottom-2 right-0 left-0 flex justify-center items-center'>
-			<div className='flex flex-col gap-2'>
-				<Link
-					href='https://discord.gg/W5t5Xx39r7'
-					target='_blank'
-					className='text-sm text-muted-foreground'
-				>
-					Get help on Discord
-				</Link>
-			</div>
-		</div>
 	);
 }

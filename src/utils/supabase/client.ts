@@ -1,4 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
+
 import { createBrowserClient } from '@supabase/ssr';
 
 export const createClient = () =>
