@@ -2,7 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
-import { Loader2, RotateCwSquare, Send, List, User2Icon } from 'lucide-react';
+import {
+	Loader2,
+	RotateCwSquare,
+	Send,
+	List,
+	User2Icon,
+	Link,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
@@ -33,7 +40,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import MethodList from '@/components/problem-input/MethodList';
-import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import MenuDrawer from '@/components/molecules/MenuDrawer';
 import { Progress } from '@/components/ui/progress';
 import useProblemLimitStore from '@/store/problem-limit';
@@ -305,29 +312,19 @@ export default function Home() {
 					<div className='absolute top-5 left-0 right-0 '>
 						<MenuDrawer />
 					</div>
-					<h1 className='text-4xl font-semibold text-center'>
-						Interactive Math Tutor
+					<h1 className='text-4xl font-semibold text-center leading-tight'>
+						You have reached your problem limit!
 					</h1>
-					<h2 className='text-md text-muted-foreground mb-4 text-center'>
-						You have reached your problem limit for this session.
-					</h2>
+
 					<p className='text-sm text-center text-muted-foreground'>
-						Please sign in or create an account to solve unlimited
-						problems.
+						Please sign in or create an account to continue.
 					</p>
-					<SignedIn>
-						{' '}
-						{/* This should ideally not be reached if !user */}
-						<Button onClick={() => window.location.reload()}>
-							Refresh to try again
-						</Button>
-					</SignedIn>
 					<SignedOut>
-						<Button
-							onClick={() => (window.location.href = '/sign-in')}
-						>
-							Sign In
-						</Button>
+						<SignInButton mode='modal'>
+							<Button>
+								<User2Icon /> Sign up to continue
+							</Button>
+						</SignInButton>
 					</SignedOut>
 				</div>
 			);
@@ -700,27 +697,21 @@ export default function Home() {
 												Problem
 											</Button>
 										) : (
-											<Button
-												variant='outline'
-												onClick={() =>
-													(window.location.href =
-														'/billing')
-												}
-											>
-												<User2Icon /> Get more problems
+											<Button variant='outline' asChild>
+												<Link href='/plans'>
+													<User2Icon /> Get more
+													problems
+												</Link>
 											</Button>
 										)}
 									</SignedIn>
 									<SignedOut>
-										<Button
-											variant='outline'
-											onClick={() =>
-												(window.location.href =
-													'/sign-in')
-											}
-										>
-											<User2Icon /> Sign up to continue
-										</Button>
+										<SignInButton mode='modal'>
+											<Button>
+												<User2Icon /> Sign up to
+												continue
+											</Button>
+										</SignInButton>
 									</SignedOut>
 								</div>
 							</div>

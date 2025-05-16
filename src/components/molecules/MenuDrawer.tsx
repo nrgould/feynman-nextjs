@@ -66,10 +66,12 @@ function MenuDrawer() {
 							</div>
 						</SignedIn>
 						<SignedOut>
-							<div className='flex flex-col gap-2'>
+							<div className='flex flex-col gap-2 max-w-sm mx-auto'>
 								<p>Please sign in to save your problems.</p>
-								<Button asChild variant='outline'>
-									<SignInButton />
+								<Button asChild variant='secondary'>
+									<SignInButton mode='modal'>
+										Sign in
+									</SignInButton>
 								</Button>
 							</div>
 						</SignedOut>
