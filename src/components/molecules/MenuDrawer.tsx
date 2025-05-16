@@ -10,6 +10,7 @@ import ProblemList from './ProblemList';
 import { Progress } from '../ui/progress';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
+import MenuProblemLimit from './MenuProblemLimit';
 
 function MenuDrawer() {
 	const { showMenuDrawer, openMenuDrawer, closeMenuDrawer } = useMenuStore();
@@ -44,24 +45,15 @@ function MenuDrawer() {
 							<ThemeToggle />
 						</div>
 					</DrawerHeader>
-					<div className='p-4'>
+					<div className='p-4 space-y-8'>
 						<SignedIn>
 							{/* <ProblemList /> */}
 
-							<div className='flex flex-row justify-between gap-2'>
-								<div className='flex flex-col gap-2'>
-									<p>
-										You have{' '}
-										{problemsLeft ||
-											(problemLimit as number)}{' '}
-										problems left. Upgrade for more.
-									</p>
-									<Progress value={progress} />
-								</div>
-								<Button variant='secondary' asChild>
-									<Link href='/plans'>Upgrade</Link>
-								</Button>
-							</div>
+							<MenuProblemLimit
+								problemsLeft={problemsLeft}
+								problemLimit={problemLimit as number}
+								progress={progress}
+							/>
 						</SignedIn>
 						<SignedOut>
 							<div className='flex flex-col gap-2'>
@@ -74,6 +66,17 @@ function MenuDrawer() {
 								</Button>
 							</div>
 						</SignedOut>
+						<div className='flex justify-center items-center'>
+							<div className='flex flex-col gap-2'>
+								<Link
+									href='https://discord.gg/W5t5Xx39r7'
+									target='_blank'
+									className='text-sm text-muted-foreground'
+								>
+									Get help on Discord
+								</Link>
+							</div>
+						</div>
 					</div>
 				</DrawerContent>
 			</Drawer>
