@@ -9,10 +9,10 @@ function LogoComponent() {
 				<Image
 					src='/images/felt-logo.png'
 					alt='FEYNAMN LEARNING'
-					width={40}
-					height={40}
+					width={30}
+					height={30}
 				/>
-				<h1 className='text-md font-semibold text-center'>
+				<h1 className='text-sm md:text-md font-semibold text-center'>
 					FEYNMAN LEARNING
 				</h1>
 			</div>

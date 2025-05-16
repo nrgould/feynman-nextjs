@@ -9,7 +9,7 @@ function Header() {
 	const { openMenuDrawer } = useMenuStore();
 
 	return (
-		<header className='fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-3 bg-background border-b border-border'>
+		<header className='fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-1 md:p-3 bg-background border-b border-border'>
 			<button
 				onClick={openMenuDrawer}
 				className='p-2 rounded-md hover:bg-accent'

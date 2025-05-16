@@ -44,6 +44,7 @@ import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 import MenuDrawer from '@/components/molecules/MenuDrawer';
 import { Progress } from '@/components/ui/progress';
 import useProblemLimitStore from '@/store/problem-limit';
+import ProblemHistory from '@/components/organisms/ProblemHistory';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -125,10 +126,16 @@ export default function Home() {
 			if (toolCall.toolName === 'extractFeedback') {
 				const extractFeedbackToolCall =
 					toolCall as ExtractFeedbackToolCall;
-				setFeedback(extractFeedbackToolCall.args.feedback);
-				setSolved(extractFeedbackToolCall.args.problemSolved);
+				const currentFeedback = extractFeedbackToolCall.args.feedback;
+				const currentProblemSolved =
+					extractFeedbackToolCall.args.problemSolved;
+				const currentFeedbackType =
+					extractFeedbackToolCall.args.feedbackType;
 
-				if (solved && user) {
+				setFeedback(currentFeedback);
+				setSolved(currentProblemSolved);
+
+				if (currentProblemSolved && user) {
 					//save the problem to supabase
 					saveMathProblem({
 						initialProblem: initialProblem,
@@ -144,8 +151,21 @@ export default function Home() {
 					extractFeedbackToolCall.args.currentProblemState;
 
 				setProblemState(newProblemState);
-				setFeedbackType(extractFeedbackToolCall.args.feedbackType);
+				setFeedbackType(currentFeedbackType);
 				setSteps((prevSteps) => [...prevSteps, newProblemState]);
+
+				// Show feedback as a toast
+				let toastTitle = 'Feedback';
+				if (currentFeedbackType === 'positive') {
+					toastTitle = 'Great job!';
+				} else if (currentFeedbackType === 'negative') {
+					toastTitle = 'Almost there!';
+				}
+				toast({
+					title: toastTitle,
+					description: currentFeedback,
+					duration: 5000, // Adjust duration as needed
+				});
 			}
 		},
 	});
@@ -334,7 +354,7 @@ export default function Home() {
 				<div className='absolute top-5 left-0 right-0 '>
 					<MenuDrawer />
 				</div>
-				<h1 className='text-4xl font-semibold text-center'>
+				<h1 className='text-2xl md:text-4xl font-semibold text-center'>
 					Interactive Math Tutor
 				</h1>
 				<h2 className='text-md text-muted-foreground mb-4 text-center'>
@@ -378,56 +398,18 @@ export default function Home() {
 	}
 	if (analyzedPhoto) {
 		return (
-			<div className='relative flex flex-col h-full bg-background p-2 gap-2 pt-20'>
-				<Dialog
-					open={showStepsDialog}
-					onOpenChange={setShowStepsDialog}
-				>
-					<DialogTrigger asChild>
-						<Button
-							variant='outline'
-							size='icon'
-							className='absolute top-4 left-4 z-10'
-							onClick={() => setShowStepsDialog(true)}
-						>
-							<List className='h-4 w-4' />
-						</Button>
-					</DialogTrigger>
-					<DialogContent className='sm:max-w-7/8'>
-						<DialogHeader>
-							<DialogTitle>Problem History</DialogTitle>
-						</DialogHeader>
-						{steps && steps.length > 0 ? (
-							<ul className='list-decimal list-inside space-y-3 p-4 max-h-[70vh] overflow-y-auto'>
-								{steps.map(
-									(currentProblemStateString, index) => (
-										<li key={index} className='mb-1'>
-											<p className='font-semibold text-sm'>
-												{index === 0
-													? 'Initial Problem:'
-													: `After Step ${index}:`}
-											</p>
-											<Markdown>
-												{currentProblemStateString}
-											</Markdown>
-										</li>
-									)
-								)}
-							</ul>
-						) : (
-							<p className='p-4 text-center text-muted-foreground'>
-								No steps available yet. Start solving the
-								problem!
-							</p>
-						)}
-					</DialogContent>
-				</Dialog>
+			<div className='relative flex flex-col h-screen bg-background p-2 gap-2 pt-14'>
+				<ProblemHistory
+					showStepsDialog={showStepsDialog}
+					setShowStepsDialog={setShowStepsDialog}
+					steps={steps}
+				/>
 
-				<div className='flex-1 min-h-[40vh] flex flex-col justify-between items-center border rounded-lg p-2 pt-4'>
-					<h2 className='text-lg text-muted-foreground mb-4 max-w-[350px] text-center'>
+				<div className='flex-1 flex flex-col items-center border rounded-lg p-2 gap-2 overflow-hidden'>
+					<h2 className='text-md sm:text-lg text-muted-foreground max-w-xs sm:max-w-sm md:max-w-md text-center px-2'>
 						<Markdown>{problemTitle}</Markdown>
 					</h2>
-					<div>
+					<div className='flex flex-col items-center text-center w-full px-2'>
 						<AnimatePresence>
 							{prevProblemState && (
 								<motion.div
@@ -441,7 +423,9 @@ export default function Home() {
 										damping: 30,
 										duration: 0.5,
 									}}
-									className={`text-md text-muted-foreground text-center`}
+									className={
+										'text-sm sm:text-base text-muted-foreground'
+									}
 								>
 									<Markdown>{prevProblemState}</Markdown>
 								</motion.div>
@@ -462,7 +446,7 @@ export default function Home() {
 									damping: 30,
 									duration: 0.5,
 								}}
-								className={`text-xl md:text-3xl font-semibold text-center ${
+								className={`text-lg sm:text-lg md:text-2xl font-semibold ${
 									solved ? 'text-emerald-500' : ''
 								}`}
 							>
@@ -470,29 +454,9 @@ export default function Home() {
 							</motion.div>
 						</AnimatePresence>
 					</div>
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -10 }}
-						transition={{
-							type: 'spring',
-							stiffness: 100,
-							damping: 10,
-							duration: 0.3,
-						}}
-						className={`text-sm md:text-md text-center p-4 max-w-lg md:max-w-[40rem] max-h-[6rem] tracking-wide ${
-							feedbackType === 'positive'
-								? 'text-emerald-500'
-								: feedbackType === 'negative'
-									? 'text-amber-500'
-									: 'text-muted-foreground'
-						}`}
-					>
-						<Markdown>{feedback}</Markdown>
-					</motion.div>
 				</div>
 
-				<div className='flex-1 max-h-[50vh] flex flex-col justify-between border rounded-lg p-2 mb-8'>
+				<div className='flex-1 flex flex-col justify-between border rounded-lg p-2'>
 					{loading && (
 						<p className='text-sm text-muted-foreground mt-4'>
 							Processing...
@@ -528,12 +492,12 @@ export default function Home() {
 														className='flex-1 flex flex-col p-4 items-center justify-center'
 														key={`${toolCallId}-${partIndex}-ask-call`}
 													>
-														<h2 className='text-xl font-semibold mb-4 text-center'>
+														<h3 className='text-md md:text-lg font-semibold text-center'>
 															<Markdown>
 																{args.title}
 															</Markdown>
-														</h2>
-														<div className='grid grid-cols-2 gap-4 w-full md:w-1/2'>
+														</h3>
+														<div className='grid grid-cols-2 gap-2 w-full md:w-1/2'>
 															{randomizedOptions.map(
 																(
 																	option: Option,
@@ -553,7 +517,7 @@ export default function Home() {
 																					>
 																						<Button
 																							variant='outline'
-																							className='py-12 text-wrap px-4'
+																							className='py-8 text-wrap px-4'
 																						>
 																							<Markdown>
 																								{
@@ -621,26 +585,6 @@ export default function Home() {
 																			<Button
 																				key={`option-${optionIndex}`}
 																				onClick={() => {
-																					if (
-																						!user &&
-																						guestProblemLimit <=
-																							0 &&
-																						option.label ===
-																							"I'm stuck"
-																					) {
-																						// Allow "I'm stuck" even if limit seems reached for guests, as it's part of current problem flow.
-																					} else if (
-																						!user &&
-																						guestProblemLimit <=
-																							0 &&
-																						option.label !==
-																							"I'm stuck"
-																					) {
-																						// This case should ideally not be hit if other checks are removed for active problem.
-																						// However, to be safe, if we reach here for a non-"I'm stuck" option and user is guest with limit 0, show toast.
-																						// This logic might need review based on desired behavior for "I'm stuck".
-																						// For now, let's simplify and remove the blocking check for active problems.
-																					}
 																					handleAddNewStep(
 																						option.label
 																					);
@@ -652,7 +596,7 @@ export default function Home() {
 																					);
 																				}}
 																				variant='outline'
-																				className='py-16 text-wrap px-2'
+																				className='py-6 text-wrap px-2'
 																			>
 																				<Markdown>
 																					{
@@ -679,9 +623,13 @@ export default function Home() {
 								<h2 className='text-center text-lg font-semibold'>
 									Problem solved!
 								</h2>
-								<p className='text-sm text-muted-foreground'>
-									You have {remainingProblems} problems left.
-								</p>
+								{user?.publicMetadata.account_type !==
+									'plus' && (
+									<p className='text-sm text-muted-foreground'>
+										You have {remainingProblems} problems
+										left.
+									</p>
+								)}
 								<Progress value={remainingProblems} />
 								<div className='w-full flex justify-center items-center gap-4'>
 									<Button>

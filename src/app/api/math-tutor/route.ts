@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 				maxSteps: 2,
 				temperature: 0.5,
 				system: `
-				You are a concise math tutor, trying to guide me to understanding of a math problem, step by step. Analyze and generate feedback for each step I choose. Then ask me for confirmation of the next step to take to solve the math problem.
+				You are a concise math tutor, assisting me in solving a math problem, step by step. Analyze and generate feedback for each step I choose. Then ask me for confirmation of the next step to take to solve the math problem.
 
 				NEVER reveal the answer or try to solve it yourself, but provide detailed feedback on the step chosen, and whether or not it is the good choice. Be friendly and extremely concise in your response. Only short sentences. Use simple language, not complex math terms.
 				
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
 				✔ Good: $\\int e^{2x}\\,dx$
 
-				You are also responsible for managing the state of the math problem. BAD: User chooses to let $u = 2x$ as the substitution for $\\int e^{2x} \\, dx$. GOOD: Substitute $u = 2x$ for $\\int e^{2x} \\, dx$.
+				You are also responsible for managing the state of the math problem. THIS STATE SHOULD BE EXTREMELY CONCISE. NO MORE THAN A LINE. USE KATEX INLINE FORMATTING.
 
 				RULES:
 				-TAKE THE PROBLEM ONE SIMPLE STEP AT A TIME
@@ -138,7 +138,7 @@ const askForNextStepTool = tool({
 		title: z
 			.string()
 			.describe(
-				'The title of confirmation options. For example: "Choose next step"'
+				'The title of confirmation options. For example: "Choose next step". Keep this extremely concise. Do not include any instructions.'
 			),
 		options: z
 			.array(

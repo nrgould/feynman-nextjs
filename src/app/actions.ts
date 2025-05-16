@@ -89,11 +89,13 @@ Never output "$$", "\\[", "\\]", "\\(", "\\)", and never place "$"
 on its own line.
 		
 		RULES:
-		-NEVER OFFER A GRAPHING OPTION`,
+		-NEVER OFFER A GRAPHING OPTION
+		-NEVER OFFER A CALCULATOR OPTION
+		-NEVER OFFER A GRAPHING CALCULATOR OPTION`,
 		prompt:
 			methods.length > 0
 				? `Generate more methods to solve the following math problem: ${problem}. These should be high level methods, not specific steps, such as "factor", "use substitution", etc. you've already generated ${methods.join(', ')} methods, so generate different ones.`
-				: `Generate methods to solve the following math problem: ${problem}. These should be high level methods, not specific steps, such as "factor", "use substitution", etc.`,
+				: `Generate methods to solve the following math problem: ${problem}. These should be high level methods, not specific steps, such as "factor", "use substitution", etc. KEEP IT EXTREMELY CONCISE`,
 	});
 
 	return result.object.methods;
