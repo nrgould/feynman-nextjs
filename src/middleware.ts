@@ -6,7 +6,7 @@ const isPublicRoute = createRouteMatcher([
 	'/api/math-tutor',
 	'/waitlist',
 	'/sitemap.xml',
-	'/camera-test',
+	'/api/(.*)',
 ]);
 
 const isAuthRoute = createRouteMatcher(['/chat/:id', '/learning-path/:id']);
