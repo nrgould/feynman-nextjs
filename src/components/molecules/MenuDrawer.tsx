@@ -19,6 +19,8 @@ function MenuDrawer() {
 	const problemLimit = user?.publicMetadata.problem_limit;
 	const completedProblems = user?.publicMetadata.completed_problems;
 
+	const paidAccount = user?.publicMetadata.account_type === 'paid';
+
 	const problemsLeft =
 		(problemLimit as number) - (completedProblems as number);
 
@@ -50,6 +52,7 @@ function MenuDrawer() {
 							{/* <ProblemList /> */}
 
 							<MenuProblemLimit
+								paidAccount={paidAccount}
 								problemsLeft={problemsLeft}
 								problemLimit={problemLimit as number}
 								progress={progress}

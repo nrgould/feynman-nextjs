@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { NextRequest } from 'next/server';
-import { auth, clerkClient } from '@clerk/nextjs/server';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-	apiVersion: '2023-10-16',
-});
+import { NextRequest } from 'next/server';
+import { clerkClient } from '@clerk/nextjs/server';
+import { stripe } from '@/lib/stripe';
+
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 
 export async function POST(req: NextRequest) {
@@ -47,11 +45,10 @@ export async function POST(req: NextRequest) {
 				event.data.object.metadata?.userId as string,
 				{
 					publicMetadata: {
-						accountType: 'paid',
+						account_type: 'paid',
 						problem_limit: 100,
 						stripe: {
 							status: session.status,
-							// This is where we get "paid"
 							payment: session.payment_status,
 						},
 					},

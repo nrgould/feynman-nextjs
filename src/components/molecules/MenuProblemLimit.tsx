@@ -7,17 +7,19 @@ interface MenuProblemLimitProps {
 	problemsLeft: number;
 	problemLimit: number;
 	progress: number;
+	paidAccount: boolean;
 }
 
 function MenuProblemLimit({
 	problemsLeft,
 	problemLimit,
 	progress,
+	paidAccount,
 }: MenuProblemLimitProps) {
 	const displayProblemsLeft = problemsLeft > 0 ? problemsLeft : 0;
 
 	return (
-		<div className='mt-4 flex flex-col justify-between gap-4 rounded-lg border p-4 shadow-sm mx-16'>
+		<div className='mt-4 flex flex-col justify-between gap-4 rounded-lg border p-4 shadow-sm mx-16 max-w-lg'>
 			<div className='flex flex-col gap-3'>
 				<p className='text-md text-gray-600'>
 					You have{' '}
@@ -37,9 +39,11 @@ function MenuProblemLimit({
 					</p>
 				)}
 			</div>
-			<Button variant='default' size='lg' asChild className='w-full'>
-				<Link href='/plans'>Upgrade Plan</Link>
-			</Button>
+			{!paidAccount && (
+				<Button variant='default' size='lg' asChild className='w-full'>
+					<Link href='/plans'>Upgrade Plan</Link>
+				</Button>
+			)}
 		</div>
 	);
 }
