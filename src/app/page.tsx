@@ -35,6 +35,8 @@ import { ToastAction } from '@/components/ui/toast';
 import MethodList from '@/components/problem-input/MethodList';
 import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import MenuDrawer from '@/components/molecules/MenuDrawer';
+import { Progress } from '@/components/ui/progress';
+import useProblemLimitStore from '@/store/problem-limit';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -56,7 +58,10 @@ export default function Home() {
 	const [problemState, setProblemState] = useState(initialProblem);
 	const [prevProblemState, setPrevProblemState] = useState('');
 	const [problemTitle, setProblemTitle] = useState('');
-	const [problemLimit, setProblemLimit] = useState(1);
+	const {
+		problemLimit: guestProblemLimit,
+		decrementProblemLimit: decrementGuestProblemLimit,
+	} = useProblemLimitStore();
 
 	const [inputMode, setInputMode] = useState<'photo' | 'text'>('photo');
 	const [feedback, setFeedback] = useState('');
@@ -79,14 +84,21 @@ export default function Home() {
 
 	const { user, isLoaded } = useUser();
 
+	const remainingProblems =
+		user &&
+		user.publicMetadata.problem_limit &&
+		user.publicMetadata.completed_problems
+			? (user.publicMetadata.problem_limit as number) -
+				(user.publicMetadata.completed_problems as number)
+			: guestProblemLimit;
+
 	useEffect(() => {
 		console.log(user, isLoaded);
-		if (user) {
+		if (user && isLoaded) {
 			console.log(user);
-			const problemLimit = user.publicMetadata.problem_limit;
-			setProblemLimit(problemLimit as number);
+			console.log(remainingProblems);
 		}
-	}, [user, isLoaded]);
+	}, [user, isLoaded, remainingProblems]);
 
 	const { messages, append, addToolResult, error } = useChat({
 		api: '/api/math-tutor',
@@ -171,7 +183,10 @@ export default function Home() {
 			setLoading(false);
 			setAnalyzedPhoto(true);
 
-			updateProblemLimitAfterAnalysis();
+			updateProblemLimitAfterAnalysis(); //update on clerk metadata
+			if (!user) {
+				decrementGuestProblemLimit();
+			}
 		} catch (error: any) {
 			console.error('Error during photo analysis:', error);
 			toast({
@@ -217,7 +232,10 @@ export default function Home() {
 		setMethods(generatedMethods);
 
 		setAnalyzedPhoto(true);
-		updateProblemLimitAfterAnalysis();
+		updateProblemLimitAfterAnalysis(); //update on clerk metadata
+		if (!user) {
+			decrementGuestProblemLimit();
+		}
 	}
 
 	function reset() {
@@ -251,6 +269,11 @@ export default function Home() {
 				solved: false,
 				selectedMethod: selectedMethod,
 			});
+		} else {
+			// For guest users, they have already passed the analysis stage.
+			// The limit was for analysis. Now they are working on the analyzed problem.
+			// No specific limit check needed here for *this* action on an active problem.
+			// The `decrementGuestProblemLimit` has already happened during analysis.
 		}
 
 		setMethods([]);
@@ -265,7 +288,50 @@ export default function Home() {
 		setSteps([...steps, step]);
 	}
 
+	if (!isLoaded) {
+		return (
+			<div className='flex flex-col min-h-screen bg-background items-center justify-center'>
+				<Loader2 className='animate-spin h-12 w-12' />
+				<p className='text-muted-foreground mt-2'>Loading...</p>
+			</div>
+		);
+	}
+
 	if (!analyzedPhoto) {
+		// Check for signed-out user and if limit is reached before showing input options
+		if (!user && guestProblemLimit <= 0) {
+			return (
+				<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
+					<div className='absolute top-5 left-0 right-0 '>
+						<MenuDrawer />
+					</div>
+					<h1 className='text-4xl font-semibold text-center'>
+						Interactive Math Tutor
+					</h1>
+					<h2 className='text-md text-muted-foreground mb-4 text-center'>
+						You have reached your problem limit for this session.
+					</h2>
+					<p className='text-sm text-center text-muted-foreground'>
+						Please sign in or create an account to solve unlimited
+						problems.
+					</p>
+					<SignedIn>
+						{' '}
+						{/* This should ideally not be reached if !user */}
+						<Button onClick={() => window.location.reload()}>
+							Refresh to try again
+						</Button>
+					</SignedIn>
+					<SignedOut>
+						<Button
+							onClick={() => (window.location.href = '/sign-in')}
+						>
+							Sign In
+						</Button>
+					</SignedOut>
+				</div>
+			);
+		}
 		return (
 			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
 				<div className='absolute top-5 left-0 right-0 '>
@@ -558,6 +624,26 @@ export default function Home() {
 																			<Button
 																				key={`option-${optionIndex}`}
 																				onClick={() => {
+																					if (
+																						!user &&
+																						guestProblemLimit <=
+																							0 &&
+																						option.label ===
+																							"I'm stuck"
+																					) {
+																						// Allow "I'm stuck" even if limit seems reached for guests, as it's part of current problem flow.
+																					} else if (
+																						!user &&
+																						guestProblemLimit <=
+																							0 &&
+																						option.label !==
+																							"I'm stuck"
+																					) {
+																						// This case should ideally not be hit if other checks are removed for active problem.
+																						// However, to be safe, if we reach here for a non-"I'm stuck" option and user is guest with limit 0, show toast.
+																						// This logic might need review based on desired behavior for "I'm stuck".
+																						// For now, let's simplify and remove the blocking check for active problems.
+																					}
 																					handleAddNewStep(
 																						option.label
 																					);
@@ -596,21 +682,43 @@ export default function Home() {
 								<h2 className='text-center text-lg font-semibold'>
 									Problem solved!
 								</h2>
+								<p className='text-sm text-muted-foreground'>
+									You have {remainingProblems} problems left.
+								</p>
+								<Progress value={remainingProblems} />
 								<div className='w-full flex justify-center items-center gap-4'>
 									<Button>
 										<Send /> Share Solution
 									</Button>
 									<SignedIn>
-										<Button
-											variant='outline'
-											onClick={reset}
-										>
-											<RotateCwSquare /> Do Another
-											Problem
-										</Button>
+										{remainingProblems > 0 ? (
+											<Button
+												variant='outline'
+												onClick={reset}
+											>
+												<RotateCwSquare /> Do Another
+												Problem
+											</Button>
+										) : (
+											<Button
+												variant='outline'
+												onClick={() =>
+													(window.location.href =
+														'/billing')
+												}
+											>
+												<User2Icon /> Get more problems
+											</Button>
+										)}
 									</SignedIn>
 									<SignedOut>
-										<Button variant='outline'>
+										<Button
+											variant='outline'
+											onClick={() =>
+												(window.location.href =
+													'/sign-in')
+											}
+										>
 											<User2Icon /> Sign up to continue
 										</Button>
 									</SignedOut>

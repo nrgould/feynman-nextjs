@@ -1,13 +1,17 @@
 'use client';
 
 import React from 'react';
-import { SignedOut, SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import {
+	SignedOut,
+	SignInButton,
+	SignOutButton,
+	UserButton,
+	useUser,
+} from '@clerk/nextjs';
 import { Drawer, DrawerHeader, DrawerTitle, DrawerContent } from '../ui/drawer';
 import { SignedIn } from '@clerk/nextjs';
 import { Button } from '../ui/button';
-import { useMenuStore } from '../../store/useMenuStore'; // Import the zustand store
-import ProblemList from './ProblemList';
-import { Progress } from '../ui/progress';
+import { useMenuStore } from '../../store/useMenuStore';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import MenuProblemLimit from './MenuProblemLimit';
@@ -42,6 +46,7 @@ function MenuDrawer() {
 							<DrawerTitle>
 								{user ? user.firstName : 'Menu'}
 							</DrawerTitle>
+							{user && <SignOutButton />}
 						</div>
 						<div>
 							<ThemeToggle />
@@ -51,19 +56,18 @@ function MenuDrawer() {
 						<SignedIn>
 							{/* <ProblemList /> */}
 
-							<MenuProblemLimit
-								paidAccount={paidAccount}
-								problemsLeft={problemsLeft}
-								problemLimit={problemLimit as number}
-								progress={progress}
-							/>
+							<div className='w-full flex justify-center items-center'>
+								<MenuProblemLimit
+									paidAccount={paidAccount}
+									problemsLeft={problemsLeft}
+									problemLimit={problemLimit as number}
+									progress={progress}
+								/>
+							</div>
 						</SignedIn>
 						<SignedOut>
 							<div className='flex flex-col gap-2'>
-								<p>
-									Welcome! Please sign in to save your
-									problems.
-								</p>
+								<p>Please sign in to save your problems.</p>
 								<Button asChild variant='outline'>
 									<SignInButton />
 								</Button>

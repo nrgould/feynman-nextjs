@@ -44,6 +44,11 @@ function MenuProblemLimit({
 					<Link href='/plans'>Upgrade Plan</Link>
 				</Button>
 			)}
+			{paidAccount && (
+				<Button variant='outline' size='lg' asChild className='w-full'>
+					<Link href='/plans'>Purchase More</Link>
+				</Button>
+			)}
 		</div>
 	);
 }
