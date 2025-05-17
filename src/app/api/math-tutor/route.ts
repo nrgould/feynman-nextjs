@@ -1,4 +1,3 @@
-
 import { openai } from '@ai-sdk/openai';
 import {
 	createDataStreamResponse,
@@ -64,7 +63,11 @@ export async function POST(req: Request) {
 						parameters: z.object({
 							currentProblemState: z.string(),
 							problemSolved: z.boolean(),
-							feedback: z.string(),
+							feedback: z
+								.string()
+								.describe(
+									'The feedback to the user. Do not use Markdown here.'
+								),
 							feedbackType: z.enum([
 								'positive',
 								'negative',

@@ -2,14 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
-import {
-	Loader2,
-	RotateCwSquare,
-	Send,
-	List,
-	User2Icon,
-	Link,
-} from 'lucide-react';
+import { Loader2, RotateCwSquare, Send, List, User2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
@@ -45,6 +38,7 @@ import MenuDrawer from '@/components/molecules/MenuDrawer';
 import { Progress } from '@/components/ui/progress';
 import useProblemLimitStore from '@/store/problem-limit';
 import ProblemHistory from '@/components/organisms/ProblemHistory';
+import Link from 'next/link';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -164,7 +158,7 @@ export default function Home() {
 				toast({
 					title: toastTitle,
 					description: currentFeedback,
-					duration: 5000, // Adjust duration as needed
+					duration: 8000, // Adjust duration as needed
 				});
 			}
 		},
@@ -635,7 +629,7 @@ export default function Home() {
 										<Send /> Share Solution
 									</Button> */}
 									<SignedIn>
-										{remainingProblems > 0 ? (
+										<div className='flex flex-row gap-1 flex-wrap'>
 											<Button
 												variant='outline'
 												onClick={reset}
@@ -643,14 +637,17 @@ export default function Home() {
 												<RotateCwSquare /> Do Another
 												Problem
 											</Button>
-										) : (
-											<Button variant='outline' asChild>
-												<Link href='/plans'>
-													<User2Icon /> Get more
-													problems
-												</Link>
-											</Button>
-										)}
+											{remainingProblems <= 5 && (
+												<Button
+													variant='default'
+													asChild
+												>
+													<Link href='/plans'>
+														Get more problems
+													</Link>
+												</Button>
+											)}
+										</div>
 									</SignedIn>
 									<SignedOut>
 										<SignInButton mode='modal'>
