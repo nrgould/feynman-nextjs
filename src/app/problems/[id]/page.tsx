@@ -1,14 +1,10 @@
 import { getProblemById } from './actions';
-import { Loader2 } from 'lucide-react';
 import ProblemStepsClient from './problem-steps-client';
 
-interface ProblemPageProps {
-	params: {
-		id: string;
-	};
-}
+type Params = Promise<{ id: string }>;
 
-export default async function ProblemPage({ params }: ProblemPageProps) {
+export default async function ProblemPage(props: { params: Params }) {
+	const params = await props.params;
 	const problem = await getProblemById(params.id);
 
 	if (!problem) {
