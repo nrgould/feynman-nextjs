@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Markdown } from '@/components/atoms/Markdown';
+import { Label } from '@/components/ui/label';
 
 export interface Option {
 	label: string;
@@ -32,11 +33,8 @@ export default function InteractiveStepOptions({
 	handleAddNewStep,
 	addToolResult,
 }: InteractiveStepOptionsProps) {
-	const [randomizedOptions, setRandomizedOptions] = useState<Option[]>([]);
-
-	useEffect(() => {
-		// Shuffle options only once when the component mounts or options prop changes
-		setRandomizedOptions([...options].sort(() => Math.random() - 0.5));
+	const randomizedOptions = useMemo(() => {
+		return [...options].sort(() => Math.random() - 0.5);
 	}, [options]);
 
 	return (
@@ -56,7 +54,7 @@ export default function InteractiveStepOptions({
 									<DialogTrigger asChild>
 										<Button
 											variant='outline'
-											className='py-8 text-wrap px-4' // Original class from page.tsx
+											className='py-8 text-wrap px-4 min-h-[5.5rem] whitespace-normal leading-snug text-center px-2 py-4' // Original class from page.tsx
 										>
 											<Markdown>{option.label}</Markdown>
 										</Button>
@@ -88,6 +86,7 @@ export default function InteractiveStepOptions({
 												// Optionally close dialog here if Dialog state is managed
 											}}
 										>
+											<Label>{option.label}</Label>
 											<Input
 												type='text'
 												name='calculation'
@@ -117,7 +116,7 @@ export default function InteractiveStepOptions({
 									});
 								}}
 								variant='outline'
-								className='flex-1 py-6 text-wrap px-2 min-h-[5.5rem] whitespace-normal leading-snug text-center px-2 py-4' // Original class from page.tsx
+								className='flex-1 text-wrap min-h-[5.5rem] whitespace-normal leading-snug text-center px-2 py-4' // Original class from page.tsx
 							>
 								<Markdown>{option.label}</Markdown>
 							</Button>

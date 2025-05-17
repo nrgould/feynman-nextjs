@@ -6,13 +6,7 @@ import { Loader2, RotateCwSquare, Send, List, User2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import * as motion from 'motion/react-client';
 import { AnimatePresence } from 'motion/react';
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog';
+
 import {
 	extractMathProblem,
 	generateMethods,
