@@ -39,6 +39,7 @@ import { Progress } from '@/components/ui/progress';
 import useProblemLimitStore from '@/store/problem-limit';
 import ProblemHistory from '@/components/organisms/ProblemHistory';
 import Link from 'next/link';
+import ProblemSolvedDisplay from '@/components/organisms/ProblemSolvedDisplay';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -625,61 +626,12 @@ export default function Home() {
 							</div>
 						))}
 						{solved && (
-							<div className='flex flex-col p-4 justify-between items-center h-full gap-4 px-4'>
-								<h2 className='text-center text-lg font-semibold'>
-									Problem solved!
-								</h2>
-								{user?.publicMetadata.account_type !==
-									'plus' && (
-									<div className='flex flex-col gap-2 max-w-sm'>
-										<p className='text-sm text-muted-foreground'>
-											You have {remainingProblems}{' '}
-											problems left.
-										</p>
-										<Progress value={remainingProblems} />
-									</div>
-								)}
-								<div className='w-full flex justify-center items-center gap-4'>
-									{lastSavedProblemId && (
-										<Button asChild>
-											<Link
-												href={`/problems/${lastSavedProblemId}`}
-											>
-												<Send /> Share Solution
-											</Link>
-										</Button>
-									)}
-									<SignedIn>
-										<div className='flex flex-row gap-1 flex-wrap'>
-											<Button
-												variant='outline'
-												onClick={reset}
-											>
-												<RotateCwSquare /> Do Another
-												Problem
-											</Button>
-											{remainingProblems <= 5 && (
-												<Button
-													variant='default'
-													asChild
-												>
-													<Link href='/plans'>
-														Get more problems
-													</Link>
-												</Button>
-											)}
-										</div>
-									</SignedIn>
-									<SignedOut>
-										<SignInButton mode='modal'>
-											<Button>
-												<User2Icon /> Sign up to
-												continue
-											</Button>
-										</SignInButton>
-									</SignedOut>
-								</div>
-							</div>
+							<ProblemSolvedDisplay
+								remainingProblems={remainingProblems}
+								lastSavedProblemId={lastSavedProblemId}
+								reset={reset}
+								user={user}
+							/>
 						)}
 					</div>
 				</div>
