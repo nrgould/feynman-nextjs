@@ -245,12 +245,12 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 			/>
 			<input type='hidden' name='goals' value={formData.goals} />
 
-			<Card className='w-full md:w-[600px] mx-auto px-6 py-4 h-[80dvh] md:h-[50dvh] flex flex-col'>
+			<Card className='w-full md:w-[600px] mx-auto px-2 py-2 md:px-6 md:py-4 flex flex-col'>
 				<CardHeader className='flex-none'>
 					<CardTitle className='text-2xl font-bold'>
 						Complete Your Profile
 					</CardTitle>
-					<CardDescription className='text-lg font-medium'>
+					<CardDescription className='text-md font-medium'>
 						Help us personalize your learning experience
 					</CardDescription>
 				</CardHeader>

@@ -1,4 +1,4 @@
-import { MathRules } from '@/lib/ai/prompts';
+
 import { openai } from '@ai-sdk/openai';
 import {
 	createDataStreamResponse,

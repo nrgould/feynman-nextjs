@@ -26,8 +26,8 @@ export const completeOnboarding = async (formData: FormData) => {
 			publicMetadata: {
 				onboardingComplete: true,
 				account_type: 'free',
-				concept_limit: 3,
 				problem_limit: 10,
+				completed_problems: 0,
 			},
 		});
 

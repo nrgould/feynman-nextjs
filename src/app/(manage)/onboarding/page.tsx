@@ -10,7 +10,7 @@ async function page({ searchParams }: Props) {
 	const pdfId = params?.pdfId;
 
 	return (
-		<div className='flex flex-col p-4 mx-auto items-center justify-between'>
+		<div className='flex flex-col p-4 mx-auto items-center justify-between pt-16'>
 			<Suspense fallback={<div>Loading...</div>}>
 				<SignupSequence pdfId={pdfId} />
 			</Suspense>

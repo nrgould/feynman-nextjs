@@ -1,6 +1,5 @@
 'use server';
 
-import { MathRules } from '@/lib/ai/prompts';
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';

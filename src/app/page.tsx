@@ -627,13 +627,13 @@ export default function Home() {
 								</h2>
 								{user?.publicMetadata.account_type !==
 									'plus' && (
-									<>
+									<div className='flex flex-col gap-2 max-w-sm'>
 										<p className='text-sm text-muted-foreground'>
-											You have {remainingProblems} problems
-											left.
+											You have {remainingProblems}{' '}
+											problems left.
 										</p>
 										<Progress value={remainingProblems} />
-									</>
+									</div>
 								)}
 								<div className='w-full flex justify-center items-center gap-4'>
 									{/* <Button>
