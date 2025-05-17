@@ -458,11 +458,6 @@ export default function Home() {
 				</div>
 
 				<div className='flex-1 flex flex-col justify-between border rounded-lg p-2'>
-					{loading && (
-						<p className='text-sm text-muted-foreground mt-4'>
-							Processing...
-						</p>
-					)}
 					<div className='flex-1 overflow-y-auto'>
 						{methods.length > 0 && (
 							<MethodList

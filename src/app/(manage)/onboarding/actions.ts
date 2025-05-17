@@ -27,12 +27,11 @@ export const completeOnboarding = async (formData: FormData) => {
 				onboardingComplete: true,
 				account_type: 'free',
 				problem_limit: 10,
-				completed_problems: 0,
+				completed_problems: 1,
 			},
 		});
 
 		// Insert user into Supabase
-		console.log('INSERTING USER INTO SUPABASE');
 		const { data, error } = await supabase
 			.from('User')
 			.insert({

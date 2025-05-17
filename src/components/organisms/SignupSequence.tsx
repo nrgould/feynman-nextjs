@@ -31,6 +31,7 @@ import {
 	ArrowRight,
 	ArrowLeft,
 	Check,
+	Loader2,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
@@ -146,6 +147,7 @@ const containerVariants = {
 export function SignupSequence({ pdfId }: SignupSequenceProps) {
 	const { user } = useUser();
 	const [step, setStep] = useState(1);
+	const [loading, setLoading] = useState(false);
 	const [formData, setFormData] = useState<SignupData>({
 		educationLevel: '',
 		referralSource: '',
@@ -185,6 +187,8 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 
 	const handleSubmit = async (formData: FormData) => {
 		try {
+			//set loading to true
+			setLoading(true);
 			// Convert the current client-side state to FormData
 			const sequenceData = new FormData();
 			sequenceData.append(
@@ -207,15 +211,15 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 
 			await completeOnboarding(formData);
 			await user?.reload();
-
-			// Include pdfId in the redirect if it exists
+		} catch (error) {
+			console.error('Error submitting form:', error);
+		} finally {
+			setLoading(false);
 			if (pdfId) {
 				router.push(`/learning-path?pdfId=${pdfId}`);
 			} else {
 				router.push('/');
 			}
-		} catch (error) {
-			console.error('Error submitting form:', error);
 		}
 	};
 
@@ -512,10 +516,14 @@ export function SignupSequence({ pdfId }: SignupSequenceProps) {
 								<Button
 									type='submit'
 									className='flex-1'
-									disabled={!formData.goals}
+									disabled={!formData.goals || loading}
 								>
+									{loading ? (
+										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+									) : (
+										<Check className='mr-2 h-4 w-4' />
+									)}
 									Complete
-									<Check />
 								</Button>
 							)}
 						</div>
