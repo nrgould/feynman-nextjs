@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
 	'/waitlist',
 	'/sitemap.xml',
 	'/api/(.*)',
+	'/problems/:id',
 ]);
 
 const isAuthRoute = createRouteMatcher(['/chat/:id', '/learning-path/:id']);

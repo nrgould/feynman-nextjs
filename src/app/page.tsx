@@ -60,6 +60,9 @@ export default function Home() {
 	const [problemState, setProblemState] = useState(initialProblem);
 	const [prevProblemState, setPrevProblemState] = useState('');
 	const [problemTitle, setProblemTitle] = useState('');
+	const [lastSavedProblemId, setLastSavedProblemId] = useState<string | null>(
+		null
+	);
 	const {
 		problemLimit: guestProblemLimit,
 		decrementProblemLimit: decrementGuestProblemLimit,
@@ -137,6 +140,10 @@ export default function Home() {
 						steps: steps,
 						solved: true,
 						selectedMethod: selectedMethod,
+					}).then((result) => {
+						if (result && result.data && result.data.length > 0) {
+							setLastSavedProblemId(result.data[0].id);
+						}
 					});
 				}
 
@@ -284,13 +291,21 @@ export default function Home() {
 
 		if (user) {
 			//save the problem to supabase
-			await saveMathProblem({
+			const savedProblemResult = await saveMathProblem({
 				initialProblem: initialProblem,
 				title: problemTitle,
 				steps: steps,
 				solved: false,
 				selectedMethod: selectedMethod,
 			});
+			console.log(savedProblemResult);
+			if (
+				savedProblemResult &&
+				savedProblemResult.data &&
+				savedProblemResult.data.length > 0
+			) {
+				setLastSavedProblemId(savedProblemResult.data[0].id);
+			}
 		} else {
 			// For guest users, they have already passed the analysis stage.
 			// The limit was for analysis. Now they are working on the analyzed problem.
@@ -625,9 +640,15 @@ export default function Home() {
 									</div>
 								)}
 								<div className='w-full flex justify-center items-center gap-4'>
-									{/* <Button>
-										<Send /> Share Solution
-									</Button> */}
+									{lastSavedProblemId && (
+										<Button asChild>
+											<Link
+												href={`/problems/${lastSavedProblemId}`}
+											>
+												<Send /> Share Solution
+											</Link>
+										</Button>
+									)}
 									<SignedIn>
 										<div className='flex flex-row gap-1 flex-wrap'>
 											<Button
