@@ -398,7 +398,7 @@ export default function Home() {
 	}
 	if (analyzedPhoto) {
 		return (
-			<div className='relative flex flex-col h-screen bg-background p-2 gap-2 pt-14'>
+			<div className='relative flex flex-col h-screen bg-background p-2 gap-2 pt-14 md:pt-20'>
 				<ProblemHistory
 					showStepsDialog={showStepsDialog}
 					setShowStepsDialog={setShowStepsDialog}
@@ -497,7 +497,7 @@ export default function Home() {
 																{args.title}
 															</Markdown>
 														</h3>
-														<div className='grid grid-cols-2 gap-2 w-full md:w-1/2'>
+														<div className='flex-1 grid grid-cols-2 gap-2 w-full md:w-1/2'>
 															{randomizedOptions.map(
 																(
 																	option: Option,
@@ -583,6 +583,7 @@ export default function Home() {
 																	} else {
 																		return (
 																			<Button
+																				size='lg'
 																				key={`option-${optionIndex}`}
 																				onClick={() => {
 																					handleAddNewStep(
@@ -596,7 +597,7 @@ export default function Home() {
 																					);
 																				}}
 																				variant='outline'
-																				className='py-6 text-wrap px-2'
+																				className='flex-1 py-6 text-wrap px-2'
 																			>
 																				<Markdown>
 																					{
@@ -625,12 +626,14 @@ export default function Home() {
 								</h2>
 								{user?.publicMetadata.account_type !==
 									'plus' && (
-									<p className='text-sm text-muted-foreground'>
-										You have {remainingProblems} problems
-										left.
-									</p>
+									<>
+										<p className='text-sm text-muted-foreground'>
+											You have {remainingProblems} problems
+											left.
+										</p>
+										<Progress value={remainingProblems} />
+									</>
 								)}
-								<Progress value={remainingProblems} />
 								<div className='w-full flex justify-center items-center gap-4'>
 									<Button>
 										<Send /> Share Solution
