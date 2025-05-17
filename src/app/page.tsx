@@ -192,6 +192,7 @@ export default function Home() {
 				),
 			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [error]);
 
 	async function handlePhotoAnalysis(publicUrl: string) {
@@ -635,9 +636,9 @@ export default function Home() {
 									</>
 								)}
 								<div className='w-full flex justify-center items-center gap-4'>
-									<Button>
+									{/* <Button>
 										<Send /> Share Solution
-									</Button>
+									</Button> */}
 									<SignedIn>
 										{remainingProblems > 0 ? (
 											<Button
