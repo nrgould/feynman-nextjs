@@ -10,7 +10,7 @@ interface ProblemLimitState {
 const useProblemLimitStore = create<ProblemLimitState>()(
 	persist(
 		(set) => ({
-			problemLimit: 10, // Default limit for signed-out users
+			problemLimit: 1, // Default limit for signed-out users
 			decrementProblemLimit: () =>
 				set((state) => ({
 					problemLimit: Math.max(0, state.problemLimit - 1),

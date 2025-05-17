@@ -357,10 +357,7 @@ export default function Home() {
 			);
 		}
 		return (
-			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center p-4 gap-4'>
-				<div className='absolute top-5 left-0 right-0 '>
-					<MenuDrawer />
-				</div>
+			<div className='relative flex flex-col min-h-screen bg-background items-center justify-center gap-4'>
 				<h1 className='text-2xl md:text-4xl font-semibold text-center'>
 					Interactive Math Tutor
 				</h1>
@@ -405,14 +402,14 @@ export default function Home() {
 	}
 	if (analyzedPhoto) {
 		return (
-			<div className='relative flex flex-col h-screen bg-background p-2 gap-2 pt-14 md:pt-20'>
+			<div className='relative flex flex-col h-[calc(100dvh-1rem)] bg-background p-2 gap-2 '>
 				<ProblemHistory
 					showStepsDialog={showStepsDialog}
 					setShowStepsDialog={setShowStepsDialog}
 					steps={steps}
 				/>
 
-				<div className='flex-1 flex flex-col items-center border rounded-lg p-2 gap-2 overflow-hidden'>
+				<div className='flex flex-col mt-14 md:mt-20 min-h-[30dvh] items-center border rounded-lg p-2 gap-2 overflow-hidden'>
 					<h2 className='text-md sm:text-lg text-muted-foreground max-w-xs sm:max-w-sm md:max-w-md text-center px-2'>
 						<Markdown>{problemTitle}</Markdown>
 					</h2>

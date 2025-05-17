@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Send, RotateCwSquare, User2Icon, PlusIcon, Share } from 'lucide-react';
+import { RotateCwSquare, User2Icon, PlusIcon } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
+import ShareSolutionButton from '@/components/molecules/ShareSolutionButton';
 
 interface ProblemSolvedDisplayProps {
 	remainingProblems: number;
@@ -38,19 +39,14 @@ export default function ProblemSolvedDisplay({
 							Another
 						</Button>
 						{lastSavedProblemId && (
-							<Button
-								asChild
-								variant='ghost'
-								className='justify-start'
-							>
-								<Link href={`/problems/${lastSavedProblemId}`}>
-									<Share className='mr-1 h-4 w-4' /> Share
-									Solution
-									<span className='text-xs text-muted-foreground'>
-										(5 problems free)
-									</span>
-								</Link>
-							</Button>
+							<ShareSolutionButton
+								problemId={lastSavedProblemId}
+								problemTitle={
+									user?.firstName
+										? `Problem solved by ${user.firstName}`
+										: 'Math problem solved'
+								}
+							/>
 						)}
 						{remainingProblems <= 5 &&
 							user?.publicMetadata?.account_type !== 'plus' && (

@@ -86,11 +86,16 @@ export default function InteractiveStepOptions({
 												// Optionally close dialog here if Dialog state is managed
 											}}
 										>
-											<Label>{option.label}</Label>
+											<Label>
+												<Markdown>
+													{option.input}
+												</Markdown>
+											</Label>
 											<Input
 												type='text'
 												name='calculation'
-												placeholder={option.input}
+												placeholder='type here'
+												inputMode='text'
 											/>
 											<Button
 												type='submit'
