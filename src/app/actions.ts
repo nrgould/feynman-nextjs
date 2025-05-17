@@ -185,3 +185,36 @@ export async function updateProblemLimitAfterAnalysis() {
 		console.error('Error updating problem limit after analysis:', error);
 	}
 }
+
+export async function incrementProblemLimitAfterShare() {
+	const user = await currentUser();
+	if (!user) {
+		console.error('User not authenticated for problem limit increment.');
+		return { error: { message: 'User not authenticated' } };
+	}
+
+	const currentProblemLimit =
+		(user.publicMetadata?.problem_limit as number) || 0;
+	const newProblemLimit = currentProblemLimit + 5;
+
+	const prevShares = (user.publicMetadata?.shares as number) || 0;
+
+	const client = await clerkClient();
+
+	try {
+		await client.users.updateUserMetadata(user.id, {
+			publicMetadata: {
+				...user.publicMetadata,
+				problem_limit: newProblemLimit,
+				shares: prevShares + 1,
+			},
+		});
+		console.log(
+			`Problem limit updated for user ${user.id} to ${newProblemLimit}`
+		);
+		return { success: true, newLimit: newProblemLimit };
+	} catch (error) {
+		console.error('Error incrementing problem limit after share:', error);
+		return { error: { message: 'Failed to update problem limit' } };
+	}
+}

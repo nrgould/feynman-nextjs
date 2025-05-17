@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
+import { incrementProblemLimitAfterShare } from '@/app/actions';
 
 interface ShareSolutionButtonProps {
 	problemId: string;
@@ -63,6 +64,22 @@ export default function ShareSolutionButton({
 		try {
 			await navigator.share(shareData);
 			console.log('Native share successful or dialog opened by user.');
+
+			// Call server action to increment problem limit
+			const result = await incrementProblemLimitAfterShare();
+			if (result.success) {
+				toast({
+					title: 'Problems Added!',
+					description: `Thanks for sharing! 5 free problems have been added.`,
+					duration: 5000,
+				});
+			} else if (result.error) {
+				// Optionally notify user if server action failed, though it might be silent
+				console.error(
+					'Failed to increment problem limit:',
+					result.error.message
+				);
+			}
 		} catch (error) {
 			console.error('Error using Web Share API:', error);
 			if (error instanceof Error && error.name !== 'AbortError') {
