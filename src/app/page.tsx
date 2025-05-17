@@ -40,6 +40,8 @@ import useProblemLimitStore from '@/store/problem-limit';
 import ProblemHistory from '@/components/organisms/ProblemHistory';
 import Link from 'next/link';
 import ProblemSolvedDisplay from '@/components/organisms/ProblemSolvedDisplay';
+import InteractiveStepOptions from '@/components/molecules/InteractiveStepOptions';
+import { Option } from '@/components/molecules/InteractiveStepOptions';
 
 interface ExtractFeedbackToolCall {
 	toolName: 'extractFeedback';
@@ -49,11 +51,6 @@ interface ExtractFeedbackToolCall {
 		currentProblemState: string;
 		problemSolved: boolean;
 	};
-}
-
-interface Option {
-	label: string;
-	input?: string;
 }
 
 export default function Home() {
@@ -488,135 +485,21 @@ export default function Home() {
 										} = part.toolInvocation;
 										if (toolName === 'askForNextStepTool') {
 											if (state === 'call') {
-												const randomizedOptions =
-													args.options.sort(
-														() =>
-															Math.random() - 0.5
-													);
 												return (
-													<div
-														className='flex-1 flex flex-col p-4 items-center justify-center'
+													<InteractiveStepOptions
 														key={`${toolCallId}-${partIndex}-ask-call`}
-													>
-														<h3 className='text-md md:text-lg font-semibold text-center'>
-															<Markdown>
-																{args.title}
-															</Markdown>
-														</h3>
-														<div className='flex-1 grid grid-cols-2 gap-2 w-full md:w-1/2'>
-															{randomizedOptions.map(
-																(
-																	option: Option,
-																	optionIndex: number
-																) => {
-																	if (
-																		option.input
-																	) {
-																		return (
-																			<div
-																				key={`option-input-${optionIndex}`}
-																				className='flex flex-col gap-2'
-																			>
-																				<Dialog>
-																					<DialogTrigger
-																						asChild
-																					>
-																						<Button
-																							variant='outline'
-																							className='py-8 text-wrap px-4'
-																						>
-																							<Markdown>
-																								{
-																									option.label
-																								}
-																							</Markdown>
-																						</Button>
-																					</DialogTrigger>
-																					<DialogContent>
-																						<DialogHeader>
-																							<DialogTitle>
-																								<Markdown>
-																									{
-																										option.label
-																									}
-																								</Markdown>
-																							</DialogTitle>
-																						</DialogHeader>
-																						<form
-																							className='p-4'
-																							onSubmit={(
-																								e
-																							) => {
-																								e.preventDefault();
-																								const formData =
-																									new FormData(
-																										e.currentTarget
-																									);
-																								const inputValue =
-																									formData.get(
-																										'calculation'
-																									) as string;
-																								const result = `${option.label} (User inputted: ${inputValue})`;
-																								handleAddNewStep(
-																									result
-																								);
-																								addToolResult(
-																									{
-																										toolCallId,
-																										result,
-																									}
-																								);
-																							}}
-																						>
-																							<Input
-																								type='text'
-																								name='calculation'
-																								placeholder={
-																									option.input
-																								}
-																							/>
-																							<Button
-																								type='submit'
-																								className='mt-4'
-																							>
-																								Submit
-																							</Button>
-																						</form>
-																					</DialogContent>
-																				</Dialog>
-																			</div>
-																		);
-																	} else {
-																		return (
-																			<Button
-																				size='lg'
-																				key={`option-${optionIndex}`}
-																				onClick={() => {
-																					handleAddNewStep(
-																						option.label
-																					);
-																					addToolResult(
-																						{
-																							toolCallId,
-																							result: option.label,
-																						}
-																					);
-																				}}
-																				variant='outline'
-																				className='flex-1 py-6 text-wrap px-2'
-																			>
-																				<Markdown>
-																					{
-																						option.label
-																					}
-																				</Markdown>
-																			</Button>
-																		);
-																	}
-																}
-															)}
-														</div>
-													</div>
+														toolCallId={toolCallId}
+														title={args.title}
+														options={
+															args.options as Option[]
+														}
+														handleAddNewStep={
+															handleAddNewStep
+														}
+														addToolResult={
+															addToolResult
+														}
+													/>
 												);
 											}
 										}

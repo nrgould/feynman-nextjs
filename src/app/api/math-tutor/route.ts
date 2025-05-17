@@ -63,11 +63,7 @@ export async function POST(req: Request) {
 						parameters: z.object({
 							currentProblemState: z.string(),
 							problemSolved: z.boolean(),
-							feedback: z
-								.string()
-								.describe(
-									'The feedback to the user. Do not use Markdown here.'
-								),
+							feedback: z.string(),
 							feedbackType: z.enum([
 								'positive',
 								'negative',

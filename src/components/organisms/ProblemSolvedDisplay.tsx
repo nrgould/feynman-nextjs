@@ -37,7 +37,7 @@ export default function ProblemSolvedDisplay({
 							<RotateCwSquare className='mr-1 h-4 w-4' /> Do
 							Another
 						</Button>
-						{!lastSavedProblemId && (
+						{lastSavedProblemId && (
 							<Button
 								asChild
 								variant='ghost'
