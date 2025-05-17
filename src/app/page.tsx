@@ -156,7 +156,7 @@ export default function Home() {
 				}
 				toast({
 					title: toastTitle,
-					description: currentFeedback,
+					description: <Markdown>{currentFeedback}</Markdown>,
 					duration: 8000, // Adjust duration as needed
 				});
 			}
@@ -168,7 +168,12 @@ export default function Home() {
 			toast({
 				variant: 'destructive',
 				title: 'Uh oh! Something went wrong.',
-				description: 'There was a problem with your request.',
+				description:
+					typeof error.message === 'string' ? (
+						<Markdown>{error.message}</Markdown>
+					) : (
+						'There was a problem with your request.'
+					),
 				duration: 10000,
 				action: (
 					<ToastAction
