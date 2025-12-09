@@ -90,7 +90,6 @@ export default function Home() {
 			: guestProblemLimit;
 
 	useEffect(() => {
-		console.log(user, isLoaded);
 		if (user && isLoaded) {
 			console.log(user);
 			console.log(remainingProblems);
@@ -156,7 +155,11 @@ export default function Home() {
 				}
 				toast({
 					title: toastTitle,
-					description: <Markdown>{currentFeedback}</Markdown>,
+					description: (
+						<div className='text-emerald-500'>
+							<Markdown>{currentFeedback}</Markdown>
+						</div>
+					),
 					duration: 8000, // Adjust duration as needed
 				});
 			}

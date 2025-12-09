@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Markdown } from '@/components/atoms/Markdown';
 import { auth } from '@clerk/nextjs/server';
 import { RedirectToSignIn } from '@clerk/nextjs';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 // Define a type for our math problem data
 interface MathProblem {
@@ -72,37 +74,54 @@ export default async function DashboardPage() {
 			<h1 className='text-2xl font-bold mb-6'>Math Problems Dashboard</h1>
 			<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
 				{typedProblems.map((problem) => (
-					<Card key={problem.id} className='flex flex-col'>
-						<CardHeader>
-							<CardTitle className='text-lg'>
-								<Markdown>
-									{problem.title || 'Untitled Problem'}
-								</Markdown>
-							</CardTitle>
-							<CardDescription>
-								Created on:{' '}
-								{problem.created_at
-									? new Date(
-											problem.created_at
-										).toLocaleDateString()
-									: 'N/A'}
-							</CardDescription>
-						</CardHeader>
-						<CardContent className='flex-grow'>
-							<div className='text-sm text-gray-700 dark:text-gray-300'>
-								<Markdown>{problem.initial_problem}</Markdown>
-							</div>
-						</CardContent>
-						{/* <CardFooter className='flex justify-between items-center'>
-							<Badge
-								variant={
-									problem.solved ? 'default' : 'destructive'
-								}
-							>
-								{problem.solved ? 'Solved' : 'Unsolved'}
-							</Badge>
-						</CardFooter> */}
-					</Card>
+					<Link
+						key={`link-${problem.id}`}
+						href={`/problems/${problem.id}`}
+						passHref
+						legacyBehavior
+					>
+						<a className='block hover:shadow-lg transition-shadow duration-200 rounded-lg'>
+							<Card className='flex flex-col h-full'>
+								<CardHeader>
+									<CardTitle className='text-lg'>
+										<Markdown>
+											{problem.title ||
+												'Untitled Problem'}
+										</Markdown>
+									</CardTitle>
+									<CardDescription>
+										Created on:{' '}
+										{problem.created_at
+											? new Date(
+													problem.created_at
+												).toLocaleDateString()
+											: 'N/A'}
+									</CardDescription>
+								</CardHeader>
+								<CardContent className='flex-grow'>
+									<div className='text-sm text-gray-700 dark:text-gray-300'>
+										<Markdown>
+											{problem.initial_problem}
+										</Markdown>
+									</div>
+								</CardContent>
+								<CardFooter className='flex justify-between items-center pt-4'>
+									<Badge
+										variant={
+											problem.solved
+												? 'default'
+												: 'destructive'
+										}
+									>
+										{problem.solved ? 'Solved' : 'Unsolved'}
+									</Badge>
+									<Button size='sm' variant='outline'>
+										View Problem
+									</Button>
+								</CardFooter>
+							</Card>
+						</a>
+					</Link>
 				))}
 			</div>
 		</div>
